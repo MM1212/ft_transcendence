@@ -1,6 +1,6 @@
 
 ifndef mode
-	mode = dev
+	mode = development
 endif
 MODE = $(mode)
 
