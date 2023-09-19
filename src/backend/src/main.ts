@@ -5,10 +5,10 @@ import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  await app.init();
   const configService = app.get<ConfigService<ImportMetaEnv>>(ConfigService);
   app.enableCors({
     origin: configService.get<string>('FRONTEND_URL'),
+    credentials: true,
   });
   const host = {
     ip: configService.get<string>('BIND_IP')!,
