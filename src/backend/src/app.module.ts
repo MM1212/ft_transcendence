@@ -10,10 +10,7 @@ import path from 'path';
       expandVariables: true,
       isGlobal: true,
       cache: true,
-      envFilePath: [
-        `.env.${process.env.MODE}`,
-        `.env`,
-      ],
+      envFilePath: [`.env.local`, `.env`],
     }),
   ],
   controllers: [AppController],
