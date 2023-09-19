@@ -19,6 +19,7 @@
     "noUnusedParameters": true,
 
     "paths": {
+      "@*": ["./src/*"],
       "@typings/*": ["../typings/*"]
     },
     "types": [

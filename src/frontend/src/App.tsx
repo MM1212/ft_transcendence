@@ -3,10 +3,16 @@ import reactLogo from './assets/react.svg';
 import viteLogo from '/vite.svg';
 import Button from '@mui/joy/Button';
 import './App.css';
+import { useTunnelEndpoint } from '@hooks/tunnel';
+import { Endpoints } from '@typings/api';
 
 function App() {
   const [count, setCount] = useState(0);
 
+  const { isLoading, data, error } = useTunnelEndpoint<{ message: string }>(
+    Endpoints.Test
+  );
+  console.log(isLoading, data, error);
   return (
     <>
       <div>
@@ -24,6 +30,17 @@ function App() {
         </Button>
         <p>
           Edit <code>src/App.tsx</code> and save to test HMR
+        </p>
+        <p>
+          {isLoading
+            ? 'Loading...'
+            : error || !data
+            ? error
+              ? error.message
+              : 'No data'
+            : data.status === 'error'
+            ? data.errorMsg
+            : JSON.stringify(data.data) ?? 'No data'}
         </p>
       </div>
       <p className="read-the-docs">
