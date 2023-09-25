@@ -9,3 +9,13 @@ datasource db {
   provider = "postgresql"
   url      = env("BACKEND_DB_URL")
 }
+
+model User {
+  id        Int      @id @default(autoincrement())
+  studentId Int      @unique @map("student_id")
+  nickname  String   @unique
+  avatar    String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([studentId, nickname])
+}

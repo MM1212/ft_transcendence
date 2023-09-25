@@ -17,11 +17,11 @@
     "strictBindCallApply": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
-    "types": [
-      "../typings/env"
-    ],
+    "moduleResolution": "NodeNext",
+    "types": ["../typings/env", "./typings/session"],
     "paths": {
-      "@typings/*": ["../typings/*"]
+      "@typings/*": ["../typings/*", "./typings/*"],
+      "@/*": ["./src/*"]
     }
   }
 }

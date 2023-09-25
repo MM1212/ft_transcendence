@@ -4,10 +4,10 @@
   "sourceRoot": "src",
   "compilerOptions": {
     "deleteOutDir": true,
-    "builder": "swc",
     "typeCheck": true,
     "assets": [
       ".env.*"
     ]
-  }
+  },
+  "entryFile": "backend/src/main"
 }

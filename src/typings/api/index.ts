@@ -15,6 +15,7 @@ namespace API {
     errorMsg?: string;
   }
   export type Response<T> = ResponseOk<T> | ResponseError;
+  export type EmptyResponse = Response<undefined>;
 
   export const buildResponseObject = <T>(
     status: RespStatusValuesUnion,

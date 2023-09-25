@@ -9,8 +9,9 @@
     },
     "baseUrl": "./",
     "paths": {
-      "@typings/*": ["../typings/*"]
+      "@typings/*": ["../typings/*"],
+      "@/": ["./src/*"]
     }
   },
-  "minify": false
+  "minify": true
 }
