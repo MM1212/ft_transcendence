@@ -4,4 +4,5 @@ export interface IUser {
   nickname: string;
   avatar: string;
   createdAt: number | Date;
+  url: string;
 }

@@ -31,6 +31,9 @@ dependencies:
   swr:
     specifier: ^2.2.2
     version: 2.2.2(react@18.2.0)
+  wouter:
+    specifier: ^2.11.0
+    version: 2.11.0(react@18.2.0)
 
 devDependencies:
   '@types/react':
@@ -3096,6 +3099,15 @@ packages:
     dependencies:
       isexe: 2.0.0
     dev: true
+
+  /wouter@2.11.0(react@18.2.0):
+    resolution: {integrity: sha512-Y2CzNCwIN8kHjR2Q10D+UAgQND6TvBNmwXxgYw5ltXjjTlL7cLDUDpCip3a927Svxrmxr6vJMcPUysFxSvriCw==}
+    peerDependencies:
+      react: '>=16.8.0'
+    dependencies:
+      react: 18.2.0
+      use-sync-external-store: 1.2.0(react@18.2.0)
+    dev: false
 
   /wrappy@1.0.2:
     resolution: {integrity: sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==}

@@ -2,7 +2,10 @@ const restWrapper = async <R = unknown>(
   url: string,
   options: RequestInit
 ): Promise<R> => {
-  const response = await fetch(url, options);
+  const response = await fetch(url, {
+    credentials: 'include',
+    ...options,
+  });
 
   if (!response.ok) {
     throw new Error(response.statusText);
