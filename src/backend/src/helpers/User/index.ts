@@ -20,6 +20,7 @@ export class User {
       nickname: this.name,
       avatar: this.avatar,
       createdAt: this.createdAt,
+      url: this.url,
     };
   }
   get sData(): IAuthSessionUser | undefined {
@@ -53,6 +54,13 @@ export class User {
       throw new Error('User is not logged in');
     }
     return this.sData?.avatar;
+  }
+
+  get url(): IUser['url'] {
+    if (!this.sData?.loggedIn) {
+      throw new Error('User is not logged in');
+    }
+    return this.sData?.url;
   }
   get asLoggedIn(): IAuthSessionLoggedUser {
     if (!this.sData?.loggedIn) {

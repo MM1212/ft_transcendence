@@ -1,9 +1,9 @@
-import { Controller, Get, HttpServer, Req, Res } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { User } from '@/helpers/User';
 import HttpCtx from '@/helpers/decorators/httpCtx';
 import { HTTPContext } from 'typings/http';
+import API from '@typings/api';
 
 @Controller('auth/42')
 export class AuthController {
@@ -18,9 +18,10 @@ export class AuthController {
     else this.service.login(ctx);
   }
   @Get('logout')
-  logout(@HttpCtx() ctx: HTTPContext) {
-    ctx.user?.logout();
-    ctx.res.status(302).redirect('/');
+  logout(@HttpCtx() ctx: HTTPContext): API.EmptyResponse {
+    ctx.session.delete();
+    ctx.session.touch();
+    return API.buildOkResponse(undefined);
   }
   @Get('callback')
   callback(@HttpCtx() ctx: HTTPContext) {
