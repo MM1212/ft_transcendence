@@ -8,7 +8,10 @@ export async function jsonFetcher<T>(
   input: RequestInfo,
   init?: RequestInit
 ): Promise<T> {
-  const response = await fetch(input, init);
+  const response = await fetch(input, {
+    credentials: 'include',
+    ...init,
+  });
 
   const data = await response.json();
   if (response.ok) {
@@ -22,6 +25,8 @@ export async function jsonFetcher<T>(
   });
 }
 
+export const buildTunnelEndpoint = (endpoint: Endpoints): string =>
+  `${import.meta.env.FRONTEND_API_ENDPOINT}${endpoint}`;
 export const useTunnelEndpoint = <T>(
   endpoint: Endpoints,
   options: SWRConfiguration<API.Response<T>> = {},
@@ -29,12 +34,7 @@ export const useTunnelEndpoint = <T>(
     url: string,
     init?: RequestInit
   ) => Promise<API.Response<T>> = jsonFetcher<API.Response<T>>
-) =>
-  useSWR<API.Response<T>>(
-    `${import.meta.env.FRONTEND_API_ENDPOINT}${endpoint}`,
-    fetcher,
-    options
-  );
+) => useSWR<API.Response<T>>(buildTunnelEndpoint(endpoint), fetcher, options);
 
 export class FetchError extends Error {
   response: Response;

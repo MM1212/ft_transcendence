@@ -114,6 +114,7 @@ export class AuthService {
           createdAt: Date.now(),
           nickname: login,
           studentId: id,
+          url: `https://profile.intra.42.fr/users/${login}`,
         };
         user.merge(userData);
       }
@@ -121,6 +122,6 @@ export class AuthService {
       console.error(e);
     }
 
-    res.status(302).redirect('/users/me');
+    res.status(302).redirect(`${this.config.get<string>('FRONTEND_URL')}`);
   }
 }

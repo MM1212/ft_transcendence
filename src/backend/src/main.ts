@@ -1,4 +1,4 @@
-import { NestFactory, PartialGraphHost } from '@nestjs/core';
+import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import {
   FastifyAdapter,
@@ -7,7 +7,6 @@ import {
 import ConfigService, { ConfigServiceClass } from '@/modules/config';
 import secureSessionModule from '@fastify/secure-session';
 import cookiesModule from '@fastify/cookie';
-import { writeFileSync } from 'fs';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -27,6 +26,7 @@ async function bootstrap() {
   app.enableCors({
     origin: corsOrigins,
     credentials: true,
+    allowedHeaders: 'Content-Type,Authorization',
   });
 
   // Cookies
@@ -44,7 +44,8 @@ async function bootstrap() {
       maxAge: 60 * 60 * 24 * 7,
       path: '/',
       httpOnly: true,
-      secure: false,
+      secure: true,
+      domain: configService.get<string>('DOMAIN'),
     },
   });
 
