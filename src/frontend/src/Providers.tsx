@@ -4,36 +4,38 @@ import { RecoilRoot } from 'recoil';
 import testTheme from './theme';
 import { SWRConfig } from 'swr';
 import { Router } from 'wouter';
+import { SseProvider } from '@hooks/sse';
 
 export default function AppProviders({
   children,
 }: React.PropsWithChildren<{}>): JSX.Element {
   return (
-    <Router>
-      <RecoilRoot>
-        <SWRConfig
-          value={{
-            fetcher: (resource, init) =>
-              fetch(resource, init).then((res) => res.json()),
-            onError: console.error,
-
-            onErrorRetry: (error) => {
-              // Never retry on 404.
-              if (error.status === 404) return;
-            },
-          }}
-        >
-          <CssVarsProvider
-            theme={testTheme}
-            defaultMode="system"
-            defaultColorScheme="dark"
-            disableNestedContext
+    <RecoilRoot>
+      <SseProvider>
+        <Router>
+          <SWRConfig
+            value={{
+              fetcher: (resource, init) =>
+                fetch(resource, init).then((res) => res.json()),
+              onError: console.error,
+              onErrorRetry: (error) => {
+                // Never retry on 404.
+                if (error.status === 404) return;
+              },
+            }}
           >
-            <CssBaseline />
-            {children}
-          </CssVarsProvider>
-        </SWRConfig>
-      </RecoilRoot>
-    </Router>
+            <CssVarsProvider
+              theme={testTheme}
+              defaultMode="system"
+              defaultColorScheme="dark"
+              disableNestedContext
+            >
+              <CssBaseline />
+              {children}
+            </CssVarsProvider>
+          </SWRConfig>
+        </Router>
+      </SseProvider>
+    </RecoilRoot>
   );
 }
