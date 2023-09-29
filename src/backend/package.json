@@ -23,6 +23,7 @@
     "@nestjs/common": "^10.0.0",
     "@nestjs/config": "^3.0.1",
     "@nestjs/core": "^10.0.0",
+    "@nestjs/event-emitter": "^2.0.2",
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/platform-fastify": "^10.2.5",
     "fastify": "^4.23.2",

@@ -6,7 +6,9 @@ import './App.css';
 import { useSession } from '@hooks/user';
 import {
   Avatar,
+  List,
   ListItem,
+  ListItemButton,
   ListItemContent,
   ListItemDecorator,
   Typography,
@@ -14,11 +16,21 @@ import {
 import { buildTunnelEndpoint } from '@hooks/tunnel';
 import { Endpoints } from '@typings/api';
 import Link from '@components/Link';
+import { useSseEvent } from '@hooks/sse';
+import { SSE } from '@typings/api/sse';
+import tunnel from '@lib/tunnel';
 
 function App() {
   const [count, setCount] = useState(0);
 
   const { user, loading, loggedIn, logout } = useSession();
+
+  useSseEvent<SSE.Payloads.FacebookNewFriendRequest>(
+    SSE.Events.FacebookNewFriendRequest,
+    ({ data, source }) => {
+      console.log(data, source);
+    }
+  );
   return (
     <>
       <div>
@@ -48,22 +60,36 @@ function App() {
             Login
           </Button>
         ) : (
-          <ListItem endAction={<Button onClick={logout}>Logout</Button>}>
-            <ListItemDecorator>
-              <Avatar src={user.avatar} />
-            </ListItemDecorator>
-            <ListItemContent>
-              <Typography level="title-sm">{user.nickname}</Typography>
-              <Typography
-                level="body-sm"
-                noWrap
-                component={Link}
-                href={user.url}
+          <List>
+            <ListItem>
+              <ListItemDecorator>
+                <Avatar src={user.avatar} />
+              </ListItemDecorator>
+              <ListItemContent>
+                <Typography level="title-sm">{user.nickname}</Typography>
+                <Typography
+                  level="body-sm"
+                  noWrap
+                  component={Link}
+                  href={user.url}
+                >
+                  Check Intra&apos;s profile here
+                </Typography>
+              </ListItemContent>
+            </ListItem>
+            <ListItem>
+              <ListItemButton onClick={logout}>
+                <Typography level="body-sm">Logout</Typography>
+              </ListItemButton>
+              <ListItemButton
+                onClick={() => {
+                  tunnel.post(Endpoints.SseTest, {});
+                }}
               >
-                Check Intra&apos;s profile here
-              </Typography>
-            </ListItemContent>
-          </ListItem>
+                <Typography level="body-sm">Test SSE</Typography>
+              </ListItemButton>
+            </ListItem>
+          </List>
         )}
       </div>
       <p className="read-the-docs">
