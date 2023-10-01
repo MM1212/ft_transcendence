@@ -40,8 +40,7 @@ export const useSessionActions = (): SessionActions => {
 
 export const useSession = (): Session => {
   const { data, isLoading, isValidating, error } = useTunnelEndpoint<IUser>(
-    Endpoints.UsersMe,
-    { revalidateOnFocus: false }
+    Endpoints.UsersMe
   );
   const actions = useSessionActions();
 

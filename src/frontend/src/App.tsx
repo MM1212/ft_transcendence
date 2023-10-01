@@ -82,8 +82,8 @@ function App() {
                 <Typography level="body-sm">Logout</Typography>
               </ListItemButton>
               <ListItemButton
-                onClick={() => {
-                  tunnel.post(Endpoints.SseTest, {});
+                onClick={async () => {
+                  await tunnel.post(Endpoints.SseTest, {});
                 }}
               >
                 <Typography level="body-sm">Test SSE</Typography>

@@ -1,6 +1,12 @@
-import { Controller, Post, Sse } from '@nestjs/common';
+import {
+  Controller,
+  OnModuleDestroy,
+  OnModuleInit,
+  Post,
+  Sse,
+} from '@nestjs/common';
 import { SseService } from './sse.service';
-import { Observable, bindCallback, filter, map } from 'rxjs';
+import { Observable, ReplaySubject, map } from 'rxjs';
 import HttpCtx from '@/helpers/decorators/httpCtx';
 import { HTTPContext } from '@typings/http';
 import { SSE } from '@typings/sse';
@@ -13,9 +19,34 @@ interface InternalNetPayload {
   data: unknown;
 }
 
+interface Client {
+  id: number;
+  handle: string; // dbId + sessionId
+  subject: ReplaySubject<InternalNetPayload>;
+  observer: Observable<InternalNetPayload>;
+}
+
 @Controller('sse')
-export class SseController {
+export class SseController implements OnModuleInit, OnModuleDestroy {
+  private readonly clients: Client[] = [];
+  private netHandler: (data: InternalNetPayload) => void;
   constructor(private readonly service: SseService) {}
+  onModuleInit() {
+    this.service.local.on(
+      'net.**',
+      (this.netHandler = this.onNetEvent.bind(this)),
+    );
+  }
+  onModuleDestroy() {
+    this.service.local.off('net.**', this.netHandler);
+  }
+  private onNetEvent(data: InternalNetPayload) {
+    this.clients.forEach((client) => {
+      if (data.source && data.source === client.id) return;
+      if (data.targets && !data.targets.includes(client.id)) return;
+      client.subject.next(data);
+    });
+  }
   @Sse()
   connect(
     @HttpCtx() ctx: HTTPContext,
@@ -28,50 +59,35 @@ export class SseController {
     const user = ctx.user;
     console.log('New SSE connection from user', user.id);
 
-    // this.service.local.on('net.*', cb)
+    const subject = new ReplaySubject<InternalNetPayload>();
+    const observer = subject.asObservable();
+    const client: Client = {
+      id: user.id,
+      handle: `${user.id}:${ctx.session.id}`,
+      subject,
+      observer,
+    };
+    this.clients.push(client);
     onClosed.subscribe({
       complete: () => {
-        console.log('SSE disconnection from user', user.id, 'closed');
+        console.log('SSE connection closed for user', user.id);
+        subject.complete();
+        this.clients.splice(this.clients.indexOf(client), 1);
       },
     });
-    return bindCallback<
-      [],
-      [
-        {
-          event: string;
-          source?: number;
-          targets?: number[];
-          data: unknown;
-        },
-      ]
-    >((cb) => {
-      this.service.local.on('net.**', cb);
-      return () => {
-        this.service.local.off('net.**', cb);
-      };
-    })().pipe(
-      filter((data) => {
-        if (!data.targets) return true;
-        if (data.targets && data.targets.includes(user.id)) return true;
-        return false;
-      }),
-      map<InternalNetPayload, SSE.Event>((data) => {
-        const { event: eventName, source, data: payload } = data;
-        const event: SSE.Event = {
-          type: eventName as SSE.Events,
-          source,
-          data: payload,
-        };
-        console.log('SSE event', event);
+    return observer.pipe(
+      map((data) => {
+        const event = new MessageEvent('message', {
+          lastEventId: `sse/${client.handle}/${data.event}/${Date.now()}`,
+          data: JSON.stringify({
+            data: data.data,
+            source: data.source,
+            type: data.event,
+          } as SSE.Event),
+        });
         return event;
       }),
-      map<SSE.Event, MessageEvent>(
-        (event) =>
-          new MessageEvent('message', {
-            data: typeof event === 'object' ? JSON.stringify(event) : event,
-          }),
-      ),
-    ) as Observable<MessageEvent> | undefined;
+    );
   }
   @Post('test')
   test(): void {

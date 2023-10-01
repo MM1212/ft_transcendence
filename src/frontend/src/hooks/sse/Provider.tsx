@@ -12,7 +12,11 @@ function SseProvider({ children }: React.PropsWithChildren<{}>): JSX.Element {
     const eventSource = new EventSource(buildTunnelEndpoint(Endpoints.Sse), {
       withCredentials: true,
     });
-    console.log('New SSE connection opened');
+    eventSource.onopen = () =>
+      console.log('SSE connection opened', eventSource.readyState);
+    eventSource.addEventListener('close', () =>
+      console.log('SSE connection closed')
+    );
     eventSource.addEventListener('message', (raw: MessageEvent<string>) => {
       console.log(raw);
       const { data } = raw;

@@ -8,9 +8,9 @@ const HttpCtx = createParamDecorator(
     const req: FastifyRequest = ctx.switchToHttp().getRequest();
     const res: FastifyReply = ctx.switchToHttp().getResponse();
     const userData = req.session.get('user');
-    console.log('HTTP CTX: ', userData);
-
     const user = userData ? new User(req.session) : undefined;
+
+    
     return { req, res, session: req.session, user };
   },
 );

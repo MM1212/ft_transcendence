@@ -41,3 +41,9 @@ env:
 	cp envs/.env.tmp $(BACKEND_DIR)/.env.local
 	cp envs/.env.tmp $(FRONTEND_DIR)/.env.local
 	rm envs/.env.tmp
+
+backend_dev:
+	cd $(BACKEND_DIR) && pnpm start:dev
+
+frontend_dev:
+	cd $(FRONTEND_DIR) && pnpm dev
