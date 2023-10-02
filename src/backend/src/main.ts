@@ -7,12 +7,13 @@ import {
 import ConfigService, { ConfigServiceClass } from '@/modules/config';
 import secureSessionModule from '@fastify/secure-session';
 import cookiesModule from '@fastify/cookie';
+import setupLogger from './helpers/logger';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter({
-      logger: false,
+      logger: setupLogger(),
     }),
   );
   const configService = app.get<ConfigService>(ConfigServiceClass);
@@ -54,8 +55,6 @@ async function bootstrap() {
     port: configService.get<number>('BACKEND_PORT')!,
   };
 
-  await app.listen(host.port, host.ip, async () =>
-    console.log(`Listening on ${host.ip}:${host.port}`),
-  );
+  await app.listen(host.port, host.ip);
 }
 bootstrap();
