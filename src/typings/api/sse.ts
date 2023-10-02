@@ -2,7 +2,7 @@ export namespace SSE {
   export type User = number;
 
   export enum Events {
-    FacebookNewFriendRequest = 'facebook.friends.new-request',
+    Test = 'test',
   }
 
   // TEMPORARY
@@ -13,12 +13,21 @@ export namespace SSE {
     source?: User;
   }
 
+  export interface SourceEvent<T = unknown, E = Events> extends Event<T, E> {
+    source: User;
+  }
+
   export namespace Payloads {
-    export type FacebookNewFriendRequest = Event<
+    export type Test = SourceEvent<
       {
-        user: User;
+        user: {
+          id: number;
+          name: string;
+          avatar: string;
+        };
+        message: string;
       },
-      Events.FacebookNewFriendRequest
+      Events.Test
     >;
   }
 }

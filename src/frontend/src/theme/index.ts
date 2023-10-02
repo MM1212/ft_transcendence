@@ -1,5 +1,5 @@
 import { extendTheme } from '@mui/joy';
-import Theme, { TransitionAPI } from './transitions';
+import { TransitionAPI } from './transitions';
 
 const transitionConstants: Pick<TransitionAPI, 'duration' | 'easing'> = {
   duration: {

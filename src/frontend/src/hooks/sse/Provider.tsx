@@ -6,7 +6,7 @@ import React from 'react';
 import { useRecoilValue } from 'recoil';
 import { eventCacheAtom } from './store';
 
-function SseProvider({ children }: React.PropsWithChildren<{}>): JSX.Element {
+function useSseService() {
   const eventCache = useRecoilValue(eventCacheAtom);
   React.useEffect(() => {
     const eventSource = new EventSource(buildTunnelEndpoint(Endpoints.Sse), {
@@ -34,7 +34,11 @@ function SseProvider({ children }: React.PropsWithChildren<{}>): JSX.Element {
       eventSource.close();
     };
   }, [eventCache]);
-  return <>{children}</>;
 }
 
-export default React.memo(SseProvider);
+export function SseMounter(): null {
+  useSseService();
+  return null;
+}
+
+export default useSseService;
