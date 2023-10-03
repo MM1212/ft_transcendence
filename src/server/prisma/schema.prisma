@@ -38,6 +38,7 @@ model Friend {
   friendId  Int      @map("friend_id")
   createdAt DateTime @default(now()) @map("created_at")
 
+  @@index([userId, friendId])
   @@map("friends")
 }
 
@@ -83,6 +84,7 @@ model Chat {
   createdAt         DateTime          @default(now()) @map("created_at")
   lastMessageAt     DateTime?         @map("last_message_at")
 
+  @@index([type, authorization, authorizationData])
   @@map("chats")
 }
 
@@ -101,6 +103,9 @@ model ChatMessage {
   author    User            @relation(fields: [authorId], references: [id])
   authorId  Int             @map("author_id")
   createdAt DateTime        @default(now()) @map("created_at")
+
+  @@index([chatId, authorId])
+  @@map("chat_messages")
 }
 
 enum NotificationType {
@@ -119,6 +124,9 @@ model Notification {
   user      User             @relation(fields: [userId], references: [id])
   userId    Int              @map("user_id")
   createdAt DateTime         @default(now()) @map("created_at")
+  readAt    DateTime?        @map("read_at")
+
+  @@map("notifications")
 }
 
 // Game Models
@@ -131,23 +139,29 @@ model Character {
   createdAt DateTime        @default(now()) @map("created_at")
   stats     CharacterStat[]
   inventory CharacterItem[]
+
+  @@map("characters")
 }
 
 model CharacterStat {
   id          Int       @id @default(autoincrement())
   character   Character @relation(fields: [characterId], references: [id])
-  characterId Int
+  characterId Int       @map("character_id")
   name        String
   value       Int
   createdAt   DateTime  @default(now()) @map("created_at")
+
+  @@map("characters_stats")
 }
 
 model CharacterItem {
   id          Int       @id @default(autoincrement())
   character   Character @relation(fields: [characterId], references: [id])
-  characterId Int
+  characterId Int       @map("character_id")
   type        String
   name        String
   meta        Json      @default("{}")
   createdAt   DateTime  @default(now()) @map("created_at")
+
+  @@map("characters_inventories")
 }
