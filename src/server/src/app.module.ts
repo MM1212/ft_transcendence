@@ -6,6 +6,8 @@ import { AuthModule } from './modules/auth/42/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { SseModule } from './modules/sse/sse.module';
+import { PrismaModule } from './modules/db/prisma/prisma.module';
+import { DbModule } from './modules/db/db.module';
 
 @Module({
   imports: [
@@ -22,7 +24,9 @@ import { SseModule } from './modules/sse/sse.module';
     }),
     AuthModule,
     UsersModule,
-    SseModule
+    SseModule,
+    PrismaModule,
+    DbModule
   ],
   controllers: [AppController],
   providers: [AppService],

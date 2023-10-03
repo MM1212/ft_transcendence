@@ -8,12 +8,14 @@ import { ConfigService } from '@nestjs/config';
 import { IntraAPI } from '@/helpers/Intra';
 import { IUser } from '@typings/user';
 import { writeFileSync } from 'fs';
+import { DbService } from '@/modules/db/db.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly config: ConfigService<ImportMetaEnv>,
     private readonly intra: IntraAPI,
+    private readonly db: DbService,
   ) {}
   private get clientId(): string {
     return this.config.get('BACKEND_42_CLIENT_ID')!;
@@ -108,14 +110,13 @@ export class AuthService {
           login,
           image: { link },
         } = apiData;
-        const userData: IUser = {
-          id,
-          avatar: link,
-          createdAt: Date.now(),
-          nickname: login,
-          studentId: id,
-          url: `https://profile.intra.42.fr/users/${login}`,
-        };
+        let userData: IUser | null = await this.db.users.getByStudentId(id);
+        if (!userData)
+          userData = await this.db.users.create({
+            studentId: id,
+            nickname: login,
+            avatar: link,
+          });
         user.merge(userData);
       }
     } catch (e) {

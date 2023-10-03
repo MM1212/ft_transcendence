@@ -36,3 +36,6 @@ lerna-debug.log*
 
 # misc
 apiData.json
+
+# prisma
+prisma/migrations
