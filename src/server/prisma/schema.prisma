@@ -32,9 +32,9 @@ model User {
 
 model Friend {
   id        Int      @id @default(autoincrement())
-  user      User     @relation("friendToUser", fields: [userId], references: [id])
+  user      User     @relation("friendToUser", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId    Int      @map("user_id")
-  friend    User     @relation("friendsOfUser", fields: [friendId], references: [id])
+  friend    User     @relation("friendsOfUser", fields: [friendId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   friendId  Int      @map("friend_id")
   createdAt DateTime @default(now()) @map("created_at")
 
@@ -61,9 +61,9 @@ enum ChatParticipantRole {
 
 model ChatParticipant {
   id          Int                 @id @default(autoincrement())
-  chat        Chat                @relation(fields: [chatId], references: [id])
+  chat        Chat                @relation(fields: [chatId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   chatId      Int                 @map("chat_id")
-  user        User                @relation(fields: [userId], references: [id])
+  user        User                @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId      Int                 @map("user_id")
   role        ChatParticipantRole @default(Member)
   toReadPings Int                 @default(0) @map("to_read_pings")
@@ -95,12 +95,12 @@ enum ChatMessageType {
 
 model ChatMessage {
   id        Int             @id @default(autoincrement())
-  chat      Chat?           @relation(fields: [chatId], references: [id])
+  chat      Chat?           @relation(fields: [chatId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   chatId    Int?            @map("chat_id")
   type      ChatMessageType @default(Normal)
   message   String          @default("")
   meta      Json?           @default("{}")
-  author    User            @relation(fields: [authorId], references: [id])
+  author    User            @relation(fields: [authorId], references: [id], onDelete: Cascade, onUpdate: Cascade )
   authorId  Int             @map("author_id")
   createdAt DateTime        @default(now()) @map("created_at")
 
@@ -121,7 +121,7 @@ model Notification {
   id        Int              @id @default(autoincrement())
   type      NotificationType
   meta      Json?            @default("{}")
-  user      User             @relation(fields: [userId], references: [id])
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId    Int              @map("user_id")
   createdAt DateTime         @default(now()) @map("created_at")
   readAt    DateTime?        @map("read_at")
@@ -133,7 +133,7 @@ model Notification {
 
 model Character {
   id        Int             @id @default(autoincrement())
-  user      User            @relation(fields: [userId], references: [id])
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId    Int             @map("user_id")
   name      String
   createdAt DateTime        @default(now()) @map("created_at")
@@ -145,7 +145,7 @@ model Character {
 
 model CharacterStat {
   id          Int       @id @default(autoincrement())
-  character   Character @relation(fields: [characterId], references: [id])
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   characterId Int       @map("character_id")
   name        String
   value       Int
@@ -156,7 +156,7 @@ model CharacterStat {
 
 model CharacterItem {
   id          Int       @id @default(autoincrement())
-  character   Character @relation(fields: [characterId], references: [id])
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   characterId Int       @map("character_id")
   type        String
   name        String
