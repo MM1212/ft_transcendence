@@ -3,13 +3,6 @@ import { inspect } from 'util';
 import winston from 'winston';
 
 export default function setupLogger(): FastifyBaseLogger {
-  const reqTransform = winston.format((info) => {
-    if (typeof info.message === 'object' && info.message.req) {
-      info.message = `${info.message.req.method} ${info.message.req.url} ${info.message.req.ip} ${info.message.req.headers['user-agent']}`;
-    }
-    return info;
-  });
-
   const clc = {
     bold: (text: string) => `\x1B[1m${text}\x1B[0m`,
     green: (text: string) => `\x1B[32m${text}\x1B[39m`,
@@ -19,6 +12,20 @@ export default function setupLogger(): FastifyBaseLogger {
     cyanBright: (text: string) => `\x1B[96m${text}\x1B[39m`,
     white: (text: string) => `\x1B[97m${text}\x1B[39m`,
   };
+  const reqTransform = winston.format((info) => {
+    if (typeof info.message === 'object') {
+      if (info.message.req) {
+        info.prefix = clc.yellow("[REQ]");
+        info.message = `${info.message.req.method} ${info.message.req.url} ${info.message.req.ip} ${info.message.req.headers['user-agent']}`;
+      }
+      else if (info.message.res) {
+        info.prefix = clc.yellow("[RES]");
+        info.message = `${info.message.res.statusCode} ${info.message.res.statusMessage ?? ''} ${info.message.res.getHeader('content-length') || 0}b ${info.message.res.getHeader('content-type') || ''}`;
+      }
+    }
+    return info;
+  });
+
 
   const colors = {
     fatal: clc.red,
@@ -52,7 +59,7 @@ export default function setupLogger(): FastifyBaseLogger {
       winston.format.errors({ stack: true }),
       winston.format.prettyPrint(),
       winston.format.printf(
-        ({ context, level, timestamp, message, ms, ...meta }) => {
+        ({ context, level, timestamp, message, ms, prefix, ...meta }) => {
           if ('undefined' !== typeof timestamp) {
             // Only format the timestamp to a locale representation if it's ISO 8601 format. Any format
             // that is not a valid date string will throw, just ignore it (it will be printed as-is).
@@ -89,6 +96,7 @@ export default function setupLogger(): FastifyBaseLogger {
             ('undefined' !== typeof context
               ? `${yellow('[' + context + ']')} `
               : '') +
+            `${prefix ?? ''} ` +
             `${color(message)}` +
             (formattedMeta && formattedMeta !== '{}'
               ? ` - ${formattedMeta}`
