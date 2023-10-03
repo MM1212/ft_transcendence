@@ -9,5 +9,5 @@
       ".env.*"
     ]
   },
-  "entryFile": "backend/src/main"
+  "entryFile": "server/src/main"
 }
