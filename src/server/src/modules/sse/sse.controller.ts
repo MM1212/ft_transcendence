@@ -52,10 +52,10 @@ export class SseController implements OnModuleInit, OnModuleDestroy {
   connect(
     @HttpCtx() ctx: HTTPContext,
     @OnConnectionClosed() onClosed: Observable<void>,
-  ): Observable<MessageEvent> | undefined {
+  ): Observable<MessageEvent> {
     if (!ctx.user?.loggedIn) {
       ctx.res.status(401);
-      return;
+      return new Observable();
     }
     const user = ctx.user;
     console.log('New SSE connection from user', user.id);

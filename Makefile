@@ -4,8 +4,9 @@ ifndef mode
 endif
 MODE = $(mode)
 
-BACKEND_DIR = src/backend
-FRONTEND_DIR = src/frontend
+SERVER_DIR = src/server
+CLIENT_DIR = src/client
+PROD_DIR = production
 
 setup:
 	npm i -g pnpm @nestjs/cli
@@ -26,11 +27,11 @@ generate_session_key: create_session_tokens
 	rm .session.salt
 
 setup_tokens:
-ifeq ($(shell test envs/.tokens.env.local), 1)
+ifeq ($(shell test envs/.tokens.env), 1)
 	echo "Setup the tokens file before setting up the env!"
 else
 	echo "\n\n# TOKENS\n" >> envs/.env.tmp
-	cat envs/.tokens.env.local >> envs/.env.tmp
+	cat envs/.tokens.env >> envs/.env.tmp
 	echo "" >> envs/.env.tmp
 endif
 
@@ -38,12 +39,22 @@ env:
 	cp envs/.env.$(MODE) envs/.env.tmp
 	make generate_session_key
 	make setup_tokens
-	cp envs/.env.tmp $(BACKEND_DIR)/.env.local
-	cp envs/.env.tmp $(FRONTEND_DIR)/.env.local
+	cp envs/.env.tmp $(SERVER_DIR)/.env
+	cp envs/.env.tmp $(CLIENT_DIR)/.env
+	cp envs/.env.tmp $(PROD_DIR)/.env
 	rm envs/.env.tmp
 
-backend_dev:
-	cd $(BACKEND_DIR) && pnpm start:dev
+server_dev: start_db
+	cd $(SERVER_DIR) && pnpm start:dev
 
-frontend_dev:
-	cd $(FRONTEND_DIR) && pnpm dev
+client_dev:
+	cd $(CLIENT_DIR) && pnpm dev
+
+start_db:
+	docker compose -f $(PROD_DIR)/docker-compose.yml up -d
+
+stop_db:
+	docker compose -f $(PROD_DIR)/docker-compose.yml down
+
+db_studio:
+	cd $(SERVER_DIR) && pnpx prisma studio
