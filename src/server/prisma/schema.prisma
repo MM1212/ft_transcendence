@@ -10,12 +10,144 @@ datasource db {
   url      = env("BACKEND_DB_URL")
 }
 
+// Infrastructure Modules
+
 model User {
-  id        Int      @id @default(autoincrement())
-  studentId Int      @unique @map("student_id")
-  nickname  String   @unique
-  avatar    String
-  createdAt DateTime @default(now()) @map("created_at")
+  id                 Int               @id @default(autoincrement())
+  studentId          Int               @unique @map("student_id")
+  nickname           String            @unique
+  avatar             String
+  createdAt          DateTime          @default(now()) @map("created_at")
+  currentCharacterId Int?              @map("current_character_id")
+  characters         Character[]
+  friends            Friend[]          @relation("friendToUser")
+  friendsOf          Friend[]          @relation("friendsOfUser")
+  chats              ChatParticipant[]
+  messagesSent       ChatMessage[]
+  notifications      Notification[]
 
   @@index([studentId, nickname])
+  @@map("users")
+}
+
+model Friend {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation("friendToUser", fields: [userId], references: [id])
+  userId    Int      @map("user_id")
+  friend    User     @relation("friendsOfUser", fields: [friendId], references: [id])
+  friendId  Int      @map("friend_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("friends")
+}
+
+enum ChatType {
+  Temp
+  Group
+  Direct
+}
+
+enum ChatAuthorization {
+  Public
+  Private
+}
+
+enum ChatParticipantRole {
+  Owner
+  Admin
+  Member
+}
+
+model ChatParticipant {
+  id          Int                 @id @default(autoincrement())
+  chat        Chat                @relation(fields: [chatId], references: [id])
+  chatId      Int                 @map("chat_id")
+  user        User                @relation(fields: [userId], references: [id])
+  userId      Int                 @map("user_id")
+  role        ChatParticipantRole @default(Member)
+  toReadPings Int                 @default(0) @map("to_read_pings")
+  createdAt   DateTime            @default(now()) @map("created_at")
+
+  @@map("chat_participants")
+}
+
+model Chat {
+  id                Int               @id @default(autoincrement())
+  type              ChatType          @default(Temp)
+  authorization     ChatAuthorization @default(Public)
+  authorizationData Json?             @map("authorization_data")
+  name              String
+  photo             String
+  participants      ChatParticipant[]
+  messages          ChatMessage[]
+  createdAt         DateTime          @default(now()) @map("created_at")
+  lastMessageAt     DateTime?         @map("last_message_at")
+
+  @@map("chats")
+}
+
+enum ChatMessageType {
+  Normal
+  Embed
+}
+
+model ChatMessage {
+  id        Int             @id @default(autoincrement())
+  chat      Chat?           @relation(fields: [chatId], references: [id])
+  chatId    Int?            @map("chat_id")
+  type      ChatMessageType @default(Normal)
+  message   String          @default("")
+  meta      Json?           @default("{}")
+  author    User            @relation(fields: [authorId], references: [id])
+  authorId  Int             @map("author_id")
+  createdAt DateTime        @default(now()) @map("created_at")
+}
+
+enum NotificationType {
+  FriendRequest
+  FriendRequestAccepted
+  FriendRequestDeclined
+  FriendRemoved
+  ChatMessage
+  ChatMention
+}
+
+model Notification {
+  id        Int              @id @default(autoincrement())
+  type      NotificationType
+  meta      Json?            @default("{}")
+  user      User             @relation(fields: [userId], references: [id])
+  userId    Int              @map("user_id")
+  createdAt DateTime         @default(now()) @map("created_at")
+}
+
+// Game Models
+
+model Character {
+  id        Int             @id @default(autoincrement())
+  user      User            @relation(fields: [userId], references: [id])
+  userId    Int             @map("user_id")
+  name      String
+  createdAt DateTime        @default(now()) @map("created_at")
+  stats     CharacterStat[]
+  inventory CharacterItem[]
+}
+
+model CharacterStat {
+  id          Int       @id @default(autoincrement())
+  character   Character @relation(fields: [characterId], references: [id])
+  characterId Int
+  name        String
+  value       Int
+  createdAt   DateTime  @default(now()) @map("created_at")
+}
+
+model CharacterItem {
+  id          Int       @id @default(autoincrement())
+  character   Character @relation(fields: [characterId], references: [id])
+  characterId Int
+  type        String
+  name        String
+  meta        Json      @default("{}")
+  createdAt   DateTime  @default(now()) @map("created_at")
 }
