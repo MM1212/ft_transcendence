@@ -5,10 +5,13 @@ import { SSE } from '@typings/api/sse';
 import React from 'react';
 import { useRecoilValue } from 'recoil';
 import { eventCacheAtom } from './store';
+import { useSession } from '@hooks/user';
 
-function SseProvider({ children }: React.PropsWithChildren<{}>): JSX.Element {
+function useSseService() {
+  const { loggedIn } = useSession();
   const eventCache = useRecoilValue(eventCacheAtom);
   React.useEffect(() => {
+    if (!loggedIn) return;
     const eventSource = new EventSource(buildTunnelEndpoint(Endpoints.Sse), {
       withCredentials: true,
     });
@@ -33,8 +36,12 @@ function SseProvider({ children }: React.PropsWithChildren<{}>): JSX.Element {
       console.log('SSE connection closed');
       eventSource.close();
     };
-  }, [eventCache]);
-  return <>{children}</>;
+  }, [eventCache, loggedIn]);
 }
 
-export default React.memo(SseProvider);
+export function SseMounter(): null {
+  useSseService();
+  return null;
+}
+
+export default useSseService;
