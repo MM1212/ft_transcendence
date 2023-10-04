@@ -2,7 +2,7 @@ import { Injectable, Scope } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Intra } from '@typings/intra';
 
-@Injectable()
+@Injectable({ scope: Scope.REQUEST })
 export class IntraAPI {
   private accessToken?: string = undefined;
   constructor(private readonly config: ConfigService<ImportMetaEnv>) {}
@@ -23,8 +23,16 @@ export class IntraAPI {
   private async request<T>(
     endpoint: Intra.Endpoints,
     method: string = 'GET',
+    replacers: Record<string, string> = {},
+    params: Record<string, string> = {},
   ): Promise<T> {
-    return await fetch(this.buildUrl(endpoint), {
+    const url = new URL(
+      this.buildUrl(endpoint).replace(/{(\w+)}/g, (_, key) => replacers[key]),
+    );
+    for (const [key, val] of Object.entries(params)) {
+      url.searchParams.append(key, val);
+    }
+    return await fetch(url.toJSON(), {
       method,
       headers: this.headers,
     }).then((resp) => resp.json());

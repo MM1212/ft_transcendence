@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import { UsersService } from './users.service';
-import API from '@typings/api';
+import API, { Endpoints } from '@typings/api';
 import { IUser } from '@typings/user';
 import HttpCtx from '@/helpers/decorators/httpCtx';
 import { HTTPContext } from '@typings/http';
@@ -15,6 +15,10 @@ export class UsersController {
     if (!user) {
       ctx.res.status(401);
       return API.buildErrorResponse('Unauthorized');
+    }
+    if (!user.auth.isTokenValid()) {
+      ctx.res.redirect(Endpoints.AuthLogin);
+      return API.buildErrorResponse('Token expired');
     }
     return API.buildOkResponse(user.public);
   }
