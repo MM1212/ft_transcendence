@@ -10,6 +10,8 @@ PROD_DIR = production
 
 setup:
 	npm i -g pnpm @nestjs/cli
+	cd $(CLIENT_DIR) && pnpm i
+	cd $(SERVER_DIR) && pnpm i && pnpx prisma generate && pnpx prisma migrate dev --name init
 
 create_session_tokens:
 # generate session key	
@@ -58,3 +60,6 @@ stop_db:
 
 db_studio:
 	cd $(SERVER_DIR) && pnpx prisma studio
+
+setup_db:
+	cd $(SERVER_DIR) && pnpx prisma generate

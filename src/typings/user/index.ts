@@ -4,5 +4,6 @@ export interface IUser {
   nickname: string;
   avatar: string;
   createdAt: number | Date;
-  url: string;
 }
+
+export interface IUserCreate extends Pick<IUser, 'studentId' | 'nickname' | 'avatar'> {}

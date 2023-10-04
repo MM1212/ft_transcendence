@@ -54,7 +54,7 @@ export class SseController implements OnModuleInit, OnModuleDestroy {
     @OnConnectionClosed() onClosed: Observable<void>,
   ): Observable<MessageEvent> {
     if (!ctx.user?.loggedIn) {
-      ctx.res.status(401);
+      ctx.res.status(401).send();
       return new Observable();
     }
     const user = ctx.user;
