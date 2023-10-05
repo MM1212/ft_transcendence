@@ -17,7 +17,6 @@ async function bootstrap() {
     }),
   );
   const configService = app.get<ConfigService>(ConfigServiceClass);
-
   // CORS
 
   const corsOrigins = configService

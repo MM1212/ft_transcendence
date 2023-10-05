@@ -8,6 +8,8 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { SseModule } from './modules/sse/sse.module';
 import { PrismaModule } from './modules/db/prisma/prisma.module';
 import { DbModule } from './modules/db/db.module';
+import { APP_FILTER } from '@nestjs/core';
+import { GlobalFilter } from './filters/GlobalFilter';
 
 @Module({
   imports: [
@@ -26,9 +28,9 @@ import { DbModule } from './modules/db/db.module';
     UsersModule,
     SseModule,
     PrismaModule,
-    DbModule
+    DbModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, { provide: APP_FILTER, useClass: GlobalFilter }],
 })
 export class AppModule {}

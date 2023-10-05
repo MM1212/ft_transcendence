@@ -4,17 +4,21 @@ import { User } from '@/helpers/User';
 import HttpCtx from '@/helpers/decorators/httpCtx';
 import { HTTPContext } from 'typings/http';
 import API from '@typings/api';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('auth/42')
 export class AuthController {
-  constructor(private readonly service: AuthService) {}
+  constructor(
+    private readonly service: AuthService,
+    private readonly config: ConfigService<ImportMetaEnv>,
+  ) {}
 
   @Get('login')
   login(@HttpCtx() ctx: HTTPContext): void {
     const { req, res } = ctx;
     const user = req.session.get('user');
     if (user && user.loggedIn && new User(req.session).auth.isTokenValid())
-      res.status(302).redirect('/');
+      res.redirect(302, `${this.config.get<string>('FRONTEND_URL')}`);
     else this.service.login(ctx);
   }
   @Get('logout')

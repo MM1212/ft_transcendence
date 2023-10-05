@@ -10,7 +10,7 @@ namespace API {
     status: 'ok';
     data: T;
   }
-  interface ResponseError {
+  export interface ResponseError {
     status: 'error';
     errorMsg?: string;
   }

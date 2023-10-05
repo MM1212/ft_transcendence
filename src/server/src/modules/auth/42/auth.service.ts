@@ -6,8 +6,6 @@ import { User } from '@/helpers/User';
 import { Auth } from '@typings/auth';
 import { ConfigService } from '@nestjs/config';
 import { IntraAPI } from '@/helpers/Intra';
-import { IUser } from '@typings/user';
-import { writeFileSync } from 'fs';
 import { DbService } from '@/modules/db/db.service';
 
 @Injectable()
@@ -102,15 +100,13 @@ export class AuthService {
     this.intra.token = user.auth.token;
     try {
       const apiData = await this.intra.me();
-      // console.log(apiData);
-      writeFileSync('apiData.json', JSON.stringify(apiData));
       if (apiData) {
         const {
           id,
           login,
           image: { link },
         } = apiData;
-        let userData: IUser | null = await this.db.users.getByStudentId(id);
+        let userData = await this.db.users.getByStudentId(id);
         if (!userData)
           userData = await this.db.users.create({
             studentId: id,
@@ -123,6 +119,6 @@ export class AuthService {
       console.error(e);
     }
 
-    res.status(302).redirect(`${this.config.get<string>('FRONTEND_URL')}`);
+    res.redirect(302, `${this.config.get<string>('FRONTEND_URL')}`);
   }
 }
