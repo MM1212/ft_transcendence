@@ -31,13 +31,13 @@ async function bootstrap() {
 
   // Cookies
 
-  await app.register(cookiesModule, {
+  await app.register(cookiesModule as any, {
     secret: configService.get<string>('BACKEND_SESSION_SECRET')!,
   });
 
   // Session
-
-  await app.register(secureSessionModule, {
+  
+  await app.register(secureSessionModule as any, {
     secret: configService.get<string>('BACKEND_SESSION_SECRET')!,
     salt: configService.get<string>('BACKEND_SESSION_SALT')!,
     cookie: {

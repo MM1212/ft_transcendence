@@ -83,8 +83,8 @@ function App() {
                   <Typography
                     level="body-sm"
                     noWrap
-                    component={Link}
-                  >
+                    // component={Link}
+				  >
                     Check Intra&apos;s profile here
                   </Typography>
                 </ListItemContent>
