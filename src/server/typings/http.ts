@@ -6,9 +6,8 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 export type Request = FastifyRequest;
 export type Response = FastifyReply;
 
-export interface HTTPContext {
+export type HTTPContext<T extends boolean = false> = {
   readonly req: Request;
   readonly res: Response;
   readonly session: Session;
-  readonly user?: User;
-}
+} & (T extends true ? { readonly user: User } : { readonly user?: User});

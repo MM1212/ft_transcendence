@@ -12,6 +12,7 @@ import HttpCtx from '@/helpers/decorators/httpCtx';
 import { HTTPContext } from '@typings/http';
 import { SSE } from '@typings/sse';
 import { OnConnectionClosed } from '@/helpers/decorators/socket';
+import { Auth } from '@/modules/auth/guards/auth.guard';
 
 interface InternalNetPayload {
   event: string;
@@ -49,14 +50,11 @@ export class SseController implements OnModuleInit, OnModuleDestroy {
     });
   }
   @Sse()
+  @Auth()
   connect(
-    @HttpCtx() ctx: HTTPContext,
+    @HttpCtx() ctx: HTTPContext<true>,
     @OnConnectionClosed() onClosed: Observable<void>,
   ): Observable<MessageEvent> {
-    if (!ctx.user?.loggedIn) {
-      ctx.res.status(401).send();
-      return new Observable();
-    }
     const user = ctx.user;
     console.log('New SSE connection from user', user.id);
 
@@ -90,12 +88,12 @@ export class SseController implements OnModuleInit, OnModuleDestroy {
       }),
     );
   }
+  @Auth()
   @Post('test')
-  test(@Body('message') message: string, @HttpCtx() ctx: HTTPContext): void {
-    if (!ctx.user?.loggedIn) {
-      ctx.res.status(401);
-      return;
-    }
+  test(
+    @Body('message') message: string,
+    @HttpCtx() ctx: HTTPContext<true>,
+  ): void {
     this.service.emitToAll<SSE.Payloads.Test>(SSE.Events.Test, {
       user: { id: ctx.user.id, name: ctx.user.name, avatar: ctx.user.avatar },
       message,
