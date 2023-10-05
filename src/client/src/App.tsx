@@ -84,7 +84,6 @@ function App() {
                     level="body-sm"
                     noWrap
                     component={Link}
-                    href={user.url}
                   >
                     Check Intra&apos;s profile here
                   </Typography>

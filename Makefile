@@ -9,6 +9,7 @@ CLIENT_DIR = src/client
 PROD_DIR = production
 
 setup:
+	npm i -g pnpm
 	npm i -g pnpm @nestjs/cli
 	cd $(CLIENT_DIR) && pnpm i
 	cd $(SERVER_DIR) && pnpm i && pnpx prisma generate && pnpx prisma migrate dev --name init
@@ -46,20 +47,27 @@ env:
 	cp envs/.env.tmp $(PROD_DIR)/.env
 	rm envs/.env.tmp
 
-server_dev: start_db
+server_dev: db_start
 	cd $(SERVER_DIR) && pnpm start:dev
 
 client_dev:
 	cd $(CLIENT_DIR) && pnpm dev
 
-start_db:
+db_start:
 	docker compose -f $(PROD_DIR)/docker-compose.yml up -d
 
-stop_db:
+db_stop:
 	docker compose -f $(PROD_DIR)/docker-compose.yml down
 
 db_studio:
 	cd $(SERVER_DIR) && pnpx prisma studio
 
-setup_db:
+db_generate:
 	cd $(SERVER_DIR) && pnpx prisma generate
+
+db_migrate:
+ifndef name
+	$(error name is not set, use `make db_migrate name=<name>`)
+else
+	cd $(SERVER_DIR) && pnpx prisma migrate dev --name $(name)
+endif
