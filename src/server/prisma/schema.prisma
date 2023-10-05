@@ -20,26 +20,16 @@ model User {
   createdAt          DateTime          @default(now()) @map("created_at")
   currentCharacterId Int?              @map("current_character_id")
   characters         Character[]
-  friends            Friend[]          @relation("friendToUser")
-  friendsOf          Friend[]          @relation("friendsOfUser")
+  friends            User[]            @relation("friends")
+  friendOf           User[]            @relation("friends")
   chats              ChatParticipant[]
-  messagesSent       ChatMessage[]
   notifications      Notification[]
+
+  messagesSent   ChatMessage[]
+  lobbiesCreated Lobby[]
 
   @@index([studentId, nickname])
   @@map("users")
-}
-
-model Friend {
-  id        Int      @id @default(autoincrement())
-  user      User     @relation("friendToUser", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId    Int      @map("user_id")
-  friend    User     @relation("friendsOfUser", fields: [friendId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  friendId  Int      @map("friend_id")
-  createdAt DateTime @default(now()) @map("created_at")
-
-  @@index([userId, friendId])
-  @@map("friends")
 }
 
 enum ChatType {
@@ -100,7 +90,7 @@ model ChatMessage {
   type      ChatMessageType @default(Normal)
   message   String          @default("")
   meta      Json?           @default("{}")
-  author    User            @relation(fields: [authorId], references: [id], onDelete: Cascade, onUpdate: Cascade )
+  author    User            @relation(fields: [authorId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   authorId  Int             @map("author_id")
   createdAt DateTime        @default(now()) @map("created_at")
 
@@ -164,4 +154,23 @@ model CharacterItem {
   createdAt   DateTime  @default(now()) @map("created_at")
 
   @@map("characters_inventories")
+}
+
+enum LobbyAcces {
+  LobbyPublic
+  LobbyPrivate
+}
+
+model Lobby {
+  id         Int        @id @default(autoincrement())
+  name       String
+  topic      String?
+  maxPlayers Int        @default(10) @map("max_players")
+  access     LobbyAcces @default(LobbyPublic)
+  accessData Json       @default("{}") @map("access_data")
+  createdAt  DateTime   @default(now()) @map("created_at")
+  creator    User?      @relation(fields: [creatorId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  creatorId  Int        @map("creator_id")
+
+  @@map("lobbies")
 }
