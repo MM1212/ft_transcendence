@@ -27,7 +27,6 @@ const messagesAtom = atom<Message[]>({
 export default function SseTester(): JSX.Element {
   const [messages, setMessages] = useRecoilState(messagesAtom);
   const [message, setMessage] = React.useState<string>("");
-
   useSseEvent<SSE.Payloads.Test>(
     SSE.Events.Test,
     ({ data }) => {
@@ -40,17 +39,15 @@ export default function SseTester(): JSX.Element {
     await tunnel.post(Endpoints.SseTest, { message });
   }, []);
 
-  const ref = React.createRef<HTMLButtonElement>();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
 
-  React.useEffect(() => {
-	ref.current!.style.backgroundColor = 'red';
-  },[ref]);
 
   return React.useMemo(
     () => (
       <Sheet
         variant="soft"
         sx={{
+					height: "fit-content",
           width: "100%",
           p: 2,
           display: "flex",
@@ -104,15 +101,6 @@ export default function SseTester(): JSX.Element {
             }
           />
         </form>
-        <Button
-          sx={{
-            mt: 1,
-          }}
-          onClick={() => setMessage(prev => prev + " This is Transcendence")}
-		ref={ref}
-        >
-          hello world
-        </Button>
         <List style={{ width: "100%" }} size="lg">
           {messages.map(({ message, user: { name, avatar } }, i) => (
             <ListItem key={i}>
@@ -130,6 +118,6 @@ export default function SseTester(): JSX.Element {
         </List>
       </Sheet>
     ),
-    [message, messages, ref, submit]
+    [message, messages, submit]
   );
 }

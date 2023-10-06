@@ -20,6 +20,7 @@ import { Endpoints } from '@typings/api';
 import Link from '@components/Link';
 
 import SseTester from '@components/SseTester';
+import Logo from '@components/Logo';
 
 function App() {
   const [count, setCount] = useState(0);
@@ -76,7 +77,7 @@ function App() {
             <List size="lg">
               <ListItem>
                 <ListItemDecorator>
-                  <Avatar src={user.avatar} />
+                  <Logo {...user}/>
                 </ListItemDecorator>
                 <ListItemContent>
                   <Typography level="title-sm">{user.nickname}</Typography>

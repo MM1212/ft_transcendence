@@ -1,17 +1,19 @@
-export { default as Endpoints } from './endpoints';
+import { IUser } from "@typings/user";
+
+export { default as Endpoints } from "./endpoints";
 
 namespace API {
   export enum RespStatus {
-    Ok = 'ok',
-    Error = 'error',
+    Ok = "ok",
+    Error = "error",
   }
   type RespStatusValuesUnion = RespStatus.Ok | RespStatus.Error;
   interface ResponseOk<T> {
-    status: 'ok';
+    status: "ok";
     data: T;
   }
   export interface ResponseError {
-    status: 'error';
+    status: "error";
     errorMsg?: string;
   }
   export type Response<T> = ResponseOk<T> | ResponseError;
@@ -32,6 +34,10 @@ namespace API {
 
   export const buildErrorResponse = (errorMsg: string): ResponseError =>
     buildResponseObject(RespStatus.Error, undefined, errorMsg) as ResponseError;
+  export namespace Payloads {
+    export interface UsersUserUpdate
+      extends Partial<Pick<IUser, "avatar" | "nickname">> {}
+  }
 }
 
 export default API;
