@@ -11,49 +11,10 @@ export namespace Lobbies {
     transform: IPlayerTransform;
     connections: number[];
   }
-  enum LobbyAccess {
-    Public,
-    Private,
-  }
 
   export interface ILobby {
     id: number;
     name: string;
-    topic?: string;
     players: IPlayer[];
-    maxPlayers: number;
-    access: LobbyAccess;
-    accessData: Record<string, unknown>;
-    createdAt: Date;
-    creatorId: number;
-  }
-
-  export namespace API {
-    export interface ILobbyCreate {
-      name: string;
-      topic?: string;
-      maxPlayers: number;
-      access: LobbyAccess;
-      accessData: Record<string, unknown>;
-    }
-    export interface ILobbyUpdate {
-      id: number;
-      name?: string;
-      topic?: string;
-      maxPlayers?: number;
-      access?: LobbyAccess;
-      accessData?: Record<string, unknown>;
-    }
-    export interface ILobbyJoin {
-      id: number;
-      accessData?: Record<string, unknown>;
-    }
-    export interface ILobbyLeave {
-      id: number;
-    }
-    export interface ILobbyKick {
-      id: number;
-      userId: number;
-    }
   }
 }

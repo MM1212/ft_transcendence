@@ -26,7 +26,6 @@ model User {
   notifications      Notification[]
 
   messagesSent   ChatMessage[]
-  lobbiesCreated Lobby[]
 
   @@index([studentId, nickname])
   @@map("users")
@@ -154,23 +153,4 @@ model CharacterItem {
   createdAt   DateTime  @default(now()) @map("created_at")
 
   @@map("characters_inventories")
-}
-
-enum LobbyAcces {
-  LobbyPublic
-  LobbyPrivate
-}
-
-model Lobby {
-  id         Int        @id @default(autoincrement())
-  name       String
-  topic      String?
-  maxPlayers Int        @default(10) @map("max_players")
-  access     LobbyAcces @default(LobbyPublic)
-  accessData Json       @default("{}") @map("access_data")
-  createdAt  DateTime   @default(now()) @map("created_at")
-  creator    User?      @relation(fields: [creatorId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  creatorId  Int        @map("creator_id")
-
-  @@map("lobbies")
 }
