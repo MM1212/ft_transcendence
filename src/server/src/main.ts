@@ -8,6 +8,8 @@ import ConfigService, { ConfigServiceClass } from '@/modules/config';
 import secureSessionModule from '@fastify/secure-session';
 import cookiesModule from '@fastify/cookie';
 import setupLogger from './helpers/logger';
+import { IoAdapter } from '@nestjs/platform-socket.io';
+import { AppService } from './app.service';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -43,16 +45,20 @@ async function bootstrap() {
     cookie: {
       maxAge: 60 * 60 * 24 * 7,
       path: '/',
-      httpOnly: true,
-      secure: true,
       domain: configService.get<string>('DOMAIN'),
     },
   });
+
+  // Websockets
+
+  app.useWebSocketAdapter(new IoAdapter(app));
 
   const host = {
     ip: configService.get<string>('BIND_IP')!,
     port: configService.get<number>('BACKEND_PORT')!,
   };
+
+  app.get(AppService).setApp(app);
 
   await app.listen(host.port, host.ip);
 }

@@ -8,8 +8,8 @@ namespace API {
     Error = "error",
   }
   type RespStatusValuesUnion = RespStatus.Ok | RespStatus.Error;
-  interface ResponseOk<T> {
-    status: "ok";
+  export interface ResponseOk<T> {
+    status: 'ok';
     data: T;
   }
   export interface ResponseError {
