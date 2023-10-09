@@ -45,8 +45,6 @@ async function bootstrap() {
     cookie: {
       maxAge: 60 * 60 * 24 * 7,
       path: '/',
-      httpOnly: true,
-      secure: true,
       domain: configService.get<string>('DOMAIN'),
     },
   });
