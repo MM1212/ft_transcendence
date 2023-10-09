@@ -4,7 +4,6 @@ import viteLogo from '/vite.svg';
 import Button from '@mui/joy/Button';
 import { useSession } from '@hooks/user';
 import {
-  Avatar,
   ButtonGroup,
   Container,
   List,
@@ -24,7 +23,8 @@ import Logo from '@components/Logo';
 
 function App() {
   const [count, setCount] = useState(0);
-
+	if (count === 51)
+		setCount(0);
   const { user, loading, loggedIn, logout } = useSession();
 
   return (
@@ -45,7 +45,7 @@ function App() {
           <img src={reactLogo} className="logo react" alt="React logo" />
         </a>
       </Stack>
-      <h1>Vite + React</h1>
+      <h1>Lets Transcend</h1>
       <Sheet
         variant="outlined"
         sx={{

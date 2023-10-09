@@ -27,13 +27,15 @@ export default function Logo(user: IUser): JSX.Element {
     },
     []
   );
-
+	const cancelProperties = React.useCallback(async () => {
+		setOpen(false);
+	}, []);
+	
   const submitProperties = React.useCallback(async () => {
     const resp = await tunnel.put<{}, API.Payloads.UsersUserUpdate>(
       Endpoints.UsersUserUpdate,
       input
     );
-    console.log(resp);
     if (resp.status === "ok")
       mutate(buildTunnelEndpoint(Endpoints.UsersMe), undefined, {
         revalidate: true,
@@ -99,7 +101,7 @@ export default function Logo(user: IUser): JSX.Element {
             <Button onClick={submitProperties} disabled={!propertiesUpdated}>
               Submit
             </Button>
-            <Button variant="plain" color="neutral">
+            <Button variant="plain" color="neutral" onClick={cancelProperties}>
               Cancel
             </Button>
           </DialogActions>
