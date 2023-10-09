@@ -40,5 +40,3 @@ export function SseMounter(): null {
   useSseService();
   return null;
 }
-
-export default useSseService;

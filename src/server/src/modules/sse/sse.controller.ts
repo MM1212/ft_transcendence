@@ -12,7 +12,7 @@ import HttpCtx from '@/helpers/decorators/httpCtx';
 import { HTTPContext } from '@typings/http';
 import { SSE } from '@typings/sse';
 import { OnConnectionClosed } from '@/helpers/decorators/socket';
-import { Auth } from '@/modules/auth/guards/auth.guard';
+import { Auth } from '@/modules/auth/decorators';
 
 interface InternalNetPayload {
   event: string;

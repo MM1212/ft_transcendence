@@ -5,6 +5,7 @@ import testTheme from './theme';
 import { SWRConfig } from 'swr';
 import { Router } from 'wouter';
 import { SseMounter } from '@hooks/sse/Provider';
+import { RecoilSessionProvider } from '@hooks/user';
 
 export default function AppProviders({
   children,
@@ -24,6 +25,7 @@ export default function AppProviders({
             },
           }}
         >
+          <RecoilSessionProvider />
           <CssVarsProvider
             theme={testTheme}
             defaultMode="system"
