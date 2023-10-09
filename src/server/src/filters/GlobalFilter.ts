@@ -29,6 +29,7 @@ export class GlobalFilter implements ExceptionFilter {
       }`,
     };
 
+    console.log({ exception, httpStatus, responseBody });
     httpAdapter.reply(ctx.getResponse(), responseBody, httpStatus);
   }
 }

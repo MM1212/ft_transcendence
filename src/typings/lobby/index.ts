@@ -9,12 +9,35 @@ export namespace Lobbies {
   export interface IPlayer {
     user: IUser;
     transform: IPlayerTransform;
-    connections: number[];
+    connections: unknown[];
   }
 
   export interface ILobby {
-    id: number;
-    name: string;
     players: IPlayer[];
+  }
+
+  export namespace Packets {
+    export enum Events {
+      LoadData = 'lobby/loadData',
+      NewPlayer = 'lobby/newPlayer',
+      SetPlayers = 'lobby/setPlayers',
+      RemovePlayer = 'lobby/removePlayer',
+      UpdatePlayersTransform = 'lobby/updatePlayerTransform',
+    }
+    export interface LoadData {
+      players: IPlayer[];
+    }
+    export interface NewPlayer {
+      player: IPlayer;
+    }
+    export interface SetPlayers {
+      players: IPlayer[];
+    }
+    export interface RemovePlayer {
+      id: number;
+    }
+    export interface UpdatePlayersTransform {
+      players: (Partial<IPlayerTransform> & { id: number })[];
+    }
   }
 }

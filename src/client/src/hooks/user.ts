@@ -1,4 +1,4 @@
-import { Endpoints } from '@typings/api';
+import API, { Endpoints } from '@typings/api';
 import { IUser } from '@typings/user';
 import { FetchError, buildTunnelEndpoint, useTunnelEndpoint } from './tunnel';
 import React from 'react';
@@ -6,6 +6,7 @@ import {} from 'wouter';
 import useLocation from 'wouter/use-location';
 import tunnel from '@lib/tunnel';
 import { mutate } from 'swr';
+import { atom, useSetRecoilState } from 'recoil';
 
 type LoadingSession = { readonly loading: boolean };
 
@@ -22,6 +23,11 @@ interface SessionActions {
 type Session = LoadingSession &
   SessionActions &
   (LoggedInSession | { readonly loggedIn: false; readonly user: null });
+
+export const sessionAtom = atom<IUser | null>({
+  key: 'session',
+  default: null,
+});
 
 export const useSessionActions = (): SessionActions => {
   const login = async (): Promise<void> => {
@@ -43,7 +49,6 @@ export const useSession = (): Session => {
     Endpoints.UsersMe
   );
   const actions = useSessionActions();
-
   if (isLoading || isValidating)
     return { ...actions, loading: true, loggedIn: false, user: null };
   if (error || !data || data.status === 'error') {
@@ -72,3 +77,18 @@ export const useLoggedInSession = (
 
   return session as LoggedInSession & LoadingSession;
 };
+
+export const useSessionRecoilService = () => {
+  const setSession = useSetRecoilState(sessionAtom);
+  const { user } = useSession();
+  React.useEffect(() => {
+    setSession(user ?? null);
+  }, [setSession, user]);
+
+  return null;
+};
+
+export function RecoilSessionProvider(): null {
+  useSessionRecoilService();
+  return null;
+}
