@@ -3,8 +3,6 @@ import {
   CanActivate,
   ExecutionContext,
   UnauthorizedException,
-  applyDecorators,
-  UseGuards,
 } from '@nestjs/common';
 import { Request } from '@typings/http';
 import { Observable } from 'rxjs';
@@ -19,8 +17,4 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException();
     return true;
   }
-}
-
-export function Auth() {
-  return applyDecorators(UseGuards(AuthGuard));
 }

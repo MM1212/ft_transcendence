@@ -43,7 +43,7 @@ export class AuthService {
     url.searchParams.append('response_type', 'code');
     return url.toString();
   }
-  private buildRequestTokenUrl(code: string, refreshToken?: string): string {
+  public buildRequestTokenUrl(code: string, refreshToken?: string): string {
     const url = new URL(this.requestTokenUri);
     url.searchParams.append('grant_type', 'authorization_code');
     url.searchParams.append('client_id', this.clientId);
