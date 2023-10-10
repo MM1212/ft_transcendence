@@ -101,7 +101,7 @@ function App() {
                         <Typography level="body-sm">Logout</Typography>
                       </Button>
                       <Button component={Link} href="/lobby">
-                        <Typography level="body-sm">Lobby</Typography>
+                        <Typography level="body-sm" color="warning">Lobby</Typography>
                       </Button>
                     </ButtonGroup>
                   </ListItem>

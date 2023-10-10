@@ -5,6 +5,7 @@ import { atom, selector, useRecoilValue } from 'recoil';
 
 export interface Player extends Lobbies.IPlayer {
   sprite: Pixi.Sprite | null;
+  nickNameText: Pixi.Text | null;
 }
 
 export interface InitdPlayer extends Omit<Player, 'sprite'> {
