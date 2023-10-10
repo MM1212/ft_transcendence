@@ -9,6 +9,7 @@ export interface Player extends Lobbies.IPlayer {
 
 export interface InitdPlayer extends Omit<Player, 'sprite'> {
   sprite: Pixi.Sprite;
+  nickNameText: Pixi.Text;
 }
 
 export const lobbyPlayersAtom = atom<Player[]>({

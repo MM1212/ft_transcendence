@@ -1,4 +1,4 @@
-import { extendTheme } from '@mui/joy';
+import { Components, DrawerOwnerState, DrawerProps, DrawerSlot, StyleOverrides, Theme, drawerClasses, extendTheme } from '@mui/joy';
 import { TransitionAPI } from './transitions';
 
 const transitionConstants: Pick<TransitionAPI, 'duration' | 'easing'> = {
@@ -53,6 +53,21 @@ const testTheme = extendTheme({
         }),
       },
     },
+
+	JoyDrawer: {
+		styleOverrides: {
+			root: ({theme}) => ({
+				[`.${drawerClasses.content}`]: {
+					backgroundColor: `rgba(${theme.vars.palette.background.surface} / 0.72)`,
+				}
+			}),
+		}
+	}
+  } as Components<Theme> & {
+	JoyDrawer: {
+		defaultProps?: Partial<DrawerProps>;
+		styleOverrides?: StyleOverrides<DrawerSlot, DrawerOwnerState, Theme>;
+	  }
   },
 });
 

@@ -100,8 +100,8 @@ function App() {
                       <Button onClick={logout}>
                         <Typography level="body-sm">Logout</Typography>
                       </Button>
-                      <Button>
-                        <Typography level="body-sm">Placeholder</Typography>
+                      <Button component={Link} href="/lobby">
+                        <Typography level="body-sm">Lobby</Typography>
                       </Button>
                     </ButtonGroup>
                   </ListItem>

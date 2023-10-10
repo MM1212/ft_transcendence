@@ -1,6 +1,5 @@
 import { useSocket } from '@hooks/socket';
 import { buildTunnelEndpoint } from '@hooks/tunnel';
-import { Button, List, ListItem, Sheet, Stack } from '@mui/joy';
 import { Endpoints } from '@typings/api';
 import React from 'react';
 import { Pixi, usePixiRenderer } from '@hooks/pixiRenderer';
@@ -14,6 +13,7 @@ import {
   lobbyPlayersAtom,
 } from './state';
 import { useKeybindsToggle } from '@hooks/keybinds';
+import DrawerCloseButton from './menuOptions';
 
 const rendererOptions: Partial<Pixi.IApplicationOptions> = {};
 
@@ -26,10 +26,12 @@ const initSprite = (app: Pixi.Application, player: InitdPlayer) => {
   player.sprite.y = player.transform.position.y;
   player.sprite.name = `lobby/${player.user.id}-${player.user.nickname}`;
   app.stage.addChild(player.sprite);
+  // Set the name property to identify the text later if needed
+  nicknameText.name = `lobby/nickname-${player.user.id}-${player.user.nickname}`;
 };
 
 export default function Lobby() {
-  const { status, useMounter, emit, useListener } = useSocket(
+  const { useMounter, emit, useListener } = useSocket(
     buildTunnelEndpoint(Endpoints.LobbySocket)
   );
 
@@ -43,7 +45,8 @@ export default function Lobby() {
         );
       const players = data.players.map<InitdPlayer>((player) => ({
         ...player,
-        sprite: new Pixi.Sprite(mainTex),
+        sprite: new Pixi.Sprite(mainTex),         
+		nickNameText. 
       }));
       players.forEach((player) => initSprite(app, player));
       ctx.set(lobbyPlayersAtom, players);
@@ -65,7 +68,6 @@ export default function Lobby() {
       player.sprite = new Pixi.Sprite(mainTex);
       initSprite(app, player as InitdPlayer);
       ctx.set(lobbyPlayersAtom, (prev) => [...prev, player]);
-      console.log('BOAS2', player, app);
     },
     []
   );
@@ -84,7 +86,7 @@ export default function Lobby() {
           })
           .map((player) => {
             if (!app || !player.sprite) return player;
-            player.sprite.x = player.transform.position.x;
+            player.sprite.x = player.transform.position.x; 
             player.sprite.y = player.transform.position.y;
             return player;
           })
@@ -122,6 +124,7 @@ export default function Lobby() {
             if (!app || !player.sprite) return player;
             player.sprite.x = player.transform.position.x;
             player.sprite.y = player.transform.position.y;
+			  // Position the text above the player's sprite
             return player;
           })
         );
@@ -133,10 +136,7 @@ export default function Lobby() {
   useListener(Lobbies.Packets.Events.NewPlayer, newPlayer);
   useListener(Lobbies.Packets.Events.SetPlayers, setPlayers);
   useListener(Lobbies.Packets.Events.RemovePlayer, removePlayer);
-  useListener(
-    Lobbies.Packets.Events.UpdatePlayersTransform,
-    updatePlayersTransform
-  );
+  useListener(Lobbies.Packets.Events.UpdatePlayersTransform, updatePlayersTransform);
 
   useMounter();
 
@@ -212,12 +212,15 @@ export default function Lobby() {
   useKeybindsToggle(['KeyW', 'KeyA', 'KeyS', 'KeyD'], onBindToggle, []);
 
   return (
-    <div
-      style={{
-        width: '100%',
-        height: '100%',
-      }}
-      ref={ref}
-    />
+    <>
+		<div
+		style={{
+			width: '100vw',
+			height: '100vh',
+		}}
+		ref={ref}
+		/>
+		<DrawerCloseButton />	
+	</>
   );
 }
