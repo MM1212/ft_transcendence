@@ -8,5 +8,6 @@ import { DbModule } from '@/modules/db';
   imports: [DbModule],
   controllers: [AuthController],
   providers: [AuthService, IntraAPI],
+  exports: [AuthService, IntraAPI],
 })
 export class AuthModule {}
