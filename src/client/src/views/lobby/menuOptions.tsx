@@ -27,7 +27,7 @@ export default function DrawerCloseButton() {
 	const handleOpenDrawer = React.useCallback(
     (key: string, pressed: boolean) => {
       if (!pressed) return;
-      if (key !== "KeyM") return;
+      if (key !== "Escape") return;
 			setOpen((prev) => !prev);
     },
     [setOpen]
@@ -40,7 +40,7 @@ export default function DrawerCloseButton() {
     width: "100%",
   };
 
-	useKeybindsToggle(["KeyM"], handleOpenDrawer, []);
+	useKeybindsToggle(["Escape"], handleOpenDrawer, []);
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -68,7 +68,7 @@ export default function DrawerCloseButton() {
             display: "flex",
             flexDirection: "column",
             gap: 2,
-            height: "35%",
+            height: "50%",
             width: "20%",
             overflow: "auto",
           }}

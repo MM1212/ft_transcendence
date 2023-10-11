@@ -1,7 +1,7 @@
 import { useSocket } from "@hooks/socket";
 import { buildTunnelEndpoint } from "@hooks/tunnel";
 import { Endpoints } from "@typings/api";
-import React from "react";
+import React, { useRef } from "react";
 import { Pixi, usePixiRenderer } from "@hooks/pixiRenderer";
 import { Lobbies } from "@typings/lobby";
 import { useRecoilCallback, useRecoilValue } from "recoil";
@@ -18,7 +18,6 @@ import DrawerCloseButton from "./menuOptions";
 import ChatBox from "./chat";
 
 const rendererOptions: Partial<Pixi.IApplicationOptions> = {};
-
 const mainTex = Pixi.Texture.from("https://pixijs.com/assets/bunny.png");
 const backgroundTex = Pixi.Texture.from(
   buildTunnelEndpoint(Endpoints.LobbyBackground)
@@ -227,8 +226,6 @@ export default function Lobby() {
       console.log("update-velocity", { key, pressed });
 
 			const checkDrawerStatus = ctx.snapshot.getLoadable(drawerOpenAtom).contents;
-
-			console.log('Drawer open status:', checkDrawerStatus);
       const player = await ctx.snapshot.getPromise(lobbyCurrentPlayerSelector);
 
 			if (!player || !player.sprite) return;
@@ -253,7 +250,7 @@ export default function Lobby() {
     },
     [emit]
   );
-  useKeybindsToggle(["KeyW", "KeyA", "KeyS", "KeyD"], onBindToggle, []);
+  useKeybindsToggle(["KeyW", "KeyA", "KeyS", "KeyD", "KeyC"], onBindToggle, []);
 
   return (
     <>
@@ -265,7 +262,8 @@ export default function Lobby() {
         ref={ref}
       />
       <DrawerCloseButton />
-	  <><ChatBox></ChatBox></>
+	  <><ChatBox
+		></ChatBox></>
     </>
   );
 }

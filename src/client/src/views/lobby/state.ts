@@ -1,6 +1,5 @@
 import { Pixi } from '@hooks/pixiRenderer';
 import { sessionAtom } from '@hooks/user';
-import { CompressTwoTone } from '@mui/icons-material';
 import { Lobbies } from '@typings/lobby';
 import { atom, selector, useRecoilValue } from 'recoil';
 
@@ -48,3 +47,10 @@ export const useLobbyPlayers = (): Player[] => useRecoilValue(lobbyPlayersAtom);
 
 export const useCurrentLobbyPlayer = (): Player | null =>
   useRecoilValue(lobbyCurrentPlayerSelector);
+
+// Lets create an arrow function that returns a reference to an Input element
+
+//export const getInputRef = (): React.RefObject<HTMLInputElement> => {
+ // const inputRef = React.useRef<HTMLInputElement>(null);
+ // return inputRef;
+//}
