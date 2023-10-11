@@ -2,7 +2,7 @@ import { Controller, Get } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { User } from '@/helpers/User';
 import HttpCtx from '@/helpers/decorators/httpCtx';
-import { HTTPContext } from 'typings/http';
+import { HTTPContext, Response } from 'typings/http';
 import API from '@typings/api';
 import { ConfigService } from '@nestjs/config';
 
@@ -14,12 +14,13 @@ export class AuthController {
   ) {}
 
   @Get('login')
-  login(@HttpCtx() ctx: HTTPContext): void {
+  login(@HttpCtx() ctx: HTTPContext): Response {
     const { req, res } = ctx;
     const user = req.session.get('user');
     if (user && user.loggedIn && new User(req.session).auth.isTokenValid())
       res.redirect(302, `${this.config.get<string>('FRONTEND_URL')}`);
     else this.service.login(ctx);
+    return res;
   }
   @Get('logout')
   logout(@HttpCtx() ctx: HTTPContext): API.EmptyResponse {

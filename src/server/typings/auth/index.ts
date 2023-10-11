@@ -8,4 +8,14 @@ export namespace Auth {
     scope: string;
     secret_valid_until: number;
   }
+
+  export interface NewToken {
+    type: 'new';
+    code: string;
+  }
+  export interface RefreshToken {
+    type: 'refresh';
+    refreshToken: string;
+  }
+  export type TokenRequest = NewToken | RefreshToken;
 }

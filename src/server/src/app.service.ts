@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import API from '@typings/api';
+import { NestFastifyApplication } from '@nestjs/platform-fastify';
 
 @Injectable()
 export class AppService {
-  getHello(): API.Response<{ message: string }> {
-    return { status: 'ok', data: { message: 'Hello World!' } };
+  public app: NestFastifyApplication;
+  setApp(app: NestFastifyApplication) {
+    this.app = app;
   }
 }

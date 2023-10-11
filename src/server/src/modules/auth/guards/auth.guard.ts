@@ -1,26 +1,49 @@
+import { User } from '@/helpers/User';
 import {
   Injectable,
   CanActivate,
   ExecutionContext,
   UnauthorizedException,
-  applyDecorators,
-  UseGuards,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { Auth } from '@typings/auth';
 import { Request } from '@typings/http';
-import { Observable } from 'rxjs';
+import { AuthService } from '../42/auth.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  canActivate(
-    context: ExecutionContext,
-  ): boolean | Promise<boolean> | Observable<boolean> {
+  constructor(
+    private readonly configService: ConfigService<ImportMetaEnv>,
+    private readonly authService: AuthService,
+  ) {}
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<Request>();
-    if (!request.session.get('user')?.loggedIn)
+    const user = new User(request.session);
+    console.log(
+      request.session.data(),
+      user.loggedIn,
+      user.loggedIn && user.auth.isTokenValid(),
+      Date.now(),
+    );
+
+    if (!user.loggedIn) throw new UnauthorizedException();
+    try {
+      if (!user.auth.isTokenValid()) await this.refreshToken(user);
+    } catch (e) {
       throw new UnauthorizedException();
+    }
     return true;
   }
-}
-
-export function Auth() {
-  return applyDecorators(UseGuards(AuthGuard));
+  private async refreshToken(user: User): Promise<void> {
+    const resp = await this.authService.requestToken<Auth.RefreshToken>(
+      user,
+      'refresh',
+      { refreshToken: user.auth.refreshToken },
+    );
+    if (resp.status !== 'ok') {
+      user.logout();
+      throw new Error('Failed to refresh token');
+    }
+    user.auth.updateNewToken(resp.data);
+  }
 }

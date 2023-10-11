@@ -6,8 +6,11 @@
     "deleteOutDir": true,
     "typeCheck": true,
     "assets": [
-      ".env.*"
-    ]
+      ".env.*",
+      "prisma/schema.prisma",
+      "static/*"
+    ],
+    "watchAssets": true
   },
   "entryFile": "server/src/main"
 }

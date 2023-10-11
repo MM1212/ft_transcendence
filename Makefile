@@ -9,6 +9,7 @@ CLIENT_DIR = src/client
 PROD_DIR = production
 
 setup:
+	git lfs pull
 	npm i -g pnpm
 	npm i -g pnpm @nestjs/cli
 	cd $(CLIENT_DIR) && pnpm i

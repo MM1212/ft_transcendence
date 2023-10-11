@@ -15,17 +15,22 @@ export default function setupLogger(): FastifyBaseLogger {
   const reqTransform = winston.format((info) => {
     if (typeof info.message === 'object') {
       if (info.message.req) {
-        info.prefix = clc.yellow("[REQ]");
+        info.prefix = clc.yellow('[REQ]');
         info.message = `${info.message.req.method} ${info.message.req.url} ${info.message.req.ip} ${info.message.req.headers['user-agent']}`;
-      }
-      else if (info.message.res) {
-        info.prefix = clc.yellow("[RES]");
-        info.message = `${info.message.res.statusCode} ${info.message.res.statusMessage ?? ''} ${info.message.res.getHeader('content-length') || 0}b ${info.message.res.getHeader('content-type') || ''}`;
-      }
+      } else if (info.message.res) {
+        info.prefix = clc.yellow('[RES]');
+        info.message = `${info.message.res.statusCode} ${
+          info.message.res.statusMessage ?? ''
+        } ${info.message.res.getHeader('content-length') || 0}b ${
+          info.message.res.getHeader('content-type') || ''
+        }`;
+      } else if (info.message.err) {
+        info.prefix = clc.red('[ERR]');
+        info.message = `${info.message.err.name} ${info.message.err.message}`;
+      } else info.message = JSON.stringify(info.message, null, 2);
     }
     return info;
   });
-
 
   const colors = {
     fatal: clc.red,
