@@ -8,13 +8,14 @@ import { useRecoilCallback, useRecoilValue } from "recoil";
 import {
   InitdPlayer,
   Player,
+  drawerOpenAtom,
   lobbyAppAtom,
   lobbyCurrentPlayerSelector,
   lobbyPlayersAtom,
 } from "./state";
 import { useKeybindsToggle } from "@hooks/keybinds";
 import DrawerCloseButton from "./menuOptions";
-import { useTheme } from "@mui/joy";
+import ChatBox from "./chat";
 
 const rendererOptions: Partial<Pixi.IApplicationOptions> = {};
 
@@ -74,7 +75,6 @@ export default function Lobby() {
       const { player }: { player: Player } = data as { player: Player };
       const app = await ctx.snapshot.getPromise(lobbyAppAtom);
       console.log("BOAS", player, app);
-
       if (!app)
         return ctx.set(lobbyPlayersAtom, (prev) => [
           ...prev,
@@ -139,15 +139,14 @@ export default function Lobby() {
       async ({ players }: Lobbies.Packets.UpdatePlayersTransform) => {
         const app = await ctx.snapshot.getPromise(lobbyAppAtom);
         ctx.set(lobbyPlayersAtom, (prev) =>
-          prev.map((player) => {
-            const data = players.find((p) => player.user.id === p.id);
-            if (!data) return player;
+				prev.map((player) => {
+					const data = players.find((p) => player.user.id === p.id);
+					if (!data) return player;
             if (data.position) player.transform.position = data.position;
             if (data.velocity) player.transform.velocity = data.velocity;
             if (!app || !player.sprite) return player;
             player.sprite.x = player.transform.position.x;
             player.sprite.y = player.transform.position.y;
-            // Position the text above the player's sprite
             return player;
           })
         );
@@ -221,11 +220,19 @@ export default function Lobby() {
       app.ticker.remove(tick);
     };
   }, [players, app]);
+
   const onBindToggle = useRecoilCallback(
     (ctx) => async (key, pressed) => {
+
       console.log("update-velocity", { key, pressed });
+
+			const checkDrawerStatus = ctx.snapshot.getLoadable(drawerOpenAtom).contents;
+
+			console.log('Drawer open status:', checkDrawerStatus);
       const player = await ctx.snapshot.getPromise(lobbyCurrentPlayerSelector);
-      if (!player || !player.sprite) return;
+
+			if (!player || !player.sprite) return;
+			if (checkDrawerStatus) return;
       emit("update-velocity", { key, pressed });
       switch (key) {
         case "KeyA":
@@ -258,6 +265,7 @@ export default function Lobby() {
         ref={ref}
       />
       <DrawerCloseButton />
+	  <><ChatBox></ChatBox></>
     </>
   );
 }

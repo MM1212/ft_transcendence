@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState} from "react";
 import Box from "@mui/joy/Box";
-import Drawer, { drawerClasses } from "@mui/joy/Drawer";
-import ModalClose from "@mui/joy/ModalClose";
+import Drawer from "@mui/joy/Drawer";
 
 import { List, ListItem, Button, styled, Sheet, Typography } from "@mui/joy";
 import { useKeybindsToggle } from "@hooks/keybinds";
 import { Link } from "wouter";
-import { GlobalStyles } from "@mui/joy";
+import { drawerOpenAtom } from "./state";
+import { useRecoilState } from "recoil";
 //import HomeIcon from "@components/IconMaterial";
 
 const CustomDrawer = styled(Drawer)(({ theme }) => ({
@@ -15,23 +15,32 @@ const CustomDrawer = styled(Drawer)(({ theme }) => ({
   //   },
 }));
 
+
 export default function DrawerCloseButton() {
-  const [open, setOpen] = useState(false);
+	const [open, setOpen] = useRecoilState(drawerOpenAtom);
 
-  const handleCloseDrawer = () => {
-    setOpen(false);
+	const handleCloseDrawer = () => {
+		setOpen(false);
   };
-
-  const handleOpenDrawer = React.useCallback(
+	
+  
+	const handleOpenDrawer = React.useCallback(
     (key: string, pressed: boolean) => {
       if (!pressed) return;
       if (key !== "KeyM") return;
-      setOpen(prev => !prev);
+			setOpen((prev) => !prev);
     },
-    []
+    [setOpen]
   );
+  const listItemStyles = {
+    display: "flex",
+    bgcolor: "rgba(0, 0, 0, 0.3)",
+    justifyContent: "center",
+    p: 1,
+    width: "100%",
+  };
 
-  useKeybindsToggle(["KeyM"], handleOpenDrawer, []);
+	useKeybindsToggle(["KeyM"], handleOpenDrawer, []);
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -41,8 +50,11 @@ export default function DrawerCloseButton() {
         slotProps={{
           content: {
             sx: {
-              bgcolor: "transparent",
-              p: { md: 3, sm: 0 },
+              width: "100%",
+              justifyContent: "space-evenly",
+              alignItems: "center",
+              bgcolor: "rgba(51,51,51)",
+              p: { md: 5, sm: 0 },
               boxShadow: "none",
             },
           },
@@ -51,39 +63,34 @@ export default function DrawerCloseButton() {
         <Sheet
           sx={{
             borderRadius: "md",
+            bgcolor: "rgba(0, 0, 0, 0.3)",
             p: 2,
             display: "flex",
             flexDirection: "column",
             gap: 2,
-            height: "100%",
+            height: "35%",
+            width: "20%",
             overflow: "auto",
           }}
-        >
-		<GlobalStyles
-        styles={(theme) => ({
-          ':root': {
-            '--Sidebar-width': '220px',
-            [theme.breakpoints.up('lg')]: {
-              '--Sidebar-width': '240px',
-            },
-          },
-        })}
-      	/>
-          <ModalClose />
+		>
+		<Typography sx={{ 
+			listItemStyles,
+			alignSelf: "center", 
+				}}>Game Menu</Typography>
           <List>
             <ListItem>
-			<Button component={Link} href="/">
-			<Typography>Main Menu</Typography>
-			</Button>
+              <Button sx={listItemStyles} component={Link} href="/">
+                <Typography>Home</Typography>
+              </Button>
             </ListItem>
             <ListItem>
-              <Button>Costumize</Button>
+              <Button sx={listItemStyles}>Costumize</Button>
             </ListItem>
-			<ListItem>
-              <Button>Exit</Button>
+            <ListItem>
+              <Button sx={listItemStyles}>Key Bindings</Button>
             </ListItem>
-			<ListItem>
-              <Button>Exit</Button>
+            <ListItem>
+              <Button sx={listItemStyles}>Exit Game</Button>
             </ListItem>
           </List>
         </Sheet>
@@ -91,8 +98,3 @@ export default function DrawerCloseButton() {
     </Box>
   );
 }
-
-//<ListItem>
-//	<HomeIcon/>
-//    <Button>Home</Button>
-// </ListItem>*/

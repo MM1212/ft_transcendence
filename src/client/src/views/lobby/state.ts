@@ -1,5 +1,6 @@
 import { Pixi } from '@hooks/pixiRenderer';
 import { sessionAtom } from '@hooks/user';
+import { CompressTwoTone } from '@mui/icons-material';
 import { Lobbies } from '@typings/lobby';
 import { atom, selector, useRecoilValue } from 'recoil';
 
@@ -34,6 +35,13 @@ export const lobbyCurrentPlayerSelector = selector<Player | null>({
     return players.find((player) => player.user.id === session.id) ?? null;
   },
   dangerouslyAllowMutability: true,
+});
+
+// Lets create a context that will keep the state of an element
+
+export const drawerOpenAtom = atom<boolean>({
+	  key: 'lobby/drawerOpen',
+  default: false,
 });
 
 export const useLobbyPlayers = (): Player[] => useRecoilValue(lobbyPlayersAtom);
