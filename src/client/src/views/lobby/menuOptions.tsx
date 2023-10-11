@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import Box from "@mui/joy/Box";
 import Drawer, { drawerClasses } from "@mui/joy/Drawer";
-import DialogTitle from "@mui/joy/DialogTitle";
 import ModalClose from "@mui/joy/ModalClose";
 
 import { List, ListItem, Button, styled, Sheet, Typography } from "@mui/joy";
 import { useKeybindsToggle } from "@hooks/keybinds";
 import { Link } from "wouter";
+import { GlobalStyles } from "@mui/joy";
+//import HomeIcon from "@components/IconMaterial";
 
 const CustomDrawer = styled(Drawer)(({ theme }) => ({
   //   [`.${drawerClasses.content}`]: {
@@ -58,6 +59,16 @@ export default function DrawerCloseButton() {
             overflow: "auto",
           }}
         >
+		<GlobalStyles
+        styles={(theme) => ({
+          ':root': {
+            '--Sidebar-width': '220px',
+            [theme.breakpoints.up('lg')]: {
+              '--Sidebar-width': '240px',
+            },
+          },
+        })}
+      	/>
           <ModalClose />
           <List>
             <ListItem>
@@ -66,6 +77,12 @@ export default function DrawerCloseButton() {
 			</Button>
             </ListItem>
             <ListItem>
+              <Button>Costumize</Button>
+            </ListItem>
+			<ListItem>
+              <Button>Exit</Button>
+            </ListItem>
+			<ListItem>
               <Button>Exit</Button>
             </ListItem>
           </List>
@@ -74,3 +91,8 @@ export default function DrawerCloseButton() {
     </Box>
   );
 }
+
+//<ListItem>
+//	<HomeIcon/>
+//    <Button>Home</Button>
+// </ListItem>*/
