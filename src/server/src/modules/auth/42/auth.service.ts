@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { HTTPContext } from 'typings/http';
+import { HTTPContext, Response } from 'typings/http';
 import crypto from 'crypto';
 import API from '@typings/api';
 import { User } from '@/helpers/User';
@@ -43,14 +43,31 @@ export class AuthService {
     url.searchParams.append('response_type', 'code');
     return url.toString();
   }
-  public buildRequestTokenUrl(code: string, refreshToken?: string): string {
+  public buildRequestTokenUrl(req: Auth.TokenRequest): string {
     const url = new URL(this.requestTokenUri);
-    url.searchParams.append('grant_type', 'authorization_code');
+    let grantType: string;
+    switch (req.type) {
+      case 'new':
+        grantType = 'authorization_code';
+        break;
+      case 'refresh':
+        grantType = 'refresh_token';
+        break;
+      default:
+        throw new Error('Invalid token type');
+    }
+    url.searchParams.append('grant_type', grantType);
     url.searchParams.append('client_id', this.clientId);
     url.searchParams.append('client_secret', this.secret);
-    url.searchParams.append('code', code);
     url.searchParams.append('redirect_uri', this.redirectUri);
-    if (refreshToken) url.searchParams.append('refresh_token', refreshToken);
+    switch (req.type) {
+      case 'new':
+        url.searchParams.append('code', req.code);
+        break;
+      case 'refresh':
+        url.searchParams.append('refresh_token', req.refreshToken);
+        break;
+    }
     return url.toString();
   }
   public login(ctx: HTTPContext): void {
@@ -60,43 +77,45 @@ export class AuthService {
     console.log(`[Auth] [42] Login nonce: ${nonce} url: ${url}`);
     ctx.res.status(302).redirect(url);
   }
+  public async requestToken<T extends Auth.TokenRequest>(
+    user: User,
+    type: T['type'],
+    data: Omit<T, 'type'>,
+  ): Promise<API.Response<Auth.Token>> {
+    try {
+      const resp = await fetch(
+        this.buildRequestTokenUrl({ type, ...data } as T),
+        {
+          method: 'POST',
+        },
+      ).then((resp) => resp.json());
+      if (!resp) return API.buildErrorResponse('Failed to get token');
+      const token = resp as Auth.Token;
+      return API.buildOkResponse(token);
+    } catch (e) {
+      return API.buildErrorResponse(e.message);
+    }
+  }
   public async callback({
     req,
     res,
     session,
-  }: HTTPContext): Promise<API.Response<string> | undefined> {
+  }: HTTPContext): Promise<API.Response<string> | Response> {
     const { code, state } = req.query as Record<string, string>;
     console.log(`[Auth] [42] Callback code: ${code} state: ${state}`);
 
-    if (!code || !state) {
-      res.status(400);
-      return API.buildErrorResponse('Missing code or state');
-    }
+    if (!code || !state)
+      return res
+        .status(400)
+        .send(API.buildErrorResponse('Missing code or state'));
     const nonce = session.get('nonce');
-    if (!nonce || nonce !== state) {
-      res.status(400);
-      return API.buildErrorResponse('Invalid state');
-    }
+    if (!nonce || nonce !== state)
+      return res.status(400).send(API.buildErrorResponse('Invalid state'));
     session.set('nonce', undefined);
     const user = new User(session);
-    const resp = await fetch(
-      this.buildRequestTokenUrl(
-        code,
-        user.loggedIn ? user.auth.refreshToken : undefined,
-      ),
-      {
-        method: 'POST',
-      },
-    ).then((resp) => resp.json());
-
-    if (!resp) {
-      res.status(500);
-      return API.buildErrorResponse('Failed to get token');
-    }
-    const token = resp as Auth.Token;
-
-    user.update('token', token);
-    user.update('loggedIn', true);
+    const resp = await this.requestToken<Auth.NewToken>(user, 'new', { code });
+    if (resp.status !== 'ok') return res.status(500).send(resp);
+    user.auth.updateNewToken(resp.data);
     this.intra.token = user.auth.token;
     try {
       const apiData = await this.intra.me();
@@ -117,8 +136,10 @@ export class AuthService {
       }
     } catch (e) {
       console.error(e);
+      return res.status(500).send(API.buildErrorResponse(e.message));
     }
-
-    res.redirect(302, `${this.config.get<string>('FRONTEND_URL')}`);
+    console.log(`[Auth] [42] Logged in as `, user.session.data());
+    user.update('loggedIn', true);
+    return res.redirect(302, `${this.config.get<string>('FRONTEND_URL')}`);
   }
 }

@@ -30,40 +30,40 @@ export class User {
   }
   get id(): IUser['id'] {
     if (!this.sData?.loggedIn) {
-      throw new Error('User is not logged in');
+      throw new Error('User is not logged in; User#id');
     }
     return this.sData?.id;
   }
   get studentId(): IUser['studentId'] {
     if (!this.sData?.loggedIn) {
-      throw new Error('User is not logged in');
+      throw new Error('User is not logged in; User#studentId');
     }
     return this.sData?.studentId;
   }
 
   get name(): IUser['nickname'] {
     if (!this.sData?.loggedIn) {
-      throw new Error('User is not logged in');
+      throw new Error('User is not logged in; User#name');
     }
     return this.sData?.nickname;
   }
 
   get avatar(): IUser['avatar'] {
     if (!this.sData?.loggedIn) {
-      throw new Error('User is not logged in');
+      throw new Error('User is not logged in; User#avatar');
     }
     return this.sData?.avatar;
   }
 
   get asLoggedIn(): IAuthSessionLoggedUser {
     if (!this.sData?.loggedIn) {
-      throw new Error('User is not logged in');
+      throw new Error('User is not logged in; User#asLoggedIn');
     }
     return this.data.data()?.user as unknown as IAuthSessionLoggedUser;
   }
   get createdAt(): IUser['createdAt'] {
     if (!this.sData?.loggedIn) {
-      throw new Error('User is not logged in');
+      throw new Error('User is not logged in; User#createdAt');
     }
     return this.sData?.createdAt;
   }
