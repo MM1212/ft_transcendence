@@ -14,22 +14,29 @@ export class GlobalFilter implements ExceptionFilter {
 
   catch(exception: unknown, host: ArgumentsHost): void {
     const { httpAdapter } = this.httpAdapterHost;
-
     const ctx = host.switchToHttp();
+    try {
+      const httpStatus =
+        exception instanceof HttpException
+          ? exception.getStatus()
+          : HttpStatus.INTERNAL_SERVER_ERROR;
 
-    const httpStatus =
-      exception instanceof HttpException
-        ? exception.getStatus()
-        : HttpStatus.INTERNAL_SERVER_ERROR;
+      const responseBody: API.ResponseError = {
+        status: 'error',
+        errorMsg: `${httpStatus} ${
+          exception instanceof Error ? exception.message : 'Unknown error'
+        }`,
+      };
 
-    const responseBody: API.ResponseError = {
-      status: 'error',
-      errorMsg: `${httpStatus} ${
-        exception instanceof Error ? exception.message : 'Unknown error'
-      }`,
-    };
-
-    console.log({ exception, httpStatus, responseBody });
-    httpAdapter.reply(ctx.getResponse(), responseBody, httpStatus);
+      // console.log({ exception, httpStatus, responseBody });
+      httpAdapter.reply(ctx.getResponse(), responseBody, httpStatus);
+    } catch (e) {
+      console.error(e);
+      httpAdapter.reply(
+        ctx.getResponse(),
+        API.buildErrorResponse(e.message),
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }
