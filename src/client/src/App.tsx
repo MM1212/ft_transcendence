@@ -87,7 +87,12 @@ function App() {
                     </ListItemDecorator>
                     <ListItemContent>
                       <Typography level="title-sm">{user.nickname}</Typography>
-                      <Typography level="body-sm" noWrap component={Link}>
+                      <Typography
+                        level="body-sm"
+                        noWrap
+                        component={Link}
+                        to={`https://profile.intra.42.fr/users/${user.nickname}`}
+                      >
                         Check Intra&apos;s profile here
                       </Typography>
                     </ListItemContent>
