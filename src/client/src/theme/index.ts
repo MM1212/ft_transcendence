@@ -24,7 +24,8 @@ function resolveVar(this: Theme, variable: ThemeCssVar): string {
     `--${this.cssVarPrefix ? `${this.cssVarPrefix}-` : ''}${variable}`
   );
   if (!value) {
-    throw new Error(`Failed to resolve variable: ${variable}`);
+    console.warn(`CSS variable ${variable} is not defined`);
+    return '';
   }
   return value.trim();
 }
