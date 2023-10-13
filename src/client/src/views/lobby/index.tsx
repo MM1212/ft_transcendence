@@ -253,7 +253,7 @@ export default function Lobby() {
     },
     [emit]
   );
-  useKeybindsToggle(["KeyW", "KeyA", "KeyS", "KeyD", "KeyC"], onBindToggle, []);
+  useKeybindsToggle(["KeyW", "KeyA", "KeyS", "KeyD"], onBindToggle, []);
 
   return (
     <>

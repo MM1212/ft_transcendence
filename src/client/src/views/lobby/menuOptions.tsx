@@ -1,4 +1,4 @@
-import React, { useState} from "react";
+import React from "react";
 import Box from "@mui/joy/Box";
 import Drawer from "@mui/joy/Drawer";
 
@@ -15,20 +15,18 @@ const CustomDrawer = styled(Drawer)(({ theme }) => ({
   //   },
 }));
 
-
 export default function DrawerCloseButton() {
-	const [open, setOpen] = useRecoilState(drawerOpenAtom);
+  const [open, setOpen] = useRecoilState(drawerOpenAtom);
 
-	const handleCloseDrawer = () => {
-		setOpen(false);
+  const handleCloseDrawer = () => {
+    setOpen(false);
   };
-	
-  
-	const handleOpenDrawer = React.useCallback(
+
+  const handleOpenDrawer = React.useCallback(
     (key: string, pressed: boolean) => {
       if (!pressed) return;
       if (key !== "Escape") return;
-			setOpen((prev) => !prev);
+      setOpen((prev) => !prev);
     },
     [setOpen]
   );
@@ -40,7 +38,7 @@ export default function DrawerCloseButton() {
     width: "100%",
   };
 
-	useKeybindsToggle(["Escape"], handleOpenDrawer, []);
+  useKeybindsToggle(["Escape"], handleOpenDrawer, []);
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -72,11 +70,15 @@ export default function DrawerCloseButton() {
             width: "20%",
             overflow: "auto",
           }}
-		>
-		<Typography sx={{ 
-			listItemStyles,
-			alignSelf: "center", 
-				}}>Game Menu</Typography>
+        >
+          <Typography
+            sx={{
+              listItemStyles,
+              alignSelf: "center",
+            }}
+          >
+            Game Menu
+          </Typography>
           <List>
             <ListItem>
               <Button sx={listItemStyles} component={Link} href="/">

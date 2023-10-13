@@ -3,6 +3,8 @@ import { Input, Typography } from "@mui/joy";
 import { Box, Sheet } from "@mui/joy";
 import React, { useRef, useState } from "react";
 import { useLoggedInSession } from "@hooks/user";
+import { Resizable } from "react-resizable";
+
 interface ChatBoxProps {}
 
 const ChatBox: React.FC<ChatBoxProps> = () => {
@@ -11,6 +13,7 @@ const ChatBox: React.FC<ChatBoxProps> = () => {
   const [messages, setMessages] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const messagesRef = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState(300);
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputMessage(e.target.value);
   };
@@ -53,69 +56,79 @@ const ChatBox: React.FC<ChatBoxProps> = () => {
     },
     [focus]
   );
-  const renderColoredNickname = () => {
-    const [nickname, ...rest] = inputMessage.split(":");
-    return (
-      <span>
-        <Typography style={{ color: "blue" }}>{nickname}</Typography>:
-        {rest.join(":")}
-      </span>
-    );
+  const onResize = (e: any, data: any) => {
+    setWidth(data.size.width);
   };
 
   useKeybindsToggle(["Tab"], event, []);
 
+  const listItemStyles = {
+    padding: "10px",
+    maxHeight: "200px",
+    height: "25%",
+    overflowY: "auto",
+    bgcolor: "rgba(0, 0, 0, 0.3)",
+    width: "100%",
+  };
+
+  //Rezise is not working
   return (
-    <Box
-      sx={{
-        maxWidth: "500px",
-        width: "50%",
-        margin: "auto",
-        position: "absolute",
-        bottom: "10px",
-        left: "10px",
-        whiteSpace: "pre-wrap",
-        wordWrap: "break-word",
-      }}
+    <Resizable
+      width={width}
+      height={200}
+      onResize={onResize}
+      draggableOpts={{ enableUserSelectHack: false }}
     >
-      <Sheet
+      <Box
         sx={{
-          padding: "10px",
-          maxHeight: "200px",
-          height: "25%",
-          overflowY: "auto",
-          bgcolor: "rgba(0, 0, 0, 0.3)",
-          width: "100%",
-        }}
-        ref={messagesRef}
-      >
-        {messages.map((message, index) => (
-          <Typography key={index}>{message}</Typography>
-        ))}
-      </Sheet>
-      <Sheet
-        sx={{
-          marginTop: "5px",
-          display: "flex",
-          bgcolor: "rgba(0, 0, 0, 0.3)",
-          width: "100%",
+          maxWidth: "500px",
+          width: "50%",
+          margin: "auto",
+          position: "absolute",
+          bottom: "10px",
+          left: "10px",
+          whiteSpace: "pre-wrap",
+          wordWrap: "break-word",
         }}
       >
-        <Input
-          ref={inputRef}
-          type="text"
-          value={inputMessage}
-          onChange={handleInputChange}
-          onKeyDown={handleKeyPress}
-          style={{
-            flex: 1,
-            padding: "5px",
-            backgroundColor: "rgba(0, 0, 0, 0.3)",
+        <Sheet sx={listItemStyles} ref={messagesRef}>
+          {messages.map((message, index) => {
+            const [nickname, ...rest] = message.split(":");
+            return (
+              <Box
+                key={index}
+                sx={{ display: "flex", bgcolor: "rgba(0, 0, 0, 0)" }}
+              >
+                <Typography sx={{ color: "green" }}>{nickname}</Typography>:
+                <Typography>{rest.join(":")}</Typography>
+              </Box>
+            );
+          })}
+        </Sheet>
+        <Sheet
+          sx={{
+            marginTop: "5px",
+            display: "flex",
+            bgcolor: "rgba(0, 0, 0, 0.3)",
             width: "100%",
           }}
-        />
-      </Sheet>
-    </Box>
+        >
+          <Input
+            ref={inputRef}
+            type="text"
+            value={inputMessage}
+            onChange={handleInputChange}
+            onKeyDown={handleKeyPress}
+            style={{
+              flex: 1,
+              padding: "5px",
+              backgroundColor: "rgba(0, 0, 0, 0.3)",
+              width: "100%",
+            }}
+          />
+        </Sheet>
+      </Box>
+    </Resizable>
   );
 };
 

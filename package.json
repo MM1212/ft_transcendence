@@ -2,7 +2,8 @@
 	"dependencies": {
 		"@mui/icons-material": "^5.14.13",
 		"@mui/material": "^5.14.13",
-		"lodash.debounce": "^4.0.8"
+		"lodash.debounce": "^4.0.8",
+		"react-resizable": "^3.0.5"
 	},
 	"devDependencies": {
 		"@types/lodash.debounce": "^4.0.7"
