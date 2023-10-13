@@ -14,6 +14,7 @@ import {
   lobbyPlayersAtom,
 } from './state';
 import { useKeybindsToggle } from '@hooks/keybinds';
+import Link from '@components/Link';
 
 const rendererOptions: Partial<Pixi.IApplicationOptions> = {};
 
@@ -160,30 +161,13 @@ export default function Lobby() {
       }
       app.ticker.maxFPS = 60;
       app.ticker.minFPS = 60;
-      return () => void 0;
+      return () => {
+        ctx.set(lobbyAppAtom, null);
+      };
     },
     []
   );
   usePixiRenderer(ref, onAppMount, rendererOptions);
-  const players = useRecoilValue(lobbyPlayersAtom);
-  const app = useRecoilValue(lobbyAppAtom);
-  React.useEffect(() => {
-    if (!app) return;
-    const tick = async (delta: number) => {
-      for (const player of players) {
-        if (!player.sprite) continue;
-        player.transform.position.x += player.transform.velocity.x * delta;
-        player.transform.position.y += player.transform.velocity.y * delta;
-
-        player.sprite.x = player.transform.position.x;
-        player.sprite.y = player.transform.position.y;
-      }
-    };
-    app.ticker.add(tick);
-    return () => {
-      app.ticker.remove(tick);
-    };
-  }, [players, app]);
   const onBindToggle = useRecoilCallback(
     (ctx) => async (key, pressed) => {
       console.log('update-velocity', { key, pressed });
@@ -212,12 +196,17 @@ export default function Lobby() {
   useKeybindsToggle(['KeyW', 'KeyA', 'KeyS', 'KeyD'], onBindToggle, []);
 
   return (
-    <div
-      style={{
-        width: '100%',
-        height: '100%',
-      }}
-      ref={ref}
-    />
+    <>
+      <div
+        style={{
+          width: '100vw',
+          height: '100vh',
+        }}
+        ref={ref}
+      />
+      <Button component={Link} href="/" variant="soft">
+        Back
+      </Button>
+    </>
   );
 }

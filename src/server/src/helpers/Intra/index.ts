@@ -1,8 +1,8 @@
-import { Injectable, Scope } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Intra } from '@typings/intra';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class IntraAPI {
   private accessToken?: string = undefined;
   constructor(private readonly config: ConfigService<ImportMetaEnv>) {}

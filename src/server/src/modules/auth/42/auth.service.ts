@@ -115,6 +115,7 @@ export class AuthService {
     const user = new User(session);
     const resp = await this.requestToken<Auth.NewToken>(user, 'new', { code });
     if (resp.status !== 'ok') return res.status(500).send(resp);
+    user.update('loggedIn', true);
     user.auth.updateNewToken(resp.data);
     this.intra.token = user.auth.token;
     try {
@@ -136,10 +137,10 @@ export class AuthService {
       }
     } catch (e) {
       console.error(e);
+      user.update('loggedIn', false);
       return res.status(500).send(API.buildErrorResponse(e.message));
     }
     console.log(`[Auth] [42] Logged in as `, user.session.data());
-    user.update('loggedIn', true);
     return res.redirect(302, `${this.config.get<string>('FRONTEND_URL')}`);
   }
 }
