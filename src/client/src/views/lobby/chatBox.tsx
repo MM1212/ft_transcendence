@@ -1,7 +1,8 @@
-import { Typography } from "@mui/joy";
+import { useKeybindsToggle } from "@hooks/keybinds";
+import { Input, Typography } from "@mui/joy";
 import { Box, Sheet } from "@mui/joy";
-import React, { useEffect, useRef, useState } from "react";
-
+import React, { useRef, useState } from "react";
+import { useLoggedInSession } from "@hooks/user";
 interface ChatBoxProps {}
 
 const ChatBox: React.FC<ChatBoxProps> = () => {
@@ -9,17 +10,27 @@ const ChatBox: React.FC<ChatBoxProps> = () => {
   const [focus, setFocus] = useState(false);
   const [messages, setMessages] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
-
+  const messagesRef = useRef<HTMLDivElement>(null);
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputMessage(e.target.value);
   };
 
+  const { user } = useLoggedInSession();
   const handleSendMessage = () => {
     if (inputMessage.trim() !== "") {
-      setMessages((prevMessages) => [...prevMessages, inputMessage]);
+      const nickname = user.nickname;
+      const message = `${nickname}: ${inputMessage}`;
+      setMessages((prevMessages) => [...prevMessages, message]);
       setInputMessage("");
     }
   };
+
+  React.useEffect(() => {
+    messagesRef.current?.scrollTo({
+      top: messagesRef.current.scrollHeight,
+      behavior: "smooth",
+    });
+  }, [messages, messagesRef]);
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
@@ -27,46 +38,59 @@ const ChatBox: React.FC<ChatBoxProps> = () => {
     }
   };
 
-  useEffect(() => {
-    const event = (e: KeyboardEvent) => {
-      if (e.key === "Tab" && !focus) {
+  const event = React.useCallback(
+    (key: string, pressed: boolean, e: KeyboardEvent) => {
+      if (!pressed) return;
+      if (key === "Tab" && !focus) {
         setFocus(true);
-        inputRef.current?.focus();
+        inputRef.current?.querySelector("input")?.focus();
         e.preventDefault();
-      } else if (e.key === "Tab" && focus) {
+      } else if (key === "Tab" && focus) {
         setFocus(false);
-        inputRef.current?.blur();
+        inputRef.current?.querySelector("input")?.blur();
         e.preventDefault();
       }
-    };
-    window.addEventListener("keydown", event);
-    return () => {
-      window.removeEventListener("keydown", event);
-    };
-  }, [focus]);
+    },
+    [focus]
+  );
+  const renderColoredNickname = () => {
+    const [nickname, ...rest] = inputMessage.split(":");
+    return (
+      <span>
+        <Typography style={{ color: "blue" }}>{nickname}</Typography>:
+        {rest.join(":")}
+      </span>
+    );
+  };
+
+  useKeybindsToggle(["Tab"], event, []);
 
   return (
     <Box
       sx={{
         maxWidth: "500px",
+        width: "50%",
         margin: "auto",
         position: "absolute",
         bottom: "10px",
         left: "10px",
+        whiteSpace: "pre-wrap",
+        wordWrap: "break-word",
       }}
     >
       <Sheet
         sx={{
           padding: "10px",
-          maxHeight: "100px",
+          maxHeight: "200px",
+          height: "25%",
           overflowY: "auto",
           bgcolor: "rgba(0, 0, 0, 0.3)",
           width: "100%",
         }}
+        ref={messagesRef}
       >
         {messages.map((message, index) => (
           <Typography key={index}>{message}</Typography>
-
         ))}
       </Sheet>
       <Sheet
@@ -77,8 +101,7 @@ const ChatBox: React.FC<ChatBoxProps> = () => {
           width: "100%",
         }}
       >
-        {/* Can't use Input element*/}
-        <input
+        <Input
           ref={inputRef}
           type="text"
           value={inputMessage}

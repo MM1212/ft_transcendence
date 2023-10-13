@@ -27,3 +27,4 @@ export const useKeybindsToggle = <T extends string[]>(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [handler, keys, ...deps]);
 };
+
