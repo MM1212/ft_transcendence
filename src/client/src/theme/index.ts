@@ -1,4 +1,4 @@
-import { extendTheme } from '@mui/joy';
+import { Theme, ThemeCssVar, extendTheme } from '@mui/joy';
 import { TransitionAPI } from './transitions';
 
 const transitionConstants: Pick<TransitionAPI, 'duration' | 'easing'> = {
@@ -18,6 +18,16 @@ const transitionConstants: Pick<TransitionAPI, 'duration' | 'easing'> = {
     sharp: 'cubic-bezier(0.4, 0, 0.6, 1)',
   },
 };
+
+function resolveVar(this: Theme, variable: ThemeCssVar): string {
+  const value = getComputedStyle(document.documentElement).getPropertyValue(
+    `--${this.cssVarPrefix ? `${this.cssVarPrefix}-` : ''}${variable}`
+  );
+  if (!value) {
+    throw new Error(`Failed to resolve variable: ${variable}`);
+  }
+  return value.trim();
+}
 
 const testTheme = extendTheme({
   transitions: {
@@ -40,6 +50,7 @@ const testTheme = extendTheme({
         .join(', ');
     },
   } as TransitionAPI,
+  resolveVar,
   components: {
     JoyButton: {
       styleOverrides: {
