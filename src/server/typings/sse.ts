@@ -1,24 +1,39 @@
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { SSE } from '@typings/api/sse';
+import { SseModel as SSE } from '@typings/api/models';
 export { SSE };
 
 export interface ISseService {
   get local(): EventEmitter2;
-  emitWithTarget<T extends SSE.Event, E extends SSE.Events = SSE.Events>(
+  emitWithTarget<
+    T extends SSE.Models.Event,
+    E extends SSE.Models.Events = SSE.Models.Events,
+  >(
     event: E,
-    client: SSE.User,
+    client: SSE.Models.User,
     data: T['data'],
   ): void;
-  emitToTargets<T extends SSE.Event, E extends SSE.Events = SSE.Events>(
+  emitToTargets<
+    T extends SSE.Models.Event,
+    E extends SSE.Models.Events = SSE.Models.Events,
+  >(
     event: E,
-    targets: SSE.User[],
+    targets: SSE.Models.User[],
     data: T['data'],
   ): void;
-  emitToTargets<T extends SSE.Event, E extends SSE.Events = SSE.Events>(
+  emitToTargets<
+    T extends SSE.Models.Event,
+    E extends SSE.Models.Events = SSE.Models.Events,
+  >(
     event: E,
-    source: SSE.User,
-    targets: SSE.User[],
+    source: SSE.Models.User,
+    targets: SSE.Models.User[],
     data: T['data'],
   ): void;
-  emitToAll<T extends SSE.Event, E extends SSE.Events = SSE.Events>(event: E, data: T['data']): void;
+  emitToAll<
+    T extends SSE.Models.Event,
+    E extends SSE.Models.Events = SSE.Models.Events,
+  >(
+    event: E,
+    data: T['data'],
+  ): void;
 }

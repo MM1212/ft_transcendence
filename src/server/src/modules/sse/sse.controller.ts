@@ -82,19 +82,19 @@ export class SseController implements OnModuleInit, OnModuleDestroy {
             data: data.data,
             source: data.source,
             type: data.event,
-          } as SSE.Event),
+          } as SSE.Models.Event),
         });
         return event;
       }),
     );
   }
-  @Auth()
   @Post('test')
+  @Auth()
   test(
     @Body('message') message: string,
     @HttpCtx() ctx: HTTPContext<true>,
   ): void {
-    this.service.emitToAll<SSE.Payloads.Test>(SSE.Events.Test, {
+    this.service.emitToAll<SSE.DTO.Test>('test', {
       user: { id: ctx.user.id, name: ctx.user.name, avatar: ctx.user.avatar },
       message,
     });
