@@ -8,7 +8,7 @@ class SseService implements ISseService {
   get local(): EventEmitter2 {
     return this.emitter;
   }
-  emitWithTarget<T extends SSE.Event, E extends SSE.Events = SSE.Events>(
+  emitWithTarget<T extends SSE.Models.Event, E extends SSE.Models.Events = SSE.Models.Events>(
     event: E,
     source: number,
     data: T['data'],
@@ -21,12 +21,12 @@ class SseService implements ISseService {
       data,
     });
   }
-  emitToTargets<T extends SSE.Event, E extends SSE.Events = SSE.Events>(
+  emitToTargets<T extends SSE.Models.Event, E extends SSE.Models.Events = SSE.Models.Events>(
     event: E,
     targets: number[],
     data: T['data'],
   ): void;
-  emitToTargets<T extends SSE.Event, E extends SSE.Events = SSE.Events>(
+  emitToTargets<T extends SSE.Models.Event, E extends SSE.Models.Events = SSE.Models.Events>(
     event: E,
     source: number,
     targets: number[],
@@ -57,7 +57,7 @@ class SseService implements ISseService {
         break;
     }
   }
-  emitToAll<T extends SSE.Event, E extends SSE.Events = SSE.Events>(
+  emitToAll<T extends SSE.Models.Event, E extends SSE.Models.Events = SSE.Models.Events>(
     event: E,
     data: T['data'],
   ): void {

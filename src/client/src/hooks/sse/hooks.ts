@@ -1,14 +1,14 @@
-import { SSE } from '@typings/api/sse';
+import { SseModel } from '@typings/api/models';
 import React from 'react';
 import { useRecoilCallback } from 'recoil';
 import { eventCacheAtom } from './store';
 
 export interface SseHook {
-  on<T, E>(
+  on<T, E extends string>(
     type: E,
-    listener: (event: SSE.Event<T, E>) => void | Promise<void>
+    listener: (event: SseModel.Models.Event<T, E>) => void | Promise<void>
   ): ((data: Event) => void) | undefined;
-  off(type: SSE.Events, listener: (event: Event) => void): void;
+  off(type: SseModel.Models.Events, listener: (event: Event) => void): void;
 }
 
 const useSse = (): SseHook => {
@@ -22,11 +22,11 @@ const useSse = (): SseHook => {
       if (state !== 'hasValue') return undefined;
       const handler = async (data: Event) => {
         const ret = listener(
-          (data as unknown as CustomEvent<SSE.Event>).detail
+          (data as unknown as CustomEvent<SseModel.Models.Event>).detail
         );
         if (ret instanceof Promise) await ret;
       };
-      cache.addEventListener(event as SSE.Events, handler);
+      cache.addEventListener(event as SseModel.Models.Events, handler);
       return handler;
     },
     []
@@ -38,7 +38,7 @@ const useSse = (): SseHook => {
   >(
     (ctx) => async (event, listener) => {
       const cache = await ctx.snapshot.getPromise(eventCacheAtom);
-      cache.removeEventListener(event as SSE.Events, listener);
+      cache.removeEventListener(event as SseModel.Models.Events, listener);
     },
     []
   );
@@ -49,9 +49,15 @@ const useSse = (): SseHook => {
   };
 };
 
-const useSseEvent = <T extends SSE.Event<K, E>, K = unknown, E extends SSE.Events = SSE.Events>(
+const useSseEvent = <
+  T extends SseModel.Models.Event<K, E>,
+  K = unknown,
+  E extends SseModel.Models.Events = SseModel.Models.Events,
+>(
   event: E,
-  callback: (event: SSE.Event<T['data'], E>) => void | Promise<void>,
+  callback: (
+    event: SseModel.Models.Event<T['data'], E>
+  ) => void | Promise<void>,
   deps?: React.DependencyList
 ): void => {
   const { on, off } = useSse();
