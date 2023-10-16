@@ -1,1 +1,1 @@
-export * from '@typings/models';
+export * from '../models';

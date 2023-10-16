@@ -1,6 +1,5 @@
-import API, { Endpoints } from '@typings/api';
 import useSWR, { SWRConfiguration } from 'swr';
-
+import * as API from '@typings/api';
 // export const jsonFetcher = <T>(url: string, init?: RequestInit) =>
 //   fetch(url, init).then((res) => res.json() as Promise<T>);
 
@@ -25,16 +24,23 @@ export async function jsonFetcher<T>(
   });
 }
 
-export const buildTunnelEndpoint = (endpoint: Endpoints): string =>
+export const buildTunnelEndpoint = (endpoint: API.Endpoints.All): string =>
   `${import.meta.env.FRONTEND_API_ENDPOINT}${endpoint}`;
-export const useTunnelEndpoint = <T>(
-  endpoint: Endpoints,
-  options: SWRConfiguration<API.Response<T>> = {},
+export const useTunnelEndpoint = <
+  T extends API.Endpoint<API.EndpointMethods, API.Endpoints.All>,
+>(
+  endpoint: API.EndpointTarget<T>,
+  options: SWRConfiguration<API.EndpointResponse<T>> = {},
   fetcher: (
     url: string,
     init?: RequestInit
-  ) => Promise<API.Response<T>> = jsonFetcher<API.Response<T>>
-) => useSWR<API.Response<T>>(buildTunnelEndpoint(endpoint), fetcher, options);
+  ) => Promise<API.EndpointResponse<T>> = jsonFetcher<API.EndpointResponse<T>>
+) =>
+  useSWR<API.EndpointResponse<T>>(
+    buildTunnelEndpoint(endpoint),
+    fetcher,
+    options
+  );
 
 export class FetchError extends Error {
   response: Response;

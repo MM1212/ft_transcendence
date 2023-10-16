@@ -10,4 +10,4 @@ import { DbModule } from '@/modules/db';
   providers: [AuthService, IntraAPI],
   exports: [AuthService, IntraAPI],
 })
-export class AuthModule {}
+export class Auth42Module {}

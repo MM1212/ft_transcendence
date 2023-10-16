@@ -1,8 +1,6 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
-import { AuthModule } from './modules/auth/42/auth.module';
-import { UsersModule } from './modules/users/users.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { SseModule } from './modules/sse/sse.module';
 import { PrismaModule } from './modules/db/prisma/prisma.module';
@@ -12,6 +10,8 @@ import { GlobalFilter } from './filters/GlobalFilter';
 import { LobbyModule } from './modules/lobby/lobby.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import path from 'path';
+import { Auth42Module } from './modules/auth/42/auth.module';
+import { AuthSessionModule } from './modules/auth/session/session.module';
 
 @Module({
   imports: [
@@ -28,10 +28,10 @@ import path from 'path';
     }),
     ServeStaticModule.forRoot({
       rootPath: path.join(__dirname, '..', '..', 'static'),
-      serveRoot: '/static'
+      serveRoot: '/static',
     }),
-    AuthModule,
-    UsersModule,
+    Auth42Module,
+    AuthSessionModule,
     SseModule,
     PrismaModule,
     DbModule,

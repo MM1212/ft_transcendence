@@ -6,7 +6,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
-import API from '@typings/api';
+import * as API from '@typings/api';
 
 @Catch()
 export class GlobalFilter implements ExceptionFilter {

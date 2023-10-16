@@ -1,10 +1,10 @@
 import { Module } from "@nestjs/common";
 import { SseService } from "./sse.service";
 import { SseController } from "./sse.controller";
-import { AuthModule } from "../auth/42/auth.module";
+import { Auth42Module } from "../auth/42/auth.module";
 
 @Module({
-  imports: [AuthModule],
+  imports: [Auth42Module],
   providers: [SseService],
   exports: [SseService],
   controllers: [SseController]
