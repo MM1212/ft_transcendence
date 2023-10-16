@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { HTTPContext, Response } from 'typings/http';
 import crypto from 'crypto';
-import API from '@typings/api';
+import * as API from '@typings/api';
 import { User } from '@/helpers/User';
 import { Auth } from '@typings/auth';
 import { ConfigService } from '@nestjs/config';

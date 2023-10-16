@@ -3,7 +3,7 @@ import { AuthService } from './auth.service';
 import { User } from '@/helpers/User';
 import HttpCtx from '@/helpers/decorators/httpCtx';
 import { HTTPContext, Response } from 'typings/http';
-import API from '@typings/api';
+import * as API from '@typings/api';
 import { ConfigService } from '@nestjs/config';
 
 @Controller('auth/42')

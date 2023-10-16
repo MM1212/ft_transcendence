@@ -16,12 +16,12 @@ import {
   Typography,
 } from '@mui/joy';
 import { buildTunnelEndpoint } from '@hooks/tunnel';
-import { Endpoints } from '@typings/api';
+import { AuthModel } from '@typings/api';
 import Link from '@components/Link';
 
 import SseTester from '@components/SseTester';
 import { Route, Switch } from 'wouter';
-import Lobby from '@views/lobby';
+// import Lobby from '@views/lobby';
 
 function App() {
   const [count, setCount] = useState(0);
@@ -73,7 +73,7 @@ function App() {
             ) : !loggedIn ? (
               <Button
                 component={Link}
-                href={buildTunnelEndpoint(Endpoints.AuthLogin)}
+                href={buildTunnelEndpoint(AuthModel.Endpoints.Targets.Login)}
                 variant="soft"
               >
                 Login
@@ -124,9 +124,9 @@ function App() {
       <Route path="/sse">
         <SseTester />
       </Route>
-      <Route path="/lobby">
+      {/* <Route path="/lobby">
         <Lobby />
-      </Route>
+      </Route> */}
     </Switch>
   );
 }

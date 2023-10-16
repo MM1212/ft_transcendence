@@ -8,6 +8,6 @@
 //   LobbyBackground = '/static/lobby.png'
 // }
 
-import { SseModel } from '@typings/api/models';
+import { SseModel, AuthModel } from '@typings/api/models';
 
-export type All = SseModel.Endpoints.All;
+export type All = SseModel.Endpoints.All | AuthModel.Endpoints.All;

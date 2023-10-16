@@ -56,7 +56,7 @@ class APITunnel {
     T extends API.Endpoint<API.EndpointMethods.Get, API.Endpoints.All>,
   >(
     uri: API.EndpointTarget<T>,
-    params: API.EndpointParams<T>
+    params: API.EndpointParams<T> = {}
   ): Promise<API.EndpointResponse<T>> {
     return await this.request<T>(
       uri,
