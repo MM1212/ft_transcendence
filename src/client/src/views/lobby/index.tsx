@@ -15,12 +15,13 @@ import {
 } from './state';
 import { useKeybindsToggle } from '@hooks/keybinds';
 import Link from '@components/Link';
+import LobbyModel from '@typings/models/lobby';
 
 const rendererOptions: Partial<Pixi.IApplicationOptions> = {};
 
 const mainTex = Pixi.Texture.from('https://pixijs.com/assets/bunny.png');
 const backgroundTex = Pixi.Texture.from(
-  buildTunnelEndpoint(Endpoints.LobbyBackground)
+  buildTunnelEndpoint(LobbyModel.Endpoints.Targets.StaticBackground)
 );
 const initSprite = (app: Pixi.Application, player: InitdPlayer) => {
   player.sprite.x = player.transform.position.x;
@@ -31,7 +32,7 @@ const initSprite = (app: Pixi.Application, player: InitdPlayer) => {
 
 export default function Lobby() {
   const { status, useMounter, emit, useListener } = useSocket(
-    buildTunnelEndpoint(Endpoints.LobbySocket)
+    buildTunnelEndpoint(LobbyModel.Endpoints.Targets.Connect)
   );
 
   const loadData = useRecoilCallback(
@@ -130,12 +131,12 @@ export default function Lobby() {
     []
   );
 
-  useListener(Lobbies.Packets.Events.LoadData, loadData);
-  useListener(Lobbies.Packets.Events.NewPlayer, newPlayer);
-  useListener(Lobbies.Packets.Events.SetPlayers, setPlayers);
-  useListener(Lobbies.Packets.Events.RemovePlayer, removePlayer);
+  useListener(LobbyModel.Socket.Messages.LoadData, loadData);
+  useListener(LobbyModel.Socket.Messages.NewPlayer, newPlayer);
+  useListener(LobbyModel.Socket.Messages.SetPlayers, setPlayers);
+  useListener(LobbyModel.Socket.Messages.RemovePlayer, removePlayer);
   useListener(
-    Lobbies.Packets.Events.UpdatePlayersTransform,
+    LobbyModel.Socket.Messages.UpdatePlayersTransform,
     updatePlayersTransform
   );
 

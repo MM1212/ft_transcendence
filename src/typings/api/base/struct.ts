@@ -41,4 +41,5 @@ namespace TestModel {
   export namespace Sse {
     // Sse events
   }
+  export namespace Socket {}
 }

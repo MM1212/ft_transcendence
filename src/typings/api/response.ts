@@ -27,5 +27,11 @@ export const buildResponseObject = <T>(
 export const buildOkResponse = <T>(data: T): ResponseOk<T> =>
   buildResponseObject<T>(RespStatus.Ok, data) as ResponseOk<T>;
 
+export const buildEmptyResponse = (): ResponseOk<undefined> =>
+  buildResponseObject<undefined>(
+    RespStatus.Ok,
+    undefined
+  ) as ResponseOk<undefined>;
+
 export const buildErrorResponse = (errorMsg: string): ResponseError =>
   buildResponseObject(RespStatus.Error, undefined, errorMsg) as ResponseError;

@@ -9,5 +9,6 @@
 // }
 
 import { SseModel, AuthModel } from '@typings/api/models';
+import LobbyModel from '@typings/models/lobby';
 
-export type All = SseModel.Endpoints.All | AuthModel.Endpoints.All;
+export type All = SseModel.Endpoints.All | AuthModel.Endpoints.All | LobbyModel.Endpoints.All;
