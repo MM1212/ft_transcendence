@@ -1,0 +1,51 @@
+server:
+  lobby:
+    dependencies: [chat]
+  sse:
+  notifications:
+    db:
+  chat:
+    db:
+  users:
+    friends:
+      db:
+    economy:
+      db:
+    stats:
+      db:
+    achievements:
+      db:
+    status: 'online|offline'
+    match_history:
+      db:
+  game:
+    spectating:
+    leaderboard:
+      db:
+client:
+  routing:
+    lobby:
+    profile:
+      :userId:
+        match_history:
+        achievements:
+      me: -> profile/:userId
+      settings:
+    game:
+      :gameId:
+      leaderboard:
+      queue: 
+  views:
+    users:
+      profile:
+      achievements:
+      match_history:
+      settings:
+      friends:
+    game:
+      leaderboard:
+      queue:
+      spectating/game:
+    chat:
+      conversations:
+      new_conversation:
