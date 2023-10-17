@@ -20,7 +20,8 @@ import { AuthModel } from '@typings/api';
 import Link from '@components/Link';
 
 import SseTester from '@components/SseTester';
-import { Route, Switch } from 'wouter';
+import { Redirect, Route, Switch } from 'wouter';
+import Lobby from '@views/lobby';
 // import Lobby from '@views/lobby';
 
 function App() {
@@ -107,7 +108,7 @@ function App() {
                       <Button onClick={logout}>
                         <Typography level="body-sm">Logout</Typography>
                       </Button>
-                      <Button>
+                      <Button component={Link} href="/sse">
                         <Typography level="body-sm">Placeholder</Typography>
                       </Button>
                     </ButtonGroup>
@@ -124,9 +125,12 @@ function App() {
       <Route path="/sse">
         <SseTester />
       </Route>
-      {/* <Route path="/lobby">
+      <Route path="/lobby">
         <Lobby />
-      </Route> */}
+      </Route>
+      <Route>
+        <Redirect to="/404" />
+      </Route>
     </Switch>
   );
 }

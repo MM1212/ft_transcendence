@@ -13,7 +13,7 @@ export interface Endpoint<
   T extends string,
   R = unknown,
   D = unknown,
-  P = Record<string, unknown>
+  P extends Record<string, unknown> = Record<string, unknown>
 > {
   method: M;
   type: T;
@@ -47,5 +47,5 @@ export type GroupEndpoints<T extends string> = T extends string
 export interface GetEndpoint<
   T extends string,
   R = unknown,
-  P = Record<string, unknown>
+  P extends Record<string, unknown> = Record<string, unknown>
 > extends Endpoint<EndpointMethods.Get, T, R, undefined, P> {}

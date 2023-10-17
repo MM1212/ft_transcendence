@@ -37,8 +37,8 @@ export default function SseTester(): JSX.Element {
   );
 
   const submit = React.useCallback(async (message: string) => {
-    await tunnel.post<Models.SseModel.Endpoints.Test>(
-      Models.SseModel.Endpoints.Targets.Test,
+    await tunnel.post<SseModel.Endpoints.Test>(
+      SseModel.Endpoints.Targets.Test,
       { message }
     );
   }, []);

@@ -56,7 +56,8 @@ namespace SseModel {
         EndpointMethods.Post,
         Targets.Test,
         undefined,
-        DTO.TestPost
+        DTO.TestPost,
+        { message: string }
       > {}
   }
 }

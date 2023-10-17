@@ -1,7 +1,8 @@
 import * as API from '@typings/api';
+import { ITunnel } from '@typings/client/tunnel';
 import rest from '@utils/rest';
 
-class APITunnel {
+class APITunnel implements ITunnel {
   private readonly endpoint: string = import.meta.env.FRONTEND_API_ENDPOINT;
 
   private buildUrl(uri: API.Endpoints.All): string {
@@ -9,7 +10,12 @@ class APITunnel {
   }
   private buildEndpoint<
     T extends API.Endpoint<API.EndpointMethods, API.Endpoints.All>,
-  >(uri: API.EndpointTarget<T>, params: API.EndpointParams<T>): string {
+  >(
+    uri: API.EndpointTarget<T>,
+    params: API.EndpointParams<T> = {} as unknown as API.EndpointParams<T>
+  ): string {
+    if (!params)
+      return this.buildUrl(uri);
     const url = this.buildUrl(uri).replace(/{([^}]+)}/g, (_, key) => {
       const value = params[key];
       if (!value)
@@ -56,7 +62,7 @@ class APITunnel {
     T extends API.Endpoint<API.EndpointMethods.Get, API.Endpoints.All>,
   >(
     uri: API.EndpointTarget<T>,
-    params: API.EndpointParams<T> = {}
+    params: API.EndpointParams<T> = {} as unknown as API.EndpointParams<T>
   ): Promise<API.EndpointResponse<T>> {
     return await this.request<T>(
       uri,
@@ -70,7 +76,7 @@ class APITunnel {
   >(
     uri: API.EndpointTarget<T>,
     data: API.EndpointData<T>,
-    params: API.EndpointParams<T> = {}
+    params: API.EndpointParams<T> = {} as unknown as API.EndpointParams<T>
   ): Promise<API.EndpointResponse<T>> {
     return await this.request<T>(uri, data, params, API.EndpointMethods.Post);
   }
@@ -79,7 +85,7 @@ class APITunnel {
   >(
     uri: API.EndpointTarget<T>,
     data: API.EndpointData<T>,
-    params: API.EndpointParams<T> = {}
+    params: API.EndpointParams<T> = {} as unknown as API.EndpointParams<T>
   ): Promise<API.EndpointResponse<T>> {
     return await this.request<T>(uri, data, params, API.EndpointMethods.Put);
   }
@@ -87,7 +93,7 @@ class APITunnel {
     T extends API.Endpoint<API.EndpointMethods.Delete, API.Endpoints.All>,
   >(
     uri: API.EndpointTarget<T>,
-    params: API.EndpointParams<T> = {}
+    params: API.EndpointParams<T> = {} as unknown as API.EndpointParams<T>
   ): Promise<API.EndpointResponse<T>> {
     return await this.request<T>(
       uri,
@@ -101,12 +107,12 @@ class APITunnel {
   >(
     uri: API.EndpointTarget<T>,
     data: API.EndpointData<T>,
-    params: API.EndpointParams<T> = {}
+    params: API.EndpointParams<T> = {} as unknown as API.EndpointParams<T>
   ): Promise<API.EndpointResponse<T>> {
     return await this.request<T>(uri, data, params, API.EndpointMethods.Patch);
   }
 }
 
-const tunnel = new APITunnel();
+const tunnel: ITunnel = new APITunnel();
 
 export default tunnel;
