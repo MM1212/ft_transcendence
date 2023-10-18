@@ -50,18 +50,20 @@ export default function DrawerCloseButton() {
       <Drawer
         open={open}
         onClose={handleCloseDrawer}
+        //sx={{ bgcolor: "rgba(0, 0, 0, 0.9)" }}
         slotProps={{
           content: {
             sx: {
-				width: '20%',
-				minHeight: 0,
-				overflow: 'hidden auto',
-				flexGrow: 1,
-				display: 'flex',
-				flexDirection: 'column',
+              width: "20%",
+              minHeight: 0,
+              overflow: "hidden auto",
+              flexGrow: 1,
+              display: "flex",
+              flexDirection: "column",
               [`& .${listItemButtonClasses.root}`]: {
                 gap: 1.5,
               },
+              //bgcolor: theme => theme.resolveVar(),
             },
           },
         }}
@@ -92,13 +94,13 @@ export default function DrawerCloseButton() {
           <ListItem>
             <ListItemButton>
               <ListItemContent>
-                <Typography level="title-sm">Options</Typography>
+                <Typography level="title-sm">Settings</Typography>
               </ListItemContent>
             </ListItemButton>
           </ListItem>
           <ListItem>
             <ListItemButton>
-              <ListItemContent >
+              <ListItemContent>
                 <Typography level="title-sm">Messages</Typography>
               </ListItemContent>
               <Chip size="sm" color="primary" variant="solid">

@@ -1,26 +1,34 @@
-import React from "react";
-import Drawer from "@mui/joy/Drawer";
-import { List, ListItem, Typography, ListItemButton, ListItemContent } from "@mui/joy";
+import React, { useEffect, useState } from 'react';
 
-function MessageDrawer({ open, onClose }) {
-  return (
-    <Drawer
-      open={open}
-      onClose={onClose}
-      sx={{
-        width: "250px", // Set the width as needed
-        marginLeft: "220px", // Adjust this margin based on the width of the first drawer
-      }}
-    >
-      <Typography>Message Drawer</Typography>
-      {/* Add your list items and content here */}
-    </Drawer>
-  );
-}
+const MyComponent: React.FC = () => {
+  const [data, setData] = useState<string>('');
 
-export default MessageDrawer;
+  useEffect(() => {
+    // Simulating an asynchronous operation with a promise
+    const fetchData = (): Promise<string> => {
+      return new Promise((resolve) => {
+        // Simulate a delay
+        setTimeout(() => {
+          // Resolve with some data
+          resolve('Hello, React with TypeScript!');
+        }, 1000);
+      });
+    };
 
+    // Using the promise
+    fetchData()
+      .then((result) => {
+        // Set the data in the state when the promise is resolved
+        setData(result);
+      })
+      .catch((error) => {
+        // Handle errors if the promise is rejected
+        console.error('Error fetching data:', error);
+      });
+  }, []); // Run this effect only once on mount
 
+  return <div>{data}</div>;
+};
 
-
+export default MyComponent;
 
