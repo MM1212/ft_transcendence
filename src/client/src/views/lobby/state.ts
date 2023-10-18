@@ -3,9 +3,11 @@ import { sessionAtom } from '@hooks/user';
 import { Lobbies } from '@typings/lobby';
 import { atom, selector, useRecoilValue } from 'recoil';
 
+
 export interface Player extends Lobbies.IPlayer {
   sprite: Pixi.Sprite | null;
   nickNameText: Pixi.Text | null;
+  allowMove: boolean;
 }
 
 export interface InitdPlayer extends Omit<Player, 'sprite'> {
@@ -38,10 +40,16 @@ export const lobbyCurrentPlayerSelector = selector<Player | null>({
 
 // Lets create a context that will keep the state of an element
 
-export const drawerOpenAtom = atom<boolean>({
+export const allowPlayerMove = atom<boolean>({
 	  key: 'lobby/drawerOpen',
   default: false,
 });
+
+export const allowPlayerFocus = atom<boolean>({
+	key: 'lobby/drawerOpen',
+default: false,
+});
+
 
 export const useLobbyPlayers = (): Player[] => useRecoilValue(lobbyPlayersAtom);
 

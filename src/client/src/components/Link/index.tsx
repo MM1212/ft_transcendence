@@ -3,7 +3,7 @@ import { LinkProps, Link as WouterLink } from 'wouter';
 
 const externalLinkRegex = /http(s?)/;
 
-const Link: React.FC<LinkProps> = React.forwardRef(
+const Link: React.FC<LinkProps> = React.forwardRef (
   (props: LinkProps, ref: React.Ref<HTMLAnchorElement>) => {
     const target = props.to || props.href || '';
     const isExternal = externalLinkRegex.test(target);

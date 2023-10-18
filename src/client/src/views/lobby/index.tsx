@@ -8,14 +8,16 @@ import { useRecoilCallback, useRecoilValue } from "recoil";
 import {
   InitdPlayer,
   Player,
-  drawerOpenAtom,
+  allowPlayerFocus,
+  allowPlayerMove,
   lobbyAppAtom,
   lobbyCurrentPlayerSelector,
   lobbyPlayersAtom,
 } from "./state";
 import { useKeybindsToggle } from "@hooks/keybinds";
-import DrawerCloseButton from "./menuOptions";
 import ChatBox from "./chatBox";
+import { Sheet } from "@mui/joy";
+import Sidebar from "./menuOptions";
 
 const rendererOptions: Partial<Pixi.IApplicationOptions> = {};
 const mainTex = Pixi.Texture.from("https://pixijs.com/assets/bunny.png");
@@ -39,6 +41,7 @@ export default function Lobby() {
   const { useMounter, emit, useListener } = useSocket(
     buildTunnelEndpoint(Endpoints.LobbySocket)
   );
+  const [isFocused, setIsFocused] = React.useState(false);
   const loadData = useRecoilCallback(
     (ctx) => async (data: Lobbies.Packets.LoadData) => {
       const app = await ctx.snapshot.getPromise(lobbyAppAtom);
@@ -49,6 +52,7 @@ export default function Lobby() {
             ...player,
             sprite: null,
             nickNameText: null,
+            allowMove: true,
           }))
         );
       const players = data.players.map<InitdPlayer>((player) => ({
@@ -67,6 +71,7 @@ export default function Lobby() {
           align: "center",
           fill: "#fef08a",
         }),
+        allowMove: true,
       }));
       players.forEach((player) => initSprite(app, player));
       ctx.set(lobbyPlayersAtom, players);
@@ -213,7 +218,6 @@ export default function Lobby() {
         if (!player.sprite) continue;
         player.transform.position.x += player.transform.velocity.x * delta;
         player.transform.position.y += player.transform.velocity.y * delta;
-
         player.sprite.x = player.transform.position.x;
         player.sprite.y = player.transform.position.y;
       }
@@ -226,13 +230,13 @@ export default function Lobby() {
 
   const onBindToggle = useRecoilCallback(
     (ctx) => async (key, pressed) => {
-
-      const checkDrawerStatus =
-        ctx.snapshot.getLoadable(drawerOpenAtom).contents;
       const player = await ctx.snapshot.getPromise(lobbyCurrentPlayerSelector);
-
+      const allowMove = await ctx.snapshot.getPromise(allowPlayerMove);
+      const allowFocus = await ctx.snapshot.getPromise(allowPlayerFocus);
+      if (allowMove === true) return;
+      if (allowFocus === true) return;
       if (!player || !player.sprite) return;
-      if (checkDrawerStatus) return;
+      if (player.allowMove === false) return;
       emit("update-velocity", { key, pressed });
       switch (key) {
         case "KeyA":
@@ -256,18 +260,19 @@ export default function Lobby() {
   useKeybindsToggle(["KeyW", "KeyA", "KeyS", "KeyD"], onBindToggle, []);
 
   return (
-    <>
-      <div
-        style={{
-          width: "100vw",
-          height: "100vh",
-        }}
-        ref={ref}
-      />
-      <DrawerCloseButton />
-      <>
-        <ChatBox></ChatBox>
-      </>
-    </>
+    <Sheet
+	className="Lobby"
+	ref={ref}
+	sx={{
+        width: "100vw",
+        height: "100vh",
+		position: "relative",
+		zIndex: 1, // Set a higher z-index to make sure it appears below the Sidebar
+      }}
+      onFocus={() => console.log("focus")}
+    >
+      <Sidebar/> 
+      <ChatBox/>
+    </Sheet>
   );
 }
