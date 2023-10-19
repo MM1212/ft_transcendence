@@ -3,12 +3,12 @@ server:
     dependencies: [chat]
   sse:
   notifications:
-    db:
+    db: [schema]
   chat:
-    db:
+    db: [schema]
   users:
     friends:
-      db:
+      db: [schema]
     economy:
       db:
     stats:
@@ -20,7 +20,7 @@ server:
       db:
   game:
     spectating:
-    leaderboard:
+    leaderboard: # Might be pre-computed based on player game points(?) instead of db-cached
       db:
 client:
   routing:
