@@ -34,20 +34,21 @@ model User {
 }
 
 enum ChatType {
-  Temp
-  Group
-  Direct
+  TEMP
+  GROUP
+  DIRECT
 }
 
 enum ChatAuthorization {
-  Public
-  Private
+  PUBLIC
+  PRIVATE
 }
 
 enum ChatParticipantRole {
-  Owner
-  Admin
-  Member
+  OWNER
+  ADMIN
+  MEMBER
+  BANNED
 }
 
 model ChatParticipant {
@@ -56,41 +57,42 @@ model ChatParticipant {
   chatId      Int                 @map("chat_id")
   user        User                @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId      Int                 @map("user_id")
-  role        ChatParticipantRole @default(Member)
+  role        ChatParticipantRole @default(MEMBER)
   toReadPings Int                 @default(0) @map("to_read_pings")
   createdAt   DateTime            @default(now()) @map("created_at")
 
+  @@index([chatId, userId])
+  @@unique([chatId, userId], name: "chat_participant_unique")
   @@map("chat_participants")
 }
 
 model Chat {
   id                Int               @id @default(autoincrement())
-  type              ChatType          @default(Temp)
-  authorization     ChatAuthorization @default(Public)
-  authorizationData Json?             @map("authorization_data")
+  type              ChatType          @default(TEMP)
+  authorization     ChatAuthorization @default(PUBLIC)
+  authorizationData Json              @default("{}") @map("authorization_data")
   name              String
   photo             String?
   participants      ChatParticipant[]
   messages          ChatMessage[]
   createdAt         DateTime          @default(now()) @map("created_at")
-  lastMessageAt     DateTime?         @map("last_message_at")
 
   @@index([type, authorization, authorizationData])
   @@map("chats")
 }
 
 enum ChatMessageType {
-  Normal
-  Embed
+  NORMAL
+  EMBED
 }
 
 model ChatMessage {
   id        Int             @id @default(autoincrement())
-  chat      Chat?           @relation(fields: [chatId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  chatId    Int?            @map("chat_id")
-  type      ChatMessageType @default(Normal)
+  chat      Chat            @relation(fields: [chatId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  chatId    Int             @map("chat_id")
+  type      ChatMessageType @default(NORMAL)
   message   String          @default("")
-  meta      Json?           @default("{}")
+  meta      Json            @default("{}")
   author    User            @relation(fields: [authorId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   authorId  Int             @map("author_id")
   createdAt DateTime        @default(now()) @map("created_at")
