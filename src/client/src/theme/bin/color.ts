@@ -41,7 +41,7 @@ const getColorChannels = (colorCode: string): Color => {
       color.r = r1;
       color.g = g1;
       color.b = b1;
-      color.a = a1;
+      color.a = a1 === undefined ? 255 : a1;
       break;
     default:
       throw new Error('Unknown color type for ' + colorCode);
