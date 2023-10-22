@@ -20,12 +20,16 @@
 
     "paths": {
       "@*": ["./src/*"],
-      "@typings/*": ["../typings/*"]
+      "@typings/*": ["../typings/*"],
+      "@shared/*": ["../shared/*"]
     },
-    "types": [
-      "../typings/env"
-    ]
+    "types": ["../typings/env"]
   },
   "include": ["src", "../typings"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "references": [
+    { "path": "./tsconfig.node.json" },
+    {
+      "path": "../shared"
+    }
+  ]
 }
