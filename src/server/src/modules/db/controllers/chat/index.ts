@@ -245,7 +245,7 @@ export class Chats {
   public async createChat({
     participants,
     ...data
-  }: ChatModel.DTO.CreateChat): Promise<ChatModel.Models.IChat> {
+  }: ChatModel.DTO.DB.CreateChat): Promise<ChatModel.Models.IChat> {
     return (await this.prisma.chat.create({
       data: {
         ...data,
@@ -259,17 +259,78 @@ export class Chats {
     })) as unknown as ChatModel.Models.IChat;
   }
   public async createChatMessage(
-    data: ChatModel.DTO.CreateMessage,
+    data: ChatModel.DTO.DB.CreateMessage,
   ): Promise<ChatModel.Models.IChatMessage> {
     return (await this.prisma.chatMessage.create({
       data,
     })) as unknown as ChatModel.Models.IChatMessage;
   }
   public async createChatParticipant(
-    data: ChatModel.DTO.CreateDBParticipant,
+    data: ChatModel.DTO.DB.CreateDBParticipant,
   ): Promise<ChatModel.Models.IChatParticipant> {
     return (await this.prisma.chatParticipant.create({
       data,
     })) as unknown as ChatModel.Models.IChatParticipant;
+  }
+  public async updateChatInfo(
+    chatId: number,
+    data: ChatModel.DTO.DB.UpdateChatInfo,
+  ): Promise<ChatModel.Models.IChat> {
+    return (await this.prisma.chat.update({
+      where: {
+        id: chatId,
+      },
+      data: {
+        ...data,
+        authorizationData: data.authorizationData as JsonObject,
+      },
+    })) as unknown as ChatModel.Models.IChat;
+  }
+  public async updateChatParticipant(
+    participantId: number,
+    data: ChatModel.DTO.DB.UpdateParticipant,
+  ): Promise<Omit<ChatModel.Models.IChatParticipant, 'user'>> {
+    return (await this.prisma.chatParticipant.update({
+      where: {
+        id: participantId,
+      },
+      data,
+    })) as unknown as Omit<ChatModel.Models.IChatParticipant, 'user'>;
+  }
+  public async updateChatMessage(
+    messageId: number,
+    data: ChatModel.DTO.DB.UpdateMessage,
+  ): Promise<ChatModel.Models.IChatMessage> {
+    return (await this.prisma.chatMessage.update({
+      where: {
+        id: messageId,
+      },
+      data,
+    })) as unknown as ChatModel.Models.IChatMessage;
+  }
+  public async deleteChatMessage(
+    messageId: number,
+  ): Promise<ChatModel.Models.IChatMessage> {
+    return (await this.prisma.chatMessage.delete({
+      where: {
+        id: messageId,
+      },
+    })) as unknown as ChatModel.Models.IChatMessage;
+  }
+  public async deleteChatParticipant(
+    participantId: number,
+  ): Promise<ChatModel.Models.IChatParticipant> {
+    return (await this.prisma.chatParticipant.delete({
+      where: {
+        id: participantId,
+      },
+    })) as unknown as ChatModel.Models.IChatParticipant;
+  }
+  public async deleteChat(chatId: number): Promise<ChatModel.Models.IChat> {
+    return (await this.prisma.chat.delete({
+      where: {
+        id: chatId,
+      },
+    })) as unknown as ChatModel.Models.IChat;
   }
 }

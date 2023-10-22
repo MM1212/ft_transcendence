@@ -94,26 +94,49 @@ namespace ChatModel {
     }
   }
   export namespace DTO {
-    export interface GetChat extends Models.IChatDisplay {}
-    export type GetChatParticipants = Models.IChatParticipant[];
-    export type GetChatMessages = Models.IChatMessage[];
-    export type GetUserChats = Models.IChat[];
-    export type GetPublicChats = Models.IChatSimple[];
-    export interface CreateDBParticipant
-      extends Pick<Models.IChatParticipant, 'role' | 'userId' | 'chatId'> {}
-    export interface CreateChat
-      extends Pick<Models.IChat, 'type' | 'authorization' | 'name' | 'photo'> {
-      authorizationData: Models.IChatAuthorizationData | null;
-      participants: CreateDBParticipant[];
-    }
-    export interface CreateMessage
-      extends Pick<Models.IChatMessage, 'type' | 'message' | 'meta' | 'chatId'> {
-      authorId: number;
+    export namespace DB {
+      export interface GetChat extends Models.IChatDisplay {}
+      export type GetChatParticipants = Models.IChatParticipant[];
+      export type GetChatMessages = Models.IChatMessage[];
+      export type GetUserChats = Models.IChat[];
+      export type GetPublicChats = Models.IChatSimple[];
+      export interface CreateDBParticipant
+        extends Pick<Models.IChatParticipant, 'role' | 'userId' | 'chatId'> {}
+      export interface CreateChat
+        extends Pick<
+          Models.IChat,
+          'type' | 'authorization' | 'name' | 'photo'
+        > {
+        authorizationData: Models.IChatAuthorizationData | null;
+        participants: CreateDBParticipant[];
+      }
+      export interface CreateMessage
+        extends Pick<
+          Models.IChatMessage,
+          'type' | 'message' | 'meta' | 'chatId'
+        > {
+        authorId: number;
+      }
+      export interface UpdateChatInfo
+        extends Pick<
+          Partial<Models.IChat>,
+          'name' | 'photo' | 'authorization' | 'authorizationData'
+        > {}
+      export interface UpdateParticipant
+        extends Pick<
+          Partial<Models.IChatParticipant>,
+          'role' | 'toReadPings'
+        > {}
+      export interface UpdateMessage
+        extends Pick<
+          Partial<Models.IChatMessage>,
+          'type' | 'message' | 'meta'
+        > {}
     }
   }
   export namespace Endpoints {
     export enum Targets {
-      A = 'b'
+      A = 'b',
     }
     export type All = GroupEndpoints<Targets>;
   }
