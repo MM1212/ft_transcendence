@@ -1,4 +1,5 @@
 import type * as API from '@typings/api/response';
+import { GroupEnumValues } from '@typings/utils';
 
 export enum EndpointMethods {
   Get = 'GET',
@@ -40,9 +41,7 @@ export type BuildEndpoint<T extends Endpoint<EndpointMethods, string>> = (
 
 // T is the enum of all endpoints
 // Returns an string union of all the enum values
-export type GroupEndpoints<T extends string> = T extends string
-  ? `${T}`
-  : never;
+export type GroupEndpoints<T extends string> = GroupEnumValues<T>;
 
 export interface GetEndpoint<
   T extends string,

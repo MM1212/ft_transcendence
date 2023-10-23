@@ -1,5 +1,6 @@
-import { Theme, ThemeCssVar, extendTheme } from "@mui/joy";
-import { TransitionAPI } from "./transitions";
+import { Theme, ThemeCssVar, extendTheme } from '@mui/joy';
+import { TransitionAPI } from './transitions';
+import { alpha, lighten, darken } from './bin/color';
 
 const transitionConstants: Pick<TransitionAPI, "duration" | "easing"> = {
   duration: {
@@ -52,6 +53,9 @@ const testTheme = extendTheme({
     },
   } as TransitionAPI,
   resolveVar,
+  alpha,
+  lighten,
+  darken,
   components: {
     JoyButton: {
       styleOverrides: {
@@ -68,4 +72,5 @@ const testTheme = extendTheme({
   },
 });
 
+export { alpha, lighten, darken };
 export default testTheme;
