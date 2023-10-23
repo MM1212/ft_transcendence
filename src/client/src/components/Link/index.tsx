@@ -1,19 +1,27 @@
-import React from 'react';
-import { LinkProps, Link as WouterLink } from 'wouter';
+import React from "react";
+import { Link as WouterLink } from "wouter";
+import { Path } from "wouter/use-location";
 
-const externalLinkRegex = /http(s?)/;
+const externalLinkRegex = /http(s?):\/\/(.*)/;
 
-const Link: React.FC<LinkProps> = React.forwardRef (
-  (props: LinkProps, ref: React.Ref<HTMLAnchorElement>) => {
-    const target = props.to || props.href || '';
-    const isExternal = externalLinkRegex.test(target);
-	console.log({target, isExternal});
-	
+export type LinkProps = { to: Path; href?: never } | { href: Path; to?: never };
+
+const Link = React.forwardRef<
+  HTMLAnchorElement,
+  React.PropsWithChildren<LinkProps>
+>(
+  (
+    props: React.PropsWithChildren<LinkProps>,
+    ref: React.Ref<HTMLAnchorElement>
+  ) => {
+    const { to, href = to } = props;
+
+    const isExternal = externalLinkRegex.test(href as string);
     if (isExternal) {
-      return <a {...props} ref={ref} />;
+      return <a ref={ref} {...props} />;
     }
-    // @ts-expect-error WouterLink does not accept ref although it forwards it
-    return <WouterLink {...props} ref={ref} />;
+    // @ts-expect-error pois pois
+    return <WouterLink ref={ref} {...props} />;
   }
 );
 

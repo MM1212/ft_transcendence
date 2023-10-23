@@ -3,7 +3,7 @@ import { Input, Typography } from "@mui/joy";
 import { Box, Sheet } from "@mui/joy";
 import React, { useRef, useState } from "react";
 import { useLoggedInSession } from "@hooks/user";
-import { allowPlayerFocus } from "./state";
+import { allowPlayerFocus } from "../state";
 import { useRecoilState } from "recoil";
 
 interface ChatBoxProps {}

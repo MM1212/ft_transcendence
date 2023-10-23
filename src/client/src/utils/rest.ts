@@ -54,11 +54,26 @@ const del = <R = unknown>(url: string, options: RequestInit = {}): Promise<R> =>
     ...options,
   });
 
+const patch = <R = unknown, B = unknown>(
+  url: string,
+  body: B,
+  options: RequestInit = {}
+): Promise<R> =>
+  restWrapper(url, {
+    method: 'PATCH',
+    body: typeof body === 'string' ? body : JSON.stringify(body),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    ...options,
+  });
+
 const rest = {
   post,
   put,
   get,
   del,
+  patch,
 } as const;
 
 export { post, put, get, del };

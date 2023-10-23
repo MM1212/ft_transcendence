@@ -1,0 +1,51 @@
+server:
+  lobby:
+    dependencies: [chat]
+  sse:
+  notifications:
+    db: [schema]
+  chat:
+    db: [schema]
+  users:
+    friends:
+      db: [schema]
+    economy:
+      db:
+    stats:
+      db:
+    achievements:
+      db:
+    status: 'online|offline'
+    match_history:
+      db:
+  game:
+    spectating:
+    leaderboard: # Might be pre-computed based on player game points(?) instead of db-cached
+      db:
+client:
+  routing:
+    lobby:
+    profile:
+      :userId:
+        match_history:
+        achievements:
+      me: -> profile/:userId
+      settings:
+    game:
+      :gameId:
+      leaderboard:
+      queue: 
+  views:
+    users:
+      profile:
+      achievements:
+      match_history:
+      settings:
+      friends:
+    game:
+      leaderboard:
+      queue:
+      spectating/game:
+    chat:
+      conversations:
+      new_conversation:

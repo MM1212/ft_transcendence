@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import reactLogo from './assets/react.svg';
-import viteLogo from '/vite.svg';
-import Button from '@mui/joy/Button';
-import { useSession } from '@hooks/user';
+import { useState } from "react";
+import reactLogo from "./assets/react.svg";
+import viteLogo from "/vite.svg";
+import Button from "@mui/joy/Button";
+import { useSession } from "@hooks/user";
 import {
   ButtonGroup,
   Container,
@@ -13,32 +13,31 @@ import {
   Sheet,
   Stack,
   Typography,
-} from '@mui/joy';
-import { buildTunnelEndpoint } from '@hooks/tunnel';
-import { Endpoints } from '@typings/api';
-import Link from '@components/Link';
-
-import SseTester from '@components/SseTester';
-import Logo from '@components/Logo';
-import { Route, Switch } from 'wouter';
-import Lobby from '@views/lobby';
+} from "@mui/joy";
+import { buildTunnelEndpoint } from "@hooks/tunnel";
+import { AuthModel } from "@typings/api";
+import Link from "@components/Link";
+import Logo from "@components/Logo";
+import SseTester from "@components/SseTester";
+import { Redirect, Route, Router, Switch, useRouter } from "wouter";
+import Lobby from "@views/lobby";
+// import Lobby from '@views/lobby';
 
 function App() {
   const [count, setCount] = useState(0);
-	if (count === 51)
-		setCount(0);
+  if (count === 51) setCount(0);
   const { user, loading, loggedIn, logout } = useSession();
-
+  const router = useRouter();
   return (
     <Switch>
       <Route path="/">
         <Container
           sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            height: '100vh',
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            height: "100vh",
           }}
         >
           <Stack direction="row" spacing={3}>
@@ -54,9 +53,9 @@ function App() {
             variant="outlined"
             sx={{
               p: 2,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
               borderRadius: (theme) => theme.radius.xs,
             }}
           >
@@ -74,7 +73,7 @@ function App() {
             ) : !loggedIn ? (
               <Button
                 component={Link}
-                href={buildTunnelEndpoint(Endpoints.AuthLogin)}
+                href={buildTunnelEndpoint(AuthModel.Endpoints.Targets.Login)}
                 variant="soft"
               >
                 Login
@@ -84,16 +83,24 @@ function App() {
                 <List size="lg">
                   <ListItem>
                     <ListItemDecorator>
-										<Logo {...user}/>
-										</ListItemDecorator>
+                      <Logo {...user} />
+                    </ListItemDecorator>
                     <ListItemContent>
                       <Typography level="title-sm">{user.nickname}</Typography>
+                      <Typography
+                        level="body-sm"
+                        noWrap
+                        component={Link}
+                        to={`https://profile.intra.42.fr/users/${user.nickname}`}
+                      >
+                        Check Intra&apos;s profile here
+                      </Typography>
                     </ListItemContent>
                   </ListItem>
                   <ListItem
                     sx={{
-                      display: 'flex',
-                      justifyContent: 'center',
+                      display: "flex",
+                      justifyContent: "center",
                     }}
                   >
                     <ButtonGroup>
@@ -101,7 +108,7 @@ function App() {
                         <Typography level="body-sm">Logout</Typography>
                       </Button>
                       <Button component={Link} href="/lobby">
-                        <Typography level="body-sm" color="warning">Lobby</Typography>
+                        <Typography level="body-sm">Lobby</Typography>
                       </Button>
                     </ButtonGroup>
                   </ListItem>
@@ -117,8 +124,11 @@ function App() {
       <Route path="/sse">
         <SseTester />
       </Route>
-      <Route path="/lobby">
+      <Router base="/lobby" parent={router}>
         <Lobby />
+      </Router>
+      <Route>
+        <Redirect to="/404" />
       </Route>
     </Switch>
   );

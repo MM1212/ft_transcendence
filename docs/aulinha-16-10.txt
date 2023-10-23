@@ -1,0 +1,49 @@
+
+
+[users.controller.ts]
+
+@Post('friends/request')
+@Auth()
+async newFriendRequest(targetId: number, ctx: HTTPContext<true>) {
+  const target = await this.usersService.getUser(targetId);
+  if (!target)
+    return buildErrorResponse('User not found');
+  const friend = await target.friends.get(ctx.user.id)
+  if (friend)
+    return buildErrorResponse('Already friends');
+  const [ok, msg] = await ctx.user.friends.newRequest(target)
+    await this.dbService.users.friends.newRequest(ctx.user.id, target)
+  if (!ok)      
+    return buildErrorResponse(msg);
+  this.notificationService.sendNotification(targetId, {...})
+    this.sseService.emitToTargets('notifications.new',[targetId], {
+      ...,
+      ...other
+    })
+  return buildSuccessResponse();
+}
+
+@Post('friends/reply')
+@Auth()
+async replyFriendRequest(targetId: number, accept: boolean, ctx: HTTPContext<true>) {
+  const target = await this.usersService.getUser(targetId);
+  if (!target)
+    return buildErrorResponse('User not found');
+  const friendRequest = await target.friends.getRequest(ctx.user.id)
+  if (friendRequest)
+    return buildErrorResponse('Already friends');
+
+  const [ok, msg] = await ctx.user.friends.replyRequest(target, accept)
+    await this.dbService.notifications.delete(notificationId);
+    await this.dbService.users.friends.replyRequest(ctx.user.id, target, accept)
+  if (!ok)      
+    return buildErrorResponse(msg);
+  this.notificationService.sendNotification(targetId, {...})
+    this.sseService.emitToTargets('notifications.new',[targetId], {
+      ...,
+      ...other
+    })
+  return buildSuccessResponse({
+    friend: 
+  });
+}

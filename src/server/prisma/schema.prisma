@@ -25,7 +25,9 @@ model User {
   chats              ChatParticipant[]
   notifications      Notification[]
 
-  messagesSent   ChatMessage[]
+  messagesSent ChatMessage[]
+
+  gamesPlayed MatchHistory[] @relation("match_players")
 
   @@index([studentId, nickname])
   @@map("users")
@@ -67,7 +69,7 @@ model Chat {
   authorization     ChatAuthorization @default(Public)
   authorizationData Json?             @map("authorization_data")
   name              String
-  photo             String
+  photo             String?
   participants      ChatParticipant[]
   messages          ChatMessage[]
   createdAt         DateTime          @default(now()) @map("created_at")
@@ -97,24 +99,16 @@ model ChatMessage {
   @@map("chat_messages")
 }
 
-enum NotificationType {
-  FriendRequest
-  FriendRequestAccepted
-  FriendRequestDeclined
-  FriendRemoved
-  ChatMessage
-  ChatMention
-}
-
 model Notification {
-  id        Int              @id @default(autoincrement())
-  type      NotificationType
-  meta      Json?            @default("{}")
-  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId    Int              @map("user_id")
-  createdAt DateTime         @default(now()) @map("created_at")
-  readAt    DateTime?        @map("read_at")
+  id        Int       @id @default(autoincrement())
+  type      String
+  meta      Json?     @default("{}")
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId    Int       @map("user_id")
+  createdAt DateTime  @default(now()) @map("created_at")
+  readAt    DateTime? @map("read_at")
 
+  @@index([userId])
   @@map("notifications")
 }
 
@@ -136,6 +130,7 @@ model CharacterStat {
   id          Int       @id @default(autoincrement())
   character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   characterId Int       @map("character_id")
+  type        String
   name        String
   value       Int
   createdAt   DateTime  @default(now()) @map("created_at")
@@ -153,4 +148,16 @@ model CharacterItem {
   createdAt   DateTime  @default(now()) @map("created_at")
 
   @@map("characters_inventories")
+}
+
+model MatchHistory {
+  id        Int      @id @default(autoincrement())
+  players   User[]   @relation("match_players")
+  winner    Int      @map("winner_id")
+  rounds    Int
+  gameType  String   @map("game_type")
+  gameTime  Int      @map("game_time")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("matches_history")
 }

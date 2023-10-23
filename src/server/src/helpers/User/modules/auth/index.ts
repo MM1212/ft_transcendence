@@ -3,21 +3,24 @@ import { User } from '../..';
 
 export class UserAuthModule {
   constructor(private readonly user: User) {}
-  private get data(): Auth.Token {
-    return this.user?.asLoggedIn?.token;
+  public get raw(): Auth.Token {
+    if (!this.user.loggedIn)
+      throw new Error('User is not logged in; User#auth#data');
+    return this.user.asLoggedIn?.token;
   }
   get token(): string {
-    return this.data?.access_token;
+    return this.raw?.access_token;
   }
-  get refreshToken(): string | undefined {
-    return this.data?.refresh_token;
+  get refreshToken(): string {
+    return this.raw?.refresh_token;
   }
   get ttl(): number {
-    return new Date(
-      this.data.created_at * 1000 + this.data.expires_in * 1000,
-    ).getTime();
+    return this.raw.secret_valid_until * 1000;
   }
   isTokenValid(): boolean {
     return this.ttl > Date.now();
+  }
+  updateNewToken(data: Auth.Token): void {
+    this.user.update('token', data);
   }
 }

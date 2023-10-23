@@ -15,14 +15,16 @@ import {
   lobbyPlayersAtom,
 } from "./state";
 import { useKeybindsToggle } from "@hooks/keybinds";
-import ChatBox from "./chatBox";
+import ChatBox from "./components/ChatBox";
 import { Sheet } from "@mui/joy";
-import Sidebar from "./menuOptions";
+import Sidebar from "./components/MenuOptions";
+import Link from "@components/Link";
+import LobbyModel from "@typings/models/lobby";
 
 const rendererOptions: Partial<Pixi.IApplicationOptions> = {};
 const mainTex = Pixi.Texture.from("https://pixijs.com/assets/bunny.png");
 const backgroundTex = Pixi.Texture.from(
-  buildTunnelEndpoint(Endpoints.LobbyBackground)
+  buildTunnelEndpoint(LobbyModel.Endpoints.Targets.StaticBackground)
 );
 
 const initSprite = (app: Pixi.Application, player: InitdPlayer) => {
@@ -38,8 +40,8 @@ const initSprite = (app: Pixi.Application, player: InitdPlayer) => {
 };
 
 export default function Lobby() {
-  const { useMounter, emit, useListener } = useSocket(
-    buildTunnelEndpoint(Endpoints.LobbySocket)
+  const { status, useMounter, emit, useListener } = useSocket(
+    buildTunnelEndpoint(LobbyModel.Endpoints.Targets.Connect)
   );
   const [isFocused, setIsFocused] = React.useState(false);
   const loadData = useRecoilCallback(
@@ -162,12 +164,12 @@ export default function Lobby() {
     []
   );
 
-  useListener(Lobbies.Packets.Events.LoadData, loadData);
-  useListener(Lobbies.Packets.Events.NewPlayer, newPlayer);
-  useListener(Lobbies.Packets.Events.SetPlayers, setPlayers);
-  useListener(Lobbies.Packets.Events.RemovePlayer, removePlayer);
+  useListener(LobbyModel.Socket.Messages.LoadData, loadData);
+  useListener(LobbyModel.Socket.Messages.NewPlayer, newPlayer);
+  useListener(LobbyModel.Socket.Messages.SetPlayers, setPlayers);
+  useListener(LobbyModel.Socket.Messages.RemovePlayer, removePlayer);
   useListener(
-    Lobbies.Packets.Events.UpdatePlayersTransform,
+    LobbyModel.Socket.Messages.UpdatePlayersTransform,
     updatePlayersTransform
   );
 
@@ -204,30 +206,13 @@ export default function Lobby() {
       }
       app.ticker.maxFPS = 60;
       app.ticker.minFPS = 60;
-      return () => void 0;
+      return () => {
+        ctx.set(lobbyAppAtom, null);
+      };
     },
     []
   );
   usePixiRenderer(ref, onAppMount, rendererOptions);
-  const players = useRecoilValue(lobbyPlayersAtom);
-  const app = useRecoilValue(lobbyAppAtom);
-  React.useEffect(() => {
-    if (!app) return;
-    const tick = async (delta: number) => {
-      for (const player of players) {
-        if (!player.sprite) continue;
-        player.transform.position.x += player.transform.velocity.x * delta;
-        player.transform.position.y += player.transform.velocity.y * delta;
-        player.sprite.x = player.transform.position.x;
-        player.sprite.y = player.transform.position.y;
-      }
-    };
-    app.ticker.add(tick);
-    return () => {
-      app.ticker.remove(tick);
-    };
-  }, [players, app]);
-
   const onBindToggle = useRecoilCallback(
     (ctx) => async (key, pressed) => {
       const player = await ctx.snapshot.getPromise(lobbyCurrentPlayerSelector);
@@ -261,18 +246,18 @@ export default function Lobby() {
 
   return (
     <Sheet
-	className="Lobby"
-	ref={ref}
-	sx={{
+      className="Lobby"
+      ref={ref}
+      sx={{
         width: "100vw",
         height: "100vh",
-		position: "relative",
-		zIndex: 1, // Set a higher z-index to make sure it appears below the Sidebar
+        position: "relative",
+        zIndex: 1,
       }}
       onFocus={() => console.log("focus")}
     >
-      <Sidebar/> 
-      <ChatBox/>
+      <Sidebar />
+      <ChatBox />
     </Sheet>
   );
 }

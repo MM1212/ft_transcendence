@@ -8,6 +8,9 @@ SERVER_DIR = src/server
 CLIENT_DIR = src/client
 PROD_DIR = production
 
+DB_FILE = $(SERVER_DIR)/prisma/schema.prisma
+DB_MIGRATE_FILE = $(SERVER_DIR)/prisma/migrations/.schema.prisma
+
 setup:
 	git lfs pull
 	npm i -g pnpm
@@ -66,9 +69,17 @@ db_studio:
 db_generate:
 	cd $(SERVER_DIR) && pnpx prisma generate
 
-db_migrate:
+db_migrate: $(DB_MIGRATE_FILE)
+
+$(DB_MIGRATE_FILE): $(DB_FILE)
 ifndef name
 	$(error name is not set, use `make db_migrate name=<name>`)
 else
 	cd $(SERVER_DIR) && pnpx prisma migrate dev --name $(name)
 endif
+	cp $(DB_FILE) $(DB_MIGRATE_FILE)
+
+$(DB_FILE):
+
+db_rebuild:
+	cd $(SERVER_DIR) && pnpx prisma migrate reset --force && pnpx prisma migrate dev --name init

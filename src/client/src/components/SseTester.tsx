@@ -9,26 +9,27 @@ import {
   Sheet,
   Textarea,
   Typography,
-} from "@mui/joy";
-import { useSseEvent } from "@hooks/sse";
-import { SSE } from "@typings/api/sse";
-import React from "react";
-import tunnel from "@lib/tunnel";
-import { Endpoints } from "@typings/api";
-import { atom, useRecoilState } from "recoil";
+} from '@mui/joy';
+import { useSseEvent } from '@hooks/sse';
+import { SseModel } from '@typings/models';
+import React from 'react';
+import tunnel from '@lib/tunnel';
+import { atom, useRecoilState } from 'recoil';
+import { Models } from '@typings/api';
 
-type Message = SSE.Payloads.Test["data"];
+type Message = SseModel.Models.TestMessage;
 
 const messagesAtom = atom<Message[]>({
-  key: "sse/test",
+  key: 'sse/test',
   default: [],
 });
 
 export default function SseTester(): JSX.Element {
   const [messages, setMessages] = useRecoilState(messagesAtom);
-  const [message, setMessage] = React.useState<string>("");
-  useSseEvent<SSE.Payloads.Test>(
-    SSE.Events.Test,
+  const [message, setMessage] = React.useState('');
+
+  useSseEvent<SseModel.DTO.Test>(
+    'test',
     ({ data }) => {
       setMessages((prev) => [...prev, data]);
     },
@@ -36,7 +37,10 @@ export default function SseTester(): JSX.Element {
   );
 
   const submit = React.useCallback(async (message: string) => {
-    await tunnel.post(Endpoints.SseTest, { message });
+    await tunnel.post<SseModel.Endpoints.Test>(
+      SseModel.Endpoints.Targets.Test,
+      { message }
+    );
   }, []);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps

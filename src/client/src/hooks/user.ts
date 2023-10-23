@@ -1,12 +1,12 @@
-import API, { Endpoints } from '@typings/api';
+import { AuthModel } from '@typings/api';
 import { IUser } from '@typings/user';
 import { FetchError, buildTunnelEndpoint, useTunnelEndpoint } from './tunnel';
 import React from 'react';
 import {} from 'wouter';
 import useLocation from 'wouter/use-location';
 import tunnel from '@lib/tunnel';
-import { mutate } from 'swr';
 import { atom, useSetRecoilState } from 'recoil';
+import { clearAllSwrCache } from './swrUtils';
 
 type LoadingSession = { readonly loading: boolean };
 
@@ -31,23 +31,26 @@ export const sessionAtom = atom<IUser | null>({
 
 export const useSessionActions = (): SessionActions => {
   const login = async (): Promise<void> => {
-    document.location.href = buildTunnelEndpoint(Endpoints.AuthLogin);
+    document.location.href = buildTunnelEndpoint(
+      AuthModel.Endpoints.Targets.Login
+    );
   };
   const logout = async (): Promise<void> => {
-    const res = await tunnel.get<undefined>(Endpoints.AuthLogout);
+    const res = await tunnel.get<AuthModel.Endpoints.Logout>(
+      AuthModel.Endpoints.Targets.Logout
+    );
     if (!res) throw new Error('Failed to logout');
-    mutate(buildTunnelEndpoint(Endpoints.UsersMe), undefined, {
-      revalidate: true,
-    });
+    await clearAllSwrCache();
   };
 
   return { login, logout };
 };
 
 export const useSession = (): Session => {
-  const { data, isLoading, isValidating, error } = useTunnelEndpoint<IUser>(
-    Endpoints.UsersMe, {revalidateOnFocus: false}
-  );
+  const { data, isLoading, isValidating, error } =
+    useTunnelEndpoint<AuthModel.Endpoints.Session>(
+      AuthModel.Endpoints.Targets.Session
+    );
   const actions = useSessionActions();
   if (isLoading || isValidating)
     return { ...actions, loading: true, loggedIn: false, user: null };
