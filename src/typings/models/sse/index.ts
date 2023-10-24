@@ -1,7 +1,7 @@
 import {
   Endpoint,
   EndpointMethods,
-  GroupEndpoints,
+  GroupEndpointTargets,
 } from '@typings/api/base/endpoint';
 
 namespace SseModel {
@@ -43,7 +43,7 @@ namespace SseModel {
       Connect = '/sse',
       Test = '/sse/test',
     }
-    export type All = GroupEndpoints<Targets>;
+    export type All = GroupEndpointTargets<Targets>;
     export interface Connect
       extends Endpoint<
         EndpointMethods.Get,
@@ -59,6 +59,11 @@ namespace SseModel {
         DTO.TestPost,
         { message: string }
       > {}
+
+    export interface Registry {
+      [Targets.Connect]: Connect;
+      [Targets.Test]: Test;
+    }
   }
 }
 

@@ -2,7 +2,7 @@ import {
   Endpoint,
   EndpointMethods,
   GetEndpoint,
-  GroupEndpoints,
+  GroupEndpointTargets,
 } from '@typings/api/base/endpoint';
 import { IUser } from '@typings/user';
 
@@ -17,12 +17,18 @@ namespace AuthModel {
       Logout = '/auth/42/logout',
       Session = '/auth/session',
     }
-    export type All = GroupEndpoints<Targets>;
+    export type All = GroupEndpointTargets<Targets>;
     export interface Login extends GetEndpoint<Targets.Login, undefined> {}
     export interface Logout extends GetEndpoint<Targets.Logout, undefined> {}
 
     export interface Session
       extends GetEndpoint<Targets.Session, DTO.Session> {}
+    
+    export interface Registry {
+      [Targets.Login]: Login;
+      [Targets.Logout]: Logout;
+      [Targets.Session]: Session;
+    }
   }
   export namespace Sse {}
 }

@@ -41,7 +41,7 @@ export type BuildEndpoint<T extends Endpoint<EndpointMethods, string>> = (
 
 // T is the enum of all endpoints
 // Returns an string union of all the enum values
-export type GroupEndpoints<T extends string> = GroupEnumValues<T>;
+export type GroupEndpointTargets<T extends string> = GroupEnumValues<T>;
 
 export interface GetEndpoint<
   T extends string,

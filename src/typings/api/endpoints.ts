@@ -11,4 +11,12 @@
 import { SseModel, AuthModel, ChatModel } from '@typings/api/models';
 import LobbyModel from '@typings/models/lobby';
 
-export type All = SseModel.Endpoints.All | AuthModel.Endpoints.All | LobbyModel.Endpoints.All | ChatModel.Endpoints.All;
+export type All =
+  | SseModel.Endpoints.All
+  | AuthModel.Endpoints.All
+  | LobbyModel.Endpoints.All
+  | ChatModel.Endpoints.All;
+export type Registry = SseModel.Endpoints.Registry &
+  AuthModel.Endpoints.Registry &
+  LobbyModel.Endpoints.Registry &
+  ChatModel.Endpoints.Registry;
