@@ -73,10 +73,12 @@ export default function MessagesPanel({ chat }: MessagesPaneProps) {
         onSubmit={() => {
           const newId = chatMessages.length + 1;
           const newIdString = newId.toString();
+          console.log("newId", newId);
+          console.log(textAreaValue);
           setChatMessages([
             ...chatMessages,
             {
-              id: newIdString,
+              id: "1",
               sender: chat.sender,
               content: textAreaValue,
               timestamp: "Just now",
