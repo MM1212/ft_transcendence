@@ -1,4 +1,4 @@
-import WildcardEngine from '@/WildcardEngine/index';
+import WildcardEngine from '../WildcardEngine';
 import { Path, PathSet, PathValue } from './types';
 
 class CacheNotifyContext<
@@ -22,8 +22,7 @@ interface Subscriber<T extends object> {
 }
 export class CacheObserver<T extends object> {
   private subscribersCookie: number = 0;
-  private readonly subscribers: Subscriber<T>[] = [];
-  constructor(private readonly store: T) {}
+  constructor(private store: T, private readonly subscribers: Subscriber<T>[] = []) {}
   public get(): T;
   public get<K extends Path<T>>(key: K): PathValue<T, K>;
   public get<K extends Path<T>[]>(
@@ -35,13 +34,13 @@ export class CacheObserver<T extends object> {
       return args.map((key) => this.get(key as any)) as unknown;
     return (args[0] as string)
       .split('.')
-      .reduce((acc, key) => acc?.[key], this.store);
+      .reduce((acc: any, key) => acc?.[key], this.store);
   }
   private setValue<K extends Path<T>>(key: K, value: PathValue<T, K>): void {
     const path = key.split('.');
     if (!path.length) throw new Error('Invalid Path ' + key);
     const lastKey = path.pop();
-    const target = path.reduce((acc, key) => acc?.[key], this.store);
+    const target = path.reduce((acc: any, key) => acc?.[key], this.store);
     if (!target) throw new Error('Invalid Path ' + key);
     if (!this.notify(key, value)) return;
     target[lastKey as string] = value;
@@ -59,7 +58,7 @@ export class CacheObserver<T extends object> {
     return this.subscribers.filter((sub) => WildcardEngine.match(sub.pattern, key));
   }
   private notify<K extends Path<T>>(key: K, value: PathValue<T, K>): boolean {
-    const ctx = new CacheNotifyContext(this, key, key.split('.').pop(), value);
+    const ctx = new CacheNotifyContext(this, key, (key as string).split('.').pop()!, value);
     const subs = this.getSubscribers(key);
     if (!subs.length) return true;
     return subs.every(
@@ -88,5 +87,8 @@ export class CacheObserver<T extends object> {
   }
   public clear(): void {
     this.subscribers.length = 0;
+  }
+  public setTo(data: T): void {
+    this.store = data;
   }
 }

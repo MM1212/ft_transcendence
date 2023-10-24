@@ -1,44 +1,94 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/modules/db/prisma';
-import { IUser, IUserCreate } from '@typings/user';
+import UsersModel from '@typings/models/users';
+import { Prisma } from '@prisma/client';
+
+const USER_EXT_QUERY = Prisma.validator<Prisma.UserSelect>()({
+  chats: {
+    select: { id: true },
+  },
+  friends: {
+    select: { id: true },
+  },
+  friendOf: {
+    select: { id: true },
+  },
+});
 
 @Injectable()
 export class Users {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getAll(): Promise<IUser[]> {
-    return await this.prisma.user.findMany();
+  private formatUser<
+    T extends UsersModel.DTO.DB.IUser | null,
+    U = T extends null ? null : UsersModel.Models.IUser,
+  >(user: T): U {
+    if (!user) return null as unknown as U;
+    const formatted: UsersModel.Models.IUser = {
+      ...user,
+    } as unknown as UsersModel.Models.IUser;
+    formatted.friends = [
+      ...user.friends.map((friend) => friend.id),
+      ...user.friendOf.map((friend) => friend.id),
+    ];
+    delete (formatted as any).friendOf;
+    formatted.chats = user.chats.map((chat) => chat.id);
+    formatted.createdAt = user.createdAt.getTime();
+    return formatted as unknown as U;
+  }
+
+  async getAll(): Promise<UsersModel.Models.IUser[]> {
+    return (
+      await this.prisma.user.findMany({
+        include: USER_EXT_QUERY,
+      })
+    ).map<UsersModel.Models.IUser>(this.formatUser);
   }
   async exists(id: number): Promise<boolean> {
-    return !!(await this.prisma.user.findUnique({
-      where: { id },
-    }));
+    return (
+      (await this.prisma.user.count({
+        where: { id },
+      })) === 1
+    );
   }
-  async get(id: number): Promise<IUser | null> {
-    return await this.prisma.user.findUnique({
-      where: { id },
-    });
+  async get(id: number): Promise<UsersModel.Models.IUser | null> {
+    return this.formatUser(
+      await this.prisma.user.findUnique({
+        where: { id },
+        include: USER_EXT_QUERY,
+      }),
+    );
   }
-  async getByStudentId(studentId: number): Promise<IUser | null> {
-    return await this.prisma.user.findUnique({
-      where: { studentId },
-    });
+  async getByStudentId(
+    studentId: number,
+  ): Promise<UsersModel.Models.IUser | null> {
+    return this.formatUser(
+      await this.prisma.user.findUnique({
+        where: { studentId },
+        include: USER_EXT_QUERY,
+      }),
+    );
   }
-  async create(data: IUserCreate): Promise<IUser> {
-    return await this.prisma.user.create({
-      data,
-    });
+  async create(
+    data: UsersModel.DTO.DB.IUserCreate,
+  ): Promise<UsersModel.Models.IUser> {
+    return this.formatUser(
+      await this.prisma.user.create({
+        data,
+        include: USER_EXT_QUERY,
+      }),
+    );
   }
   async update(
     id: number,
-    data: Partial<Omit<IUser, 'id' | 'createdAt'>>,
-  ): Promise<IUser> {
+    data: Partial<Omit<UsersModel.Models.IUserInfo, 'id' | 'createdAt'>>,
+  ): Promise<UsersModel.DTO.DB.IUserInfo> {
     return await this.prisma.user.update({
       where: { id },
       data,
     });
   }
-  async delete(id: number): Promise<IUser> {
+  async delete(id: number): Promise<UsersModel.DTO.DB.IUserInfo> {
     return await this.prisma.user.delete({
       where: { id },
     });

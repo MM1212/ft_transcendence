@@ -1,6 +1,5 @@
 import { Controller, Get } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { User } from '@/helpers/User';
 import HttpCtx from '@/helpers/decorators/httpCtx';
 import { HTTPContext, Response } from 'typings/http';
 import * as API from '@typings/api';
@@ -15,9 +14,13 @@ export class AuthController {
 
   @Get('login')
   login(@HttpCtx() ctx: HTTPContext): Response {
-    const { req, res } = ctx;
-    const user = req.session.get('user');
-    if (user && user.loggedIn && new User(req.session).auth.isTokenValid())
+    const { req, res, user } = ctx;
+    const userData = req.session.get('user');
+    if (
+      userData &&
+      userData.loggedIn &&
+      user?.useSession(req.session).auth.isTokenValid()
+    )
       res.redirect(302, `${this.config.get<string>('FRONTEND_URL')}`);
     else this.service.login(ctx);
     return res;
