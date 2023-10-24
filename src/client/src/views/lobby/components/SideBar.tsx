@@ -12,39 +12,8 @@ import {
 } from "@mui/joy";
 import { useKeybindsToggle } from "@hooks/keybinds";
 import Link from "@components/Link";
-import MessagesPanel from "./MessagesPanel";
-import MessageChat from "./MessageChat";
-
-const targets = [
-  {
-    label: "Home",
-    target: "",
-  },
-  {
-    label: "Settings",
-    target: "/settings",
-  },
-  {
-    label: "Messages",
-    target: "/messages",
-  },
-  {
-    label: "Key Bindings",
-    target: "/keybindings",
-  },
-  {
-    label: "Friends",
-    target: "/friends",
-  },
-  {
-    label: "Achievements",
-    target: "/achievements",
-  },
-  {
-    label: "Exit",
-    target: "/exit",
-  },
-];
+import { Route, Switch } from "wouter";
+import { targets } from "../types";
 
 export default function DrawerCloseButton() {
   const [open, setOpen] = React.useState(false);
@@ -56,19 +25,11 @@ export default function DrawerCloseButton() {
     (key: string, pressed: boolean) => {
       if (!pressed) return;
       if (key !== "Escape") return;
+      //Set Targets to
       setOpen((prev) => !prev);
     },
     [setOpen]
   );
-
-  const listItemStyles = {
-    display: "flex",
-    bgcolor: "rgba(0, 0, 0, 0.3)",
-    justifyContent: "center",
-    p: 1,
-    width: "100%",
-  };
-
   useKeybindsToggle(["Escape"], handleOpenDrawer, []);
 
   return (
@@ -80,6 +41,7 @@ export default function DrawerCloseButton() {
         slotProps={{
           content: {
             sx: {
+              boxShadow: "none",
               width: "80%",
               minHeight: 0,
               overflow: "hidden auto",
@@ -87,19 +49,18 @@ export default function DrawerCloseButton() {
               display: "flex",
               flexDirection: "row",
               bgcolor: "rgba(0, 0, 0, 0.0)",
-			  
             },
           },
         }}
       >
         <Box
           sx={{
-			backgroundColor: 'background.level1',
+            backgroundColor: "background.level1",
             display: "flex",
             flexDirection: "collumn",
             width: "25%",
-			borderRight: '1px solid',
-			borderColor: 'divider',
+            borderRight: "1px solid",
+            borderColor: "divider",
             [`& .${listItemButtonClasses.root}`]: {
               gap: 1.5,
             },
@@ -136,8 +97,16 @@ export default function DrawerCloseButton() {
             ))}
           </List>
         </Box>
-        <MessagesPanel isOpen={open}/>
-		<MessageChat isOpen={open}/>
+        <Switch>
+          {targets.map(
+            (target, i) =>
+              target.node && (
+                <Route path={target.target} key={i}>
+                  {target.node}
+                </Route>
+              )
+          )}
+        </Switch>
       </Drawer>
     </Sheet>
   );

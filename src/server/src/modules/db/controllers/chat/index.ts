@@ -10,7 +10,9 @@ const SIMPLE_DB_USER: Record<keyof IUser, true> = {
   avatar: true,
   studentId: true,
   createdAt: true,
+  online: true,
 };
+
 const SIMPLE_DB_CHAT_PARTICIPANT: Record<
   Exclude<keyof ChatModel.Models.IChatParticipant, 'user'>,
   true

@@ -34,7 +34,7 @@ export default function MessagesPaneHeader({ sender }: MessagesPaneHeaderProps) 
           variant="plain"
           color="neutral"
           size="sm"
-          sx={{
+          sx={{ 	
             display: { xs: 'inline-flex', sm: 'none' },
           }}
           onClick={() => toggleMessagesPane()}

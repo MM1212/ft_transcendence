@@ -15,10 +15,9 @@ import {
   lobbyPlayersAtom,
 } from "./state";
 import { useKeybindsToggle } from "@hooks/keybinds";
-import ChatBox from "./components/ChatBox";
+import ChatBox from "./components/InGameChat";
 import { Sheet } from "@mui/joy";
-import Sidebar from "./components/MenuOptions";
-import Link from "@components/Link";
+import Sidebar from "./components/SideBar";
 import LobbyModel from "@typings/models/lobby";
 
 const rendererOptions: Partial<Pixi.IApplicationOptions> = {};

@@ -45,8 +45,8 @@ export class LobbyGateway
     // parse session cookie
     // get user from session
     const app = this.rootService.app.getHttpAdapter().getInstance();
-    const sessionId = (app as any).parseCookie(client.handshake.headers.cookie).session;
-    const session = (app as any).decodeSecureSession(sessionId);
+    const sessionId = app.parseCookie(client.handshake.headers.cookie).session;
+    const session = app.decodeSecureSession(sessionId);
     if (!session || !session.get('user'))
       return client.disconnect(true), void 0;
     const user = session.get('user')!;
@@ -123,8 +123,8 @@ export class LobbyGateway
     // parse session cookie
     // get user from session
     const app = this.rootService.app.getHttpAdapter().getInstance();
-    const sessionId = (app as any).parseCookie(client.handshake.headers.cookie).session;
-    const session = (app as any).decodeSecureSession(sessionId);
+    const sessionId = app.parseCookie(client.handshake.headers.cookie).session;
+    const session = app.decodeSecureSession(sessionId);
     if (!session || !session.get('user'))
       return client.disconnect(true), void 0;
     const user = session.get('user')!;

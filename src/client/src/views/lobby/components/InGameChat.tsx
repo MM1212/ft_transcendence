@@ -55,7 +55,7 @@ const ChatBox: React.FC<ChatBoxProps> = () => {
         e.preventDefault();
       }
     },
-    [focus]
+    []
   );
   useKeybindsToggle(["Tab"], event, []);
 

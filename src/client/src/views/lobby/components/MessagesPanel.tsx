@@ -6,28 +6,30 @@
 /*   By: mgranate_ls <mgranate_ls@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/21 17:22:36 by mgranate_ls       #+#    #+#             */
-/*   Updated: 2023/10/21 19:23:25 by mgranate_ls      ###   ########.fr       */
+/*   Updated: 2023/10/24 02:18:05 by mgranate_ls      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+import { List } from "@mui/joy";
 import { Input } from "@mui/joy";
 import { Box, Chip, Sheet, Stack, Typography } from "@mui/joy";
+import { ChatsPaneProps } from "../types";
+import ChatListItem from "./ChatListItems";
 
-type MessagesPanelProps = {
-  isOpen: boolean;
-};
-
-export default function MessagesPanel({ isOpen }: MessagesPanelProps) {
-  if (isOpen)
+export default function MessagesPanel({
+  chats,
+  setSelectedChat,
+  selectedChatId,
+}: ChatsPaneProps) {
   return (
     <Sheet
       sx={{
-        borderRight: '1px solid',
-        borderColor: 'divider',
-        height: 'calc(100dvh - var(--Header-height))',
-        overflowY: 'auto',
-		backgroundColor: 'background.level1',
-		width: '50%',
+        borderRight: "1px solid",
+        borderColor: "divider",
+        height: "calc(100dvh - var(--Header-height))",
+        overflowY: "auto",
+        backgroundColor: "background.level1",
+        width: "30%",
       }}
     >
       <Stack
@@ -39,7 +41,7 @@ export default function MessagesPanel({ isOpen }: MessagesPanelProps) {
         pb={1.5}
       >
         <Typography
-          fontSize={{ xs: 'md', md: 'lg' }}
+          fontSize={{ xs: "md", md: "lg" }}
           component="h1"
           fontWeight="lg"
           endDecorator={
@@ -47,23 +49,35 @@ export default function MessagesPanel({ isOpen }: MessagesPanelProps) {
               variant="soft"
               color="primary"
               size="md"
-              slotProps={{ root: { component: 'span' } }}
+              slotProps={{ root: { component: "span" } }}
             >
               10
             </Chip>
           }
-          sx={{ mr: 'auto' }}
+          sx={{ mr: "auto" }}
         >
           Messages
         </Typography>
       </Stack>
       <Box sx={{ px: 2, pb: 1.5 }}>
-        <Input
-          size="sm"
-          placeholder="Search"
-          aria-label="Search"
-        />
+        <Input size="sm" placeholder="Search" aria-label="Search" />
       </Box>
+      <List
+        sx={{
+          py: 0,
+          "--ListItem-paddingY": "0.75rem",
+          "--ListItem-paddingX": "1rem",
+        }}
+      >
+        {chats.map((chat) => (
+          <ChatListItem
+            key={chat.id}
+            {...chat}
+            setSelectedChat={setSelectedChat}
+            selectedChatId={selectedChatId}
+          />
+        ))}
+      </List>
     </Sheet>
   );
 }
