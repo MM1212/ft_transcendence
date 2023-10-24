@@ -70,6 +70,7 @@ namespace ChatModel {
       type: GroupEnumValues<ChatMessageType>;
       message: string;
       meta: Partial<Embeds.All>;
+      author: IChatParticipant;
       authorId: number;
       createdAt: number;
     }

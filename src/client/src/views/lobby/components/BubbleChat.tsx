@@ -4,21 +4,18 @@ import Box from "@mui/joy/Box";
 import Stack from "@mui/joy/Stack";
 import Sheet from "@mui/joy/Sheet";
 import Typography from "@mui/joy/Typography";
-import { MessageProps } from "../types";
+import { ChatModel } from "@typings/models";
+import { IUser } from "@typings/user";
 
-type ChatBubbleProps = MessageProps & {
-  variant: "sent" | "received";
+type ChatBubbleProps = {
+  bubMessage: ChatModel.Models.IChatMessage;
+  me: IUser;
 };
 
-export default function ChatBubble({
-  content,
-  variant,
-  timestamp,
-  attachment = undefined,
-}: ChatBubbleProps) {
-  const isSent = variant === "sent";
+export default function ChatBubble({ bubMessage, me }: ChatBubbleProps) {
   const [isLiked, setIsLiked] = React.useState<boolean>(false);
   const [isHovered, setIsHovered] = React.useState<boolean>(false);
+  const isMe = bubMessage.author.id === me.id;
 
   return (
     <Box sx={{ maxWidth: "60%", minWidth: "auto" }}>
@@ -29,17 +26,17 @@ export default function ChatBubble({
         sx={{ mb: 0.25 }}
       >
         <Typography level="body-xs"></Typography>
-        <Typography level="body-xs">{timestamp}</Typography>
+        <Typography level="body-xs">{bubMessage.createdAt}</Typography>
       </Stack>
-      {attachment ? (
+      {/* {attachment ? (
         <Sheet
           variant="outlined"
           sx={{
             px: 1.75,
             py: 1.25,
             borderRadius: "lg",
-            borderTopRightRadius: isSent ? 0 : "lg",
-            borderTopLeftRadius: isSent ? "lg" : 0,
+            borderTopRightRadius: isMe ? 0 : "lg",
+            borderTopLeftRadius: isMe ? "lg" : 0,
           }}
         >
           <Stack direction="row" spacing={1.5} alignItems="center">
@@ -50,60 +47,58 @@ export default function ChatBubble({
             </div>
           </Stack>
         </Sheet>
-      ) : (
-        <Box
-          sx={{ position: "relative" }}
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
+      ) : ( */}
+      <Box
+        sx={{ position: "relative" }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        <Sheet
+          color={isMe ? "primary" : "neutral"}
+          variant={isMe ? "solid" : "soft"}
+          sx={{
+            p: 1.25,
+            borderRadius: "lg",
+            borderTopRightRadius: isMe ? 0 : "lg",
+            borderTopLeftRadius: isMe ? "lg" : 0,
+            backgroundColor: isMe
+              ? "var(--joy-palette-primary-solidBg)"
+              : "background.body",
+          }}
         >
-          <Sheet
-            color={isSent ? "primary" : "neutral"}
-            variant={isSent ? "solid" : "soft"}
+          <Typography
+            level="body-sm"
             sx={{
-              p: 1.25,
-              borderRadius: "lg",
-              borderTopRightRadius: isSent ? 0 : "lg",
-              borderTopLeftRadius: isSent ? "lg" : 0,
-              backgroundColor: isSent
-                ? "var(--joy-palette-primary-solidBg)"
-                : "background.body",
+              color: isMe
+                ? "var(--joy-palette-common-white)"
+                : "var(--joy-palette-text-primary)",
             }}
           >
-            <Typography
-              level="body-sm"
-              sx={{
-                color: isSent
-                  ? "var(--joy-palette-common-white)"
-                  : "var(--joy-palette-text-primary)",
-              }}
-            >
-              {content}
-            </Typography>
-          </Sheet>
-          {(isHovered || isLiked) && (
-            <Stack
-              direction="row"
-              justifyContent={isSent ? "flex-end" : "flex-start"}
-              spacing={0.5}
-              sx={{
-                position: "absolute",
-                top: "50%",
-                p: 1.5,
-                ...(isSent
-                  ? {
-                      left: 0,
-                      transform: "translate(-100%, -50%)",
-                    }
-                  : {
-                      right: 0,
-                      transform: "translate(100%, -50%)",
-                    }),
-              }}
-            >
-            </Stack>
-          )}
-        </Box>
-      )}
+            {bubMessage.message}
+          </Typography>
+        </Sheet>
+        {(isHovered || isLiked) && (
+          <Stack
+            direction="row"
+            justifyContent={isMe ? "flex-end" : "flex-start"}
+            spacing={0.5}
+            sx={{
+              position: "absolute",
+              top: "50%",
+              p: 1.5,
+              ...(isMe
+                ? {
+                    left: 0,
+                    transform: "translate(-100%, -50%)",
+                  }
+                : {
+                    right: 0,
+                    transform: "translate(100%, -50%)",
+                  }),
+            }}
+          ></Stack>
+        )}
+      </Box>
     </Box>
   );
 }

@@ -13,13 +13,12 @@
 import { List } from "@mui/joy";
 import { Input } from "@mui/joy";
 import { Box, Chip, Sheet, Stack, Typography } from "@mui/joy";
-import { ChatsPaneProps } from "../types";
+import { ChatsPaneProps, sampleUsers } from "../types";
 import ChatListItem from "./ChatListItems";
 
 export default function MessagesPanel({
   chats,
   setSelectedChat,
-  selectedChatId,
 }: ChatsPaneProps) {
   return (
     <Sheet
@@ -71,10 +70,13 @@ export default function MessagesPanel({
       >
         {chats.map((chat) => (
           <ChatListItem
-            key={chat.id}
-            {...chat}
+            // key={chat.id}
+            // {...chat}
+            id="31"
+            sender={sampleUsers[0]}
+            messages={chat.messages}
             setSelectedChat={setSelectedChat}
-            selectedChatId={selectedChatId}
+            //selectedChatId={selectedChatId}
           />
         ))}
       </List>

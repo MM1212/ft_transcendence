@@ -1,113 +1,87 @@
 import { IUser } from "@typings/user";
 import MessagesPanel from "./components/MessagesPanel";
 import MessageChat from "./components/MessageChat";
+import ChatModel from "@typings/models/chat";
 
-export type MessageProps = {
-  id: string;
-  content: string;
-  timestamp: string;
-  sender: IUser;
-  unread?: boolean;
-  attachment?: {
-    fileName: string;
-    type: string;
-    size: string;
-  };
-};
+export interface ChatsPaneProps {
+  chats: ChatModel.Models.IChat[];
+  setSelectedChat: (chat: ChatModel.Models.IChat) => void;
+}
 
-export type ChatProps = {
-  id: string;
-  sender: IUser;
-  messages: MessageProps[];
-};
-
-const userProps: IUser[] = [
+export const sampleUsers: IUser[] = [
   {
     id: 1,
     studentId: 1,
     nickname: "Mário Granate",
     avatar: "https://avatars.githubusercontent.com/u/63326242?s=96&v=4",
     createdAt: 34 | 2,
-    online: false,
+    online: true,
   },
   {
     id: 2,
     studentId: 2,
-    nickname: "Him",
+    nickname: "Antonio Maria",
     avatar: "https://avatars.githubusercontent.com/u/63326242?s=96&v=4",
     createdAt: 34 | 2,
     online: true,
   },
 ];
 
-export const arrayChats: ChatProps[] = [
-  {
-    id: "1",
-    sender: userProps[0],
-    messages: [
-      {
-        id: "1",
-        content: "Hello",
-        timestamp: "Wednesday 11:19am",
-        sender: userProps[0],
-      },
-      {
-        id: "1",
-        content: "How are you?",
-        timestamp: "Wednesday 11:20am",
-        sender: userProps[0],
-      },
-      {
-        id: "2",
-        content: "Hello John",
-        timestamp: "Wednesday 11:21am",
-        sender: userProps[1],
-      },
-      {
-        id: "2",
-        content: "I am good and you?",
-        timestamp: "Wednesday 11:22am",
-        sender: userProps[1],
-      },
-    ],
-  },
-];
-export type ChatsPaneProps = {
-  chats: ChatProps[];
-  setSelectedChat: (chat: ChatProps) => void;
-  selectedChatId: string;
+export const sampleParticipant: ChatModel.Models.IChatParticipant = {
+  id: 0,
+  chatId: 1,
+  user: sampleUsers[0],
+  userId: sampleUsers[0].id,
+  role: ChatModel.Models.ChatParticipantRole.Owner,
+  toReadPings: 2,
+  createdAt: 0,
 };
 
-export const chatMessages: ChatProps = {
-  id: "1",
-  sender: userProps[0],
+export const sampleChat: ChatModel.Models.IChat = {
+  id: 1,
+  type: ChatModel.Models.ChatType.Direct,
+  authorization: ChatModel.Models.ChatAccess.Private,
+  authorizationData: null,
+  name: "priv: Mario+Joao",
+  photo: null,
+  participants: [sampleParticipant],
+  createdAt: 0,
   messages: [
     {
-      id: "1",
-      content: "Hello",
-      timestamp: "Wednesday 11:19am",
-      sender: userProps[0],
-    },
-    {
-      id: "1",
-      content: "How are you?",
-      timestamp: "Wednesday 11:20am",
-      sender: userProps[0],
-    },
-    {
-      id: "2",
-      content: "Hello John",
-      timestamp: "Wednesday 11:21am",
-      sender: userProps[1],
-    },
-    {
-      id: "2",
-      content: "I am good and you?",
-      timestamp: "Wednesday 11:22am",
-      sender: userProps[1],
+      id: 0,
+      chatId: 1,
+      type: ChatModel.Models.ChatMessageType.Normal,
+      message: "BOAS",
+      meta: {},
+      author: sampleParticipant,
+      authorId: sampleParticipant.id,
+      createdAt: Math.floor(Date.now() - Math.random() * 1000),
     },
   ],
+  // messages: [...new Array(20)].map((_,id) => {
+  //   const author = id % 2 === 0 ? sampleUsers[0] : sampleUsers[1];
+  //   return ({
+  //     id,
+  //     author: {
+  //       chatId: id,
+  //       createdAt: Date.now(),
+  //       id: id * 2,
+  //       role: ChatModel.Models.ChatParticipantRole.Banned,
+  //       toReadPings: 2,
+  //       user: author,
+  //       userId: author.id
+  //     },
+  //     authorId: id,
+  //     chatId: 1,
+  //     createdAt: Math.floor(Date.now() - Math.random() * 1000),
+  //     message: "BOAS",
+  //     meta: {},
+  //     type: ChatModel.Models.ChatMessageType.Normal
+  //   });
+  // }),
 };
+
+export const arrayChats: ChatModel.Models.IChat[] = [sampleChat];
 
 export const targets = [
   {
@@ -123,12 +97,8 @@ export const targets = [
     target: "/messages",
     node: (
       <>
-        <MessagesPanel
-          chats={arrayChats}
-          setSelectedChat={() => {}}
-          selectedChatId={"1"}
-        />
-        <MessageChat chat={chatMessages} />
+        <MessagesPanel chats={arrayChats} setSelectedChat={() => {}} />
+        <MessageChat chat={sampleChat} me={sampleUsers[0]} />
       </>
     ),
   },

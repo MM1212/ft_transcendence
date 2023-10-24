@@ -53,6 +53,7 @@ export default function DrawerCloseButton() {
           },
         }}
       >
+        <>{console.log('mounted')}</>
         <Box
           sx={{
             backgroundColor: "background.level1",

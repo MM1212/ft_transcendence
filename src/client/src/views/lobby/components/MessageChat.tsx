@@ -3,16 +3,19 @@ import ChatBubble from "./BubbleChat";
 import { Box } from "@mui/joy";
 import { Stack } from "@mui/joy";
 import AvatarWithStatus from "./AvatarWithStatusProps";
-import { ChatProps, MessageProps } from "../types";
 import ChatHeader from "./ChatHeader";
 import React from "react";
 import MessageInput from "./MessageTyping";
+import ChatModel from "@typings/models/chat"
+import { IUser } from "@typings/user";
 
-type MessagesPaneProps = {
-  chat: ChatProps;
-};
+export interface myChat {
+  chat: ChatModel.Models.IChat,
+  me: IUser,
+}
 
-export default function MessagesPanel({ chat }: MessagesPaneProps) {
+export default function MessageChat({chat, me}: myChat) 
+{
   const [chatMessages, setChatMessages] = React.useState(chat.messages);
   const [textAreaValue, setTextAreaValue] = React.useState("");
 
@@ -20,6 +23,11 @@ export default function MessagesPanel({ chat }: MessagesPaneProps) {
     setChatMessages(chat.messages);
   }, [chat.messages]);
 
+  if (chat.participants.length < 1)
+  {
+    console.log("ERROR")
+    return
+  }
   return (
     <Sheet
       sx={{
@@ -30,7 +38,7 @@ export default function MessagesPanel({ chat }: MessagesPaneProps) {
         backgroundColor: "background.level1",
       }}
     >
-      <ChatHeader sender={chat.sender} />
+      <ChatHeader sender={chat.participants[0]} />
       <Box
         sx={{
           display: "flex",
@@ -43,8 +51,8 @@ export default function MessagesPanel({ chat }: MessagesPaneProps) {
         }}
       >
         <Stack spacing={2} justifyContent="flex-end">
-          {chatMessages.map((message: MessageProps, index: number) => {
-            const isYou = message.id === "1";
+          {chatMessages.map((message: ChatModel.Models.IChatMessage, index: number) => {
+            const isYou = message.id === 1;
             return (
               <Stack
                 key={index}
@@ -52,15 +60,15 @@ export default function MessagesPanel({ chat }: MessagesPaneProps) {
                 spacing={2}
                 flexDirection={isYou ? "row-reverse" : "row"}
               >
-                {message.id !== "1" && (
+                {message.id !== 1 && (
                   <AvatarWithStatus
-                    online={message.sender.online}
-                    src={message.sender.avatar}
+                    online={message.author.user?.online}
+                    src={message.author.user.avatar}
                   />
                 )}
                 <ChatBubble
-                  variant={isYou ? "sent" : "received"}
-                  {...message}
+                  bubMessage={message}
+                  me={me}
                 />
               </Stack>
             );
@@ -71,18 +79,11 @@ export default function MessagesPanel({ chat }: MessagesPaneProps) {
         textAreaValue={textAreaValue}
         setTextAreaValue={setTextAreaValue}
         onSubmit={() => {
+          console.log(textAreaValue)
           const newId = chatMessages.length + 1;
           const newIdString = newId.toString();
-          console.log("newId", newId);
-          console.log(textAreaValue);
           setChatMessages([
-            ...chatMessages,
-            {
-              id: "1",
-              sender: chat.sender,
-              content: textAreaValue,
-              timestamp: "Just now",
-            },
+            ...chatMessages
           ]);
         }}
       />

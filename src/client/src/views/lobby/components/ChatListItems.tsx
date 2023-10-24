@@ -6,37 +6,37 @@ import ListItemButton, { ListItemButtonProps } from "@mui/joy/ListItemButton";
 import Stack from "@mui/joy/Stack";
 import Typography from "@mui/joy/Typography";
 import { IUser } from "@typings/user";
-import { ChatProps, MessageProps } from "../types";
+import { sampleChat } from "../types";
 import { toggleMessagesPane } from "../utils";
 import AvatarWithStatus from "./AvatarWithStatusProps";
 import { Badge } from "@mui/joy";
+import { ChatModel } from "@typings/models";
 
 type ChatListItemProps = ListItemButtonProps & {
   id: string;
-  unread?: boolean;
+  // unread?: boolean;
   sender: IUser;
-  messages: MessageProps[];
-  selectedChatId?: string;
-  setSelectedChat: (chat: ChatProps) => void;
+  messages: ChatModel.Models.IChatMessage[];
+  //selectedChatId?: string;
+  setSelectedChat: (chat: ChatModel.Models.IChat) => void;
 };
 
 export default function ChatListItem({
-  id,
   sender,
   messages,
-  selectedChatId,
   setSelectedChat,
+  //selectedChatId
 }: ChatListItemProps) {
-  const selected = selectedChatId === id;
+  // const selected = selectedChatId === id;
   return (
     <React.Fragment>
       <ListItem>
         <ListItemButton
           onClick={() => {
             toggleMessagesPane();
-            setSelectedChat({ id, sender, messages });
+            setSelectedChat(sampleChat);
           }}
-          selected={selected}
+          // selected={selected}
           color="neutral"
           sx={{
             flexDirection: "column",
@@ -56,9 +56,9 @@ export default function ChatListItem({
                 textAlign: "right",
               }}
             >
-              {messages[0].unread && (
+              {/* {messages[0].unread && (
                 <Badge sx={{ fontSize: 12 }} color="primary" />
-              )}
+              )} */}
               <Typography
                 level="body-xs"
                 display={{ xs: "none", md: "block" }}
@@ -78,7 +78,7 @@ export default function ChatListItem({
               textOverflow: "ellipsis",
             }}
           >
-            {messages[0].content}
+            {messages[messages.length - 1].message}
           </Typography>
         </ListItemButton>
       </ListItem>

@@ -7,9 +7,10 @@ import Stack from "@mui/joy/Stack";
 import Typography from "@mui/joy/Typography";
 import { IUser } from "@typings/user";
 import { Badge } from "@mui/joy";
+import { ChatModel } from "@typings/models";
 
 type ChatHeader = {
-  sender: IUser;
+  sender: ChatModel.Models.IChatParticipant;
 };
 
 export default function MessagesPaneHeader({ sender }: ChatHeader) {
@@ -26,7 +27,7 @@ export default function MessagesPaneHeader({ sender }: ChatHeader) {
       px={{ xs: 1, md: 2 }}
     >
       <Stack direction="row" spacing={{ xs: 1, md: 2 }} alignItems="center">
-        <Avatar size="lg" src={sender.avatar} />
+        <Avatar size="lg" src={sender.user.avatar} />
 
         <div>
           <Typography
@@ -35,7 +36,7 @@ export default function MessagesPaneHeader({ sender }: ChatHeader) {
             component="h2"
             noWrap
             endDecorator={
-              sender.online ? (
+              sender.user.online ? (
                 <Chip
                   variant="outlined"
                   size="sm"
@@ -63,10 +64,10 @@ export default function MessagesPaneHeader({ sender }: ChatHeader) {
               ) : undefined
             }
           >
-            {sender.nickname}
+            {sender.user.nickname}
           </Typography>
 
-          <Typography level="body-sm">{sender.nickname}</Typography>
+          <Typography level="body-sm">{sender.user.nickname}</Typography>
         </div>
       </Stack>
       <Stack spacing={1} direction="row" alignItems="center">
