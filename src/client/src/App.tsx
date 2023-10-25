@@ -22,7 +22,6 @@ import Link from '@components/Link';
 import SseTester from '@components/SseTester';
 import { Redirect, Route, Switch } from 'wouter';
 import Lobby from '@views/lobby';
-// import Lobby from '@views/lobby';
 
 function App() {
   const [count, setCount] = useState(0);

@@ -15,7 +15,6 @@ import { SseModel } from '@typings/models';
 import React from 'react';
 import tunnel from '@lib/tunnel';
 import { atom, useRecoilState } from 'recoil';
-import { Models } from '@typings/api';
 
 type Message = SseModel.Models.TestMessage;
 
@@ -37,7 +36,7 @@ export default function SseTester(): JSX.Element {
   );
 
   const submit = React.useCallback(async (message: string) => {
-    await tunnel.post<SseModel.Endpoints.Test>(
+    await tunnel.post(
       SseModel.Endpoints.Targets.Test,
       { message }
     );
