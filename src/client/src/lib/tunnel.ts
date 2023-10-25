@@ -5,7 +5,7 @@ import rest from '@utils/rest';
 class APITunnel implements ITunnel {
   private readonly endpoint: string = import.meta.env.FRONTEND_API_ENDPOINT;
 
-  private buildUrl(uri: API.Endpoints.All): string {
+  private buildUrl(uri: string): string {
     return `${this.endpoint}${uri}`;
   }
   private buildEndpoint<
@@ -16,13 +16,15 @@ class APITunnel implements ITunnel {
   ): string {
     if (!params) return this.buildUrl(uri);
     const url = new URL(
-      this.buildUrl(uri).replace(/:(\w+)/g, (_, key) => {
-        const value = params[key];
-        if (!value)
-          throw new Error(`Missing parameter '${key}' for endpoint '${uri}'`);
-        delete params[key];
-        return `${value}`;
-      })
+      this.buildUrl(
+        uri.replace(/:(\w+)/g, (_, key) => {
+          const value = params[key];
+          if (!value)
+            throw new Error(`Missing parameter '${key}' for endpoint '${uri}'`);
+          delete params[key];
+          return `${value}`;
+        })
+      )
     );
 
     if (params)
