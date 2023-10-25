@@ -8,34 +8,45 @@ import { IconButton, Stack } from "@mui/joy";
 export type MessageInputProps = {
   textAreaValue: string;
   setTextAreaValue: (value: string) => void;
-  onSubmit: () => void;
+  // onSubmit: () => void;
 };
 
-export default function MessageInput({
-  textAreaValue,
-  setTextAreaValue,
-  onSubmit,
-}: MessageInputProps) {
-  const textAreaRef = React.useRef<HTMLDivElement>(null);
+export default function MessageInput()
+{
+  const [textAreaValue, setTextAreaValue] = React.useState("");
+
+  //const textAreaRef = React.useRef<HTMLDivElement>(null);
   const handleClick = () => {
-    if (textAreaValue.trim() !== "") {
-      onSubmit();
-      setTextAreaValue("");
-    }
+    setTextAreaValue("");
+    console.log("textAreaValue: ", textAreaValue);
+    //TODO: handle new message: show and send to db
+    // if (textAreaValue.trim() !== "") {
+    //   // onSubmit();
+    //   setTextAreaValue("");
+    // }
   };
+  
   return (
     <Box sx={{ px: 2, pb: 3 }}>
       <FormControl>
         <Textarea
           placeholder="Type something here…"
           aria-label="Message"
-          ref={textAreaRef}
+          //ref={textAreaRef}
           onChange={(e) => {
             setTextAreaValue(e.target.value);
           }}
           value={textAreaValue}
           minRows={3}
           maxRows={10}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" && event.shiftKey) {
+              event.stopPropagation();
+              event.preventDefault();
+              console.log("Enter key pressed");
+              handleClick();
+            }
+          }}
           endDecorator={
             <Stack
               direction="row"
@@ -76,17 +87,12 @@ export default function MessageInput({
                 color="primary"
                 sx={{ alignSelf: "center", borderRadius: "sm" }}
                 onClick={handleClick}
+                type="submit"
               >
                 Send
               </Button>
             </Stack>
           }
-          onKeyDown={(event) => {
-            console.log(event);
-            if (event.key === "Enter" && !event.shiftKey) {
-              handleClick();
-            }
-          }}
           sx={{
             "& textarea:first-of-type": {
               minHeight: 72,

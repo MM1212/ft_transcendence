@@ -61,7 +61,7 @@ export default function MessagesPanel({
       <Box sx={{ px: 2, pb: 1.5 }}>
         <Input size="sm" placeholder="Search" aria-label="Search" />
       </Box>
-      <List
+      {/* <List
         sx={{
           py: 0,
           "--ListItem-paddingY": "0.75rem",
@@ -79,7 +79,7 @@ export default function MessagesPanel({
             //selectedChatId={selectedChatId}
           />
         ))}
-      </List>
+      </List> */}
     </Sheet>
   );
 }

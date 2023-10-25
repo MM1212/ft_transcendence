@@ -8,6 +8,7 @@ import React from "react";
 import MessageInput from "./MessageTyping";
 import ChatModel from "@typings/models/chat"
 import { IUser } from "@typings/user";
+import { myAssert, sampleParticipant } from "../types";
 
 export interface myChat {
   chat: ChatModel.Models.IChat,
@@ -17,17 +18,13 @@ export interface myChat {
 export default function MessageChat({chat, me}: myChat) 
 {
   const [chatMessages, setChatMessages] = React.useState(chat.messages);
-  const [textAreaValue, setTextAreaValue] = React.useState("");
+  // const [textAreaValue, setTextAreaValue] = React.useState("");
 
   React.useEffect(() => {
     setChatMessages(chat.messages);
   }, [chat.messages]);
 
-  if (chat.participants.length < 1)
-  {
-    console.log("ERROR")
-    return
-  }
+  myAssert(chat.participants.length > 0);
   return (
     <Sheet
       sx={{
@@ -39,7 +36,7 @@ export default function MessageChat({chat, me}: myChat)
       }}
     >
       <ChatHeader sender={chat.participants[0]} />
-      <Box
+      {/* <Box
         sx={{
           display: "flex",
           flex: 1,
@@ -74,18 +71,27 @@ export default function MessageChat({chat, me}: myChat)
             );
           })}
         </Stack>
-      </Box>
+      </Box> */}
       <MessageInput
-        textAreaValue={textAreaValue}
-        setTextAreaValue={setTextAreaValue}
-        onSubmit={() => {
-          console.log(textAreaValue)
-          const newId = chatMessages.length + 1;
-          const newIdString = newId.toString();
-          setChatMessages([
-            ...chatMessages
-          ]);
-        }}
+        // textAreaValue={textAreaValue}
+        // setTextAreaValue={setTextAreaValue}
+        // onSubmit={() => {
+        //   const newId = chatMessages.length + 1;
+        //   const newIdString = newId.toString();
+        //   setChatMessages([
+        //     ...chatMessages,
+        //     {
+        //       id: me.id,
+        //       chatId: 200,
+        //       type: ChatModel.Models.ChatMessageType.Normal,
+        //       message: textAreaValue,
+        //       meta: {},
+        //       author: sampleParticipant,
+        //       authorId: sampleParticipant.id,
+        //       createdAt: 0
+        //     }
+        //   ]);
+        // }}
       />
     </Sheet>
   );

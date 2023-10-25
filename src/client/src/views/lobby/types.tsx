@@ -97,7 +97,7 @@ export const targets = [
     target: "/messages",
     node: (
       <>
-        <MessagesPanel chats={arrayChats} setSelectedChat={() => {}} />
+        <MessagesPanel chats={arrayChats} setSelectedChat={() => {}}/>
         <MessageChat chat={sampleChat} me={sampleUsers[0]} />
       </>
     ),
@@ -119,3 +119,8 @@ export const targets = [
     target: "/exit",
   },
 ];
+
+export function myAssert(condition: boolean) {
+  if (!condition)
+    throw new Error("myAssertion failed");
+}

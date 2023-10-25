@@ -127,6 +127,7 @@ export class Chats {
             type: true,
             message: true,
             createdAt: true,
+            author: true,
             authorId: true,
             meta: true,
             chatId: true,
