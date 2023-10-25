@@ -1,6 +1,7 @@
 import {
   Endpoint,
   EndpointMethods,
+  EndpointRegistry,
   GroupEndpointTargets,
 } from '@typings/api/base/endpoint';
 
@@ -60,9 +61,17 @@ namespace SseModel {
         { message: string }
       > {}
 
-    export interface Registry {
+    /* export interface Registry {
       [Targets.Connect]: Connect;
       [Targets.Test]: Test;
+    } */
+    export type Registry = {
+      [EndpointMethods.Get]: {
+        [Targets.Connect]: Connect;
+      };
+      [EndpointMethods.Post]: {
+        [Targets.Test]: Test;
+      };
     }
   }
 }

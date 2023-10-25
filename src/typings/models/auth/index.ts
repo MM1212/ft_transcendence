@@ -1,6 +1,7 @@
 import {
   Endpoint,
   EndpointMethods,
+  EndpointRegistry,
   GetEndpoint,
   GroupEndpointTargets,
 } from '@typings/api/base/endpoint';
@@ -23,12 +24,14 @@ namespace AuthModel {
 
     export interface Session
       extends GetEndpoint<Targets.Session, DTO.Session> {}
-    
-    export interface Registry {
-      [Targets.Login]: Login;
-      [Targets.Logout]: Logout;
-      [Targets.Session]: Session;
-    }
+
+    export type Registry =  {
+      [EndpointMethods.Get]: {
+        [Targets.Login]: Login;
+        [Targets.Logout]: Logout;
+        [Targets.Session]: Session;
+      };
+    };
   }
   export namespace Sse {}
 }

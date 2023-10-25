@@ -1,4 +1,4 @@
-import { GroupEndpointTargets } from '@typings/api';
+import { EndpointRegistry, GroupEndpointTargets } from '@typings/api';
 import { IUser } from '@typings/user';
 import { GroupEnumValues } from '@typings/utils';
 
@@ -139,7 +139,7 @@ namespace ChatModel {
       A = 'b',
     }
     export type All = GroupEndpointTargets<Targets>;
-    export interface Registry {}
+    export interface Registry extends EndpointRegistry {}
   }
   export namespace Sse {}
 }

@@ -37,12 +37,19 @@ export class Users {
     return formatted as unknown as U;
   }
 
-  async getAll(): Promise<UsersModel.Models.IUser[]> {
+  async getAll({
+    limit,
+    offset,
+  }: UsersModel.DTO.DB.GetLimits): Promise<UsersModel.Models.IUserInfo[]> {
     return (
       await this.prisma.user.findMany({
-        include: USER_EXT_QUERY,
+        skip: offset,
+        take: limit,
       })
-    ).map<UsersModel.Models.IUser>(this.formatUser);
+    ).map<UsersModel.Models.IUserInfo>((user) => ({
+      ...user,
+      createdAt: user.createdAt.getTime(),
+    }));
   }
   async exists(id: number): Promise<boolean> {
     return (
@@ -92,5 +99,25 @@ export class Users {
     return await this.prisma.user.delete({
       where: { id },
     });
+  }
+  async search(
+    query: string,
+    filter: UsersModel.DTO.DB.GetLimits,
+  ): Promise<UsersModel.Models.IUserInfo[]> {
+    return (
+      await this.prisma.user.findMany({
+        where: {
+          nickname: {
+            contains: query,
+            mode: 'insensitive',
+          },
+        },
+        skip: filter.offset,
+        take: filter.limit,
+      })
+    ).map<UsersModel.Models.IUserInfo>((user) => ({
+      ...user,
+      createdAt: user.createdAt.getTime(),
+    }));
   }
 }

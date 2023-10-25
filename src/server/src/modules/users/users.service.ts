@@ -18,6 +18,21 @@ export class UsersService {
     return this.users.has(id);
   }
 
+  public async getAll(
+    filters: UsersModel.DTO.DB.GetLimits = {},
+  ): Promise<UsersModel.Models.IUserInfo[]> {
+    const users = await this.db.users.getAll(filters);
+    return users;
+  }
+
+  public async search(
+    query: string,
+    filters: UsersModel.DTO.DB.GetLimits = {},
+  ): Promise<UsersModel.Models.IUserInfo[]> {
+    const users = await this.db.users.search(query, filters);
+    return users;
+  }
+
   public async get(id: number, fetch: boolean = false): Promise<User | null> {
     if (!this.has(id)) fetch = true;
     const user = this.users.get(id);
