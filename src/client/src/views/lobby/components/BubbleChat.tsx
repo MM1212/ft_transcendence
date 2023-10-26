@@ -29,7 +29,7 @@ export default function ChatBubble({ bubMessage, me }: ChatBubbleProps) {
       >
         <Typography level="body-xs"></Typography>
         <Typography level="body-xs">
-          {formatTimestamp(bubMessage.timestamp)}
+          {/* {formatTimestamp(bubMessage.timestamp)} */}
         </Typography>
       </Stack>
       {/* {attachment ? (

@@ -69,7 +69,8 @@ export function MessageChat({ chat }: myChat) {
       </Box>
       <MessageInput
         chatMessages={chatMessages}
-        setChatMessages={addNewMessage}
+        addMessage={addNewMessage}
+		chat={chat}
       />
     </Sheet>
   );

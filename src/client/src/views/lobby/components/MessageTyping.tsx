@@ -5,17 +5,28 @@ import FormControl from "@mui/joy/FormControl";
 import Textarea from "@mui/joy/Textarea";
 import { IconButton, Stack } from "@mui/joy";
 import { ChatModel } from "@typings/models";
+import { useSession } from "@hooks/user";
 
 export type MessageInputProps = {
   chatMessages: ChatModel.Models.IChatMessage[];
-  setChatMessages: (newMessage: ChatModel.Models.IChatMessage) => void;
+  addMessage: (newMessage: ChatModel.Models.IChatMessage) => void;
+  chat: ChatModel.Models.IChat;
 };
 
 export default function MessageInput({
   chatMessages,
-  setChatMessages,
+  addMessage,
+  chat,
 }: MessageInputProps) {
   const [textAreaValue, setTextAreaValue] = React.useState("");
+
+  const { user } = useSession();
+  if (!user) return null;
+
+  const meAuthor = chat.participants.find(
+    (participant) => participant.user.id === user.id
+  );
+  if (!meAuthor) return null;
 
   //const textAreaRef = React.useRef<HTMLDivElement>(null);
   const handleClick = () => {
@@ -23,16 +34,16 @@ export default function MessageInput({
     if (textAreaValue.trim() === "") return;
     const newMessage = {
       id: chatMessages[chatMessages.length - 1].id + 1,
-      chatId: chatMessages[0].chatId + 1,
+      chatId: chatMessages[0].chatId,
       type: chatMessages[0].type,
       message: textAreaValue,
       meta: {},
-      author: chatMessages[0].author,
-      authorId: chatMessages[0].authorId,
+      author: meAuthor,
+      authorId: user.id,
       createdAt: 21341234,
-	  timestamp: new Date(),
+      timestamp: new Date(),
     };
-    setChatMessages(newMessage);
+    addMessage(newMessage);
     //TODO: handle new message: send to db
   };
 
