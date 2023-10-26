@@ -6,14 +6,14 @@
 /*   By: mgranate_ls <mgranate_ls@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/21 17:22:36 by mgranate_ls       #+#    #+#             */
-/*   Updated: 2023/10/26 17:28:45 by mgranate_ls      ###   ########.fr       */
+/*   Updated: 2023/10/26 18:20:43 by mgranate_ls      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import { List } from "@mui/joy";
 import { Input } from "@mui/joy";
 import { Box, Chip, Sheet, Stack, Typography } from "@mui/joy";
-import { ChatsPaneProps, sampleUsers } from "../types";
+import { ChatsPaneProps } from "../types";
 import ChatListItem from "./ChatListItems";
 
 export default function MessagesPanel({
