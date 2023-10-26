@@ -6,6 +6,7 @@ import Sheet from "@mui/joy/Sheet";
 import Typography from "@mui/joy/Typography";
 import { ChatModel } from "@typings/models";
 import { IUser } from "@typings/user";
+import { formatTimestamp } from "../types";
 
 type ChatBubbleProps = {
   bubMessage: ChatModel.Models.IChatMessage;
@@ -26,7 +27,9 @@ export default function ChatBubble({ bubMessage, me }: ChatBubbleProps) {
         sx={{ mb: 0.25 }}
       >
         <Typography level="body-xs"></Typography>
-        <Typography level="body-xs">{bubMessage.createdAt}</Typography>
+        <Typography level="body-xs">
+          {formatTimestamp(bubMessage.timestamp)}
+        </Typography>
       </Stack>
       {/* {attachment ? (
         <Sheet

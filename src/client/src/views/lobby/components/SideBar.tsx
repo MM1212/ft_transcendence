@@ -14,18 +14,19 @@ import { useKeybindsToggle } from "@hooks/keybinds";
 import Link from "@components/Link";
 import { Route, Switch } from "wouter";
 import { targets } from "../types";
+import { navigate } from "wouter/use-location";
 
 export default function DrawerCloseButton() {
   const [open, setOpen] = React.useState(false);
 
   const handleCloseDrawer = () => {
     setOpen(false);
+    navigate("/lobby");
   };
   const handleOpenDrawer = React.useCallback(
     (key: string, pressed: boolean) => {
       if (!pressed) return;
       if (key !== "Escape") return;
-      //Set Targets to
       setOpen((prev) => !prev);
     },
     [setOpen]
@@ -53,7 +54,7 @@ export default function DrawerCloseButton() {
           },
         }}
       >
-        <>{console.log('mounted')}</>
+        <>{console.log("mounted")}</>
         <Box
           sx={{
             backgroundColor: "background.level1",

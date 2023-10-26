@@ -7,6 +7,28 @@ export interface ChatsPaneProps {
   chats: ChatModel.Models.IChat[];
   setSelectedChat: (chat: ChatModel.Models.IChat) => void;
 }
+export function formatTimestamp(timestamp: Date) {
+  const date = timestamp;
+  const daysOfWeek = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
+  const dayOfWeek = daysOfWeek[date.getDay()];
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  const ampm = hours >= 12 ? "pm" : "am";
+  const formattedHours = hours % 12 === 0 ? 12 : hours % 12;
+  const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+
+  const fromattedTimestamp = `${dayOfWeek} ${formattedHours}:${formattedMinutes}${ampm}`;
+
+  return fromattedTimestamp;
+}
 
 export const sampleUsers: IUser[] = [
   {
@@ -21,7 +43,8 @@ export const sampleUsers: IUser[] = [
     id: 2,
     studentId: 2,
     nickname: "Antonio Maria",
-    avatar: "https://avatars.githubusercontent.com/u/63326242?s=96&v=4",
+    avatar:
+      "https://cdn.intra.42.fr/users/7a6f505ef289bbba5827cb9a540b36d5/amaria-d.jpg",
     createdAt: 34 | 2,
     online: true,
   },
@@ -37,6 +60,16 @@ export const sampleParticipant: ChatModel.Models.IChatParticipant = {
   createdAt: 0,
 };
 
+export const sampleParticipantAntonio: ChatModel.Models.IChatParticipant = {
+  id: 1,
+  chatId: 1,
+  user: sampleUsers[1],
+  userId: sampleUsers[1].id,
+  role: ChatModel.Models.ChatParticipantRole.Member,
+  toReadPings: 2,
+  createdAt: 0,
+};
+
 export const sampleChat: ChatModel.Models.IChat = {
   id: 1,
   type: ChatModel.Models.ChatType.Direct,
@@ -44,18 +77,30 @@ export const sampleChat: ChatModel.Models.IChat = {
   authorizationData: null,
   name: "priv: Mario+Joao",
   photo: null,
-  participants: [sampleParticipant],
+  participants: [sampleParticipant, sampleParticipantAntonio],
   createdAt: 0,
   messages: [
     {
       id: 0,
       chatId: 1,
       type: ChatModel.Models.ChatMessageType.Normal,
-      message: "BOAS",
+      message: "ola antonio",
       meta: {},
       author: sampleParticipant,
       authorId: sampleParticipant.id,
-      createdAt: Math.floor(Date.now() - Math.random() * 1000),
+      createdAt: 9.09,
+      timestamp: new Date(),
+    },
+    {
+      id: 1,
+      chatId: 1,
+      type: ChatModel.Models.ChatMessageType.Normal,
+      message: "ciao mario",
+      meta: {},
+      author: sampleParticipantAntonio,
+      authorId: sampleParticipantAntonio.id,
+      createdAt: 9.1,
+      timestamp: new Date(),
     },
   ],
   // messages: [...new Array(20)].map((_,id) => {
@@ -97,7 +142,7 @@ export const targets = [
     target: "/messages",
     node: (
       <>
-        <MessagesPanel chats={arrayChats} setSelectedChat={() => {}}/>
+        <MessagesPanel chats={arrayChats} setSelectedChat={() => {}} />
         <MessageChat chat={sampleChat} me={sampleUsers[0]} />
       </>
     ),
@@ -121,6 +166,5 @@ export const targets = [
 ];
 
 export function myAssert(condition: boolean) {
-  if (!condition)
-    throw new Error("myAssertion failed");
+  if (!condition) throw new Error("myAssertion failed");
 }

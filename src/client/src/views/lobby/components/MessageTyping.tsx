@@ -4,35 +4,44 @@ import Button from "@mui/joy/Button";
 import FormControl from "@mui/joy/FormControl";
 import Textarea from "@mui/joy/Textarea";
 import { IconButton, Stack } from "@mui/joy";
+import { ChatModel } from "@typings/models";
 
 export type MessageInputProps = {
-  textAreaValue: string;
-  setTextAreaValue: (value: string) => void;
-  // onSubmit: () => void;
+  chatMessages: ChatModel.Models.IChatMessage[];
+  setChatMessages: (newMessage: ChatModel.Models.IChatMessage) => void;
 };
 
-export default function MessageInput()
-{
+export default function MessageInput({
+  chatMessages,
+  setChatMessages,
+}: MessageInputProps) {
   const [textAreaValue, setTextAreaValue] = React.useState("");
 
   //const textAreaRef = React.useRef<HTMLDivElement>(null);
   const handleClick = () => {
     setTextAreaValue("");
-    console.log("textAreaValue: ", textAreaValue);
-    //TODO: handle new message: show and send to db
-    // if (textAreaValue.trim() !== "") {
-    //   // onSubmit();
-    //   setTextAreaValue("");
-    // }
+    if (textAreaValue.trim() === "") return;
+    const newMessage = {
+      id: chatMessages[chatMessages.length - 1].id + 1,
+      chatId: chatMessages[0].chatId + 1,
+      type: chatMessages[0].type,
+      message: textAreaValue,
+      meta: {},
+      author: chatMessages[0].author,
+      authorId: chatMessages[0].authorId,
+      createdAt: 21341234,
+	  timestamp: new Date(),
+    };
+    setChatMessages(newMessage);
+    //TODO: handle new message: send to db
   };
-  
+
   return (
     <Box sx={{ px: 2, pb: 3 }}>
       <FormControl>
         <Textarea
           placeholder="Type something here…"
           aria-label="Message"
-          //ref={textAreaRef}
           onChange={(e) => {
             setTextAreaValue(e.target.value);
           }}
@@ -40,10 +49,9 @@ export default function MessageInput()
           minRows={3}
           maxRows={10}
           onKeyDown={(event) => {
-            if (event.key === "Enter" && event.shiftKey) {
+            if (event.key === "Enter" && !event.shiftKey) {
               event.stopPropagation();
               event.preventDefault();
-              console.log("Enter key pressed");
               handleClick();
             }
           }}

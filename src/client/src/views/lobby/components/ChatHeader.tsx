@@ -1,19 +1,18 @@
-import * as React from "react";
 import Avatar from "@mui/joy/Avatar";
 import Button from "@mui/joy/Button";
 import Chip from "@mui/joy/Chip";
 import IconButton from "@mui/joy/IconButton";
 import Stack from "@mui/joy/Stack";
 import Typography from "@mui/joy/Typography";
-import { IUser } from "@typings/user";
 import { Badge } from "@mui/joy";
 import { ChatModel } from "@typings/models";
 
 type ChatHeader = {
-  sender: ChatModel.Models.IChatParticipant;
+  // sender: ChatModel.Models.IChatParticipant;
+  chat: ChatModel.Models.IChat;
 };
 
-export default function MessagesPaneHeader({ sender }: ChatHeader) {
+export default function MessagesPaneHeader({ chat }: ChatHeader) {
   return (
     <Stack
       direction="row"
@@ -27,7 +26,9 @@ export default function MessagesPaneHeader({ sender }: ChatHeader) {
       px={{ xs: 1, md: 2 }}
     >
       <Stack direction="row" spacing={{ xs: 1, md: 2 }} alignItems="center">
-        <Avatar size="lg" src={sender.user.avatar} />
+        <Avatar 
+		size="lg" 
+		src={chat.photo ? chat.photo : chat.participants[0].user.avatar} />
 
         <div>
           <Typography
@@ -36,7 +37,7 @@ export default function MessagesPaneHeader({ sender }: ChatHeader) {
             component="h2"
             noWrap
             endDecorator={
-              sender.user.online ? (
+				chat.participants[0].user.online ? (
                 <Chip
                   variant="outlined"
                   size="sm"
@@ -64,10 +65,10 @@ export default function MessagesPaneHeader({ sender }: ChatHeader) {
               ) : undefined
             }
           >
-            {sender.user.nickname}
+            {chat.participants[0].user.nickname}
           </Typography>
 
-          <Typography level="body-sm">{sender.user.nickname}</Typography>
+          <Typography level="body-sm">{chat.participants[0].user.nickname}</Typography>
         </div>
       </Stack>
       <Stack spacing={1} direction="row" alignItems="center">

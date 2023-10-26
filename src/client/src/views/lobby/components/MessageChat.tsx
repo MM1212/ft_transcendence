@@ -8,23 +8,18 @@ import React from "react";
 import MessageInput from "./MessageTyping";
 import ChatModel from "@typings/models/chat"
 import { IUser } from "@typings/user";
-import { myAssert, sampleParticipant } from "../types";
 
 export interface myChat {
   chat: ChatModel.Models.IChat,
   me: IUser,
 }
+const MessageChat = React.memo(({ chat, me }: myChat) => {
+	const [chatMessages, setChatMessages] = React.useState(chat.messages);
+  
+	const addNewMessage = (newMessage : ChatModel.Models.IChatMessage) => {
+	  setChatMessages([...chatMessages, newMessage]);
+	};
 
-export default function MessageChat({chat, me}: myChat) 
-{
-  const [chatMessages, setChatMessages] = React.useState(chat.messages);
-  // const [textAreaValue, setTextAreaValue] = React.useState("");
-
-  React.useEffect(() => {
-    setChatMessages(chat.messages);
-  }, [chat.messages]);
-
-  myAssert(chat.participants.length > 0);
   return (
     <Sheet
       sx={{
@@ -35,8 +30,8 @@ export default function MessageChat({chat, me}: myChat)
         backgroundColor: "background.level1",
       }}
     >
-      <ChatHeader sender={chat.participants[0]} />
-      {/* <Box
+      <ChatHeader chat={chat} />
+      <Box
         sx={{
           display: "flex",
           flex: 1,
@@ -49,7 +44,7 @@ export default function MessageChat({chat, me}: myChat)
       >
         <Stack spacing={2} justifyContent="flex-end">
           {chatMessages.map((message: ChatModel.Models.IChatMessage, index: number) => {
-            const isYou = message.id === 1;
+			const isYou = message.author.user.id === me.id; //This id does not represent the user
             return (
               <Stack
                 key={index}
@@ -57,7 +52,7 @@ export default function MessageChat({chat, me}: myChat)
                 spacing={2}
                 flexDirection={isYou ? "row-reverse" : "row"}
               >
-                {message.id !== 1 && (
+                {message.author.user.id !== me.id && (
                   <AvatarWithStatus
                     online={message.author.user?.online}
                     src={message.author.user.avatar}
@@ -71,28 +66,32 @@ export default function MessageChat({chat, me}: myChat)
             );
           })}
         </Stack>
-      </Box> */}
+      </Box>
       <MessageInput
-        // textAreaValue={textAreaValue}
-        // setTextAreaValue={setTextAreaValue}
-        // onSubmit={() => {
-        //   const newId = chatMessages.length + 1;
-        //   const newIdString = newId.toString();
-        //   setChatMessages([
-        //     ...chatMessages,
-        //     {
-        //       id: me.id,
-        //       chatId: 200,
-        //       type: ChatModel.Models.ChatMessageType.Normal,
-        //       message: textAreaValue,
-        //       meta: {},
-        //       author: sampleParticipant,
-        //       authorId: sampleParticipant.id,
-        //       createdAt: 0
-        //     }
-        //   ]);
-        // }}
+	  	chatMessages={chatMessages}
+		setChatMessages={addNewMessage}
       />
     </Sheet>
   );
-}
+});
+
+export default MessageChat;
+// textAreaValue={textAreaValue}
+// setTextAreaValue={setTextAreaValue}
+// onSubmit={() => {
+//   const newId = chatMessages.length + 1;
+//   const newIdString = newId.toString();
+//   setChatMessages([
+//     ...chatMessages,
+//     {
+//       id: me.id,
+//       chatId: 200,
+//       type: ChatModel.Models.ChatMessageType.Normal,
+//       message: textAreaValue,
+//       meta: {},
+//       author: sampleParticipant,
+//       authorId: sampleParticipant.id,
+//       createdAt: 0
+//     }
+//   ]);
+// }}
