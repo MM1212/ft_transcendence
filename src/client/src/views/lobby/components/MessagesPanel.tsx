@@ -6,7 +6,7 @@
 /*   By: mgranate_ls <mgranate_ls@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/21 17:22:36 by mgranate_ls       #+#    #+#             */
-/*   Updated: 2023/10/26 15:52:19 by mgranate_ls      ###   ########.fr       */
+/*   Updated: 2023/10/26 17:28:45 by mgranate_ls      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,9 +71,7 @@ export default function MessagesPanel({
         {chats.map((chat) => (
           <ChatListItem
             key={chat.id}
-            id="31"
-            sender={sampleUsers[0]}
-            messages={chat.messages}
+			chat = {chat}
             setSelectedChat={setSelectedChat}
           />
         ))}

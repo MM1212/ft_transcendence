@@ -5,28 +5,39 @@ import ListItem from "@mui/joy/ListItem";
 import ListItemButton, { ListItemButtonProps } from "@mui/joy/ListItemButton";
 import Stack from "@mui/joy/Stack";
 import Typography from "@mui/joy/Typography";
-import { IUser } from "@typings/user";
 import { sampleChat } from "../types";
 import { toggleMessagesPane } from "../utils";
 import AvatarWithStatus from "./AvatarWithStatusProps";
 import { ChatModel } from "@typings/models";
+import { useSession } from "@hooks/user";
+import { Avatar } from "@mui/joy";
 
 type ChatListItemProps = ListItemButtonProps & {
-  id: string;
-  // unread?: boolean;
-  sender: IUser;
-  messages: ChatModel.Models.IChatMessage[];
-  //selectedChatId?: string;
+  chat: ChatModel.Models.IChat;
   setSelectedChat: (chat: ChatModel.Models.IChat) => void;
 };
 
 export default function ChatListItem({
-  sender,
-  messages,
+  chat,
   setSelectedChat,
-  //selectedChatId
 }: ChatListItemProps) {
-  // const selected = selectedChatId === id;
+  const { user } = useSession();
+  if (!user) return null;
+
+  let avatarSrc: string;
+  let chatName: string;
+
+  const whoIAmTalkingTo: ChatModel.Models.IChatParticipant | undefined =
+    chat.participants.find((e) => e.user.id !== user.id);
+  if (!whoIAmTalkingTo) return null;
+  if (chat.type === ChatModel.Models.ChatType.Group) {
+    chatName = chat.name;
+    avatarSrc = chat.photo || whoIAmTalkingTo.user.avatar; //Put default Image not this one
+  } else {
+    chatName = whoIAmTalkingTo.user.nickname;
+    avatarSrc = whoIAmTalkingTo.user.avatar;
+  }
+
   return (
     <React.Fragment>
       <ListItem>
@@ -44,10 +55,17 @@ export default function ChatListItem({
           }}
         >
           <Stack direction="row" spacing={1.5}>
-            <AvatarWithStatus online={sender.online} src={sender.avatar} />
+            {chat.type === ChatModel.Models.ChatType.Group ? (
+              <Avatar size="lg" src={avatarSrc} />
+            ) : (
+              <AvatarWithStatus
+                online={whoIAmTalkingTo.user.online}
+                src={avatarSrc}
+              />
+            )}
             <Box sx={{ flex: 1 }}>
-              <Typography level="title-sm">{sender.nickname}</Typography>
-              <Typography level="body-sm">{sender.nickname}</Typography>
+              <Typography level="title-sm">{chatName}</Typography>
+              <Typography level="body-sm">{whoIAmTalkingTo.user?.experience}</Typography>
             </Box>
             <Box
               sx={{
@@ -77,7 +95,7 @@ export default function ChatListItem({
               textOverflow: "ellipsis",
             }}
           >
-            {messages[messages.length - 1].message}
+            {chat.messages[chat.messages.length - 1].message}
           </Typography>
         </ListItemButton>
       </ListItem>

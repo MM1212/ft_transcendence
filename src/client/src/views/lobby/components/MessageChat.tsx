@@ -20,7 +20,6 @@ export function MessageChat({ chat }: myChat) {
   const addNewMessage = (newMessage: ChatModel.Models.IChatMessage) => {
     setChatMessages([...chatMessages, newMessage]);
   };
-  console.log("User:" , user);
   return (
     <Sheet
       sx={{

@@ -5,6 +5,7 @@ export interface IUser {
   avatar: string;
   createdAt: number | Date;
   online?: boolean;
+  experience?: string;
 }
 
 export interface IUserCreate

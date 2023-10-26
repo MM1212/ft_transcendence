@@ -38,6 +38,7 @@ export const sampleUsers: IUser[] = [
     avatar: "https://avatars.githubusercontent.com/u/63326242?s=96&v=4",
     createdAt: 34 | 2,
     online: true,
+    experience: "lvl 9 5000xp",
   },
   {
     id: 2,
@@ -47,9 +48,9 @@ export const sampleUsers: IUser[] = [
       "https://cdn.intra.42.fr/users/7a6f505ef289bbba5827cb9a540b36d5/amaria-d.jpg",
     createdAt: 34 | 2,
     online: true,
+    experience: "lvl 1000 4xp",
   },
 ];
-
 
 export const sampleParticipant: ChatModel.Models.IChatParticipant = {
   id: 1,
