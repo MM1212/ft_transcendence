@@ -6,20 +6,21 @@ import AvatarWithStatus from "./AvatarWithStatusProps";
 import ChatHeader from "./ChatHeader";
 import React from "react";
 import MessageInput from "./MessageTyping";
-import ChatModel from "@typings/models/chat"
-import { IUser } from "@typings/user";
+import ChatModel from "@typings/models/chat";
+import { useSession } from "@hooks/user";
 
 export interface myChat {
-  chat: ChatModel.Models.IChat,
-  me: IUser,
+  chat: ChatModel.Models.IChat;
 }
-const MessageChat = React.memo(({ chat, me }: myChat) => {
-	const [chatMessages, setChatMessages] = React.useState(chat.messages);
-  
-	const addNewMessage = (newMessage : ChatModel.Models.IChatMessage) => {
-	  setChatMessages([...chatMessages, newMessage]);
-	};
 
+export function MessageChat({ chat }: myChat) {
+  const [chatMessages, setChatMessages] = React.useState(chat.messages);
+  const { user } = useSession();
+  if (!user) return null;
+  const addNewMessage = (newMessage: ChatModel.Models.IChatMessage) => {
+    setChatMessages([...chatMessages, newMessage]);
+  };
+  console.log("User:" , user);
   return (
     <Sheet
       sx={{
@@ -43,37 +44,36 @@ const MessageChat = React.memo(({ chat, me }: myChat) => {
         }}
       >
         <Stack spacing={2} justifyContent="flex-end">
-          {chatMessages.map((message: ChatModel.Models.IChatMessage, index: number) => {
-			const isYou = message.author.user.id === me.id; //This id does not represent the user
-            return (
-              <Stack
-                key={index}
-                direction="row"
-                spacing={2}
-                flexDirection={isYou ? "row-reverse" : "row"}
-              >
-                {message.author.user.id !== me.id && (
-                  <AvatarWithStatus
-                    online={message.author.user?.online}
-                    src={message.author.user.avatar}
-                  />
-                )}
-                <ChatBubble
-                  bubMessage={message}
-                  me={me}
-                />
-              </Stack>
-            );
-          })}
+          {chatMessages.map(
+            (message: ChatModel.Models.IChatMessage, index: number) => {
+              const isYou = message.author.user.id === user.id; //This id does not represent the user
+              return (
+                <Stack
+                  key={index}
+                  direction="row"
+                  spacing={2}
+                  flexDirection={isYou ? "row-reverse" : "row"}
+                >
+                  {message.author.user.id !== user.id && (
+                    <AvatarWithStatus
+                      online={message.author.user?.online}
+                      src={message.author.user.avatar}
+                    />
+                  )}
+                  <ChatBubble bubMessage={message} me={user} />
+                </Stack>
+              );
+            }
+          )}
         </Stack>
       </Box>
       <MessageInput
-	  	chatMessages={chatMessages}
-		setChatMessages={addNewMessage}
+        chatMessages={chatMessages}
+        setChatMessages={addNewMessage}
       />
     </Sheet>
   );
-});
+}
 
 export default MessageChat;
 // textAreaValue={textAreaValue}

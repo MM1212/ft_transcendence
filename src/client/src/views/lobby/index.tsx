@@ -42,7 +42,6 @@ export default function Lobby() {
   const { status, useMounter, emit, useListener } = useSocket(
     buildTunnelEndpoint(LobbyModel.Endpoints.Targets.Connect)
   );
-  const [isFocused, setIsFocused] = React.useState(false);
   const loadData = useRecoilCallback(
     (ctx) => async (data: Lobbies.Packets.LoadData) => {
       const app = await ctx.snapshot.getPromise(lobbyAppAtom);
@@ -254,8 +253,8 @@ export default function Lobby() {
         zIndex: 1,
       }}
       onFocus={() => console.log("focus")}
-    >
-      <Sidebar />
+	  >
+	<Sidebar />
       <ChatBox />
     </Sheet>
   );

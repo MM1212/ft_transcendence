@@ -6,6 +6,7 @@ import Stack from "@mui/joy/Stack";
 import Typography from "@mui/joy/Typography";
 import { Badge } from "@mui/joy";
 import { ChatModel } from "@typings/models";
+import { useSession } from "@hooks/user";
 
 type ChatHeader = {
   // sender: ChatModel.Models.IChatParticipant;
@@ -13,6 +14,18 @@ type ChatHeader = {
 };
 
 export default function MessagesPaneHeader({ chat }: ChatHeader) {
+  const { user } = useSession();
+  if (!user) return null;
+
+  const whoIAmTalkingTo: ChatModel.Models.IChatParticipant | undefined =
+    chat.participants.find((e) => e.user.id !== user.id);
+  if (!whoIAmTalkingTo) return null;
+
+  let src: string;
+  if (chat.type === ChatModel.Models.ChatType.Group) {
+    src = chat.photo || whoIAmTalkingTo.user.avatar; //Put default Image not this one
+  } else src = whoIAmTalkingTo.user.avatar;
+
   return (
     <Stack
       direction="row"
@@ -26,10 +39,7 @@ export default function MessagesPaneHeader({ chat }: ChatHeader) {
       px={{ xs: 1, md: 2 }}
     >
       <Stack direction="row" spacing={{ xs: 1, md: 2 }} alignItems="center">
-        <Avatar 
-		size="lg" 
-		src={chat.photo ? chat.photo : chat.participants[0].user.avatar} />
-
+        <Avatar size="lg" src={src} />
         <div>
           <Typography
             fontWeight="lg"
@@ -37,7 +47,7 @@ export default function MessagesPaneHeader({ chat }: ChatHeader) {
             component="h2"
             noWrap
             endDecorator={
-				chat.participants[0].user.online ? (
+              chat.participants[0].user.online ? (
                 <Chip
                   variant="outlined"
                   size="sm"
@@ -65,10 +75,14 @@ export default function MessagesPaneHeader({ chat }: ChatHeader) {
               ) : undefined
             }
           >
-            {chat.participants[0].user.nickname}
+            {/* {chat.participants[0].user.nickname} */}
+			{whoIAmTalkingTo.user.nickname}
           </Typography>
 
-          <Typography level="body-sm">{chat.participants[0].user.nickname}</Typography>
+          <Typography level="body-sm">
+            {/* {chat.participants[0].user.nickname} */}
+			{whoIAmTalkingTo.user.nickname}
+          </Typography>
         </div>
       </Stack>
       <Stack spacing={1} direction="row" alignItems="center">

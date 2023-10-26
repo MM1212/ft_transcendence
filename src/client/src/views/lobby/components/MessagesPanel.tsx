@@ -6,7 +6,7 @@
 /*   By: mgranate_ls <mgranate_ls@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/21 17:22:36 by mgranate_ls       #+#    #+#             */
-/*   Updated: 2023/10/24 02:18:05 by mgranate_ls      ###   ########.fr       */
+/*   Updated: 2023/10/26 15:52:19 by mgranate_ls      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ export default function MessagesPanel({
       <Box sx={{ px: 2, pb: 1.5 }}>
         <Input size="sm" placeholder="Search" aria-label="Search" />
       </Box>
-      {/* <List
+      <List
         sx={{
           py: 0,
           "--ListItem-paddingY": "0.75rem",
@@ -70,16 +70,14 @@ export default function MessagesPanel({
       >
         {chats.map((chat) => (
           <ChatListItem
-            // key={chat.id}
-            // {...chat}
+            key={chat.id}
             id="31"
             sender={sampleUsers[0]}
             messages={chat.messages}
             setSelectedChat={setSelectedChat}
-            //selectedChatId={selectedChatId}
           />
         ))}
-      </List> */}
+      </List>
     </Sheet>
   );
 }

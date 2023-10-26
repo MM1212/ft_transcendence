@@ -1,5 +1,4 @@
 import * as React from "react";
-import Avatar from "@mui/joy/Avatar";
 import Box from "@mui/joy/Box";
 import Stack from "@mui/joy/Stack";
 import Sheet from "@mui/joy/Sheet";
@@ -14,10 +13,12 @@ type ChatBubbleProps = {
 };
 
 export default function ChatBubble({ bubMessage, me }: ChatBubbleProps) {
-  const [isLiked, setIsLiked] = React.useState<boolean>(false);
+  const [isLiked] = React.useState<boolean>(false);
   const [isHovered, setIsHovered] = React.useState<boolean>(false);
   const isMe = bubMessage.author.id === me.id;
-
+  console.log(`Author Id: ${bubMessage.author.id}`);
+  console.log(`My ID: ${me.id}`);
+//   console.log("User:" + me);
   return (
     <Box sx={{ maxWidth: "60%", minWidth: "auto" }}>
       <Stack

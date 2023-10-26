@@ -9,7 +9,6 @@ import { IUser } from "@typings/user";
 import { sampleChat } from "../types";
 import { toggleMessagesPane } from "../utils";
 import AvatarWithStatus from "./AvatarWithStatusProps";
-import { Badge } from "@mui/joy";
 import { ChatModel } from "@typings/models";
 
 type ChatListItemProps = ListItemButtonProps & {

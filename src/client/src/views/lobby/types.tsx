@@ -33,7 +33,7 @@ export function formatTimestamp(timestamp: Date) {
 export const sampleUsers: IUser[] = [
   {
     id: 1,
-    studentId: 1,
+    studentId: 104676,
     nickname: "Mário Granate",
     avatar: "https://avatars.githubusercontent.com/u/63326242?s=96&v=4",
     createdAt: 34 | 2,
@@ -41,7 +41,7 @@ export const sampleUsers: IUser[] = [
   },
   {
     id: 2,
-    studentId: 2,
+    studentId: 95303,
     nickname: "Antonio Maria",
     avatar:
       "https://cdn.intra.42.fr/users/7a6f505ef289bbba5827cb9a540b36d5/amaria-d.jpg",
@@ -50,8 +50,9 @@ export const sampleUsers: IUser[] = [
   },
 ];
 
+
 export const sampleParticipant: ChatModel.Models.IChatParticipant = {
-  id: 0,
+  id: 1,
   chatId: 1,
   user: sampleUsers[0],
   userId: sampleUsers[0].id,
@@ -61,7 +62,7 @@ export const sampleParticipant: ChatModel.Models.IChatParticipant = {
 };
 
 export const sampleParticipantAntonio: ChatModel.Models.IChatParticipant = {
-  id: 1,
+  id: 2,
   chatId: 1,
   user: sampleUsers[1],
   userId: sampleUsers[1].id,
@@ -81,10 +82,10 @@ export const sampleChat: ChatModel.Models.IChat = {
   createdAt: 0,
   messages: [
     {
-      id: 0,
+      id: 1,
       chatId: 1,
       type: ChatModel.Models.ChatMessageType.Normal,
-      message: "ola antonio",
+      message: "Eu sou o mario",
       meta: {},
       author: sampleParticipant,
       authorId: sampleParticipant.id,
@@ -92,10 +93,10 @@ export const sampleChat: ChatModel.Models.IChat = {
       timestamp: new Date(),
     },
     {
-      id: 1,
+      id: 2,
       chatId: 1,
       type: ChatModel.Models.ChatMessageType.Normal,
-      message: "ciao mario",
+      message: "Eu sou o Antonio",
       meta: {},
       author: sampleParticipantAntonio,
       authorId: sampleParticipantAntonio.id,
