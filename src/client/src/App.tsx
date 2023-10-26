@@ -25,6 +25,7 @@ import Lobby from '@views/lobby';
 import Notification, { NotificationProps } from '@lib/notifications/hooks';
 import { toast } from 'sonner';
 import notifications from '@lib/notifications/hooks';
+import SandboxRouter from '@views/sandbox';
 
 function App() {
   const [count, setCount] = useState(0);
@@ -161,6 +162,7 @@ function App() {
       <Route path="/lobby">
         <Lobby />
       </Route>
+      <SandboxRouter />
       <Route>
         <Redirect to="/404" />
       </Route>
