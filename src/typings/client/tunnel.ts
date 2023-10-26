@@ -1,13 +1,15 @@
 import * as API from '@typings/api';
-import UsersModel from '@typings/models/users';
-import { GroupEnumValues } from '@typings/utils';
 
 export type PickEndpoints<M extends API.EndpointMethods = API.EndpointMethods> =
   API.Endpoints.Registry[M];
 
-type PostEndpoints = API.Endpoints.Registry[API.EndpointMethods.Post];
-type Test = PostEndpoints[UsersModel.Endpoints.Targets.SearchUsers];
 export interface ITunnel {
+  buildEndpoint<
+    T extends API.Endpoint<API.EndpointMethods, API.Endpoints.All>,
+  >(
+    uri: API.EndpointTarget<T>,
+    params?: API.EndpointParams<T>
+  ): string;
   get<
     T extends keyof PickEndpoints<API.EndpointMethods.Get>,
     E extends PickEndpoints<API.EndpointMethods.Get>[T]

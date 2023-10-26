@@ -8,7 +8,7 @@ class APITunnel implements ITunnel {
   private buildUrl(uri: string): string {
     return `${this.endpoint}${uri}`;
   }
-  private buildEndpoint<
+  public buildEndpoint<
     T extends API.Endpoint<API.EndpointMethods, API.Endpoints.All>,
   >(
     uri: API.EndpointTarget<T>,

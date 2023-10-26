@@ -4,15 +4,13 @@ import { RecoilRoot } from 'recoil';
 import testTheme from './theme';
 import { SWRConfig } from 'swr';
 import { Router } from 'wouter';
-import { SseMounter } from '@hooks/sse/Provider';
-import { RecoilSessionProvider } from '@hooks/user';
+import StateMounter from '@state/mounter';
 
 export default function AppProviders({
   children,
 }: React.PropsWithChildren<{}>): JSX.Element {
   return (
     <RecoilRoot>
-      <SseMounter />
       <Router>
         <SWRConfig
           value={{
@@ -25,7 +23,7 @@ export default function AppProviders({
             },
           }}
         >
-          <RecoilSessionProvider />
+          <StateMounter />
           <CssVarsProvider
             theme={testTheme}
             defaultMode="system"

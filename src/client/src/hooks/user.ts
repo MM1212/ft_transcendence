@@ -90,8 +90,3 @@ export const useSessionRecoilService = () => {
 
   return null;
 };
-
-export function RecoilSessionProvider(): null {
-  useSessionRecoilService();
-  return null;
-}

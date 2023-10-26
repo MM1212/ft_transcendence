@@ -1,5 +1,6 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { styled } from '@mui/joy';
 
-const Icon = FontAwesomeIcon;
+const Icon = styled(FontAwesomeIcon)(() => ({}));
 
 export default Icon;
