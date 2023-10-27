@@ -94,13 +94,10 @@ namespace ChatsModel {
       createdAt: number;
     }
 
-    export interface IChatDisplay
-      extends Omit<IChat, 'participants' | 'authorizationData'> {}
+    export interface IChatDisplay extends Omit<IChat, 'authorizationData'> {}
 
     export interface IChatInfo
-      extends Omit<IChat, 'participants' | 'messages' | 'authorizationData'> {
-      participants: IChatParticipant[];
-    }
+      extends Omit<IChat, 'messages' | 'authorizationData'> {}
   }
   export namespace DTO {
     export namespace DB {
@@ -287,7 +284,31 @@ namespace ChatsModel {
         DTO.ChatMessageParams
       > {}
 
-    export interface Registry extends EndpointRegistry {}
+    export interface Registry extends EndpointRegistry {
+      [EndpointMethods.Get]: {
+        [Targets.GetSessionChats]: GetChats;
+        [Targets.GetChat]: GetChat;
+        [Targets.GetChatParticipants]: GetChatParticipants;
+        [Targets.GetChatMessages]: GetChatMessages;
+        [Targets.GetChatMessage]: GetChatMessage;
+        [Targets.GetUserChats]: GetUserChats;
+        [Targets.GetPublicChats]: GetPublicChats;
+      };
+      [EndpointMethods.Put]: {
+        [Targets.CreateChat]: CreateChat;
+        [Targets.CreateMessage]: CreateMessage;
+      };
+      [EndpointMethods.Patch]: {
+        [Targets.UpdateChatInfo]: UpdateChatInfo;
+        [Targets.UpdateParticipant]: UpdateParticipant;
+        [Targets.UpdateMessage]: UpdateMessage;
+      };
+      [EndpointMethods.Delete]: {
+        [Targets.DeleteChat]: DeleteChat;
+        [Targets.DeleteParticipant]: DeleteParticipant;
+        [Targets.DeleteMessage]: DeleteMessage;
+      };
+    }
   }
   export namespace Sse {
     export enum Events {

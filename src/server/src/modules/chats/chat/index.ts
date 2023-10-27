@@ -80,6 +80,7 @@ class Chat extends CacheObserver<IChat> {
     const { messages, authorizationData, participants, ...chat } = this.get();
     return {
       ...chat,
+      participants: participants.map((p: Participant) => p.public),
       messages: this.lastMessage ? [this.lastMessage] : [],
     } satisfies ChatsModel.Models.IChatDisplay;
   }

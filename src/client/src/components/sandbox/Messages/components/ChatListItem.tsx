@@ -10,31 +10,23 @@ import { faCircle } from '@fortawesome/free-solid-svg-icons';
 import { ChatProps, MessageProps, UserProps } from '../types';
 import { toggleMessagesPane } from '../utils';
 import Icon from '@components/Icon';
+import { useRecoilState, useRecoilValue } from 'recoil';
+import chatsState from '../state';
 
-type ChatListItemProps = ListItemButtonProps & {
-  id: string;
-  unread?: boolean;
-  sender: UserProps;
-  messages: MessageProps[];
-  selectedChatId?: string;
-  setSelectedChat: (chat: ChatProps) => void;
+type ChatListItemProps = {
+  id: number;
 };
 
-export default function ChatListItem({
-  id,
-  sender,
-  messages,
-  selectedChatId,
-  setSelectedChat,
-}: ChatListItemProps) {
-  const selected = selectedChatId === id;
+export default function ChatListItem({ id }: ChatListItemProps) {
+  const [selected, setSelected] = useRecoilState(chatsState.isChatSelected(id));
+  const chat = useRecoilValue(chatsState.chat(id));
   return (
     <React.Fragment>
       <ListItem>
         <ListItemButton
           onClick={() => {
             toggleMessagesPane();
-            setSelectedChat({ id, sender, messages });
+            setSelected(true);
           }}
           selected={selected}
           color="neutral"
@@ -44,7 +36,7 @@ export default function ChatListItem({
             gap: 1,
           }}
         >
-          <Stack direction="row" spacing={1.5}>
+          {/* <Stack direction="row" spacing={1.5}>
             <AvatarWithStatus online={sender.online} src={sender.avatar} />
             <Box sx={{ flex: 1 }}>
               <Typography level="title-sm">{sender.name}</Typography>
@@ -57,7 +49,10 @@ export default function ChatListItem({
               }}
             >
               {messages[0].unread && (
-                <Icon icon={faCircle} sx={{ fontSize: 8, color: "primary.plainColor" }}  />
+                <Icon
+                  icon={faCircle}
+                  sx={{ fontSize: 8, color: 'primary.plainColor' }}
+                />
               )}
               <Typography
                 level="body-xs"
@@ -79,7 +74,8 @@ export default function ChatListItem({
             }}
           >
             {messages[0].content}
-          </Typography>
+          </Typography> */}
+          {chat.id} {chat.name}
         </ListItemButton>
       </ListItem>
       <ListDivider sx={{ margin: 0 }} />

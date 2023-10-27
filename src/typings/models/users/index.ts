@@ -51,6 +51,8 @@ namespace UsersModel {
     }
     export interface SearchUsersParams extends Record<string, unknown> {
       query: string;
+      exclude?: number[];
+      excluseSelf?: boolean;
     }
     export type PatchUser = Partial<
       Pick<Models.IUserInfo, 'nickname' | 'avatar'>

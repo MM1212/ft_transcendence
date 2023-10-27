@@ -2,25 +2,34 @@ import * as React from 'react';
 import Stack from '@mui/joy/Stack';
 import Sheet from '@mui/joy/Sheet';
 import Typography from '@mui/joy/Typography';
-import { Box, Chip, IconButton, Input } from '@mui/joy';
+import { Box, Chip, CircularProgress, IconButton, Input } from '@mui/joy';
 import List from '@mui/joy/List';
 import ChatListItem from './ChatListItem';
 import { ChatProps } from '../types';
 import { toggleMessagesPane } from '../utils';
-import { faPenToSquare, faSearch, faXmark } from '@fortawesome/free-solid-svg-icons'
+import {
+  faPenToSquare,
+  faSearch,
+  faXmark,
+} from '@fortawesome/free-solid-svg-icons';
 import Icon from '@components/Icon';
+import { useRecoilValue } from 'recoil';
+import chatsState from '../state';
+import { useModalActions } from '@hooks/useModal';
 
-type ChatsPaneProps = {
-  chats: ChatProps[];
-  setSelectedChat: (chat: ChatProps) => void;
-  selectedChatId: string;
-};
+function ChatEntries() {
+  const chatIds = useRecoilValue(chatsState.chatIds);
+  return (
+    <>
+      {chatIds.map((id) => (
+        <ChatListItem key={id} id={id} />
+      ))}
+    </>
+  );
+}
 
-export default function ChatsPane({
-  chats,
-  setSelectedChat,
-  selectedChatId,
-}: ChatsPaneProps) {
+export default function ChatsPane() {
+  const { open } = useModalActions('chat:new-chat');
   return (
     <Sheet
       sx={{
@@ -63,6 +72,7 @@ export default function ChatsPane({
           color="neutral"
           size="sm"
           sx={{ display: { xs: 'none', sm: 'unset' } }}
+          onClick={open}
         >
           <Icon icon={faPenToSquare} />
         </IconButton>
@@ -95,14 +105,9 @@ export default function ChatsPane({
           '--ListItem-paddingX': '1rem',
         }}
       >
-        {chats.map((chat) => (
-          <ChatListItem
-            key={chat.id}
-            {...chat}
-            setSelectedChat={setSelectedChat}
-            selectedChatId={selectedChatId}
-          />
-        ))}
+        <React.Suspense fallback={<CircularProgress />}>
+          <ChatEntries />
+        </React.Suspense>
       </List>
     </Sheet>
   );

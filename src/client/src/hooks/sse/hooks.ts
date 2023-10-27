@@ -8,7 +8,10 @@ export interface SseHook {
     type: E,
     listener: (event: SseModel.Models.Event<T, E>) => void | Promise<void>
   ): ((data: Event) => void) | undefined;
-  off(type: SseModel.Models.Events, listener: (event: Event) => void): void;
+  off<T extends SseModel.Models.Event<unknown, string>>(
+    type: T['type'],
+    listener: (event: Event) => void
+  ): void;
 }
 
 const useSse = (): SseHook => {
@@ -49,20 +52,16 @@ const useSse = (): SseHook => {
   };
 };
 
-const useSseEvent = <
-  T extends SseModel.Models.Event<K, E>,
-  K = unknown,
-  E extends SseModel.Models.Events = SseModel.Models.Events,
->(
-  event: E,
+const useSseEvent = <T extends SseModel.Models.Event<unknown, string>>(
+  event: T['type'],
   callback: (
-    event: SseModel.Models.Event<T['data'], E>
+    event: SseModel.Models.Event<T['data'], T['type']>
   ) => void | Promise<void>,
   deps?: React.DependencyList
 ): void => {
   const { on, off } = useSse();
   React.useEffect(() => {
-    const cookie = on<K, E>(event, callback);
+    const cookie = on<T['data'], T['type']>(event, callback);
     if (!cookie) return;
     return () => off(event, cookie) as void;
     // eslint-disable-next-line react-hooks/exhaustive-deps

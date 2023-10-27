@@ -1,5 +1,5 @@
 import { Pixi } from '@hooks/pixiRenderer';
-import { sessionAtom } from '@hooks/user';
+import { sessionAtom } from '@hooks/user/state';
 import { Lobbies } from '@typings/lobby';
 import { DefaultValue, atom, selector, useRecoilValue } from 'recoil';
 

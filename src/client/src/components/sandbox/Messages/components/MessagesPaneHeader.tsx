@@ -5,16 +5,19 @@ import Chip from '@mui/joy/Chip';
 import IconButton from '@mui/joy/IconButton';
 import Stack from '@mui/joy/Stack';
 import Typography from '@mui/joy/Typography';
-import { UserProps } from '../types';
 import { toggleMessagesPane } from '../utils';
-import { faChevronLeft, faCircle, faEllipsisV, faPhoneVolume } from '@fortawesome/free-solid-svg-icons'
+import {
+  faChevronLeft,
+  faCircle,
+  faEllipsisV,
+  faPhoneVolume,
+} from '@fortawesome/free-solid-svg-icons';
 import Icon from '@components/Icon';
+import { useRecoilValue } from 'recoil';
+import chatsState from '../state';
 
-type MessagesPaneHeaderProps = {
-  sender: UserProps;
-};
-
-export default function MessagesPaneHeader({ sender }: MessagesPaneHeaderProps) {
+export default function MessagesPaneHeader() {
+  const { name, photo, online } = useRecoilValue(chatsState.selectedChatInfo);
   return (
     <Stack
       direction="row"
@@ -39,7 +42,7 @@ export default function MessagesPaneHeader({ sender }: MessagesPaneHeaderProps) 
         >
           <Icon icon={faChevronLeft} />
         </IconButton>
-        <Avatar size="lg" src={sender.avatar} />
+        <Avatar size="lg" src={photo ?? undefined} />
         <div>
           <Typography
             fontWeight="lg"
@@ -47,7 +50,7 @@ export default function MessagesPaneHeader({ sender }: MessagesPaneHeaderProps) 
             component="h2"
             noWrap
             endDecorator={
-              sender.online ? (
+              online ? (
                 <Chip
                   variant="outlined"
                   size="sm"
@@ -56,7 +59,11 @@ export default function MessagesPaneHeader({ sender }: MessagesPaneHeaderProps) 
                     borderRadius: 'sm',
                   }}
                   startDecorator={
-                    <Icon icon={faCircle} sx={{ fontSize: 8 }} color="success" />
+                    <Icon
+                      icon={faCircle}
+                      sx={{ fontSize: 8 }}
+                      color="success"
+                    />
                   }
                   slotProps={{ root: { component: 'span' } }}
                 >
@@ -65,10 +72,8 @@ export default function MessagesPaneHeader({ sender }: MessagesPaneHeaderProps) 
               ) : undefined
             }
           >
-            {sender.name}
+            {name}
           </Typography>
-
-          <Typography level="body-sm">{sender.username}</Typography>
         </div>
       </Stack>
       <Stack spacing={1} direction="row" alignItems="center">
