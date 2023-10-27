@@ -25,6 +25,10 @@ export class UsersService {
     return users;
   }
 
+  public useAll(): User[] {
+    return [...this.users.values()];
+  }
+
   public async search(
     query: string,
     filters: UsersModel.DTO.DB.GetLimits = {},

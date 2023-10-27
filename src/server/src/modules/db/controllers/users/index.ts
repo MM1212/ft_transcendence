@@ -88,7 +88,7 @@ export class Users {
   }
   async update(
     id: number,
-    data: Partial<Omit<UsersModel.Models.IUserInfo, 'id' | 'createdAt'>>,
+    data: Prisma.XOR<Prisma.UserUpdateInput, Prisma.UserUncheckedUpdateInput>,
   ): Promise<UsersModel.DTO.DB.IUserInfo> {
     return await this.prisma.user.update({
       where: { id },

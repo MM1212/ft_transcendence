@@ -63,7 +63,7 @@ export class UsersController {
     @HttpCtx() { user }: HTTPContext<true>,
   ): Promise<EndpointResponse<UsersModel.Endpoints.PatchUser>> {
     if (user.id !== id) throw new ForbiddenException();
-    const ok = await user.save({ avatar, nickname });
+    const ok = await user.save({ avatar, nickname }, true);
     if (!ok) return buildErrorResponse('Failed to update profile');
     return buildOkResponse(user.public);
   }

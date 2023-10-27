@@ -4,6 +4,7 @@ import {
   EndpointMethods,
   EndpointRegistry,
   GetEndpoint,
+  SseModel,
 } from '@typings/api';
 import { GroupEnumValues } from '@typings/utils';
 
@@ -54,6 +55,8 @@ namespace UsersModel {
     export type PatchUser = Partial<
       Pick<Models.IUserInfo, 'nickname' | 'avatar'>
     >;
+
+    export interface SseUserUpdate extends Models.IUserInfo {}
   }
   export namespace Endpoints {
     export enum Targets {
@@ -100,7 +103,13 @@ namespace UsersModel {
       };
     };
   }
-  export namespace Sse {}
+  export namespace Sse {
+    export enum Events {
+      UserUpdated = 'users.userUpdated'
+    }
+    export interface UserUpdatedEvent
+      extends SseModel.Models.Event<DTO.SseUserUpdate, Events.UserUpdated> {}
+  }
 }
 
 export default UsersModel;

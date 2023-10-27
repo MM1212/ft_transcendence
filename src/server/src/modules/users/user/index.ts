@@ -50,13 +50,29 @@ class User extends CacheObserver<UsersModel.Models.IUser> {
     this.setTo(data);
   }
   public async save(
-    data: NestedPartial<UsersModel.Models.IUserInfo> = this.public,
+    { avatar, nickname }: NestedPartial<UsersModel.Models.IUserInfo> = this
+      .public,
+    propagate: boolean = false,
   ): Promise<boolean> {
-    const result = await this.helpers.db.users.update(this.id, data);
+    const result = await this.helpers.db.users.update(this.id, {
+      avatar,
+      nickname,
+    });
     if (!result) return false;
     for (const [key, value] of Object.entries(result))
       this.set(key as keyof UsersModel.Models.IUser, value as any);
+    if (propagate) this.propagate();
     return true;
+  }
+
+  /**
+   * Syncs the user with all connected clients
+   */
+  public propagate(): void {
+    this.helpers.sseService.emitToAll<UsersModel.Sse.UserUpdatedEvent>(
+      UsersModel.Sse.Events.UserUpdated,
+      this.public,
+    );
   }
 
   // EXT

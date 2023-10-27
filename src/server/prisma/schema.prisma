@@ -49,6 +49,7 @@ enum ChatParticipantRole {
   ADMIN
   MEMBER
   BANNED
+  LEFT
 }
 
 model ChatParticipant {

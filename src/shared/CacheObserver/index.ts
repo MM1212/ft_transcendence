@@ -1,5 +1,5 @@
 import WildcardEngine from '../WildcardEngine';
-import { Path, PathSet, PathValue } from './types';
+import { Path, PathSet, PathSetter, PathValue } from './types';
 
 class CacheNotifyContext<
   T extends object,
@@ -22,7 +22,10 @@ interface Subscriber<T extends object> {
 }
 export class CacheObserver<T extends object> {
   private subscribersCookie: number = 0;
-  constructor(private store: T, private readonly subscribers: Subscriber<T>[] = []) {}
+  constructor(
+    private store: T,
+    private readonly subscribers: Subscriber<T>[] = []
+  ) {}
   public get(): T;
   public get<K extends Path<T>>(key: K): PathValue<T, K>;
   public get<K extends Path<T>[]>(
@@ -49,21 +52,28 @@ export class CacheObserver<T extends object> {
     key: K,
     value: PathSet<PathValue<T, K>>
   ): CacheObserver<T> {
-    let ret: PathValue<T, K> | PathSet<PathValue<T, K>> = value;
-    if (typeof ret === 'function') ret = ret(this.get(key));
-    this.setValue(key, ret as PathValue<T, K>);
+    let ret: PathValue<T, K>;
+    if (typeof value === 'function')
+      ret = (value as PathSetter<PathValue<T, K>>)(this.get(key));
+    else ret = value;
+    this.setValue(key, value as PathValue<T, K>);
     return this;
   }
   private getSubscribers(key: string): Subscriber<T>[] {
-    return this.subscribers.filter((sub) => WildcardEngine.match(sub.pattern, key));
+    return this.subscribers.filter((sub) =>
+      WildcardEngine.match(sub.pattern, key)
+    );
   }
   private notify<K extends Path<T>>(key: K, value: PathValue<T, K>): boolean {
-    const ctx = new CacheNotifyContext(this, key, (key as string).split('.').pop()!, value);
+    const ctx = new CacheNotifyContext(
+      this,
+      key,
+      (key as string).split('.').pop()!,
+      value
+    );
     const subs = this.getSubscribers(key);
     if (!subs.length) return true;
-    return subs.every(
-      (subscriber) => subscriber.handler(ctx) !== false
-    );
+    return subs.every((subscriber) => subscriber.handler(ctx) !== false);
   }
   public subscribe<K extends Path<T> & string>(
     pattern: K,
@@ -88,7 +98,7 @@ export class CacheObserver<T extends object> {
   public clear(): void {
     this.subscribers.length = 0;
   }
-  public setTo(data: T): void {
-    this.store = data;
+  public setTo(data: T | ((prev: T) => T)): void {
+    this.store = data instanceof Function ? data(this.store) : data;
   }
 }

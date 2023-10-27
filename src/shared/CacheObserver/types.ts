@@ -75,14 +75,8 @@ export type PathValue<T, TPath extends Path<T> | ArrayPath<T>> = T extends any
     : never
   : never;
 
-// Partial Object based on T that replaces all nested values with itself or a callback
-export type PathSet<T> = T extends any
-  ? {
-      [K in keyof T]?: T[K] extends Primitive
-        ? T[K] | ((value: T[K]) => T[K])
-        : PathSet<T[K]>;
-    }
-  : never;
+export type PathSet<T> = T | PathSetter<T>;
+export type PathSetter<T> = (value: T) => T;
 
 export type NestedPartial<T> = T extends any
   ? {

@@ -1,8 +1,15 @@
-import { EndpointRegistry, GroupEndpointTargets } from '@typings/api';
-import { IUser } from '@typings/user';
+import {
+  Endpoint,
+  EndpointMethods,
+  EndpointRegistry,
+  GetEndpoint,
+  GroupEndpointTargets,
+  SseModel,
+} from '@typings/api';
 import { GroupEnumValues } from '@typings/utils';
+import UsersModel from '../users';
 
-namespace ChatModel {
+namespace ChatsModel {
   export namespace Models {
     export enum ChatType {
       Temp = 'TEMP',
@@ -18,6 +25,7 @@ namespace ChatModel {
       Admin = 'ADMIN',
       Member = 'MEMBER',
       Banned = 'BANNED',
+      Left = 'LEFT',
     }
     export enum ChatMessageType {
       Normal = 'NORMAL',
@@ -27,7 +35,6 @@ namespace ChatModel {
     export interface IChatParticipant {
       id: number;
       chatId: number;
-      user: IUser;
       userId: number;
       role: GroupEnumValues<ChatParticipantRole>;
       toReadPings: number;
@@ -86,20 +93,36 @@ namespace ChatModel {
       createdAt: number;
     }
 
-    export interface IChatDisplay extends Omit<IChat, 'participants'> {}
+    export interface IChatDisplay
+      extends Omit<IChat, 'participants' | 'authorizationData'> {}
 
-    export interface IChatSimple
-      extends Omit<IChat, 'participants' | 'messages'> {
-      participants: Omit<IChatParticipant, 'user'>[];
+    export interface IChatInfo
+      extends Omit<IChat, 'participants' | 'messages' | 'authorizationData'> {
+      participants: IChatParticipant[];
     }
   }
   export namespace DTO {
     export namespace DB {
+      export interface ChatMessage
+        extends Omit<Models.IChatMessage, 'createdAt' | 'meta'> {
+        createdAt: Date;
+        meta: any;
+      }
+      export interface ChatParticipant
+        extends Omit<Models.IChatParticipant, 'createdAt'> {
+        createdAt: Date;
+      }
+      export interface Chat
+        extends Omit<Models.IChat, 'participants' | 'createdAt' | 'messages'> {
+        createdAt: Date;
+        authorizationData: any;
+        participants: ChatParticipant[];
+      }
       export interface GetChat extends Models.IChatDisplay {}
       export type GetChatParticipants = Models.IChatParticipant[];
       export type GetChatMessages = Models.IChatMessage[];
       export type GetUserChats = Models.IChat[];
-      export type GetPublicChats = Models.IChatSimple[];
+      export type GetPublicChats = Models.IChatInfo[];
       export interface CreateDBParticipant
         extends Pick<Models.IChatParticipant, 'role' | 'userId' | 'chatId'> {}
       export interface CreateChat
@@ -108,15 +131,13 @@ namespace ChatModel {
           'type' | 'authorization' | 'name' | 'photo'
         > {
         authorizationData: Models.IChatAuthorizationData | null;
-        participants: CreateDBParticipant[];
+        participants: Omit<CreateDBParticipant, 'chatId'>[];
       }
       export interface CreateMessage
         extends Pick<
           Models.IChatMessage,
-          'type' | 'message' | 'meta' | 'chatId'
-        > {
-        authorId: number;
-      }
+          'type' | 'message' | 'meta' | 'chatId' | 'authorId'
+        > {}
       export interface UpdateChatInfo
         extends Pick<
           Partial<Models.IChat>,
@@ -133,15 +154,153 @@ namespace ChatModel {
           'type' | 'message' | 'meta'
         > {}
     }
+    export interface ChatParams extends Record<string, unknown> {
+      chatId: number;
+    }
+    export interface ChatMessagesParams extends ChatParams {
+      cursor: number;
+    }
+    export interface ChatMessageParams extends ChatParams {
+      messageId: number;
+    }
+    export interface ChatParticipantParams extends ChatParams {
+      participantId: number;
+    }
+    export interface NewChat {
+      type: GroupEnumValues<Models.ChatType>;
+      authorization: GroupEnumValues<Models.ChatAccess>;
+      authorizationData: Models.IChatAuthorizationData | null;
+      name: string;
+      photo: string | null;
+      participants: DTO.DB.CreateChat['participants'];
+    }
+    export interface NewMessage
+      extends Omit<DB.CreateMessage, 'authorId' | 'chatId'> {}
   }
   export namespace Endpoints {
     export enum Targets {
-      A = 'b',
+      GetChat = '/chats/:chatId',
+      GetChatParticipants = '/chats/:chatId/participants',
+      GetChatMessages = '/chats/:chatId/messages',
+      GetChatMessage = '/chats/:chatId/messages/:messageId',
+      GetUserChats = '/users/:id/chats',
+      GetSessionChats = '/chats',
+      GetPublicChats = '/chats/public',
+      CreateChat = '/chats',
+      CreateMessage = '/chats/:chatId/messages',
+      UpdateChatInfo = '/chats/:chatId',
+      UpdateParticipant = '/chats/:chatId/participants/:participantId',
+      UpdateMessage = '/chats/:chatId/messages/:messageId',
+      DeleteChat = '/chats/:chatId',
+      DeleteParticipant = '/chats/:chatId/participants/:participantId',
+      DeleteMessage = '/chats/:chatId/messages/:messageId',
     }
     export type All = GroupEndpointTargets<Targets>;
+
+    export interface GetChats
+      extends GetEndpoint<
+        Targets.GetSessionChats,
+        Models.IChatDisplay[],
+        DTO.ChatParams
+      > {}
+    export interface GetChat
+      extends GetEndpoint<Targets.GetChat, Models.IChatInfo, DTO.ChatParams> {}
+    export interface GetChatParticipants
+      extends GetEndpoint<
+        Targets.GetChatParticipants,
+        Models.IChatParticipant[],
+        DTO.ChatParams
+      > {}
+    export interface GetChatMessages
+      extends GetEndpoint<
+        Targets.GetChatMessages,
+        Models.IChatMessage[],
+        DTO.ChatMessagesParams
+      > {}
+    export interface GetChatMessage
+      extends GetEndpoint<
+        Targets.GetChatMessage,
+        Models.IChatMessage,
+        DTO.ChatMessageParams
+      > {}
+    export interface GetUserChats
+      extends GetEndpoint<
+        Targets.GetUserChats,
+        Models.IChatInfo[],
+        UsersModel.DTO.GetUserParams
+      > {}
+    export interface CreateChat
+      extends Endpoint<
+        EndpointMethods.Put,
+        Targets.CreateChat,
+        Models.IChatInfo
+      > {}
+    export interface CreateMessage
+      extends Endpoint<
+        EndpointMethods.Put,
+        Targets.CreateMessage,
+        Models.IChatMessage,
+        DTO.DB.CreateMessage,
+        DTO.ChatParams
+      > {}
+    export interface UpdateChatInfo
+      extends Endpoint<
+        EndpointMethods.Patch,
+        Targets.UpdateChatInfo,
+        undefined,
+        DTO.DB.UpdateChatInfo,
+        DTO.ChatParams
+      > {}
+    export interface UpdateParticipant
+      extends Endpoint<
+        EndpointMethods.Patch,
+        Targets.UpdateParticipant,
+        undefined,
+        DTO.DB.UpdateParticipant,
+        DTO.ChatParticipantParams
+      > {}
+    export interface UpdateMessage
+      extends Endpoint<
+        EndpointMethods.Patch,
+        Targets.UpdateMessage,
+        undefined,
+        DTO.DB.UpdateMessage,
+        DTO.ChatMessageParams
+      > {}
+    export interface DeleteChat
+      extends Endpoint<
+        EndpointMethods.Delete,
+        Targets.DeleteChat,
+        undefined,
+        undefined,
+        DTO.ChatParams
+      > {}
+    export interface GetPublicChats
+      extends GetEndpoint<Targets.GetPublicChats, Models.IChatInfo[]> {}
+    export interface DeleteParticipant
+      extends Endpoint<
+        EndpointMethods.Delete,
+        Targets.DeleteParticipant,
+        undefined,
+        DTO.ChatParticipantParams
+      > {}
+    export interface DeleteMessage
+      extends Endpoint<
+        EndpointMethods.Delete,
+        Targets.DeleteMessage,
+        undefined,
+        DTO.ChatMessageParams
+      > {}
+
     export interface Registry extends EndpointRegistry {}
   }
-  export namespace Sse {}
+  export namespace Sse {
+    export enum Events {
+      NewMessage = 'chat.new-message',
+    }
+    export interface NewMessageEvent
+      extends SseModel.Models.Event<Models.IChatMessage, Events.NewMessage> {}
+  }
 }
 
-export default ChatModel;
+export default ChatsModel;
