@@ -23,7 +23,9 @@ export default function MessagesPane() {
         backgroundColor: 'background.level1',
       }}
     >
-      <MessagesPaneHeader />
+      <React.Suspense fallback={<></>}>
+        <MessagesPaneHeader />
+      </React.Suspense>
 
       <Box
         sx={{

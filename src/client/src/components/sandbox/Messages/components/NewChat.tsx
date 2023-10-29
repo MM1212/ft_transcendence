@@ -1,8 +1,7 @@
 import React from 'react';
-import Button from '@mui/joy/Button';
 import FormControl from '@mui/joy/FormControl';
 import FormLabel from '@mui/joy/FormLabel';
-import Input from '@mui/joy/Input';
+import Input, { inputClasses } from '@mui/joy/Input';
 import Modal from '@mui/joy/Modal';
 import ModalDialog from '@mui/joy/ModalDialog';
 import DialogTitle from '@mui/joy/DialogTitle';
@@ -10,28 +9,46 @@ import DialogContent from '@mui/joy/DialogContent';
 import Stack from '@mui/joy/Stack';
 import Icon from '@components/Icon';
 import {
+  faComments,
   faKey,
+  faLink,
   faLock,
   faPhotoVideo,
-  faPlus,
+  faTag,
+  faUsers,
 } from '@fortawesome/free-solid-svg-icons';
 import { useModal } from '@hooks/useModal';
 import { useForm } from '@mantine/form';
 import ChatsModel from '@typings/models/chat';
-import { Avatar, Checkbox, FormHelperText, Textarea } from '@mui/joy';
+import {
+  AutocompleteOption,
+  Avatar,
+  Button,
+  Checkbox,
+  CircularProgress,
+  DialogActions,
+  FormHelperText,
+  ListItem,
+  ListItemButton,
+  Textarea,
+  textareaClasses,
+} from '@mui/joy';
 
 const urlRegex =
   /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/;
 
 import LinearProgress from '@mui/joy/LinearProgress';
 import Typography from '@mui/joy/Typography';
-import { useTunnelEndpoint } from '@hooks/tunnel';
 import UsersModel from '@typings/models/users';
 import { Autocomplete } from '@mui/joy';
 import debounce from 'lodash.debounce';
 import tunnel from '@lib/tunnel';
+import Collapse from '../../../transitions/Collapse';
+import { ModalBackdrop } from '@mui/joy/Modal/Modal';
+import { useRecoilCallback } from 'recoil';
+import chatsState from '../state';
 
-function PasswordMeterInput({ value, onChange }: any) {
+function PasswordMeterInput({ value, onChange, disabled }: any) {
   const minLength = 12;
   return (
     <Stack
@@ -46,6 +63,7 @@ function PasswordMeterInput({ value, onChange }: any) {
         startDecorator={<Icon icon={faKey} />}
         value={value}
         onChange={onChange}
+        disabled={disabled}
       />
       <LinearProgress
         determinate
@@ -72,11 +90,15 @@ function PasswordMeterInput({ value, onChange }: any) {
 function UsersAutocomplete({
   selected,
   setSelected,
+  error,
+  disabled,
 }: {
   selected: UsersModel.Models.IUserInfo[];
   setSelected: React.Dispatch<
     React.SetStateAction<UsersModel.Models.IUserInfo[]>
   >;
+  error: React.ReactNode;
+  disabled: boolean;
 }) {
   const [search, setSearch] = React.useState('');
   const [cache, setCache] = React.useState<UsersModel.Models.IUserInfo[]>([]);
@@ -104,49 +126,74 @@ function UsersAutocomplete({
         setLoading(false);
       }
     }, 1000),
-    []
+    [selected]
   );
 
   return (
-    <FormControl>
-      <FormLabel>Participants</FormLabel>
+    <FormControl error={!!error}>
+      <FormLabel required>Participants</FormLabel>
       <Autocomplete
+        disabled={disabled}
         placeholder="search users.."
         options={cache}
         getOptionLabel={(option) => option.nickname}
+        isOptionEqualToValue={(option, value) => option.id === value.id}
         value={selected}
         onChange={(_, value) => setSelected(value)}
         multiple={true}
-        sx={{ width: 300 }}
         inputValue={search}
         limitTags={3}
+        sx={{ width: (theme) => theme.spacing(41) }}
         loading={loading}
+        loadingText={
+          <Stack direction="row" spacing={1} alignItems="center">
+            <CircularProgress size="sm" />
+            <Typography level="body-xs">Searching...</Typography>
+          </Stack>
+        }
         onInputChange={(_, value) => {
           setSearch(value);
-          if (value.trim().length > 5) {
+          if (value.trim().length > 0) {
             setLoading(true);
             onQueryChange(value);
           }
         }}
+        startDecorator={<Icon icon={faUsers} />}
+        renderOption={(props: Record<string, unknown>, option) => (
+          <AutocompleteOption
+            {...props}
+            key={`${option.id}-${option.nickname}`}
+            component={Stack}
+            direction="row"
+            alignItems="center"
+            spacing={1}
+          >
+            <Avatar src={option.avatar} size="sm" />
+            <Typography level="body-sm" component="span">
+              {option.nickname}
+            </Typography>
+          </AutocompleteOption>
+        )}
       />
+      {error && <FormHelperText>{error}</FormHelperText>}
     </FormControl>
   );
 }
+
+type FormValues = Pick<
+  ChatsModel.Models.IChat,
+  'authorization' | 'type' | 'name' | 'topic'
+> & {
+  photo: string;
+  authorizationData: ChatsModel.Models.IChatAuthorizationData;
+  participants: UsersModel.Models.IUserInfo[];
+};
 
 export default function NewChatModal(): JSX.Element {
   const { isOpened, close } = useModal('chat:new-chat');
   console.log('BOAS');
 
-  const form = useForm<
-    Pick<
-      ChatsModel.Models.IChat,
-      'authorization' | 'type' | 'name' | 'topic'
-    > & {
-      photo: string;
-      authorizationData: ChatsModel.Models.IChatAuthorizationData;
-      participants: UsersModel.Models.IUserInfo[];
-    }
-  >({
+  const form = useForm<FormValues>({
     initialValues: {
       type: ChatsModel.Models.ChatType.Group,
       participants: [],
@@ -160,7 +207,7 @@ export default function NewChatModal(): JSX.Element {
       participants(value, values) {
         switch (values.type) {
           case ChatsModel.Models.ChatType.Group:
-            if (value.length < 2) {
+            if (value.length < 1) {
               return 'Group chat should have at least 2 participants';
             }
             break;
@@ -197,77 +244,175 @@ export default function NewChatModal(): JSX.Element {
       },
     },
   });
+  const [loading, setLoading] = React.useState(false);
+
+  const onSubmit = useRecoilCallback(
+    (ctx) =>
+      async ({
+        authorization,
+        authorizationData,
+        name,
+        participants,
+        photo,
+        topic,
+        type,
+      }: FormValues) => {
+        const payload: ChatsModel.DTO.NewChat = {
+          authorization,
+          authorizationData:
+            authorization === ChatsModel.Models.ChatAccess.Private
+              ? authorizationData
+              : null,
+          name,
+          participants: participants.map<
+            ChatsModel.DTO.NewChat['participants'][number]
+          >((p) => ({
+            userId: p.id,
+            role: ChatsModel.Models.ChatParticipantRole.Member,
+          })),
+          photo: photo.trim().length > 0 ? photo : null,
+          topic,
+          type,
+        };
+        setLoading(true);
+        try {
+          const resp = await tunnel.put(
+            ChatsModel.Endpoints.Targets.CreateChat,
+            payload
+          );
+          if (resp.status === 'error') console.error(resp.errorMsg);
+          else {
+            ctx.set(chatsState.chats, (prev) => [
+              ...prev,
+              {
+                ...resp.data,
+                messages: [],
+                authorizationData: null,
+              },
+            ]);
+            close();
+          }
+            
+        } catch (e) {
+          console.error(e);
+          // TODO: send notification to the user
+        } finally {
+          setLoading(false);
+        }
+      },
+    [setLoading]
+  );
+
   return (
     <Modal open={isOpened} onClose={close}>
-      <ModalDialog>
-        <DialogTitle>Create new project</DialogTitle>
-        <DialogContent>Fill in the information of the project.</DialogContent>
-        <form onSubmit={form.onSubmit(console.log)}>
-          <Stack spacing={2}>
-            <FormControl error={!form.isValid('name') && form.isDirty('name')}>
-              <FormLabel>Group Name</FormLabel>
+      <ModalDialog size="md">
+        <DialogTitle>New Chat</DialogTitle>
+        <form onSubmit={form.onSubmit(onSubmit)}>
+          <Stack spacing={2} position="relative">
+            <FormControl error={!!form.errors.name}>
+              <FormLabel required>Group Name</FormLabel>
               <Input
+                disabled={loading}
                 required
                 placeholder="Enter group name"
                 {...form.getInputProps('name')}
+                startDecorator={<Icon icon={faTag} />}
+                endDecorator={
+                  <Typography
+                    level="body-sm"
+                    textColor={loading ? 'neutral.700' : undefined}
+                  >
+                    {form.values.name.trim().length}/50
+                  </Typography>
+                }
               />
-              <FormHelperText>
-                {!form.isValid('name')
-                  ? form.errors.name
-                  : 'Group name should have at least 3 characters'}
-              </FormHelperText>
+              {form.errors.name && (
+                <FormHelperText>{form.errors.name}</FormHelperText>
+              )}{' '}
             </FormControl>
-            <FormControl>
+            <FormControl error={!!form.errors.topic}>
               <FormLabel>Group Topic</FormLabel>
               <Textarea
-                placeholder="Enter group topic"
+                disabled={loading}
+                placeholder={'Enter group topic'}
                 {...form.getInputProps('topic')}
                 minRows={3}
                 maxRows={3}
+                sx={{
+                  [`& .${textareaClasses.endDecorator}`]: {
+                    mr: 1,
+                  },
+                }}
+                endDecorator={
+                  <Typography
+                    level="body-sm"
+                    ml="auto"
+                    textColor={loading ? 'neutral.700' : undefined}
+                  >
+                    {form.values.topic.trim().length}/200
+                  </Typography>
+                }
               />
+              {form.errors.topic && (
+                <FormHelperText>{form.errors.topic}</FormHelperText>
+              )}
             </FormControl>
-            <FormControl>
+            <FormControl error={!!form.errors.photo}>
               <FormLabel>Group Photo</FormLabel>
               <Stack direction="row" spacing={2}>
                 <Avatar
-                  src={form.isValid('photo') ? form.values.photo : undefined}
+                  src={
+                    (form.isValid('photo') && form.values.photo) || undefined
+                  }
                 >
-                  {!form.isValid('photo') && (
+                  {(!form.isValid('photo') || !form.values.photo) && (
                     <Icon icon={faPhotoVideo} size="lg" color="gray" />
                   )}
                 </Avatar>
                 <Input
+                  disabled={loading}
                   type="url"
                   placeholder="Enter group photo url"
                   {...form.getInputProps('photo')}
+                  startDecorator={<Icon icon={faLink} />}
                 />
               </Stack>
-              <FormHelperText>Photo should be a valid image url</FormHelperText>
+              {form.errors.photo && (
+                <FormHelperText>{form.errors.photo}</FormHelperText>
+              )}
             </FormControl>
-            <FormControl>
-              <FormLabel>Group Access</FormLabel>
-              <Checkbox
-                label="Is Private"
-                variant="outlined"
-                color="primary"
-                checked={
+            <div>
+              <FormControl>
+                <FormLabel>Group Access</FormLabel>
+                <Checkbox
+                  disabled={loading}
+                  label="Is Private"
+                  variant="outlined"
+                  color="primary"
+                  checked={
+                    form.values.authorization ===
+                    ChatsModel.Models.ChatAccess.Private
+                  }
+                  checkedIcon={<Icon icon={faLock} size="xs" />}
+                  onChange={(ev) =>
+                    form.setFieldValue(
+                      'authorization',
+                      ev.target.checked
+                        ? ChatsModel.Models.ChatAccess.Private
+                        : ChatsModel.Models.ChatAccess.Public
+                    )
+                  }
+                  sx={{ mb: 1 }}
+                />
+              </FormControl>
+              <Collapse
+                opened={
                   form.values.authorization ===
                   ChatsModel.Models.ChatAccess.Private
                 }
-                checkedIcon={<Icon icon={faLock} size="xs" />}
-                onChange={(ev) =>
-                  form.setFieldValue(
-                    'authorization',
-                    ev.target.checked
-                      ? ChatsModel.Models.ChatAccess.Private
-                      : ChatsModel.Models.ChatAccess.Public
-                  )
-                }
-                sx={{ mb: 1 }}
-              />
-              {form.values.authorization ===
-                ChatsModel.Models.ChatAccess.Private && (
+              >
                 <PasswordMeterInput
+                  disabled={loading}
                   value={form.values.authorizationData.password || ''}
                   onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
                     form.setFieldValue('authorizationData', {
@@ -275,13 +420,30 @@ export default function NewChatModal(): JSX.Element {
                     })
                   }
                 />
-              )}
-            </FormControl>
+              </Collapse>
+            </div>
             <UsersAutocomplete
               selected={form.values.participants}
               setSelected={form.setFieldValue.bind(null, 'participants') as any}
+              error={form.errors.participants}
+              disabled={loading}
             />
           </Stack>
+          <DialogActions>
+            <Stack direction="row" spacing={2} ml="auto">
+              <Button
+                variant="plain"
+                onClick={close}
+                color="neutral"
+                disabled={loading}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" variant="solid" loading={loading}>
+                Create
+              </Button>
+            </Stack>
+          </DialogActions>
         </form>
       </ModalDialog>
     </Modal>
