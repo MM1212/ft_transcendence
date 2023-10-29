@@ -65,8 +65,9 @@ class Chat extends CacheObserver<IChat> {
   ) {
     super({
       ...data,
-      participants: data.participants.map((p) => new Participant(p, this)),
+      participants: [],
     });
+    this.set('participants', data.participants.map((p) => new Participant(p, this)));
   }
   public get public(): ChatsModel.Models.IChatInfo {
     const { messages, authorizationData, ...chat } = this.get();

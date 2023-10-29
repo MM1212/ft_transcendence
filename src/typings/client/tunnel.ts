@@ -31,14 +31,14 @@ export interface ITunnel {
   >(
     uri: T,
     data: API.EndpointData<E>,
-    params: API.EndpointParams<E>
+    params?: API.EndpointParams<E>
   ): Promise<API.EndpointResponse<E>>;
   del<
     T extends keyof PickEndpoints<API.EndpointMethods.Delete>,
     E extends PickEndpoints<API.EndpointMethods.Delete>[T]
   >(
     uri: T,
-    params: API.EndpointParams<E>
+    params?: API.EndpointParams<E>
   ): Promise<API.EndpointResponse<E>>;
   patch<
     T extends keyof PickEndpoints<API.EndpointMethods.Patch>,
@@ -46,6 +46,6 @@ export interface ITunnel {
   >(
     uri: T,
     data: API.EndpointData<E>,
-    params: API.EndpointParams<E>
+    params?: API.EndpointParams<E>
   ): Promise<API.EndpointResponse<E>>;
 }

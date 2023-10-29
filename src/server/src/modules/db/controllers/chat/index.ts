@@ -205,17 +205,23 @@ export class Chats {
     participants,
     ...data
   }: ChatModel.DTO.DB.CreateChat): Promise<ChatModel.Models.IChat> {
-    return (await this.prisma.chat.create({
-      data: {
-        ...data,
-        participants: {
-          createMany: {
-            data: participants,
+    return this.formatChat(
+      await this.prisma.chat.create({
+        data: {
+          ...data,
+          participants: {
+            createMany: {
+              data: participants,
+            },
           },
+          authorizationData: data.authorizationData as JsonObject,
         },
-        authorizationData: data.authorizationData as JsonObject,
-      },
-    })) as unknown as ChatModel.Models.IChat;
+        include: {
+          participants: true,
+          messages: true,
+        },
+      }),
+    );
   }
   public async createChatMessage(
     data: ChatModel.DTO.DB.CreateMessage,

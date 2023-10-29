@@ -227,7 +227,8 @@ namespace ChatsModel {
       extends Endpoint<
         EndpointMethods.Put,
         Targets.CreateChat,
-        Models.IChatInfo
+        Models.IChatInfo,
+        DTO.NewChat
       > {}
     export interface CreateMessage
       extends Endpoint<
