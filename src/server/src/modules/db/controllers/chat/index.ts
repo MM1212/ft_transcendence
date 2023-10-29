@@ -11,17 +11,6 @@ const SIMPLE_DB_USER: Record<keyof IUser, true> = {
   studentId: true,
   createdAt: true,
 };
-const SIMPLE_DB_CHAT_PARTICIPANT: Record<
-  Exclude<keyof ChatModel.Models.IChatParticipant, 'user'>,
-  true
-> = {
-  userId: true,
-  role: true,
-  chatId: true,
-  createdAt: true,
-  id: true,
-  toReadPings: true,
-};
 
 @Injectable()
 export class Chats {
@@ -81,15 +70,8 @@ export class Chats {
   ): Promise<ChatModel.Models.IChatInfo | null> {
     return (await this.prisma.chat.findUnique({
       where: { id: chatId },
-      select: {
-        id: true,
-        name: true,
-        photo: true,
-        type: true,
-        authorization: true,
-        participants: {
-          select: SIMPLE_DB_CHAT_PARTICIPANT,
-        },
+      include: {
+        participants: true,
       },
     })) as unknown as ChatModel.Models.IChatInfo | null;
   }
@@ -104,15 +86,8 @@ export class Chats {
           },
         },
       },
-      select: {
-        id: true,
-        name: true,
-        photo: true,
-        type: true,
-        authorization: true,
-        participants: {
-          select: SIMPLE_DB_CHAT_PARTICIPANT,
-        },
+      include: {
+        participants: true,
       },
     })) as unknown as ChatModel.Models.IChatInfo[];
   }
@@ -139,9 +114,6 @@ export class Chats {
       where: {
         chatId,
       },
-      select: {
-        ...SIMPLE_DB_CHAT_PARTICIPANT,
-      } satisfies Record<keyof ChatModel.Models.IChatParticipant, unknown>,
     })) as unknown as ChatModel.Models.IChatParticipant[];
   }
   public async getAllPublicChats(): Promise<ChatModel.Models.IChatInfo[]> {
@@ -149,15 +121,8 @@ export class Chats {
       where: {
         authorization: ChatModel.Models.ChatAccess.Public,
       },
-      select: {
-        id: true,
-        name: true,
-        photo: true,
-        type: true,
-        authorization: true,
-        participants: {
-          select: SIMPLE_DB_CHAT_PARTICIPANT,
-        },
+      include: {
+        participants: true,
       },
     })) as unknown as ChatModel.Models.IChatInfo[];
   }
@@ -234,9 +199,6 @@ export class Chats {
           : {
               id: chatIdOrParticipantId,
             },
-      select: {
-        ...SIMPLE_DB_CHAT_PARTICIPANT,
-      } satisfies Record<keyof ChatModel.Models.IChatParticipant, unknown>,
     })) as unknown as ChatModel.Models.IChatParticipant | null;
   }
   public async createChat({

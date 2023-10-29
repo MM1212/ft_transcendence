@@ -87,6 +87,7 @@ namespace ChatsModel {
       authorization: GroupEnumValues<ChatAccess>;
       authorizationData: IChatAuthorizationData | null;
       name: string;
+      topic: string;
       photo: string | null;
       participants: IChatParticipant[];
       messages: IChatMessage[];
@@ -128,7 +129,7 @@ namespace ChatsModel {
       export interface CreateChat
         extends Pick<
           Models.IChat,
-          'type' | 'authorization' | 'name' | 'photo'
+          'type' | 'authorization' | 'name' | 'photo'  | 'topic'
         > {
         authorizationData: Models.IChatAuthorizationData | null;
         participants: Omit<CreateDBParticipant, 'chatId'>[];
@@ -166,14 +167,7 @@ namespace ChatsModel {
     export interface ChatParticipantParams extends ChatParams {
       participantId: number;
     }
-    export interface NewChat {
-      type: GroupEnumValues<Models.ChatType>;
-      authorization: GroupEnumValues<Models.ChatAccess>;
-      authorizationData: Models.IChatAuthorizationData | null;
-      name: string;
-      photo: string | null;
-      participants: DTO.DB.CreateChat['participants'];
-    }
+    export interface NewChat extends DB.CreateChat {}
     export interface NewMessage
       extends Omit<DB.CreateMessage, 'authorId' | 'chatId'> {}
   }
