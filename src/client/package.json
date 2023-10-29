@@ -19,6 +19,8 @@
     "@fortawesome/free-solid-svg-icons": "^6.4.2",
     "@fortawesome/react-fontawesome": "^0.2.0",
     "@mui/joy": "5.0.0-beta.6",
+    "@react-spring/web": "^9.7.3",
+    "lodash.debounce": "^4.0.8",
     "moment": "^2.29.4",
     "pixi.js": "^7.3.1",
     "react": "^18.2.0",
