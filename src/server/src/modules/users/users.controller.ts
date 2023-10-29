@@ -5,6 +5,7 @@ import {
   ForbiddenException,
   Get,
   Param,
+  ParseBoolPipe,
   ParseIntPipe,
   Patch,
   Post,
@@ -48,11 +49,22 @@ export class UsersController {
   @Post(UsersModel.Endpoints.Targets.SearchUsers)
   async search(
     @Body('query', ValidationPipe) query: string,
+    @Body('exclude', new DefaultValuePipe<number[], number[]>([]))
+    exclude: number[],
+    @Body('excludeSelf', new DefaultValuePipe(true), ParseBoolPipe)
+    excludeSelf: boolean,
     @Query('limit', new DefaultValuePipe(50), ParseIntPipe) limit: number,
     @Query('offset', new DefaultValuePipe(0), ParseIntPipe) offset: number,
+    @HttpCtx() { user }: HTTPContext<true>,
   ): Promise<EndpointResponse<UsersModel.Endpoints.GetUsers>> {
     const users = await this.usersService.search(query, { limit, offset });
-    return buildOkResponse(users);
+    return buildOkResponse(
+      users.filter((u) => {
+        if (exclude.includes(u.id)) return false;
+        if (excludeSelf && u.id === user.id) return false;
+        return true;
+      }),
+    );
   }
 
   @Auth()
