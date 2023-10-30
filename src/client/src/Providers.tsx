@@ -5,6 +5,7 @@ import testTheme from './theme';
 import { SWRConfig } from 'swr';
 import { Router } from 'wouter';
 import StateMounter from '@state/mounter';
+import NotificationsProvider from '@lib/notifications/Provider';
 
 export default function AppProviders({
   children,
@@ -31,6 +32,7 @@ export default function AppProviders({
             disableNestedContext
           >
             <CssBaseline />
+            <NotificationsProvider />
             {children}
           </CssVarsProvider>
         </SWRConfig>

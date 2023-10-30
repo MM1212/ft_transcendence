@@ -59,6 +59,9 @@ dependencies:
   socket.io-client:
     specifier: ^4.7.2
     version: 4.7.2
+  sonner:
+    specifier: ^1.0.3
+    version: 1.0.3(react-dom@18.2.0)(react@18.2.0)
   swr:
     specifier: ^2.2.2
     version: 2.2.2(react@18.2.0)
@@ -2787,6 +2790,10 @@ packages:
       p-locate: 5.0.0
     dev: true
 
+  /lodash.debounce@4.0.8:
+    resolution: {integrity: sha512-FT1yDzDYEoYWhnSGnpE/4Kj1fLZkDFyqRb7fNt6FdYOSxlUWAtp42Eh6Wb0rGIv/m9Bgo7x4GhQbm5Ys4SG5ow==}
+    dev: false
+
   /lodash.merge@4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
     dev: true
@@ -3343,6 +3350,16 @@ packages:
       debug: 4.3.4
     transitivePeerDependencies:
       - supports-color
+    dev: false
+
+  /sonner@1.0.3(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-hBoA2zKuYW3lUnpx4K0vAn8j77YuYiwvP9sLQfieNS2pd5FkT20sMyPTDJnl9S+5T27ZJbwQRPiujwvDBwhZQg==}
+    peerDependencies:
+      react: ^18.0.0
+      react-dom: ^18.0.0
+    dependencies:
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
     dev: false
 
   /source-map-js@1.0.2:
