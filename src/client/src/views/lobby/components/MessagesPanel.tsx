@@ -6,7 +6,7 @@
 /*   By: mgranate_ls <mgranate_ls@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/21 17:22:36 by mgranate_ls       #+#    #+#             */
-/*   Updated: 2023/10/26 18:20:43 by mgranate_ls      ###   ########.fr       */
+/*   Updated: 2023/10/27 13:00:36 by mgranate_ls      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,11 +15,14 @@ import { Input } from "@mui/joy";
 import { Box, Chip, Sheet, Stack, Typography } from "@mui/joy";
 import { ChatsPaneProps } from "../types";
 import ChatListItem from "./ChatListItems";
+import { chatsState } from "../state";
+import { useRecoilState } from "recoil";
+import { arrayChats } from "../types";
+import { useEffect } from "react";
 
-export default function MessagesPanel({
-  chats,
-  setSelectedChat,
-}: ChatsPaneProps) {
+export default function MessagesPanel({ setSelectedChat }: ChatsPaneProps) {
+  const [chats, setChats] = useRecoilState(chatsState);
+  console.log("Chats:", chats);
   return (
     <Sheet
       sx={{
@@ -68,13 +71,14 @@ export default function MessagesPanel({
           "--ListItem-paddingX": "1rem",
         }}
       >
-        {chats.map((chat) => (
-          <ChatListItem
-            key={chat.id}
-			chat = {chat}
-            setSelectedChat={setSelectedChat}
-          />
-        ))}
+        {chats &&
+          chats.map((chats) => (
+            <ChatListItem
+              key={chats.id}
+              chat={chats}
+              setSelectedChat={setSelectedChat}
+            />
+          ))}
       </List>
     </Sheet>
   );

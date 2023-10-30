@@ -1,27 +1,27 @@
-import { GroupEndpoints } from '@typings/api';
-import { IUser } from '@typings/user';
-import { GroupEnumValues } from '@typings/utils';
+import { GroupEndpoints } from "@typings/api";
+import { IUser } from "@typings/user";
+import { GroupEnumValues } from "@typings/utils";
 
 namespace ChatModel {
   export namespace Models {
     export enum ChatType {
-      Temp = 'TEMP',
-      Group = 'GROUP',
-      Direct = 'DIRECT',
+      Temp = "TEMP",
+      Group = "GROUP",
+      Direct = "DIRECT",
     }
     export enum ChatAccess {
-      Public = 'PUBLIC',
-      Private = 'PRIVATE',
+      Public = "PUBLIC",
+      Private = "PRIVATE",
     }
     export enum ChatParticipantRole {
-      Owner = 'OWNER',
-      Admin = 'ADMIN',
-      Member = 'MEMBER',
-      Banned = 'BANNED',
+      Owner = "OWNER",
+      Admin = "ADMIN",
+      Member = "MEMBER",
+      Banned = "BANNED",
     }
     export enum ChatMessageType {
-      Normal = 'NORMAL',
-      Embed = 'EMBED',
+      Normal = "NORMAL",
+      Embed = "EMBED",
     }
 
     export interface IChatParticipant {
@@ -40,10 +40,10 @@ namespace ChatModel {
 
     export namespace Embeds {
       export enum Type {
-        Media = 'media',
-        UserProfile = 'user-profile',
-        GameInvite = 'game-invite',
-        ChatInvite = 'chat-invite',
+        Media = "media",
+        UserProfile = "user-profile",
+        GameInvite = "game-invite",
+        ChatInvite = "chat-invite",
       }
       export interface Media {
         type: GroupEnumValues<Type.Media>;
@@ -73,7 +73,7 @@ namespace ChatModel {
       author: IChatParticipant;
       authorId: number;
       createdAt: number;
-	//   timestamp: Date;
+      timestamp?: Date;
     }
 
     export interface IChat {
@@ -88,11 +88,11 @@ namespace ChatModel {
       createdAt: number;
     }
 
-    export interface IChatDisplay extends Omit<IChat, 'participants'> {}
+    export interface IChatDisplay extends Omit<IChat, "participants"> {}
 
     export interface IChatSimple
-      extends Omit<IChat, 'participants' | 'messages'> {
-      participants: Omit<IChatParticipant, 'user'>[];
+      extends Omit<IChat, "participants" | "messages"> {
+      participants: Omit<IChatParticipant, "user">[];
     }
   }
   export namespace DTO {
@@ -103,11 +103,11 @@ namespace ChatModel {
       export type GetUserChats = Models.IChat[];
       export type GetPublicChats = Models.IChatSimple[];
       export interface CreateDBParticipant
-        extends Pick<Models.IChatParticipant, 'role' | 'userId' | 'chatId'> {}
+        extends Pick<Models.IChatParticipant, "role" | "userId" | "chatId"> {}
       export interface CreateChat
         extends Pick<
           Models.IChat,
-          'type' | 'authorization' | 'name' | 'photo'
+          "type" | "authorization" | "name" | "photo"
         > {
         authorizationData: Models.IChatAuthorizationData | null;
         participants: CreateDBParticipant[];
@@ -115,30 +115,30 @@ namespace ChatModel {
       export interface CreateMessage
         extends Pick<
           Models.IChatMessage,
-          'type' | 'message' | 'meta' | 'chatId'
+          "type" | "message" | "meta" | "chatId"
         > {
         authorId: number;
       }
       export interface UpdateChatInfo
         extends Pick<
           Partial<Models.IChat>,
-          'name' | 'photo' | 'authorization' | 'authorizationData'
+          "name" | "photo" | "authorization" | "authorizationData"
         > {}
       export interface UpdateParticipant
         extends Pick<
           Partial<Models.IChatParticipant>,
-          'role' | 'toReadPings'
+          "role" | "toReadPings"
         > {}
       export interface UpdateMessage
         extends Pick<
           Partial<Models.IChatMessage>,
-          'type' | 'message' | 'meta'
+          "type" | "message" | "meta"
         > {}
     }
   }
   export namespace Endpoints {
     export enum Targets {
-      A = 'b',
+      A = "b",
     }
     export type All = GroupEndpoints<Targets>;
   }

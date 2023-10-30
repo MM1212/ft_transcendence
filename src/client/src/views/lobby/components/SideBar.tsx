@@ -13,19 +13,16 @@ import {
 import { useKeybindsToggle } from "@hooks/keybinds";
 import Link from "@components/Link";
 import { Route, Switch } from "wouter";
-import { sampleChat, targets } from "../types";
+import { targets } from "../types";
 import { navigate } from "wouter/use-location";
-import { chatsState, meState } from "../state";
 import { useRecoilState } from "recoil";
-import { useSession } from "@hooks/user";
+import { sessionAtom, useSession } from "@hooks/user";
 
 export default function DrawerCloseButton() {
   const [open, setOpen] = React.useState(false);
-  const [me, setMe] = useRecoilState(meState);
+  const [me, setMe] = useRecoilState(sessionAtom);
   const { user } = useSession();
   if (user) setMe(user);
-  const [chats, setChats] = useRecoilState(chatsState);
-  setChats({...chats, ...sampleChat});
   const handleCloseDrawer = () => {
     setOpen(false);
     navigate("/lobby");

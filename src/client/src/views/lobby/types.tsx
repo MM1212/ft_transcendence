@@ -4,7 +4,6 @@ import MessageChat from "./components/MessageChat";
 import ChatModel from "@typings/models/chat";
 
 export interface ChatsPaneProps {
-  chats: ChatModel.Models.IChat[];
   setSelectedChat: (chat: ChatModel.Models.IChat) => void;
 }
 export function formatTimestamp(timestamp: Date) {
@@ -41,9 +40,9 @@ export const sampleUsers: IUser[] = [
     experience: "lvl 9 5000xp",
   },
   {
-    id: 2,
+    id: 3,
     studentId: 95303,
-    nickname: "Antonio Maria",
+    nickname: "Anfreire",
     avatar:
       "https://cdn.intra.42.fr/users/7a6f505ef289bbba5827cb9a540b36d5/amaria-d.jpg",
     createdAt: 34 | 2,
@@ -63,7 +62,7 @@ export const sampleParticipant: ChatModel.Models.IChatParticipant = {
 };
 
 export const sampleParticipantAntonio: ChatModel.Models.IChatParticipant = {
-  id: 2,
+  id: 3,
   chatId: 1,
   user: sampleUsers[1],
   userId: sampleUsers[1].id,
@@ -94,10 +93,10 @@ export const sampleChat: ChatModel.Models.IChat = {
       timestamp: new Date(),
     },
     {
-      id: 2,
+      id: 3,
       chatId: 1,
       type: ChatModel.Models.ChatMessageType.Normal,
-      message: "Eu sou o Antonio",
+      message: "Eu sou o Anfreire",
       meta: {},
       author: sampleParticipantAntonio,
       authorId: sampleParticipantAntonio.id,
@@ -144,8 +143,9 @@ export const targets = [
     target: "/messages",
     node: (
       <>
-        <MessagesPanel chats={arrayChats} setSelectedChat={() => {}} />
-        <MessageChat chat={sampleChat} me={sampleUsers[0]} />
+        <MessagesPanel setSelectedChat={() => {}} />
+		{/* Loop Through all array of chats */}
+        <MessageChat chat={sampleChat}/>
       </>
     ),
   },

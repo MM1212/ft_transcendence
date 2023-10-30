@@ -7,22 +7,22 @@ import ChatHeader from "./ChatHeader";
 import React from "react";
 import MessageInput from "./MessageTyping";
 import ChatModel from "@typings/models/chat";
-import { chatsState, meState } from "../state";
 import { useRecoilState } from "recoil";
-import { sampleChat } from "../types";
+import { sessionAtom } from "@hooks/user";
 
 export interface myChat {
   chat: ChatModel.Models.IChat;
 }
 
 export function MessageChat({ chat }: myChat) {
-  const [chats, setChats] = useRecoilState(chatsState);
-  setChats({ ...chats, ...sampleChat });
+  //  const [chatMessages, setChatMessages] = useRecoilState(chatsState);
+  //   setChats({ ...chats, ...sampleChat });
   const [chatMessages, setChatMessages] = React.useState(chat.messages);
   //   const { user } = useSession();
-  const [me, setMe] = useRecoilState(meState);
+  const [me, setMe] = useRecoilState(sessionAtom);
   const user = me;
 
+  console.log("User:", user);
   if (!user) return null;
   const addNewMessage = (newMessage: ChatModel.Models.IChatMessage) => {
     setChatMessages([...chatMessages, newMessage]);

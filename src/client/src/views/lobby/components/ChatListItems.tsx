@@ -21,6 +21,7 @@ export default function ChatListItem({
   chat,
   setSelectedChat,
 }: ChatListItemProps) {
+  console.log("Chat:", chat);
   const { user } = useSession();
   if (!user) return null;
 
@@ -65,7 +66,9 @@ export default function ChatListItem({
             )}
             <Box sx={{ flex: 1 }}>
               <Typography level="title-sm">{chatName}</Typography>
-              <Typography level="body-sm">{whoIAmTalkingTo.user?.experience}</Typography>
+              <Typography level="body-sm">
+                {whoIAmTalkingTo.user?.experience}
+              </Typography>
             </Box>
             <Box
               sx={{

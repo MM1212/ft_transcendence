@@ -1,9 +1,9 @@
 import { Pixi } from "@hooks/pixiRenderer";
-import { sessionAtom, useSession } from "@hooks/user";
+import { sessionAtom } from "@hooks/user";
 import { Lobbies } from "@typings/lobby";
 import { ChatModel } from "@typings/models";
-import { IUser } from "@typings/user";
 import { DefaultValue, atom, selector, useRecoilValue } from "recoil";
+import { arrayChats, sampleChat } from "./types";
 
 export interface Player extends Lobbies.IPlayer {
   sprite: Pixi.Sprite | null;
@@ -74,24 +74,10 @@ export const allowPlayerFocus = atom<boolean>({
   default: false,
 });
 
-export const meState = atom<IUser>({
-	key: "myUser",
-	default:   {
-		id: 0,
-		studentId: 0,
-		nickname: "",
-		avatar: "",
-		createdAt: 0,
-		online: false,
-		experience: "",
-	}
+export const chatsState = atom<ChatModel.Models.IChat[]>({
+  key: "chats",
+  default: arrayChats,
 });
-
-export const chatsState = atom({
-	key: "chats",
-	default: [],
-});
-
 
 export const useLobbyPlayers = (): Player[] => useRecoilValue(lobbyPlayersAtom);
 

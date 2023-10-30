@@ -11,6 +11,7 @@ const SIMPLE_DB_USER: Record<keyof IUser, true> = {
   studentId: true,
   createdAt: true,
   online: true,
+  experience: true,
 };
 
 const SIMPLE_DB_CHAT_PARTICIPANT: Record<
