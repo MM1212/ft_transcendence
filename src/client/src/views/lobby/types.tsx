@@ -137,10 +137,37 @@ export const subTargets = [
   },
 ];
 
+export const simpleTargets = [
+  {
+    label: "Messages",
+    target: "/messages",
+    node: (
+      <>
+        <MessagesPanel setSelectedChat={() => {}} />
+        <MessageChat chat={sampleChat} />
+      </>
+    ),
+  },
+  {
+    label: "Key Bindings",
+    target: "/keybindings",
+  },
+  {
+    label: "Friends",
+    target: "/friends",
+    node: (
+      <>
+        <FriendsPanel />
+      </>
+    ),
+  }
+]
+
+
 export const mainTargets = [
   {
     label: "Home",
-    target: "",
+    target: "/",
   },
   {
     label: "Settings",

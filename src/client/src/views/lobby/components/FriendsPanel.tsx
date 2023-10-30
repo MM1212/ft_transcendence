@@ -19,6 +19,13 @@ export default function FriendsPanel() {
       >
         <FriendsHeader />
       </Sheet>
+      <Switch>
+        <Route path="/online">
+          <article>
+            <h1>How it all started?</h1>
+          </article>
+        </Route>
+      </Switch>
     </>
   );
 }

@@ -1,6 +1,7 @@
 import { Button, Typography } from "@mui/joy";
-import { useState } from "react";
-import { Link } from "wouter";
+import { PropsWithChildren, ReactElement, useState } from "react";
+import { Link, LinkProps } from "wouter";
+import { BaseLocationHook, LocationHook, navigate } from "wouter/use-location";
 
 export default function FriendsOnline() {
   // Lets make a function that handles the button click
@@ -12,7 +13,8 @@ export default function FriendsOnline() {
 
   return (
     <>
-      <Button
+      <Link href="/online">Online</Link>
+      {/* <Button
         onClick={handleClick}
         color="neutral"
         variant="outlined"
@@ -23,7 +25,7 @@ export default function FriendsOnline() {
         }}
       >
         <Typography>Online</Typography>
-      </Button>
+      </Button> */}
     </>
   );
 }
