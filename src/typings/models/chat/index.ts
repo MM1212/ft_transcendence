@@ -73,7 +73,6 @@ namespace ChatModel {
       author: IChatParticipant;
       authorId: number;
       createdAt: number;
-      timestamp?: Date;
     }
 
     export interface IChat {

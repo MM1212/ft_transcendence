@@ -12,8 +12,8 @@ import {
 } from "@mui/joy";
 import { useKeybindsToggle } from "@hooks/keybinds";
 import Link from "@components/Link";
-import { Route, Switch } from "wouter";
-import { targets } from "../types";
+import { Route, Router, Switch } from "wouter";
+import { mainTargets } from "../types";
 import { navigate } from "wouter/use-location";
 import { useRecoilState } from "recoil";
 import { sessionAtom, useSession } from "@hooks/user";
@@ -90,7 +90,7 @@ export default function DrawerCloseButton() {
                 </ListItemContent>
               </ListItemButton>
             </ListItem>
-            {targets.map(({ label, target }, idx) => (
+            {mainTargets.map(({ label, target }, idx) => (
               <ListItem key={idx}>
                 <ListItemButton>
                   <Link href={target}>
@@ -104,7 +104,7 @@ export default function DrawerCloseButton() {
           </List>
         </Box>
         <Switch>
-          {targets.map(
+          {mainTargets.map(
             (target, i) =>
               target.node && (
                 <Route path={target.target} key={i}>

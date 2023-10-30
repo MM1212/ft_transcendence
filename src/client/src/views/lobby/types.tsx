@@ -2,6 +2,9 @@ import { IUser } from "@typings/user";
 import MessagesPanel from "./components/MessagesPanel";
 import MessageChat from "./components/MessageChat";
 import ChatModel from "@typings/models/chat";
+import FriendsPanel from "./components/FriendsPanel";
+import { Route, Switch } from "wouter";
+import FriendsOnline from "./components/Friends/FriendsOnline";
 
 export interface ChatsPaneProps {
   setSelectedChat: (chat: ChatModel.Models.IChat) => void;
@@ -90,7 +93,6 @@ export const sampleChat: ChatModel.Models.IChat = {
       author: sampleParticipant,
       authorId: sampleParticipant.id,
       createdAt: 9.09,
-      timestamp: new Date(),
     },
     {
       id: 3,
@@ -101,7 +103,6 @@ export const sampleChat: ChatModel.Models.IChat = {
       author: sampleParticipantAntonio,
       authorId: sampleParticipantAntonio.id,
       createdAt: 9.1,
-      timestamp: new Date(),
     },
   ],
   // messages: [...new Array(20)].map((_,id) => {
@@ -129,7 +130,14 @@ export const sampleChat: ChatModel.Models.IChat = {
 
 export const arrayChats: ChatModel.Models.IChat[] = [sampleChat];
 
-export const targets = [
+export const subTargets = [
+  {
+    label: "Online",
+    target: "/friends/online",
+  },
+];
+
+export const mainTargets = [
   {
     label: "Home",
     target: "",
@@ -144,8 +152,7 @@ export const targets = [
     node: (
       <>
         <MessagesPanel setSelectedChat={() => {}} />
-		{/* Loop Through all array of chats */}
-        <MessageChat chat={sampleChat}/>
+        <MessageChat chat={sampleChat} />
       </>
     ),
   },
@@ -156,6 +163,21 @@ export const targets = [
   {
     label: "Friends",
     target: "/friends",
+    node: (
+      <>
+        <FriendsPanel />
+      </>
+    ),
+  },
+  {
+    label: "Friends",
+    target: "/friends/online",
+    node: (
+      <>
+        <FriendsPanel />
+        <FriendsOnline />
+      </>
+    ),
   },
   {
     label: "Achievements",

@@ -6,7 +6,7 @@
 /*   By: mgranate_ls <mgranate_ls@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/21 17:22:36 by mgranate_ls       #+#    #+#             */
-/*   Updated: 2023/10/27 13:00:36 by mgranate_ls      ###   ########.fr       */
+/*   Updated: 2023/10/30 12:51:33 by mgranate_ls      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,6 @@ import { ChatsPaneProps } from "../types";
 import ChatListItem from "./ChatListItems";
 import { chatsState } from "../state";
 import { useRecoilState } from "recoil";
-import { arrayChats } from "../types";
-import { useEffect } from "react";
 
 export default function MessagesPanel({ setSelectedChat }: ChatsPaneProps) {
   const [chats, setChats] = useRecoilState(chatsState);
@@ -30,7 +28,7 @@ export default function MessagesPanel({ setSelectedChat }: ChatsPaneProps) {
         borderColor: "divider",
         height: "calc(100dvh - var(--Header-height))",
         overflowY: "auto",
-        backgroundColor: "background.level1",
+        backgroundColor: "background.level2",
         width: "30%",
       }}
     >

@@ -34,7 +34,7 @@ export function MessageChat({ chat }: myChat) {
         display: "flex",
         flexDirection: "column",
         width: "70%",
-        backgroundColor: "background.level1",
+        backgroundColor: "background.level2",
       }}
     >
       <ChatHeader chat={chat} />
