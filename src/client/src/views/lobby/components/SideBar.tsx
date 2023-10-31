@@ -9,14 +9,16 @@ import {
   ListItemContent,
   listItemButtonClasses,
   Box,
+  Slider,
 } from "@mui/joy";
 import { useKeybindsToggle } from "@hooks/keybinds";
 import Link from "@components/Link";
-import { Route, Router, Switch } from "wouter";
+import { Route, Switch } from "wouter";
 import { mainTargets } from "../types";
 import { navigate } from "wouter/use-location";
 import { useRecoilState } from "recoil";
 import { sessionAtom, useSession } from "@hooks/user";
+import NestedRoutes from "../NestedRoutes";
 
 export default function DrawerCloseButton() {
   const [open, setOpen] = React.useState(false);
@@ -107,7 +109,8 @@ export default function DrawerCloseButton() {
           {mainTargets.map(
             (target, i) =>
               target.node && (
-                <Route path={target.target} key={i}>
+                <Route path={target.target + "/:any*"} key={i}>
+                  <NestedRoutes base={target.target} />
                   {target.node}
                 </Route>
               )

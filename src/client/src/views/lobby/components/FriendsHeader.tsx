@@ -1,12 +1,18 @@
-import { Typography } from "@mui/joy";
+import {
+  ListItem,
+  ListItemButton,
+  ListItemContent,
+  Typography,
+} from "@mui/joy";
 import { Stack } from "@mui/joy";
 import FriendsOnline from "./Friends/FriendsOnline";
 import FriendsAll from "./Friends/FriendsAll";
 import FriendsPending from "./Friends/FriendsPending";
 import FriendsBlocked from "./Friends/FriendsBlocked";
 import AddFriend from "./Friends/FriendsAddFriend";
-import { Route, Switch } from "wouter";
+import { Link, Route, Switch } from "wouter";
 import FriendsPanel from "./FriendsPanel";
+import { subTargets } from "../types";
 
 export default function FriendsHeader() {
   return (
@@ -39,6 +45,16 @@ export default function FriendsHeader() {
           <AddFriend />
         </Stack>
       </Stack>
+      {/* <Switch>
+          {subTargets.map(
+            (target, i) =>
+              target.node && (
+                <Route path={target.target} key={i}>
+                  {target.node}
+                </Route>
+              )
+          )}
+        </Switch> */}
     </>
   );
 }

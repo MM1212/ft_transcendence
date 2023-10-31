@@ -2,7 +2,7 @@ import { Sheet } from "@mui/joy";
 import FriendsHeader from "./FriendsHeader";
 import { Route, Switch } from "wouter";
 import { FriendsRoutes } from "./Friends/FriendsRoutes";
-
+import { subTargets } from "../types";
 
 export default function FriendsPanel() {
   return (
@@ -18,6 +18,7 @@ export default function FriendsPanel() {
         }}
       >
         <FriendsHeader />
+        {/* <TestPanelFriends /> */}
       </Sheet>
     </>
   );

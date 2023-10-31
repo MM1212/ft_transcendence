@@ -5,6 +5,10 @@ import ChatModel from "@typings/models/chat";
 import FriendsPanel from "./components/FriendsPanel";
 import { Route, Switch } from "wouter";
 import FriendsOnline from "./components/Friends/FriendsOnline";
+import FriendsAll from "./components/Friends/FriendsAll";
+import FriendsPending from "./components/Friends/FriendsPending";
+import FriendsBlocked from "./components/Friends/FriendsBlocked";
+import AddFriend from "./components/Friends/FriendsAddFriend";
 
 export interface ChatsPaneProps {
   setSelectedChat: (chat: ChatModel.Models.IChat) => void;
@@ -134,6 +138,34 @@ export const subTargets = [
   {
     label: "Online",
     target: "/friends/online",
+    node:  <FriendsOnline />
+  },
+  {x\
+    label: "All",
+    target: "/friends/all",
+    node: (
+      <>
+        <FriendsAll />
+      </>
+    ),
+  },
+  {
+    label: "Pendig",
+    target: "/friends/pending",
+    node: (
+      <>
+        <FriendsPending />
+      </>
+    ),
+  },
+  {
+    label: "Blocked",
+    target: "/friends/blocked",
+    node: (
+      <>
+        <FriendsBlocked />
+      </>
+    ),
   },
 ];
 
@@ -166,16 +198,6 @@ export const mainTargets = [
     node: (
       <>
         <FriendsPanel />
-      </>
-    ),
-  },
-  {
-    label: "Friends",
-    target: "/friends/online",
-    node: (
-      <>
-        <FriendsPanel />
-        <FriendsOnline />
       </>
     ),
   },
