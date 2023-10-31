@@ -13,7 +13,14 @@ import {
 } from "@mui/joy";
 import { useKeybindsToggle } from "@hooks/keybinds";
 import Link from "@components/Link";
-import { Route, Router, Switch, useLocation, useRoute, useRouter } from "wouter";
+import {
+  Route,
+  Router,
+  Switch,
+  useLocation,
+  useRoute,
+  useRouter,
+} from "wouter";
 import { mainTargets, simpleTargets } from "../types";
 import { navigate } from "wouter/use-location";
 import { useRecoilState } from "recoil";
@@ -33,7 +40,7 @@ const ActiveLink = (props: any) => {
   );
 };
 
-const NestedRoutes = (props : any) => {
+const NestedRoutes = (props: any) => {
   const router = useRouter();
   const [location] = useLocation();
 
@@ -119,14 +126,24 @@ export default function DrawerCloseButton() {
                 </ListItemContent>
               </ListItemButton>
             </ListItem>
-            <nav>
-              {/* {mainTargets.map(({ label, target }) => (
-                <ActiveLink href={target}>{label}</ActiveLink>
-              ))}
-              <ActiveLink href="/help"></ActiveLink> */}
-              <ActiveLink href="/messages">Messages</ActiveLink>
-              <ActiveLink href="/friends">Friends</ActiveLink>
-            </nav>
+            <ListItem>
+              <ListItemButton>
+                <ListItemContent>
+                  {mainTargets.map(({ label, target }, idx) => (
+                    <ListItem key={idx}>
+                      <ListItemButton>
+                        <Link href={target}>
+                          <ListItemContent>
+                            <Typography level="title-sm">{label}</Typography>
+                          </ListItemContent>
+                        </Link>
+                      </ListItemButton>
+                    </ListItem>
+                  ))}
+                  <ActiveLink key="help" href="/help"></ActiveLink>
+                </ListItemContent>
+              </ListItemButton>
+            </ListItem>
           </List>
         </Box>
         <Switch>

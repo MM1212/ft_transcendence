@@ -13,8 +13,7 @@ export default function FriendsOnline() {
 
   return (
     <>
-      <Link href="/online">Online</Link>
-      {/* <Button
+      <Button
         onClick={handleClick}
         color="neutral"
         variant="outlined"
@@ -25,7 +24,7 @@ export default function FriendsOnline() {
         }}
       >
         <Typography>Online</Typography>
-      </Button> */}
+      </Button>
     </>
   );
 }
