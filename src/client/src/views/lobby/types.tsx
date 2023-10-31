@@ -140,7 +140,7 @@ export const subTargets = [
     target: "/friends/online",
     node:  <FriendsOnline />
   },
-  {x\
+  {
     label: "All",
     target: "/friends/all",
     node: (
@@ -169,10 +169,37 @@ export const subTargets = [
   },
 ];
 
+export const simpleTargets = [
+  {
+    label: "Messages",
+    target: "/messages",
+    node: (
+      <>
+        <MessagesPanel setSelectedChat={() => {}} />
+        <MessageChat chat={sampleChat} />
+      </>
+    ),
+  },
+  {
+    label: "Key Bindings",
+    target: "/keybindings",
+  },
+  {
+    label: "Friends",
+    target: "/friends",
+    node: (
+      <>
+        <FriendsPanel />
+      </>
+    ),
+  }
+]
+
+
 export const mainTargets = [
   {
     label: "Home",
-    target: "",
+    target: "/",
   },
   {
     label: "Settings",

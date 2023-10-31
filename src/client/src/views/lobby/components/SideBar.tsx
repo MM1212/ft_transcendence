@@ -13,12 +13,39 @@ import {
 } from "@mui/joy";
 import { useKeybindsToggle } from "@hooks/keybinds";
 import Link from "@components/Link";
-import { Route, Switch } from "wouter";
-import { mainTargets } from "../types";
+import { Route, Router, Switch, useLocation, useRoute, useRouter } from "wouter";
+import { mainTargets, simpleTargets } from "../types";
 import { navigate } from "wouter/use-location";
 import { useRecoilState } from "recoil";
 import { sessionAtom, useSession } from "@hooks/user";
-import NestedRoutes from "../NestedRoutes";
+import FriendsAll from "./Friends/FriendsAll";
+import FriendsPanel from "./FriendsPanel";
+import MessagesPanel from "./MessagesPanel";
+
+const ActiveLink = (props: any) => {
+  const [isActive] = useRoute(props.href);
+  return (
+    <Link {...props}>
+      <a className={isActive ? "active" : ""} href={props.href}>
+        {props.children}
+      </a>
+    </Link>
+  );
+};
+
+const NestedRoutes = (props : any) => {
+  const router = useRouter();
+  const [location] = useLocation();
+
+  if (!location.startsWith(props.base)) return null;
+
+  // we need key to make sure the router will remount if the base changes
+  return (
+    <Router base={props.base} key={props.base} parent={router}>
+      {props.children}
+    </Router>
+  );
+};
 
 export default function DrawerCloseButton() {
   const [open, setOpen] = React.useState(false);
@@ -92,25 +119,21 @@ export default function DrawerCloseButton() {
                 </ListItemContent>
               </ListItemButton>
             </ListItem>
-            {mainTargets.map(({ label, target }, idx) => (
-              <ListItem key={idx}>
-                <ListItemButton>
-                  <Link href={target}>
-                    <ListItemContent>
-                      <Typography level="title-sm">{label}</Typography>
-                    </ListItemContent>
-                  </Link>
-                </ListItemButton>
-              </ListItem>
-            ))}
+            <nav>
+              {/* {mainTargets.map(({ label, target }) => (
+                <ActiveLink href={target}>{label}</ActiveLink>
+              ))}
+              <ActiveLink href="/help"></ActiveLink> */}
+              <ActiveLink href="/messages">Messages</ActiveLink>
+              <ActiveLink href="/friends">Friends</ActiveLink>
+            </nav>
           </List>
         </Box>
         <Switch>
           {mainTargets.map(
             (target, i) =>
               target.node && (
-                <Route path={target.target + "/:any*"} key={i}>
-                  <NestedRoutes base={target.target} />
+                <Route path={target.target} key={i}>
                   {target.node}
                 </Route>
               )
