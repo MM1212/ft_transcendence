@@ -5,6 +5,7 @@ import ChatModel from "@typings/models/chat";
 import FriendsPanel from "./components/FriendsPanel";
 import { Route, Switch } from "wouter";
 import FriendsOnline from "./components/Friends/FriendsOnline";
+import Profile from "./components/user/Profile";
 
 export interface ChatsPaneProps {
   setSelectedChat: (chat: ChatModel.Models.IChat) => void;
@@ -160,6 +161,15 @@ export const simpleTargets = [
         <FriendsPanel />
       </>
     ),
+  },
+  {
+    label: "Profile",
+    target: "/profile",
+    node: (
+      <>
+        <Profile />
+      </>
+    )
   }
 ]
 

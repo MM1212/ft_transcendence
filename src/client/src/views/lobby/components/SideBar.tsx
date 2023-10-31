@@ -125,6 +125,7 @@ export default function DrawerCloseButton() {
               <ActiveLink href="/help"></ActiveLink> */}
               <ActiveLink href="/messages">Messages</ActiveLink>
               <ActiveLink href="/friends">Friends</ActiveLink>
+              <ActiveLink href="/profile">Profile</ActiveLink>
             </nav>
           </List>
         </Box>
