@@ -1,18 +1,42 @@
-import { ExecutionContext, createParamDecorator } from '@nestjs/common';
+import {
+  ArgumentMetadata,
+  ExecutionContext,
+  Injectable,
+  PipeTransform,
+  createParamDecorator,
+} from '@nestjs/common';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { HTTPContext } from 'typings/http';
-import { User } from '../User';
+import { UsersService } from '@/modules/users/users.service';
+import { IAuthSession } from '@typings/auth/session';
 
-const HttpCtx = createParamDecorator(
+@Injectable()
+class ParseUserPipe implements PipeTransform {
+  constructor(private readonly usersService: UsersService) {}
+  async transform(
+    value: HTTPContext,
+    metadata: ArgumentMetadata,
+  ): Promise<HTTPContext> {
+    if (metadata.type !== 'custom') return value;
+    const { session } = value;
+    if (!session) return value;
+    const { user } = session.data() as IAuthSession;
+    if (!user || !user.loggedIn) return value;
+    const instance = await this.usersService.get(user.id);
+    if (!instance) return value;
+    return { ...value, user: instance.withSession(session) };
+  }
+}
+
+const preCtx = createParamDecorator(
   (_: unknown, ctx: ExecutionContext): HTTPContext => {
     const req: FastifyRequest = ctx.switchToHttp().getRequest();
     const res: FastifyReply = ctx.switchToHttp().getResponse();
-    const userData = req.session.get('user');
-    const user = userData ? new User(req.session) : undefined;
 
-    
-    return { req, res, session: req.session, user };
+    return { req, res, session: req.session, user: undefined };
   },
 );
+
+const HttpCtx = () => preCtx(ParseUserPipe);
 
 export default HttpCtx;

@@ -1,35 +1,51 @@
 import * as API from '@typings/api';
 
+export type PickEndpoints<M extends API.EndpointMethods = API.EndpointMethods> =
+  API.Endpoints.Registry[M];
+
 export interface ITunnel {
-  get<T extends API.Endpoint<API.EndpointMethods.Get, API.Endpoints.All>>(
-    uri: API.EndpointTarget<T>,
-    params: API.EndpointParams<T>
-  ): Promise<API.EndpointResponse<T>>;
-  post<
-    T extends API.Endpoint<API.EndpointMethods.Post, API.Endpoints.All>,
+  buildEndpoint<
+    T extends API.Endpoint<API.EndpointMethods, API.Endpoints.All>,
   >(
     uri: API.EndpointTarget<T>,
-    data: API.EndpointData<T>,
     params?: API.EndpointParams<T>
-  ): Promise<API.EndpointResponse<T>>;
+  ): string;
+  get<
+    T extends keyof PickEndpoints<API.EndpointMethods.Get>,
+    E extends PickEndpoints<API.EndpointMethods.Get>[T]
+  >(
+    uri: T,
+    params?: API.EndpointParams<E>
+  ): Promise<API.EndpointResponse<E>>;
+  post<
+    T extends keyof PickEndpoints<API.EndpointMethods.Post>,
+    E extends PickEndpoints<API.EndpointMethods.Post>[T]
+  >(
+    uri: T,
+    data: API.EndpointData<E>,
+    params?: API.EndpointParams<E>
+  ): Promise<API.EndpointResponse<E>>;
   put<
-    T extends API.Endpoint<API.EndpointMethods.Put, API.Endpoints.All>,
+    T extends keyof PickEndpoints<API.EndpointMethods.Put>,
+    E extends PickEndpoints<API.EndpointMethods.Put>[T]
   >(
-    uri: API.EndpointTarget<T>,
-    data: API.EndpointData<T>,
-    params: API.EndpointParams<T>
-  ): Promise<API.EndpointResponse<T>>;
-  delete<
-    T extends API.Endpoint<API.EndpointMethods.Delete, API.Endpoints.All>,
+    uri: T,
+    data: API.EndpointData<E>,
+    params?: API.EndpointParams<E>
+  ): Promise<API.EndpointResponse<E>>;
+  del<
+    T extends keyof PickEndpoints<API.EndpointMethods.Delete>,
+    E extends PickEndpoints<API.EndpointMethods.Delete>[T]
   >(
-    uri: API.EndpointTarget<T>,
-    params: API.EndpointParams<T>
-  ): Promise<API.EndpointResponse<T>>;
+    uri: T,
+    params?: API.EndpointParams<E>
+  ): Promise<API.EndpointResponse<E>>;
   patch<
-    T extends API.Endpoint<API.EndpointMethods.Patch, API.Endpoints.All>,
+    T extends keyof PickEndpoints<API.EndpointMethods.Patch>,
+    E extends PickEndpoints<API.EndpointMethods.Patch>[T]
   >(
-    uri: API.EndpointTarget<T>,
-    data: API.EndpointData<T>,
-    params: API.EndpointParams<T>
-  ): Promise<API.EndpointResponse<T>>;
+    uri: T,
+    data: API.EndpointData<E>,
+    params?: API.EndpointParams<E>
+  ): Promise<API.EndpointResponse<E>>;
 }

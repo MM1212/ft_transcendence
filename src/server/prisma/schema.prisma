@@ -49,6 +49,7 @@ enum ChatParticipantRole {
   ADMIN
   MEMBER
   BANNED
+  LEFT
 }
 
 model ChatParticipant {
@@ -61,8 +62,8 @@ model ChatParticipant {
   toReadPings Int                 @default(0) @map("to_read_pings")
   createdAt   DateTime            @default(now()) @map("created_at")
 
-  @@index([chatId, userId])
   @@unique([chatId, userId], name: "chat_participant_unique")
+  @@index([chatId, userId])
   @@map("chat_participants")
 }
 
@@ -73,6 +74,7 @@ model Chat {
   authorizationData Json              @default("{}") @map("authorization_data")
   name              String
   photo             String?
+  topic             String
   participants      ChatParticipant[]
   messages          ChatMessage[]
   createdAt         DateTime          @default(now()) @map("created_at")

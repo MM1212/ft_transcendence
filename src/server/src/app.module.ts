@@ -12,6 +12,8 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import path from 'path';
 import { Auth42Module } from './modules/auth/42/auth.module';
 import { AuthSessionModule } from './modules/auth/session/session.module';
+import { UsersModule } from './modules/users/users.module';
+import { ChatsModule } from './modules/chats/chats.module';
 
 @Module({
   imports: [
@@ -36,6 +38,8 @@ import { AuthSessionModule } from './modules/auth/session/session.module';
     PrismaModule,
     DbModule,
     forwardRef(() => LobbyModule),
+    UsersModule,
+    ChatsModule
   ],
   providers: [AppService, { provide: APP_FILTER, useClass: GlobalFilter }],
   exports: [AppService],

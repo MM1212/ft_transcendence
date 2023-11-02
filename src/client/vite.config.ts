@@ -12,7 +12,16 @@ export default defineConfig((ctx) => {
   return {
     build: {
       outDir: './dist',
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes('react') || id.includes('recoil')) return 'react';
+            if (id.includes('pixi')) return 'pixi';
+          },
+        },
+      },
     },
+    
     base: './',
     plugins: [
       tsconfigPaths(),

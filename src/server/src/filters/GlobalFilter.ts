@@ -28,6 +28,9 @@ export class GlobalFilter implements ExceptionFilter {
         }`,
       };
 
+      if (httpStatus === HttpStatus.INTERNAL_SERVER_ERROR)
+        console.error(exception);
+
       // console.log({ exception, httpStatus, responseBody });
       httpAdapter.reply(ctx.getResponse(), responseBody, httpStatus);
     } catch (e) {

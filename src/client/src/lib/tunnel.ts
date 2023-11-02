@@ -5,111 +5,78 @@ import rest from '@utils/rest';
 class APITunnel implements ITunnel {
   private readonly endpoint: string = import.meta.env.FRONTEND_API_ENDPOINT;
 
-  private buildUrl(uri: API.Endpoints.All): string {
+  private buildUrl(uri: string): string {
     return `${this.endpoint}${uri}`;
   }
-  private buildEndpoint<
+  public buildEndpoint<
     T extends API.Endpoint<API.EndpointMethods, API.Endpoints.All>,
   >(
     uri: API.EndpointTarget<T>,
-    params: API.EndpointParams<T> = {} as unknown as API.EndpointParams<T>
+    params: API.EndpointParams<T> = {} as API.EndpointParams<T>
   ): string {
-    if (!params)
-      return this.buildUrl(uri);
-    const url = this.buildUrl(uri).replace(/{([^}]+)}/g, (_, key) => {
-      const value = params[key];
-      if (!value)
-        throw new Error(`Missing parameter '${key}' for endpoint '${uri}'`);
-      delete params[key];
-      return `${value}`;
-    });
+    if (!params) return this.buildUrl(uri);
+    const url = new URL(
+      this.buildUrl(
+        uri.replace(/:(\w+)/g, (_, key) => {
+          const value = params[key];
+          if (!value)
+            throw new Error(`Missing parameter '${key}' for endpoint '${uri}'`);
+          delete params[key];
+          return `${value}`;
+        })
+      )
+    );
 
-    const query = new URLSearchParams();
     if (params)
       for (const [key, value] of Object.entries(params))
-        query.set(key, value?.toString() ?? `${value}`);
-    return `${url}?${query}`;
+        url.searchParams.set(key, value?.toString() ?? `${value}`);
+    return url.toString();
   }
-  private async request<
-    T extends API.Endpoint<API.EndpointMethods, API.Endpoints.All>,
-  >(
-    uri: API.EndpointTarget<T>,
-    data: API.EndpointData<T>,
-    params: API.EndpointParams<T>,
-    method: API.EndpointMethod<T>
-  ): Promise<API.EndpointResponse<T>> {
+  private async request(
+    uri: any,
+    data: any,
+    params: any,
+    method: API.EndpointMethods
+  ): Promise<any> {
     const url = this.buildEndpoint(uri, params);
     try {
-      switch (method) {
+      switch (method as API.EndpointMethods) {
         case API.EndpointMethods.Get:
-          return await rest.get<API.EndpointResponse<T>>(url);
+          return await rest.get<any>(url);
         case API.EndpointMethods.Post:
-          return await rest.post<API.EndpointResponse<T>>(url, data);
+          return await rest.post<any>(url, data);
         case API.EndpointMethods.Put:
-          return await rest.put<API.EndpointResponse<T>>(url, data);
+          return await rest.put<any>(url, data);
         case API.EndpointMethods.Delete:
-          return await rest.del<API.EndpointResponse<T>>(url);
+          return await rest.del<any>(url);
         case API.EndpointMethods.Patch:
-          return await rest.patch<API.EndpointResponse<T>>(url, data);
+          return await rest.patch<any>(url, data);
         default:
-          return await rest.get<API.EndpointResponse<T>>(url);
+          return await rest.get<any>(url);
       }
     } catch (err: any) {
       return API.buildErrorResponse(err.message);
     }
   }
-  public async get<
-    T extends API.Endpoint<API.EndpointMethods.Get, API.Endpoints.All>,
-  >(
-    uri: API.EndpointTarget<T>,
-    params: API.EndpointParams<T> = {} as unknown as API.EndpointParams<T>
-  ): Promise<API.EndpointResponse<T>> {
-    return await this.request<T>(
-      uri,
-      undefined,
-      params,
-      API.EndpointMethods.Get
-    );
+  public async get(uri: any, params: any = {}): Promise<any> {
+    return await this.request(uri, undefined, params, API.EndpointMethods.Get);
   }
-  public async post<
-    T extends API.Endpoint<API.EndpointMethods.Post, API.Endpoints.All>,
-  >(
-    uri: API.EndpointTarget<T>,
-    data: API.EndpointData<T>,
-    params: API.EndpointParams<T> = {} as unknown as API.EndpointParams<T>
-  ): Promise<API.EndpointResponse<T>> {
-    return await this.request<T>(uri, data, params, API.EndpointMethods.Post);
+  public async post(uri: any, data: any, params: any = {}): Promise<any> {
+    return await this.request(uri, data, params, API.EndpointMethods.Post);
   }
-  public async put<
-    T extends API.Endpoint<API.EndpointMethods.Put, API.Endpoints.All>,
-  >(
-    uri: API.EndpointTarget<T>,
-    data: API.EndpointData<T>,
-    params: API.EndpointParams<T> = {} as unknown as API.EndpointParams<T>
-  ): Promise<API.EndpointResponse<T>> {
-    return await this.request<T>(uri, data, params, API.EndpointMethods.Put);
+  public async put(uri: any, data: any, params: any = {}): Promise<any> {
+    return await this.request(uri, data, params, API.EndpointMethods.Put);
   }
-  public async delete<
-    T extends API.Endpoint<API.EndpointMethods.Delete, API.Endpoints.All>,
-  >(
-    uri: API.EndpointTarget<T>,
-    params: API.EndpointParams<T> = {} as unknown as API.EndpointParams<T>
-  ): Promise<API.EndpointResponse<T>> {
-    return await this.request<T>(
+  public async del(uri: any, params: any = {}): Promise<any> {
+    return await this.request(
       uri,
       undefined,
       params,
       API.EndpointMethods.Delete
     );
   }
-  public async patch<
-    T extends API.Endpoint<API.EndpointMethods.Patch, API.Endpoints.All>,
-  >(
-    uri: API.EndpointTarget<T>,
-    data: API.EndpointData<T>,
-    params: API.EndpointParams<T> = {} as unknown as API.EndpointParams<T>
-  ): Promise<API.EndpointResponse<T>> {
-    return await this.request<T>(uri, data, params, API.EndpointMethods.Patch);
+  public async patch(uri: any, data: any, params: any = {}): Promise<any> {
+    return await this.request(uri, data, params, API.EndpointMethods.Patch);
   }
 }
 

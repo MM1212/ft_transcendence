@@ -11,73 +11,73 @@ const SIMPLE_DB_USER: Record<keyof IUser, true> = {
   studentId: true,
   createdAt: true,
 };
-const SIMPLE_DB_CHAT_PARTICIPANT: Record<
-  Exclude<keyof ChatModel.Models.IChatParticipant, 'user'>,
-  true
-> = {
-  userId: true,
-  role: true,
-  chatId: true,
-  createdAt: true,
-  id: true,
-  toReadPings: true,
-};
 
 @Injectable()
 export class Chats {
   constructor(private readonly prisma: PrismaService) {}
 
-  public async get(chatId: number): Promise<ChatModel.Models.IChat | null> {
-    return (await this.prisma.chat.findUnique({
-      where: { id: chatId },
-      select: {
-        messages: {
-          take: 50,
-        },
-        participants: {
-          where: {
-            NOT: {
-              role: ChatModel.Models.ChatParticipantRole.Banned,
-            },
-          },
-          select: {
-            user: {
-              select: SIMPLE_DB_USER,
-            },
-          },
-        },
-        authorization: true,
-        createdAt: true,
-        id: true,
-        name: true,
-        photo: true,
-        type: true,
-      } satisfies Record<
-        Exclude<keyof ChatModel.Models.IChat, 'authorizationData'>,
-        unknown
-      >,
-    })) as unknown as ChatModel.Models.IChat | null;
+  public formatChat<T extends ChatModel.DTO.DB.Chat | null>(
+    chat: T,
+  ): T extends null ? ChatModel.Models.IChat | null : ChatModel.Models.IChat {
+    if (!chat) return null as unknown as ChatModel.Models.IChat;
+    return {
+      ...chat,
+      createdAt: chat.createdAt.getTime(),
+      authorizationData: chat.authorizationData as JsonObject,
+      participants: chat.participants.map((p) => ({
+        ...p,
+        createdAt: p.createdAt.getTime(),
+      })),
+      messages: [],
+    };
   }
+  public formatChatMessage<T extends ChatModel.DTO.DB.ChatMessage | null>(
+    message: T,
+  ): T extends null
+    ? ChatModel.Models.IChatMessage | null
+    : ChatModel.Models.IChatMessage {
+    if (!message) return null as unknown as ChatModel.Models.IChatMessage;
+    return {
+      ...message,
+      createdAt: message.createdAt.getTime(),
+      meta: message.meta as JsonObject,
+    };
+  }
+  public async get(chats: number[]): Promise<ChatModel.Models.IChat[]>;
+  public async get(chatId: number): Promise<ChatModel.DTO.DB.Chat | null>;
+  public async get(data: unknown): Promise<unknown> {
+    if (Array.isArray(data))
+      return await this.prisma.chat.findMany({
+        where: {
+          id: {
+            in: data,
+          },
+        },
+        include: {
+          participants: true,
+        },
+      });
+    return await this.prisma.chat.findUnique({
+      where: { id: data as number },
+      include: {
+        participants: true,
+      },
+    });
+  }
+
   public async getChatInfo(
     chatId: number,
-  ): Promise<ChatModel.Models.IChatSimple | null> {
+  ): Promise<ChatModel.Models.IChatInfo | null> {
     return (await this.prisma.chat.findUnique({
       where: { id: chatId },
-      select: {
-        id: true,
-        name: true,
-        photo: true,
-        type: true,
-        authorization: true,
-        participants: {
-          select: SIMPLE_DB_CHAT_PARTICIPANT,
-        },
+      include: {
+        participants: true,
       },
-    })) as unknown as ChatModel.Models.IChatSimple | null;
+    })) as unknown as ChatModel.Models.IChatInfo | null;
   }
   public async getChatsByParticipantUserId(
     userId: number,
-  ): Promise<ChatModel.Models.IChatSimple[]> {
+  ): Promise<ChatModel.Models.IChatInfo[]> {
     return (await this.prisma.chat.findMany({
       where: {
         participants: {
@@ -86,52 +86,26 @@ export class Chats {
           },
         },
       },
-      select: {
-        id: true,
-        name: true,
-        photo: true,
-        type: true,
-        authorization: true,
-        participants: {
-          select: SIMPLE_DB_CHAT_PARTICIPANT,
-        },
+      include: {
+        participants: true,
       },
-    })) as unknown as ChatModel.Models.IChatSimple[];
+    })) as unknown as ChatModel.Models.IChatInfo[];
   }
-  public async getChatsDisplayForUserId(
-    userId: number,
-  ): Promise<ChatModel.Models.IChatDisplay[]> {
-    return (await this.prisma.chat.findMany({
-      where: {
-        participants: {
-          some: {
-            userId,
+  public async getChatsIdsForUserId(userId: number): Promise<number[]> {
+    return (
+      await this.prisma.chat.findMany({
+        where: {
+          participants: {
+            some: {
+              userId,
+            },
           },
         },
-      },
-      select: {
-        id: true,
-        name: true,
-        photo: true,
-        type: true,
-        authorization: true,
-        messages: {
-          take: 1,
-          orderBy: {
-            createdAt: 'desc',
-          },
-          select: {
-            id: true,
-            type: true,
-            message: true,
-            createdAt: true,
-            authorId: true,
-            meta: true,
-            chatId: true,
-          } satisfies Record<keyof ChatModel.Models.IChatMessage, unknown>,
+        select: {
+          id: true,
         },
-      },
-    })) as unknown as ChatModel.Models.IChatDisplay[];
+      })
+    ).map((chat) => chat.id);
   }
   public async getAllChatParticipants(
     chatId: number,
@@ -140,30 +114,17 @@ export class Chats {
       where: {
         chatId,
       },
-      select: {
-        ...SIMPLE_DB_CHAT_PARTICIPANT,
-        user: {
-          select: SIMPLE_DB_USER satisfies Record<keyof IUser, true>,
-        },
-      } satisfies Record<keyof ChatModel.Models.IChatParticipant, unknown>,
     })) as unknown as ChatModel.Models.IChatParticipant[];
   }
-  public async getAllPublicChats(): Promise<ChatModel.Models.IChatSimple[]> {
+  public async getAllPublicChats(): Promise<ChatModel.Models.IChatInfo[]> {
     return (await this.prisma.chat.findMany({
       where: {
         authorization: ChatModel.Models.ChatAccess.Public,
       },
-      select: {
-        id: true,
-        name: true,
-        photo: true,
-        type: true,
-        authorization: true,
-        participants: {
-          select: SIMPLE_DB_CHAT_PARTICIPANT,
-        },
+      include: {
+        participants: true,
       },
-    })) as unknown as ChatModel.Models.IChatSimple[];
+    })) as unknown as ChatModel.Models.IChatInfo[];
   }
   /**
    *
@@ -175,41 +136,45 @@ export class Chats {
     chatId: number,
     cursor?: number,
   ): Promise<ChatModel.Models.IChatMessage[]> {
-    return (await this.prisma.chatMessage.findMany({
-      take: 50,
-      skip: cursor ? 1 : 0,
-      cursor: cursor
-        ? {
-            id: cursor,
-          }
-        : undefined,
-      select: {
-        id: true,
-        message: true,
-        type: true,
-        meta: true,
-        createdAt: true,
-        authorId: true,
-        chatId: true,
-      },
-      where: {
-        chatId,
-      },
-    })) as unknown as ChatModel.Models.IChatMessage[];
+    return (
+      await this.prisma.chatMessage.findMany({
+        take: 50,
+        skip: cursor ? 1 : 0,
+        cursor: cursor
+          ? {
+              id: cursor,
+            }
+          : undefined,
+        select: {
+          id: true,
+          message: true,
+          type: true,
+          meta: true,
+          createdAt: true,
+          authorId: true,
+          chatId: true,
+        },
+        where: {
+          chatId,
+        },
+      })
+    ).map(this.formatChatMessage.bind(this));
   }
   public async getChatMessage(
     messageId: number,
   ): Promise<ChatModel.Models.IChatMessage | null> {
-    return (await this.prisma.chatMessage.findUnique({
-      where: {
-        id: messageId,
-      },
-      include: {
-        author: {
-          select: SIMPLE_DB_USER,
+    return this.formatChatMessage(
+      await this.prisma.chatMessage.findUnique({
+        where: {
+          id: messageId,
         },
-      },
-    })) as unknown as ChatModel.Models.IChatMessage | null;
+        include: {
+          author: {
+            select: SIMPLE_DB_USER,
+          },
+        },
+      }),
+    );
   }
   public async getChatParticipant(
     chatId: number,
@@ -234,36 +199,38 @@ export class Chats {
           : {
               id: chatIdOrParticipantId,
             },
-      select: {
-        ...SIMPLE_DB_CHAT_PARTICIPANT,
-        user: {
-          select: SIMPLE_DB_USER satisfies Record<keyof IUser, true>,
-        },
-      } satisfies Record<keyof ChatModel.Models.IChatParticipant, unknown>,
     })) as unknown as ChatModel.Models.IChatParticipant | null;
   }
   public async createChat({
     participants,
     ...data
   }: ChatModel.DTO.DB.CreateChat): Promise<ChatModel.Models.IChat> {
-    return (await this.prisma.chat.create({
-      data: {
-        ...data,
-        participants: {
-          createMany: {
-            data: participants,
+    return this.formatChat(
+      await this.prisma.chat.create({
+        data: {
+          ...data,
+          participants: {
+            createMany: {
+              data: participants,
+            },
           },
+          authorizationData: data.authorizationData as JsonObject,
         },
-        authorizationData: data.authorizationData as JsonObject,
-      },
-    })) as unknown as ChatModel.Models.IChat;
+        include: {
+          participants: true,
+          messages: true,
+        },
+      }),
+    );
   }
   public async createChatMessage(
     data: ChatModel.DTO.DB.CreateMessage,
   ): Promise<ChatModel.Models.IChatMessage> {
-    return (await this.prisma.chatMessage.create({
-      data,
-    })) as unknown as ChatModel.Models.IChatMessage;
+    return this.formatChatMessage(
+      await this.prisma.chatMessage.create({
+        data,
+      }),
+    );
   }
   public async createChatParticipant(
     data: ChatModel.DTO.DB.CreateDBParticipant,

@@ -14,8 +14,8 @@ export class SessionController {
     @HttpCtx() ctx: HTTPContext<true>,
   ): Promise<API.EndpointResponse<API.AuthModel.Endpoints.Session>> {
     const { user } = ctx;
-    if (!user.auth.isTokenValid()) {
-      user.logout();
+    if (!user.session.auth.isTokenValid()) {
+      user.session.logout();
       throw new UnauthorizedException();
     }
     return API.buildOkResponse(user.public);

@@ -1,6 +1,6 @@
 // Default struct for all modules to extend from
 
-import { Endpoint, EndpointMethods, GroupEndpoints } from './endpoint';
+import { Endpoint, EndpointMethods, GroupEndpointTargets } from './endpoint';
 
 namespace TestModel {
   export namespace Models {
@@ -22,7 +22,7 @@ namespace TestModel {
       Test1 = '/test1',
       Test2 = '/test2',
     }
-    export type All = GroupEndpoints<Targets>;
+    export type All = GroupEndpointTargets<Targets>;
     export interface Test1
       extends Endpoint<
         EndpointMethods.Get,
@@ -37,6 +37,10 @@ namespace TestModel {
         DTO.PatchTest2,
         undefined
       > {}
+    export interface Registry {
+      [Targets.Test1]: Test1;
+      [Targets.Test2]: Test2;
+    };
   }
   export namespace Sse {
     // Sse events

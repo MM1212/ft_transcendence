@@ -22,7 +22,9 @@ import Link from '@components/Link';
 import SseTester from '@components/SseTester';
 import { Redirect, Route, Switch } from 'wouter';
 import Lobby from '@views/lobby';
-// import Lobby from '@views/lobby';
+import Notification, { NotificationProps } from '@lib/notifications/hooks';
+import { toast } from 'sonner';
+import notifications from '@lib/notifications/hooks';
 
 function App() {
   const [count, setCount] = useState(0);
@@ -110,6 +112,37 @@ function App() {
                       </Button>
                       <Button component={Link} href="/sse">
                         <Typography level="body-sm">Placeholder</Typography>
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          const seed = (Date.now()) % 5;
+                          let fnName: keyof typeof notifications;
+                          switch (seed) {
+                            case 0:
+                              fnName = 'success';
+                              break;
+                            case 1:
+                              fnName = 'warning';
+                              break;
+                            case 2:
+                              fnName = 'error';
+                              break;
+                            case 3:
+                              fnName = 'info';
+                              break;
+                            case 4:
+                            default:
+                              fnName = 'default';
+                              break;
+                          }
+                          notifications[fnName]('Boas, tudo bem?', {
+                            duration: -1,
+                          } as NotificationProps);
+                        }}
+                      >
+                        <Typography level="body-sm">
+                          Test Notification
+                        </Typography>
                       </Button>
                     </ButtonGroup>
                   </ListItem>

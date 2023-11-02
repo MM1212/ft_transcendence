@@ -1,9 +1,10 @@
-export interface IUser {
-  id: number;
-  studentId: number;
-  nickname: string;
-  avatar: string;
-  createdAt: number | Date;
-}
+import UsersModel from "@typings/models/users";
 
+/**
+ * @deprecated
+ */
+export interface IUser extends UsersModel.Models.IUserInfo {}
+/**
+ * @deprecated
+ */
 export interface IUserCreate extends Pick<IUser, 'studentId' | 'nickname' | 'avatar'> {}
