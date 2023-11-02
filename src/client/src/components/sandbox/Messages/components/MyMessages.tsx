@@ -15,7 +15,7 @@ export default function MyProfile() {
         display: 'grid',
         gridTemplateColumns: {
           xs: '1fr',
-          sm: 'minmax(min-content, min(30%, 400px)) 1fr',
+          sm: 'minmax(min-content, min(30%, 40dvh)) 1fr',
         },
       }}
     >
@@ -31,8 +31,7 @@ export default function MyProfile() {
           },
           transition: 'transform 0.4s, width 0.4s',
           zIndex: 100,
-          width: '100%',
-          top: 52,
+          height: '100%',
         }}
       >
         <ChatsPane />

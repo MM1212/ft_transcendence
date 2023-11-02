@@ -44,9 +44,9 @@ import { Autocomplete } from '@mui/joy';
 import debounce from 'lodash.debounce';
 import tunnel from '@lib/tunnel';
 import Collapse from '../../../transitions/Collapse';
-import { ModalBackdrop } from '@mui/joy/Modal/Modal';
 import { useRecoilCallback } from 'recoil';
 import chatsState from '../state';
+import notifications from '@lib/notifications/hooks';
 
 function PasswordMeterInput({ value, onChange, disabled }: any) {
   const minLength = 12;
@@ -118,11 +118,13 @@ function UsersAutocomplete({
         setLoading(false);
         if (resp.status === 'error') {
           console.error(resp.errorMsg);
+          notifications.error('Failed to search users', resp.errorMsg);
           return;
         }
         setCache(resp.data);
       } catch (e) {
         console.error(e);
+        notifications.error('Failed to search any users!');
         setLoading(false);
       }
     }, 1000),
@@ -275,6 +277,7 @@ export default function NewChatModal(): JSX.Element {
           type,
         };
         setLoading(true);
+        const notif = notifications.default('Creating new chat...');
         try {
           const resp = await tunnel.put(
             ChatsModel.Endpoints.Targets.CreateChat,
@@ -282,6 +285,10 @@ export default function NewChatModal(): JSX.Element {
           );
           if (resp.status === 'error') console.error(resp.errorMsg);
           else {
+            notif.update({
+              message: 'Chat created successfully!',
+              color: 'success',
+            });
             ctx.set(chatsState.chats, (prev) => [
               ...prev,
               {
@@ -292,15 +299,19 @@ export default function NewChatModal(): JSX.Element {
             ]);
             close();
           }
-            
         } catch (e) {
           console.error(e);
+          notif.update({
+            title: 'Failed to create chat!',
+            description: (e as Error).message,
+            color: 'danger',
+          });
           // TODO: send notification to the user
         } finally {
           setLoading(false);
         }
       },
-    [setLoading]
+    [close]
   );
 
   return (

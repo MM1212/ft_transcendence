@@ -17,7 +17,9 @@ import { useRecoilValue } from 'recoil';
 import chatsState from '../state';
 
 export default function MessagesPaneHeader() {
-  const { name, photo, online } = useRecoilValue(chatsState.selectedChatInfo);
+  const { name, photo, online, participantNames } = useRecoilValue(
+    chatsState.selectedChatInfo
+  );
   return (
     <Stack
       direction="row"
@@ -30,7 +32,7 @@ export default function MessagesPaneHeader() {
       py={{ xs: 2, md: 2 }}
       px={{ xs: 1, md: 2 }}
     >
-      <Stack direction="row" spacing={{ xs: 1, md: 2 }} alignItems="center">
+      <Stack direction="row" spacing={{ xs: 1, md: 1 }} alignItems="center">
         <IconButton
           variant="plain"
           color="neutral"
@@ -43,7 +45,7 @@ export default function MessagesPaneHeader() {
           <Icon icon={faChevronLeft} />
         </IconButton>
         <Avatar size="lg" src={photo ?? undefined} />
-        <div>
+        <Stack>
           <Typography
             fontWeight="lg"
             fontSize="lg"
@@ -74,7 +76,18 @@ export default function MessagesPaneHeader() {
           >
             {name}
           </Typography>
-        </div>
+          {participantNames && (
+            <Typography
+              fontSize="sm"
+              color="neutral"
+              sx={{
+                display: { xs: 'none', sm: 'block' },
+              }}
+            >
+              {participantNames}
+            </Typography>
+          )}
+        </Stack>
       </Stack>
       <Stack spacing={1} direction="row" alignItems="center">
         <Button

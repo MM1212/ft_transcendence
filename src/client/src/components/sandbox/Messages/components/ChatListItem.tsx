@@ -19,7 +19,12 @@ type ChatListItemProps = {
 
 export default function ChatListItem({ id }: ChatListItemProps) {
   const [selected, setSelected] = useRecoilState(chatsState.isChatSelected(id));
-  const chat = useRecoilValue(chatsState.chat(id));
+  const { lastMessage, lastMessageAuthorName, name, photo, createdAt, online } =
+    useRecoilValue(chatsState.chatInfo(id));
+  const participant = useRecoilValue(chatsState.selfParticipantByChat(id));
+  if (!participant) return null;
+  console.log(participant);
+
   return (
     <React.Fragment>
       <ListItem>
@@ -31,51 +36,60 @@ export default function ChatListItem({ id }: ChatListItemProps) {
           selected={selected}
           color="neutral"
           sx={{
+            display: 'flex',
             flexDirection: 'column',
             alignItems: 'initial',
+            justifyContent: 'center',
             gap: 1,
           }}
         >
-          {/* <Stack direction="row" spacing={1.5}>
-            <AvatarWithStatus online={sender.online} src={sender.avatar} />
-            <Box sx={{ flex: 1 }}>
-              <Typography level="title-sm">{sender.name}</Typography>
-              <Typography level="body-sm">{sender.username}</Typography>
-            </Box>
-            <Box
-              sx={{
-                lineHeight: 1.5,
-                textAlign: 'right',
-              }}
-            >
-              {messages[0].unread && (
-                <Icon
-                  icon={faCircle}
-                  sx={{ fontSize: 8, color: 'primary.plainColor' }}
-                />
-              )}
-              <Typography
-                level="body-xs"
-                display={{ xs: 'none', md: 'block' }}
-                noWrap
+          <Stack direction="row" spacing={1} alignItems="center" width="100%">
+            <AvatarWithStatus
+              online={online}
+              src={photo ?? undefined}
+              size="lg"
+              inset='.5rem'
+            />
+            <Stack spacing={0.25} width="100%">
+              <Box
+                display="flex"
+                justifyContent="space-between"
+                alignItems="center"
               >
-                5 mins ago
-              </Typography>
-            </Box>
+                <Typography level="title-sm">{name}</Typography>
+                <Box>
+                  {participant.toReadPings !== 0 && (
+                    <Icon
+                      icon={faCircle}
+                      sx={{ fontSize: 8, color: 'primary.plainColor' }}
+                    />
+                  )}
+                  <Typography
+                    level="body-xs"
+                    display={{ xs: 'none', md: 'block' }}
+                    noWrap
+                  >
+                    5 mins ago
+                  </Typography>
+                </Box>
+              </Box>
+              {lastMessage && (
+                <Typography
+                  level="body-sm"
+                  component="span"
+                  sx={{
+                    whiteSpace: 'nowrap',
+                    width: '40dvh',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                  }}
+                >
+                  {lastMessageAuthorName && `${lastMessageAuthorName}: `}
+                  {lastMessage.message}
+                </Typography>
+              )}
+            </Stack>
           </Stack>
-          <Typography
-            level="body-sm"
-            sx={{
-              display: '-webkit-box',
-              WebkitLineClamp: '2',
-              WebkitBoxOrient: 'vertical',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-            }}
-          >
-            {messages[0].content}
-          </Typography> */}
-          {chat.id} {chat.name}
         </ListItemButton>
       </ListItem>
       <ListDivider sx={{ margin: 0 }} />

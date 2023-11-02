@@ -4,10 +4,12 @@ import Avatar, { AvatarProps } from '@mui/joy/Avatar';
 
 type AvatarWithStatusProps = AvatarProps & {
   online?: boolean;
+  inset?: string;
 };
 
 export default function AvatarWithStatus({
   online = false,
+  inset = '.25rem',
   ...rest
 }: AvatarWithStatusProps) {
   return (
@@ -17,7 +19,7 @@ export default function AvatarWithStatus({
         variant={online ? 'solid' : 'soft'}
         size="sm"
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        badgeInset="4px 4px"
+        badgeInset={inset}
       >
         <Avatar size="sm" {...rest} />
       </Badge>
