@@ -66,7 +66,11 @@ const toColorType = (color: Color): string => {
 
 export const alpha = (colorCode: string, delta: number): string => {
   const color = getColorChannels(colorCode);
-  color.a = Math.min(Math.max(color.a! * delta, 0), 255);
+  console.log(color);
+  
+  color.a = Math.min(Math.max(delta, 0), 1);
+  color.type = ColorType.RGBA;
+    console.log(color);
   return toColorType(color);
 };
 
