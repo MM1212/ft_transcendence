@@ -1,6 +1,1 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { styled } from '@mui/joy';
-
-const Icon = styled(FontAwesomeIcon)(() => ({}));
-
-export default Icon;
+export {default as createSvgIcon} from '@mui/joy/utils/createSvgIcon';

@@ -1,12 +1,11 @@
+import AlertIcon from '@components/icons/AlertIcon';
+import AlertOctagonOutlineIcon from '@components/icons/AlertOctagonOutlineIcon';
+import CheckIcon from '@components/icons/CheckIcon';
+import CloseIcon from '@components/icons/CloseIcon';
+import InformationIcon from '@components/icons/InformationIcon';
 import { Alert, AlertProps, Button, IconButton, Typography } from '@mui/joy';
 import React from 'react';
 import { ExternalToast, ToastT, toast } from 'sonner';
-import { faClose } from '@fortawesome/free-solid-svg-icons/faClose';
-import { faInfoCircle } from '@fortawesome/free-solid-svg-icons/faInfoCircle';
-import { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck';
-import { faWarning } from '@fortawesome/free-solid-svg-icons/faWarning';
-import { faStop } from '@fortawesome/free-solid-svg-icons/faStop';
-import Icon from '@components/Icon';
 
 type NotificationComponentProps = Pick<
   AlertProps,
@@ -89,7 +88,7 @@ function NotificationWrapper({
                 toast.dismiss(handle);
               }}
             >
-              <Icon icon={faClose} />
+              <CloseIcon />
             </IconButton>
           ) : undefined}
         </>
@@ -104,34 +103,7 @@ function NotificationWrapper({
     </Alert>
   );
 }
-/* static default(props: Omit<NotificationProps, 'color'>): Notification {
-  return new Notification({
-    icon: <Icon icon={faInfoCircle} />,
-    ...props,
-    color: 'neutral',
-  } as NotificationProps);
-}
-static success(props: Omit<NotificationProps, 'color'>): Notification {
-  return new Notification({
-    icon: <Icon icon={faCheck} />,
-    ...props,
-    color: 'success',
-  } as NotificationProps);
-}
-static warning(props: Omit<NotificationProps, 'color'>): Notification {
-  return new Notification({
-    icon: <Icon icon={faWarning} />,
-    ...props,
-    color: 'warning',
-  } as NotificationProps);
-}
-static error(props: Omit<NotificationProps, 'color'>): Notification {
-  return new Notification({
-    icon: <Icon icon={faStop} />,
-    ...props,
-    color: 'danger',
-  } as NotificationProps);
-} */
+
 class Notification {
   public handle: string | number = '';
   constructor(
@@ -189,7 +161,7 @@ class NotificationsAPI {
       }
     }
     return new Notification({
-      icon: <Icon icon={faInfoCircle} />,
+      icon: <InformationIcon />,
       ...(props as NotificationProps),
       color: 'neutral',
       message,
@@ -207,11 +179,7 @@ class NotificationsAPI {
     props?: Omit<NotificationProps, 'color'> | undefined
   ): Notification;
   info(props: Omit<NotificationProps, 'color'>): Notification;
-  info(
-    title: unknown,
-    description?: unknown,
-    props?: unknown
-  ): Notification {
+  info(title: unknown, description?: unknown, props?: unknown): Notification {
     let message: React.ReactNode | undefined;
     if (description === undefined) props = title;
     else if (props === undefined) {
@@ -222,7 +190,7 @@ class NotificationsAPI {
       }
     }
     return new Notification({
-      icon: <Icon icon={faInfoCircle} />,
+      icon: <InformationIcon />,
       ...(props as NotificationProps),
       color: 'primary',
       message,
@@ -255,7 +223,7 @@ class NotificationsAPI {
       }
     }
     return new Notification({
-      icon: <Icon icon={faCheck} />,
+      icon: <CheckIcon />,
       ...(props as NotificationProps),
       color: 'success',
       message,
@@ -288,7 +256,7 @@ class NotificationsAPI {
       }
     }
     return new Notification({
-      icon: <Icon icon={faWarning} />,
+      icon: <AlertIcon />,
       ...(props as NotificationProps),
       color: 'warning',
       message,
@@ -317,7 +285,7 @@ class NotificationsAPI {
       }
     }
     return new Notification({
-      icon: <Icon icon={faStop} />,
+      icon: <AlertOctagonOutlineIcon />,
       ...(props as NotificationProps),
       color: 'danger',
       message,
