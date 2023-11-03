@@ -1,5 +1,9 @@
-import { Injectable } from '@nestjs/common';
-import { HTTPContext, Response } from 'typings/http';
+import {
+  BadRequestException,
+  HttpRedirectResponse,
+  Injectable,
+} from '@nestjs/common';
+import { HTTPContext } from 'typings/http';
 import crypto from 'crypto';
 import * as API from '@typings/api';
 import { Auth } from '@typings/auth';
@@ -69,12 +73,12 @@ export class AuthService {
     }
     return url.toString();
   }
-  public login(ctx: HTTPContext): void {
+  public login(ctx: HTTPContext): Partial<HttpRedirectResponse> {
     const nonce = this.genNonce();
     const url = this.buildRedirectUri(nonce);
     ctx.session.set('nonce', nonce);
     console.log(`[Auth] [42] Login nonce: ${nonce} url: ${url}`);
-    ctx.res.status(302).redirect(url);
+    return { url };
   }
   public async requestToken<T extends Auth.TokenRequest>(
     type: T['type'],
@@ -101,22 +105,18 @@ export class AuthService {
   }
   public async callback({
     req,
-    res,
     session,
-  }: HTTPContext): Promise<API.Response<string> | Response> {
+  }: HTTPContext): Promise<Partial<HttpRedirectResponse>> {
     const { code, state } = req.query as Record<string, string>;
     console.log(`[Auth] [42] Callback code: ${code} state: ${state}`);
 
-    if (!code || !state)
-      return res
-        .status(400)
-        .send(API.buildErrorResponse('Missing code or state'));
+    if (!code || !state) throw new BadRequestException('Missing code or state');
     const nonce = session.get('nonce');
     if (!nonce || nonce !== state)
-      return res.status(400).send(API.buildErrorResponse('Invalid state'));
+      throw new BadRequestException('Invalid state');
     session.set('nonce', undefined);
     const resp = await this.requestToken<Auth.NewToken>('new', { code });
-    if (resp.status !== 'ok') return res.status(500).send(resp);
+    if (resp.status !== 'ok') throw new Error(resp.errorMsg);
 
     this.intra.token = resp.data.access_token;
     try {
@@ -139,11 +139,11 @@ export class AuthService {
       uSession.session.sync().loggedIn = true;
       uSession.session.auth.updateNewToken(resp.data);
       console.log(`[Auth] [42] Logged in as `, user.public);
-      return res.redirect(302, `${this.config.get<string>('FRONTEND_URL')}`);
+      return { url: `${this.config.get<string>('FRONTEND_URL')}` };
     } catch (e) {
       console.error(e);
       req.session.set('user', { loggedIn: false });
-      return res.status(500).send(API.buildErrorResponse(e.message));
+      throw new Error('Failed to get user data from 42 API');
     }
   }
 }
