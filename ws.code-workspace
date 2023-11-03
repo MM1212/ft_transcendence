@@ -21,7 +21,7 @@
     "editor.formatOnSaveMode": "modifications",
     "files.exclude": {
       "node_modules": true,
-      "src/client/components/icons": true,
+      "src/client/src/components/icons": true,
     },
   }
 }

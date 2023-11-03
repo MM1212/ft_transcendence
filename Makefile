@@ -48,14 +48,18 @@ else
 	echo "" >> envs/.env.tmp
 endif
 
-env:
+env: envs/.active.env
+
+envs/.active.env:
 	cp envs/.env.$(MODE) envs/.env.tmp
 	make generate_session_key
 	make setup_tokens
 	cp envs/.env.tmp $(SERVER_DIR)/.env
 	cp envs/.env.tmp $(CLIENT_DIR)/.env
 	cp envs/.env.tmp $(PROD_DIR)/.env
+	cp envs/.env.tmp envs/.active.env
 	rm envs/.env.tmp
+
 
 server_dev: db_start
 	cd $(SERVER_DIR) && pnpm start:dev

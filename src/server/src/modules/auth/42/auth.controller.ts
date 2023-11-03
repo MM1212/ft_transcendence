@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, HttpRedirectResponse, Redirect } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import HttpCtx from '@/helpers/decorators/httpCtx';
 import { HTTPContext, Response } from 'typings/http';
@@ -13,17 +13,18 @@ export class AuthController {
   ) {}
 
   @Get('login')
-  login(@HttpCtx() ctx: HTTPContext): Response {
+  @Redirect(undefined, 302)
+  login(@HttpCtx() ctx: HTTPContext): Partial<HttpRedirectResponse> {
     const { req, res, user } = ctx;
     const userData = req.session.get('user');
     if (
       userData &&
       userData.loggedIn &&
       user?.useSession(req.session).auth.isTokenValid()
-    )
-      res.redirect(302, `${this.config.get<string>('FRONTEND_URL')}`);
-    else this.service.login(ctx);
-    return res;
+    ) {
+      return {url: `${this.config.get<string>('FRONTEND_URL')}`};
+    }
+    return this.service.login(ctx);
   }
   @Get('logout')
   logout(@HttpCtx() ctx: HTTPContext): API.EmptyResponse {
@@ -32,6 +33,7 @@ export class AuthController {
     return API.buildOkResponse(undefined);
   }
   @Get('callback')
+  @Redirect(undefined, 302)
   callback(@HttpCtx() ctx: HTTPContext) {
     return this.service.callback(ctx);
   }
