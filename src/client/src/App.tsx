@@ -13,17 +13,17 @@ import {
   Sheet,
   Stack,
   Typography,
-} from '@mui/joy';
-import { buildTunnelEndpoint } from '@hooks/tunnel';
-import { AuthModel } from '@typings/api';
-import Link from '@components/Link';
+} from "@mui/joy";
+import { buildTunnelEndpoint } from "@hooks/tunnel";
+import { AuthModel } from "@typings/api";
+import Link from "@components/Link";
 
-import SseTester from '@components/SseTester';
-import { Redirect, Route, Switch } from 'wouter';
-import Lobby from '@views/lobby';
-import Notification, { NotificationProps } from '@lib/notifications/hooks';
-import { toast } from 'sonner';
-import notifications from '@lib/notifications/hooks';
+import SseTester from "@components/SseTester";
+import { Redirect, Route, Router, Switch, useRouter } from "wouter";
+import Lobby from "@views/lobby";
+import Notification, { NotificationProps } from "@lib/notifications/hooks";
+import notifications from "@lib/notifications/hooks";
+import Logo from "@components/Logo";
 
 function App() {
   const [count, setCount] = useState(0);
@@ -114,89 +114,27 @@ function App() {
                       </Button>
                       <Button
                         onClick={() => {
-                          const seed = (Date.now()) % 5;
+                          const seed = Date.now() % 5;
                           let fnName: keyof typeof notifications;
                           switch (seed) {
                             case 0:
-                              fnName = 'success';
+                              fnName = "success";
                               break;
                             case 1:
-                              fnName = 'warning';
+                              fnName = "warning";
                               break;
                             case 2:
-                              fnName = 'error';
+                              fnName = "error";
                               break;
                             case 3:
-                              fnName = 'info';
+                              fnName = "info";
                               break;
                             case 4:
                             default:
-                              fnName = 'default';
+                              fnName = "default";
                               break;
                           }
-                          notifications[fnName]('Boas, tudo bem?', {
-                            duration: -1,
-                          } as NotificationProps);
-                        }}
-                      >
-                        <Typography level="body-sm">
-                          Test Notification
-                        </Typography>
-                      </Button>
-                      <Button
-                        onClick={() => {
-                          const seed = (Date.now()) % 5;
-                          let fnName: keyof typeof notifications;
-                          switch (seed) {
-                            case 0:
-                              fnName = 'success';
-                              break;
-                            case 1:
-                              fnName = 'warning';
-                              break;
-                            case 2:
-                              fnName = 'error';
-                              break;
-                            case 3:
-                              fnName = 'info';
-                              break;
-                            case 4:
-                            default:
-                              fnName = 'default';
-                              break;
-                          }
-                          notifications[fnName]('Boas, tudo bem?', {
-                            duration: -1,
-                          } as NotificationProps);
-                        }}
-                      >
-                        <Typography level="body-sm">
-                          Test Notification
-                        </Typography>
-                      </Button>
-                      <Button
-                        onClick={() => {
-                          const seed = (Date.now()) % 5;
-                          let fnName: keyof typeof notifications;
-                          switch (seed) {
-                            case 0:
-                              fnName = 'success';
-                              break;
-                            case 1:
-                              fnName = 'warning';
-                              break;
-                            case 2:
-                              fnName = 'error';
-                              break;
-                            case 3:
-                              fnName = 'info';
-                              break;
-                            case 4:
-                            default:
-                              fnName = 'default';
-                              break;
-                          }
-                          notifications[fnName]('Boas, tudo bem?', {
+                          notifications[fnName]("Boas, tudo bem?", {
                             duration: -1,
                           } as NotificationProps);
                         }}

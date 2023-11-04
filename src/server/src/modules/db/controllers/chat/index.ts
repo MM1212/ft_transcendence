@@ -10,24 +10,7 @@ const SIMPLE_DB_USER: Record<keyof IUser, true> = {
   avatar: true,
   studentId: true,
   createdAt: true,
-  online: true,
-  experience: true,
 };
-<<<<<<< HEAD
-
-const SIMPLE_DB_CHAT_PARTICIPANT: Record<
-  Exclude<keyof ChatModel.Models.IChatParticipant, 'user'>,
-  true
-> = {
-  userId: true,
-  role: true,
-  chatId: true,
-  createdAt: true,
-  id: true,
-  toReadPings: true,
-};
-=======
->>>>>>> origin/dev
 
 @Injectable()
 export class Chats {
@@ -118,33 +101,8 @@ export class Chats {
             },
           },
         },
-<<<<<<< HEAD
-      },
-      select: {
-        id: true,
-        name: true,
-        photo: true,
-        type: true,
-        authorization: true,
-        messages: {
-          take: 1,
-          orderBy: {
-            createdAt: 'desc',
-          },
-          select: {
-            id: true,
-            type: true,
-            message: true,
-            createdAt: true,
-            author: true,
-            authorId: true,
-            meta: true,
-            chatId: true,
-          } satisfies Record<keyof ChatModel.Models.IChatMessage, unknown>,
-=======
         select: {
           id: true,
->>>>>>> origin/dev
         },
       })
     ).map((chat) => chat.id);

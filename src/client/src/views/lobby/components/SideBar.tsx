@@ -10,14 +10,37 @@ import {
   listItemButtonClasses,
   Box,
 } from "@mui/joy";
-import { Link, Route, Switch } from "wouter";
+import { Link, Route, Switch, useLocation } from "wouter";
 import { mainTargets } from "../types";
+import { useKeybindsToggle } from "@hooks/keybinds";
 
 export default function SideBar() {
+  const [open, setOpen] = React.useState(false);
+  const [lastRoute, setLastRoute] = React.useState<string>("/");
+  const [location, navigate] = useLocation();
+
+  const handleCloseDrawer = () => {
+    setLastRoute(location);
+    navigate("/");
+    setOpen(false);
+  };
+  const handleOpenDrawer = React.useCallback(
+    (key: string, pressed: boolean) => {
+      if (!pressed) return;
+      if (key !== "Escape") return;
+      navigate(lastRoute);
+      setOpen((prev) => !prev);
+    },
+    [setOpen, navigate, lastRoute]
+  );
+
+  useKeybindsToggle(["Escape"], handleOpenDrawer, []);
+
   return (
     <Sheet className="SideBar">
       <Drawer
-        open={true}
+        open={open}
+        onClose={handleCloseDrawer}
         className="SideBar"
         slotProps={{
           content: {

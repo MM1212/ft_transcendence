@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-import { GroupEndpoints } from "@typings/api";
-import { IUser } from "@typings/user";
-import { GroupEnumValues } from "@typings/utils";
-=======
 import {
   Endpoint,
   EndpointMethods,
@@ -10,10 +5,9 @@ import {
   GetEndpoint,
   GroupEndpointTargets,
   SseModel,
-} from '@typings/api';
-import { GroupEnumValues } from '@typings/utils';
-import UsersModel from '../users';
->>>>>>> origin/dev
+} from "@typings/api";
+import { GroupEnumValues } from "@typings/utils";
+import UsersModel from "../users";
 
 namespace ChatsModel {
   export namespace Models {
@@ -27,18 +21,11 @@ namespace ChatsModel {
       Private = "PRIVATE",
     }
     export enum ChatParticipantRole {
-<<<<<<< HEAD
       Owner = "OWNER",
       Admin = "ADMIN",
       Member = "MEMBER",
       Banned = "BANNED",
-=======
-      Owner = 'OWNER',
-      Admin = 'ADMIN',
-      Member = 'MEMBER',
-      Banned = 'BANNED',
-      Left = 'LEFT',
->>>>>>> origin/dev
+      Left = "LEFT",
     }
     export enum ChatMessageType {
       Normal = "NORMAL",
@@ -90,7 +77,6 @@ namespace ChatsModel {
       type: GroupEnumValues<ChatMessageType>;
       message: string;
       meta: Partial<Embeds.All>;
-      author: IChatParticipant;
       authorId: number;
       createdAt: number;
     }
@@ -108,35 +94,27 @@ namespace ChatsModel {
       createdAt: number;
     }
 
-<<<<<<< HEAD
-    export interface IChatDisplay extends Omit<IChat, "participants"> {}
-
-    export interface IChatSimple
-      extends Omit<IChat, "participants" | "messages"> {
-      participants: Omit<IChatParticipant, "user">[];
-=======
     export interface IChatDisplay
-      extends Omit<IChat, 'participants' | 'authorizationData'> {}
+      extends Omit<IChat, "participants" | "authorizationData"> {}
 
     export interface IChatInfo
-      extends Omit<IChat, 'participants' | 'messages' | 'authorizationData'> {
+      extends Omit<IChat, "participants" | "messages" | "authorizationData"> {
       participants: IChatParticipant[];
->>>>>>> origin/dev
     }
   }
   export namespace DTO {
     export namespace DB {
       export interface ChatMessage
-        extends Omit<Models.IChatMessage, 'createdAt' | 'meta'> {
+        extends Omit<Models.IChatMessage, "createdAt" | "meta"> {
         createdAt: Date;
         meta: any;
       }
       export interface ChatParticipant
-        extends Omit<Models.IChatParticipant, 'createdAt'> {
+        extends Omit<Models.IChatParticipant, "createdAt"> {
         createdAt: Date;
       }
       export interface Chat
-        extends Omit<Models.IChat, 'participants' | 'createdAt' | 'messages'> {
+        extends Omit<Models.IChat, "participants" | "createdAt" | "messages"> {
         createdAt: Date;
         authorizationData: any;
         participants: ChatParticipant[];
@@ -151,27 +129,16 @@ namespace ChatsModel {
       export interface CreateChat
         extends Pick<
           Models.IChat,
-<<<<<<< HEAD
-          "type" | "authorization" | "name" | "photo"
-=======
-          'type' | 'authorization' | 'name' | 'photo'  | 'topic'
->>>>>>> origin/dev
+          "type" | "authorization" | "name" | "photo" | "topic"
         > {
         authorizationData: Models.IChatAuthorizationData | null;
-        participants: Omit<CreateDBParticipant, 'chatId'>[];
+        participants: Omit<CreateDBParticipant, "chatId">[];
       }
       export interface CreateMessage
         extends Pick<
           Models.IChatMessage,
-<<<<<<< HEAD
-          "type" | "message" | "meta" | "chatId"
-        > {
-        authorId: number;
-      }
-=======
-          'type' | 'message' | 'meta' | 'chatId' | 'authorId'
+          "type" | "message" | "meta" | "chatId" | "authorId"
         > {}
->>>>>>> origin/dev
       export interface UpdateChatInfo
         extends Pick<
           Partial<Models.IChat>,
@@ -202,28 +169,25 @@ namespace ChatsModel {
     }
     export interface NewChat extends DB.CreateChat {}
     export interface NewMessage
-      extends Omit<DB.CreateMessage, 'authorId' | 'chatId'> {}
+      extends Omit<DB.CreateMessage, "authorId" | "chatId"> {}
   }
   export namespace Endpoints {
     export enum Targets {
-<<<<<<< HEAD
-      A = "b",
-=======
-      GetChat = '/chats/:chatId',
-      GetChatParticipants = '/chats/:chatId/participants',
-      GetChatMessages = '/chats/:chatId/messages',
-      GetChatMessage = '/chats/:chatId/messages/:messageId',
-      GetUserChats = '/users/:id/chats',
-      GetSessionChats = '/chats',
-      GetPublicChats = '/chats/public',
-      CreateChat = '/chats',
-      CreateMessage = '/chats/:chatId/messages',
-      UpdateChatInfo = '/chats/:chatId',
-      UpdateParticipant = '/chats/:chatId/participants/:participantId',
-      UpdateMessage = '/chats/:chatId/messages/:messageId',
-      DeleteChat = '/chats/:chatId',
-      DeleteParticipant = '/chats/:chatId/participants/:participantId',
-      DeleteMessage = '/chats/:chatId/messages/:messageId',
+      GetChat = "/chats/:chatId",
+      GetChatParticipants = "/chats/:chatId/participants",
+      GetChatMessages = "/chats/:chatId/messages",
+      GetChatMessage = "/chats/:chatId/messages/:messageId",
+      GetUserChats = "/users/:id/chats",
+      GetSessionChats = "/chats",
+      GetPublicChats = "/chats/public",
+      CreateChat = "/chats",
+      CreateMessage = "/chats/:chatId/messages",
+      UpdateChatInfo = "/chats/:chatId",
+      UpdateParticipant = "/chats/:chatId/participants/:participantId",
+      UpdateMessage = "/chats/:chatId/messages/:messageId",
+      DeleteChat = "/chats/:chatId",
+      DeleteParticipant = "/chats/:chatId/participants/:participantId",
+      DeleteMessage = "/chats/:chatId/messages/:messageId",
     }
     export type All = GroupEndpointTargets<Targets>;
 
@@ -327,8 +291,7 @@ namespace ChatsModel {
   }
   export namespace Sse {
     export enum Events {
-      NewMessage = 'chat.new-message',
->>>>>>> origin/dev
+      NewMessage = "chat.new-message",
     }
     export interface NewMessageEvent
       extends SseModel.Models.Event<Models.IChatMessage, Events.NewMessage> {}
