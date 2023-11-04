@@ -33,7 +33,7 @@ export default function MessagesPaneHeader({ chat }: ChatHeader) {
       sx={{
         borderBottom: "1px solid",
         borderColor: "divider",
-        backgroundColor: "background.body",
+        backgroundColor: "background.level1",
       }}
       py={{ xs: 2, md: 2 }}
       px={{ xs: 1, md: 2 }}
@@ -76,12 +76,12 @@ export default function MessagesPaneHeader({ chat }: ChatHeader) {
             }
           >
             {/* {chat.participants[0].user.nickname} */}
-			{whoIAmTalkingTo.user.nickname}
+            {whoIAmTalkingTo.user.nickname}
           </Typography>
 
           <Typography level="body-sm">
             {/* {chat.participants[0].user.nickname} */}
-			{whoIAmTalkingTo.user.nickname}
+            {whoIAmTalkingTo.user.nickname}
           </Typography>
         </div>
       </Stack>

@@ -6,7 +6,7 @@
 /*   By: mgranate_ls <mgranate_ls@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/21 17:22:36 by mgranate_ls       #+#    #+#             */
-/*   Updated: 2023/10/30 12:51:33 by mgranate_ls      ###   ########.fr       */
+/*   Updated: 2023/11/04 15:58:26 by mgranate_ls      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ export default function MessagesPanel({ setSelectedChat }: ChatsPaneProps) {
         borderColor: "divider",
         height: "calc(100dvh - var(--Header-height))",
         overflowY: "auto",
-        backgroundColor: "background.level2",
+        backgroundColor: "background.level1",
         width: "30%",
       }}
     >

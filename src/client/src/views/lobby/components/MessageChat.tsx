@@ -34,7 +34,7 @@ export function MessageChat({ chat }: myChat) {
         display: "flex",
         flexDirection: "column",
         width: "70%",
-        backgroundColor: "background.level2",
+        backgroundColor: "background.level1",
       }}
     >
       <ChatHeader chat={chat} />
@@ -83,22 +83,3 @@ export function MessageChat({ chat }: myChat) {
 }
 
 export default MessageChat;
-// textAreaValue={textAreaValue}
-// setTextAreaValue={setTextAreaValue}
-// onSubmit={() => {
-//   const newId = chatMessages.length + 1;
-//   const newIdString = newId.toString();
-//   setChatMessages([
-//     ...chatMessages,
-//     {
-//       id: me.id,
-//       chatId: 200,
-//       type: ChatModel.Models.ChatMessageType.Normal,
-//       message: textAreaValue,
-//       meta: {},
-//       author: sampleParticipant,
-//       authorId: sampleParticipant.id,
-//       createdAt: 0
-//     }
-//   ]);
-// }}

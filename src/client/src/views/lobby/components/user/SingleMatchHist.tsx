@@ -78,8 +78,8 @@ export default function SingleMatchHist() {
             </AvatarGroup>
           </Stack>
           <Stack direction="column" spacing={0.2} alignItems="flex-end">
-            <Typography level="body-xs">12M:30$</Typography>
-            <Typography level="body-xs">11/1/8</Typography>
+            <Typography level="body-xs">11/05/04</Typography>
+            <Typography level="body-xs">00:23:21</Typography>
           </Stack>
         </Stack>
       </Sheet>
