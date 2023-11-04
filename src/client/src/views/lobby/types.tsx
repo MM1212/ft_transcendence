@@ -2,11 +2,8 @@ import MessagesPanel from "./components/MessagesPanel";
 import MessageChat from "./components/MessageChat";
 import ChatModel from "@typings/models/chat";
 import FriendsPanel from "./components/FriendsPanel";
-import FriendsOnline from "./components/Friends/FriendsOnline";
-import FriendsAll from "./components/Friends/FriendsAll";
-import FriendsPending from "./components/Friends/FriendsPending";
-import FriendsBlocked from "./components/Friends/FriendsBlocked";
 import { sampleChat } from "./hardoceTestes";
+import Profile from "./components/user/Profile";
 
 export interface ChatsPaneProps {
   setSelectedChat: (chat: ChatModel.Models.IChat) => void;
@@ -73,6 +70,15 @@ export const mainTargets = [
   {
     label: "Achievements",
     target: "/achievements",
+  },
+  {
+    label: "Profile",
+    target: "/profile",
+    node: (
+      <>
+        <Profile />
+      </>
+    )
   },
   {
     label: "Exit",
