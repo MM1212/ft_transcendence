@@ -1,4 +1,4 @@
-import { GroupEndpoints } from '@typings/api';
+import { EndpointRegistry, GroupEndpointTargets } from '@typings/api';
 import { IUser } from '@typings/user';
 import { vector2 } from '@typings/vector';
 
@@ -41,7 +41,8 @@ namespace LobbyModel {
       Connect = '/lobby',
       StaticBackground = '/static/lobby.png'
     }
-    export type All = GroupEndpoints<Targets>;
+    export type All = GroupEndpointTargets<Targets>;
+    export interface Registry extends EndpointRegistry {}
   }
   export namespace Socket {
     export enum Messages {

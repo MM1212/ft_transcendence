@@ -1,36 +1,38 @@
-import { User } from '@/helpers/User';
 import {
   Injectable,
   CanActivate,
   ExecutionContext,
   UnauthorizedException,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { Auth } from '@typings/auth';
 import { Request } from '@typings/http';
 import { AuthService } from '../42/auth.service';
+import { UsersService } from '@/modules/users/users.service';
+import UserExtSession from '@/modules/users/user/ext/Session';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
-    private readonly configService: ConfigService<ImportMetaEnv>,
     private readonly authService: AuthService,
+    private readonly usersService: UsersService,
   ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<Request>();
-    const user = new User(request.session);
+    const userData = request.session.get('user');
 
-    if (!user.loggedIn) throw new UnauthorizedException();
+    if (!userData?.loggedIn) throw new UnauthorizedException();
     try {
-      if (!user.auth.isTokenValid()) await this.refreshToken(user);
+      const user = await this.usersService.get(userData.id);
+      if (!user) throw new UnauthorizedException();
+      const uSession = user.useSession(request.session);
+      if (!uSession.auth.isTokenValid()) await this.refreshToken(uSession);
     } catch (e) {
       throw new UnauthorizedException();
     }
     return true;
   }
-  private async refreshToken(user: User): Promise<void> {
+  private async refreshToken(user: UserExtSession): Promise<void> {
     const resp = await this.authService.requestToken<Auth.RefreshToken>(
-      user,
       'refresh',
       { refreshToken: user.auth.refreshToken },
     );

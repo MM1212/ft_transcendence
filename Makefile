@@ -12,10 +12,16 @@ DB_FILE = $(SERVER_DIR)/prisma/schema.prisma
 DB_MIGRATE_FILE = $(SERVER_DIR)/prisma/migrations/.schema.prisma
 
 setup:
+ifeq ($(shell test envs/.tokens.env), 1)
+	$(error Setup the tokens file before setting up everything!)
+endif
+	$(MAKE) env
 	git lfs pull
 	npm i -g pnpm
 	npm i -g pnpm @nestjs/cli
 	cd $(CLIENT_DIR) && pnpm i
+	$(MAKE) client_gen_icon icon=--all
+	$(MAKE) db_start
 	cd $(SERVER_DIR) && pnpm i && pnpx prisma generate && pnpx prisma migrate dev --name init
 
 create_session_tokens:
@@ -42,20 +48,35 @@ else
 	echo "" >> envs/.env.tmp
 endif
 
-env:
+env: envs/.active.env
+
+envs/.active.env:
 	cp envs/.env.$(MODE) envs/.env.tmp
 	make generate_session_key
 	make setup_tokens
 	cp envs/.env.tmp $(SERVER_DIR)/.env
 	cp envs/.env.tmp $(CLIENT_DIR)/.env
 	cp envs/.env.tmp $(PROD_DIR)/.env
+	cp envs/.env.tmp envs/.active.env
 	rm envs/.env.tmp
+
 
 server_dev: db_start
 	cd $(SERVER_DIR) && pnpm start:dev
 
 client_dev:
 	cd $(CLIENT_DIR) && pnpm dev
+
+client_gen_icon:
+ifndef icon
+	$(error icon is not set, use `make client_gen_icon icon=<icon>`)
+else
+ifeq ($(icon), --all)
+	@cd $(CLIENT_DIR) && node scripts/generate-all.js
+else
+	@cd $(CLIENT_DIR) && node scripts/generate-icon.js $(icon)
+endif
+endif
 
 db_start:
 	docker compose -f $(PROD_DIR)/docker-compose.yml up -d

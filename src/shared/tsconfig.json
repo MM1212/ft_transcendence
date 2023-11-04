@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "types": ["../typings/env"],
+    "paths": {
+      "@typings/*": ["../typings/*"],
+      "@/*": ["./*"]
+    },
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "rootDir": "."
+  },
+  "references": []
+}

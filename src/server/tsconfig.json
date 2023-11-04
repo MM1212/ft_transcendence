@@ -21,7 +21,13 @@
     "types": ["../typings/env", "./typings/session"],
     "paths": {
       "@typings/*": ["../typings/*", "./typings/*"],
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@shared/*": ["../shared/*"]
     }
-  }
+  },
+  "references": [
+    {
+      "path": "../shared"
+    }
+  ]
 }

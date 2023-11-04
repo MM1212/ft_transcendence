@@ -13,6 +13,10 @@ import path from 'path';
 import { Auth42Module } from './modules/auth/42/auth.module';
 import { AuthSessionModule } from './modules/auth/session/session.module';
 import { UsersModule } from './modules/users/users.module';
+<<<<<<< HEAD
+=======
+import { ChatsModule } from './modules/chats/chats.module';
+>>>>>>> origin/dev
 
 @Module({
   imports: [
@@ -38,6 +42,8 @@ import { UsersModule } from './modules/users/users.module';
     PrismaModule,
     DbModule,
     forwardRef(() => LobbyModule),
+    UsersModule,
+    ChatsModule
   ],
   providers: [AppService, { provide: APP_FILTER, useClass: GlobalFilter }],
   exports: [AppService],

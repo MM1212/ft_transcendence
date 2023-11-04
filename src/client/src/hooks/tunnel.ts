@@ -1,7 +1,6 @@
 import useSWR, { SWRConfiguration } from 'swr';
 import * as API from '@typings/api';
-// export const jsonFetcher = <T>(url: string, init?: RequestInit) =>
-//   fetch(url, init).then((res) => res.json() as Promise<T>);
+import tunnel from '@lib/tunnel';
 
 export async function jsonFetcher<T>(
   input: RequestInfo,
@@ -24,12 +23,17 @@ export async function jsonFetcher<T>(
   });
 }
 
-export const buildTunnelEndpoint = (endpoint: API.Endpoints.All): string =>
-  `${import.meta.env.FRONTEND_API_ENDPOINT}${endpoint}`;
+export const buildTunnelEndpoint = (
+  endpoint: API.Endpoints.All,
+  params: Record<string, unknown> = {}
+): string => {
+  return tunnel.buildEndpoint(endpoint, params);
+};
 export const useTunnelEndpoint = <
   T extends API.Endpoint<API.EndpointMethods, API.Endpoints.All>,
 >(
   endpoint: API.EndpointTarget<T>,
+  params: API.EndpointParams<T> = {},
   options: SWRConfiguration<API.EndpointResponse<T>> = {},
   fetcher: (
     url: string,
@@ -37,7 +41,7 @@ export const useTunnelEndpoint = <
   ) => Promise<API.EndpointResponse<T>> = jsonFetcher<API.EndpointResponse<T>>
 ) =>
   useSWR<API.EndpointResponse<T>>(
-    buildTunnelEndpoint(endpoint),
+    buildTunnelEndpoint(endpoint, params),
     fetcher,
     options
   );

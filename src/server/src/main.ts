@@ -30,7 +30,6 @@ async function bootstrap() {
     credentials: true,
     allowedHeaders: 'Content-Type,Authorization',
   });
-
   // Cookies
 
   await app.register(cookiesModule, {

@@ -96,7 +96,7 @@ export class SseController implements OnModuleInit, OnModuleDestroy {
     @HttpCtx() ctx: HTTPContext<true>,
   ): EmptyResponse {
     this.service.emitToAll<SSE.DTO.Test>('test', {
-      user: { id: ctx.user.id, name: ctx.user.name, avatar: ctx.user.avatar },
+      user: { id: ctx.user.id, name: ctx.user.nickname, avatar: ctx.user.avatar },
       message,
     });
     return buildOkResponse(undefined);

@@ -1,7 +1,7 @@
-import { IUser } from '@typings/user';
 import { Auth } from '..';
+import UsersModel from '@typings/models/users';
 
-export interface IAuthSessionLoggedUser extends IUser {
+export interface IAuthSessionLoggedUser extends UsersModel.Models.IUserInfo {
   token: Auth.Token;
   loggedIn: true;
 }

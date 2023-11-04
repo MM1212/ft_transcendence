@@ -5,7 +5,7 @@ import React from 'react';
 import { useRecoilValue } from 'recoil';
 import { eventCacheAtom } from './store';
 
-function useSseService() {
+const useSseService = () => {
   const eventCache = useRecoilValue(eventCacheAtom);
   React.useEffect(() => {
     const eventSource = new EventSource(
@@ -36,9 +36,6 @@ function useSseService() {
       eventSource.close();
     };
   }, [eventCache]);
-}
+};
 
-export function SseMounter(): null {
-  useSseService();
-  return null;
-}
+export default useSseService;

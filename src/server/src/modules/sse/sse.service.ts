@@ -21,13 +21,13 @@ class SseService implements ISseService {
       data,
     });
   }
-  emitToTargets<T extends SSE.Models.Event, E extends SSE.Models.Events = SSE.Models.Events>(
-    event: E,
+  emitToTargets<T extends SSE.Models.Event>(
+    event: T['type'],
     targets: number[],
     data: T['data'],
   ): void;
-  emitToTargets<T extends SSE.Models.Event, E extends SSE.Models.Events = SSE.Models.Events>(
-    event: E,
+  emitToTargets<T extends SSE.Models.Event>(
+    event: T['type'],
     source: number,
     targets: number[],
     data: T['data'],
@@ -57,7 +57,7 @@ class SseService implements ISseService {
         break;
     }
   }
-  emitToAll<T extends SSE.Models.Event, E extends SSE.Models.Events = SSE.Models.Events>(
+  emitToAll<T extends SSE.Models.Event, E = T['type']>(
     event: E,
     data: T['data'],
   ): void {

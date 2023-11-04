@@ -27,15 +27,18 @@ export class IntraAPI {
     params: Record<string, string> = {},
   ): Promise<T> {
     const url = new URL(
-      this.buildUrl(endpoint).replace(/{(\w+)}/g, (_, key) => replacers[key]),
+      this.buildUrl(endpoint).replace(/:(\w+)/g, (_, key) => replacers[key]),
     );
     for (const [key, val] of Object.entries(params)) {
       url.searchParams.append(key, val);
     }
-    return await fetch(url.toJSON(), {
+    const resp = await fetch(url.toJSON(), {
       method,
       headers: this.headers,
     }).then((resp) => resp.json());
+
+    if (resp.error) throw new Error(`IntraAPI: ${resp.error}: ${resp.error_description}`);
+    return resp;
   }
   public async me(): Promise<Intra.Student.Data> {
     return await this.request<Intra.Student.Data>(Intra.Endpoints.Me);

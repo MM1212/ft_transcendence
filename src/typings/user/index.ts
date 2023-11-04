@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 export interface IUser {
   id: number;
   studentId: number;
@@ -10,3 +11,15 @@ export interface IUser {
 
 export interface IUserCreate
   extends Pick<IUser, "studentId" | "nickname" | "avatar"> {}
+=======
+import UsersModel from "@typings/models/users";
+
+/**
+ * @deprecated
+ */
+export interface IUser extends UsersModel.Models.IUserInfo {}
+/**
+ * @deprecated
+ */
+export interface IUserCreate extends Pick<IUser, 'studentId' | 'nickname' | 'avatar'> {}
+>>>>>>> origin/dev

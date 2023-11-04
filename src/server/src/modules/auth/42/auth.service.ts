@@ -1,19 +1,22 @@
-import { Injectable } from '@nestjs/common';
-import { HTTPContext, Response } from 'typings/http';
+import {
+  BadRequestException,
+  HttpRedirectResponse,
+  Injectable,
+} from '@nestjs/common';
+import { HTTPContext } from 'typings/http';
 import crypto from 'crypto';
 import * as API from '@typings/api';
-import { User } from '@/helpers/User';
 import { Auth } from '@typings/auth';
 import { ConfigService } from '@nestjs/config';
 import { IntraAPI } from '@/helpers/Intra';
-import { DbService } from '@/modules/db/db.service';
+import { UsersService } from '@/modules/users/users.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly config: ConfigService<ImportMetaEnv>,
     private readonly intra: IntraAPI,
-    private readonly db: DbService,
+    private readonly usersService: UsersService,
   ) {}
   private get clientId(): string {
     return this.config.get('BACKEND_42_CLIENT_ID')!;
@@ -70,15 +73,14 @@ export class AuthService {
     }
     return url.toString();
   }
-  public login(ctx: HTTPContext): void {
+  public login(ctx: HTTPContext): Partial<HttpRedirectResponse> {
     const nonce = this.genNonce();
     const url = this.buildRedirectUri(nonce);
     ctx.session.set('nonce', nonce);
     console.log(`[Auth] [42] Login nonce: ${nonce} url: ${url}`);
-    ctx.res.status(302).redirect(url);
+    return { url };
   }
   public async requestToken<T extends Auth.TokenRequest>(
-    user: User,
     type: T['type'],
     data: Omit<T, 'type'>,
   ): Promise<API.Response<Auth.Token>> {
@@ -88,9 +90,14 @@ export class AuthService {
         {
           method: 'POST',
         },
-      ).then((resp) => resp.json());
-      if (!resp) return API.buildErrorResponse('Failed to get token');
-      const token = resp as Auth.Token;
+      );
+      const body = await resp.json();
+      if (!body) return API.buildErrorResponse('Failed to get token');
+      if (body.error)
+        return API.buildErrorResponse(
+          `${body.error}: ${body.error_description} ${resp.status}`,
+        );
+      const token = body as Auth.Token;
       return API.buildOkResponse(token);
     } catch (e) {
       return API.buildErrorResponse(e.message);
@@ -98,49 +105,45 @@ export class AuthService {
   }
   public async callback({
     req,
-    res,
     session,
-  }: HTTPContext): Promise<API.Response<string> | Response> {
+  }: HTTPContext): Promise<Partial<HttpRedirectResponse>> {
     const { code, state } = req.query as Record<string, string>;
     console.log(`[Auth] [42] Callback code: ${code} state: ${state}`);
 
-    if (!code || !state)
-      return res
-        .status(400)
-        .send(API.buildErrorResponse('Missing code or state'));
+    if (!code || !state) throw new BadRequestException('Missing code or state');
     const nonce = session.get('nonce');
     if (!nonce || nonce !== state)
-      return res.status(400).send(API.buildErrorResponse('Invalid state'));
+      throw new BadRequestException('Invalid state');
     session.set('nonce', undefined);
-    const user = new User(session);
-    const resp = await this.requestToken<Auth.NewToken>(user, 'new', { code });
-    if (resp.status !== 'ok') return res.status(500).send(resp);
-    user.update('loggedIn', true);
-    user.auth.updateNewToken(resp.data);
-    this.intra.token = user.auth.token;
+    const resp = await this.requestToken<Auth.NewToken>('new', { code });
+    if (resp.status !== 'ok') throw new Error(resp.errorMsg);
+
+    this.intra.token = resp.data.access_token;
     try {
       const apiData = await this.intra.me();
-      if (apiData) {
-        const {
-          id,
-          login,
-          image: { link },
-        } = apiData;
-        let userData = await this.db.users.getByStudentId(id);
-        if (!userData)
-          userData = await this.db.users.create({
-            studentId: id,
-            nickname: login,
-            avatar: link,
-          });
-        user.merge(userData);
-      }
+      if (!apiData) throw new Error('Failed to get user data from 42 API');
+      if ((apiData as any).error) throw new Error((apiData as any).error);
+      const {
+        id,
+        login,
+        image: { link },
+      } = apiData;
+      let user = await this.usersService.getByStudentId(id);
+      if (!user)
+        user = await this.usersService.create({
+          studentId: id,
+          avatar: link,
+          nickname: login,
+        });
+      const uSession = user.withSession(req.session);
+      uSession.session.sync().loggedIn = true;
+      uSession.session.auth.updateNewToken(resp.data);
+      console.log(`[Auth] [42] Logged in as `, user.public);
+      return { url: `${this.config.get<string>('FRONTEND_URL')}` };
     } catch (e) {
       console.error(e);
-      user.update('loggedIn', false);
-      return res.status(500).send(API.buildErrorResponse(e.message));
+      req.session.set('user', { loggedIn: false });
+      throw new Error('Failed to get user data from 42 API');
     }
-    console.log(`[Auth] [42] Logged in as `, user.session.data());
-    return res.redirect(302, `${this.config.get<string>('FRONTEND_URL')}`);
   }
 }

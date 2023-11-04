@@ -1,19 +1,17 @@
-import { CssBaseline, CssVarsProvider } from "@mui/joy";
-import React from "react";
-import { RecoilRoot } from "recoil";
-import testTheme from "./theme";
-import { SWRConfig } from "swr";
-import { Router } from "wouter";
-import { SseMounter } from "@hooks/sse/Provider";
-import { RecoilSessionProvider } from "@hooks/user";
-import CustomScrollBar from "@theme/scrollBar";
+import { CssBaseline, CssVarsProvider } from '@mui/joy';
+import React from 'react';
+import { RecoilRoot } from 'recoil';
+import testTheme from './theme';
+import { SWRConfig } from 'swr';
+import { Router } from 'wouter';
+import StateMounter from '@state/mounter';
+import NotificationsProvider from '@lib/notifications/Provider';
 
 export default function AppProviders({
   children,
 }: React.PropsWithChildren<{}>): JSX.Element {
   return (
     <RecoilRoot>
-      <SseMounter />
       <Router>
         <SWRConfig
           value={{
@@ -26,7 +24,7 @@ export default function AppProviders({
             },
           }}
         >
-          <RecoilSessionProvider />
+          <StateMounter />
           <CssVarsProvider
             theme={testTheme}
             defaultMode="system"
@@ -34,7 +32,7 @@ export default function AppProviders({
             disableNestedContext
           >
             <CssBaseline />
-            <CustomScrollBar />
+            <NotificationsProvider />
             {children}
           </CssVarsProvider>
         </SWRConfig>
