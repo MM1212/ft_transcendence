@@ -9,76 +9,16 @@ import {
   ListItemContent,
   listItemButtonClasses,
   Box,
-  Slider,
 } from "@mui/joy";
-import { useKeybindsToggle } from "@hooks/keybinds";
-import Link from "@components/Link";
-import {
-  Route,
-  Router,
-  Switch,
-  useLocation,
-  useRoute,
-  useRouter,
-} from "wouter";
-import { mainTargets, simpleTargets } from "../types";
-import { navigate } from "wouter/use-location";
-import { useRecoilState } from "recoil";
-import { sessionAtom, useSession } from "@hooks/user";
-import FriendsAll from "./Friends/FriendsAll";
-import FriendsPanel from "./FriendsPanel";
-import MessagesPanel from "./MessagesPanel";
+import { Link, Route, Switch } from "wouter";
+import { mainTargets } from "../types";
 
-const ActiveLink = (props: any) => {
-  const [isActive] = useRoute(props.href);
-  return (
-    <Link {...props}>
-      <a className={isActive ? "active" : ""} href={props.href}>
-        {props.children}
-      </a>
-    </Link>
-  );
-};
-
-const NestedRoutes = (props: any) => {
-  const router = useRouter();
-  const [location] = useLocation();
-
-  if (!location.startsWith(props.base)) return null;
-
-  // we need key to make sure the router will remount if the base changes
-  return (
-    <Router base={props.base} key={props.base} parent={router}>
-      {props.children}
-    </Router>
-  );
-};
-
-export default function DrawerCloseButton() {
-  const [open, setOpen] = React.useState(false);
-  const [me, setMe] = useRecoilState(sessionAtom);
-  const { user } = useSession();
-  if (user) setMe(user);
-  const handleCloseDrawer = () => {
-    setOpen(false);
-    navigate("/lobby");
-  };
-  const handleOpenDrawer = React.useCallback(
-    (key: string, pressed: boolean) => {
-      if (!pressed) return;
-      if (key !== "Escape") return;
-      setOpen((prev) => !prev);
-    },
-    [setOpen]
-  );
-  useKeybindsToggle(["Escape"], handleOpenDrawer, []);
-
+export default function SideBar() {
   return (
     <Sheet className="SideBar">
       <Drawer
+        open={true}
         className="SideBar"
-        open={open}
-        onClose={handleCloseDrawer}
         slotProps={{
           content: {
             sx: {
@@ -97,11 +37,15 @@ export default function DrawerCloseButton() {
         <>{console.log("mounted")}</>
         <Box
           sx={{
+            // backgroundColor: theme=>lighten(theme.resolveVar("palette-background-level1"), 0.7),
             backgroundColor: "background.level1",
             display: "flex",
-            flexDirection: "collumn",
-            width: "25%",
-            borderRight: "1px solid",
+            flexDirection: "column",
+            width: "fit-content",
+            paddingRight: 20,
+            borderRight: "0.5px solid",
+            zIndex: 1,
+            boxShadow: "0px 1px 4px rgba(0, 0, 0, 1)",
             borderColor: "divider",
             [`& .${listItemButtonClasses.root}`]: {
               gap: 1.5,
@@ -126,31 +70,24 @@ export default function DrawerCloseButton() {
                 </ListItemContent>
               </ListItemButton>
             </ListItem>
-            <ListItem>
-              <ListItemButton>
-                <ListItemContent>
-                  {mainTargets.map(({ label, target }, idx) => (
-                    <ListItem key={idx}>
-                      <ListItemButton>
-                        <Link href={target}>
-                          <ListItemContent>
-                            <Typography level="title-sm">{label}</Typography>
-                          </ListItemContent>
-                        </Link>
-                      </ListItemButton>
-                    </ListItem>
-                  ))}
-                  <ActiveLink key="help" href="/help"></ActiveLink>
-                </ListItemContent>
-              </ListItemButton>
-            </ListItem>
+            {mainTargets.map(({ label, target }, idx) => (
+              <ListItem key={idx}>
+                <ListItemButton>
+                  <Link href={target}>
+                    <ListItemContent>
+                      <Typography level="title-sm">{label}</Typography>
+                    </ListItemContent>
+                  </Link>
+                </ListItemButton>
+              </ListItem>
+            ))}
           </List>
         </Box>
         <Switch>
           {mainTargets.map(
             (target, i) =>
               target.node && (
-                <Route path={target.target} key={i}>
+                <Route path={target.route ?? target.target} key={i}>
                   {target.node}
                 </Route>
               )
@@ -160,5 +97,3 @@ export default function DrawerCloseButton() {
     </Sheet>
   );
 }
-
-//component={Link} href="/"

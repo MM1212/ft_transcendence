@@ -1,11 +1,12 @@
-import { CssBaseline, CssVarsProvider } from '@mui/joy';
-import React from 'react';
-import { RecoilRoot } from 'recoil';
-import testTheme from './theme';
-import { SWRConfig } from 'swr';
-import { Router } from 'wouter';
-import { SseMounter } from '@hooks/sse/Provider';
-import { RecoilSessionProvider } from '@hooks/user';
+import { CssBaseline, CssVarsProvider } from "@mui/joy";
+import React from "react";
+import { RecoilRoot } from "recoil";
+import testTheme from "./theme";
+import { SWRConfig } from "swr";
+import { Router } from "wouter";
+import { SseMounter } from "@hooks/sse/Provider";
+import { RecoilSessionProvider } from "@hooks/user";
+import CustomScrollBar from "@theme/scrollBar";
 
 export default function AppProviders({
   children,
@@ -33,6 +34,7 @@ export default function AppProviders({
             disableNestedContext
           >
             <CssBaseline />
+            <CustomScrollBar />
             {children}
           </CssVarsProvider>
         </SWRConfig>

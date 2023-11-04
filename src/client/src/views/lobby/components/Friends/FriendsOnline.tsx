@@ -1,27 +1,20 @@
-import { Button, Typography } from "@mui/joy";
-import { PropsWithChildren, ReactElement, useState } from "react";
-import { Link, LinkProps } from "wouter";
-import { BaseLocationHook, LocationHook, navigate } from "wouter/use-location";
+import { Button, Typography, listItemClasses } from "@mui/joy";
+import clsx from "clsx";
+import {  useRoute } from "wouter";
 
 export default function FriendsOnline() {
-  // Lets make a function that handles the button click
-  console.log("FriendsOnline");
-  const [selected, setSelected] = useState(false);
-  const handleClick = () => {
-    setSelected(true);
-  };
+  const [selected] = useRoute("/online");
+  console.log(selected);
 
   return (
     <>
       <Button
-        onClick={handleClick}
+        component="div"
+        variant="soft"
         color="neutral"
-        variant="outlined"
-        size="sm"
-        sx={{
-          border: "none",
-          display: { xs: "none", md: "inline-flex" },
-        }}
+        className={clsx(listItemClasses.root, {
+          "Mui-selected": selected,
+        })}
       >
         <Typography>Online</Typography>
       </Button>

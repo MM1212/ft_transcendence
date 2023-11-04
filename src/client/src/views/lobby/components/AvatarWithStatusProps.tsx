@@ -1,5 +1,5 @@
-import Badge from '@mui/joy/Badge';
-import Avatar, { AvatarProps } from '@mui/joy/Avatar';
+import Badge from "@mui/joy/Badge";
+import Avatar, { AvatarProps } from "@mui/joy/Avatar";
 
 type AvatarWithStatusProps = AvatarProps & {
   online?: boolean;
@@ -7,18 +7,19 @@ type AvatarWithStatusProps = AvatarProps & {
 
 export default function AvatarWithStatus({
   online = false,
+  size,
   ...rest
 }: AvatarWithStatusProps) {
   return (
     <div>
       <Badge
-        color={online ? 'success' : 'neutral'}
-        variant={online ? 'solid' : 'soft'}
+        color={online ? "success" : "neutral"}
+        variant={online ? "solid" : "soft"}
         size="sm"
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        badgeInset="4px 4px"
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        badgeInset="14%"
       >
-        <Avatar size="sm" {...rest} />
+        <Avatar size={size} {...rest} />
       </Badge>
     </div>
   );

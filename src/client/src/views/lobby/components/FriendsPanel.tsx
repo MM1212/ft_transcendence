@@ -1,32 +1,40 @@
-import { Sheet } from "@mui/joy";
+import { Divider, Sheet } from "@mui/joy";
 import FriendsHeader from "./FriendsHeader";
-import { Route, Switch } from "wouter";
-import { FriendsRoutes } from "./Friends/FriendsRoutes";
-import { subTargets } from "../types";
+import FriendsGetter from "./Friends/FriendsGetter";
+import { Redirect, Route, Router, Switch, useRouter } from "wouter";
+import PendingFriendsGetter from "./Friends/PendingFriendsGetter";
 
 export default function FriendsPanel() {
+  const router = useRouter();
   return (
-    <>
+    <Router base="/friends" parent={router}>
       <Sheet
         sx={{
           borderRight: "1px solid",
           borderColor: "divider",
           height: "calc(100dvh - var(--Header-height))",
           overflowY: "auto",
-          backgroundColor: "background.level2",
+          backgroundColor: "background.level1",
           width: "60%",
         }}
       >
         <FriendsHeader />
-        {/* <TestPanelFriends /> */}
+        <Divider />
+        <Switch>
+          <Route path="/">
+            <FriendsGetter type="online" />
+          </Route>
+          <Route path="/online">
+            <Redirect to="/" />
+          </Route>
+          <Route path="/all">
+            <FriendsGetter type="all" />
+          </Route>
+          <Route path="/pending">
+            <PendingFriendsGetter />
+          </Route>
+        </Switch>
       </Sheet>
-      <Switch>
-        <Route path="/online">
-          <article>
-            <h1>How it all started?</h1>
-          </article>
-        </Route>
-      </Switch>
-    </>
+    </Router>
   );
 }

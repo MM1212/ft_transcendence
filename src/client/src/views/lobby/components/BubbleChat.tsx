@@ -5,7 +5,6 @@ import Sheet from "@mui/joy/Sheet";
 import Typography from "@mui/joy/Typography";
 import { ChatModel } from "@typings/models";
 import { IUser } from "@typings/user";
-import { formatTimestamp } from "../types";
 
 type ChatBubbleProps = {
   bubMessage: ChatModel.Models.IChatMessage;

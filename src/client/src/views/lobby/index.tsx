@@ -1,10 +1,9 @@
 import { useSocket } from "@hooks/socket";
 import { buildTunnelEndpoint } from "@hooks/tunnel";
-import { Endpoints } from "@typings/api";
 import React from "react";
 import { Pixi, usePixiRenderer } from "@hooks/pixiRenderer";
 import { Lobbies } from "@typings/lobby";
-import { useRecoilCallback, useRecoilValue } from "recoil";
+import { useRecoilCallback } from "recoil";
 import {
   InitdPlayer,
   Player,
@@ -253,8 +252,8 @@ export default function Lobby() {
         zIndex: 1,
       }}
       onFocus={() => console.log("focus")}
-	  >
-	<Sidebar />
+    >
+      <Sidebar />
       <ChatBox />
     </Sheet>
   );

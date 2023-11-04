@@ -1,5 +1,5 @@
 import React from "react";
-import { Link as WouterLink } from "wouter";
+import { Link as WouterLink, useRouter } from "wouter";
 import { Path } from "wouter/use-location";
 
 const externalLinkRegex = /http(s?):\/\/(.*)/;
@@ -15,8 +15,10 @@ const Link = React.forwardRef<
     ref: React.Ref<HTMLAnchorElement>
   ) => {
     const { to, href = to } = props;
+    const router = useRouter();
+    const path = `${router.base}${href}`;
+    const isExternal = externalLinkRegex.test(path as string);
 
-    const isExternal = externalLinkRegex.test(href as string);
     if (isExternal) {
       return <a ref={ref} {...props} />;
     }

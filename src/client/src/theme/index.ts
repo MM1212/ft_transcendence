@@ -1,6 +1,7 @@
-import { Theme, ThemeCssVar, extendTheme } from '@mui/joy';
-import { TransitionAPI } from './transitions';
-import { alpha, lighten, darken } from './bin/color';
+import { Theme, ThemeCssVar, extendTheme } from "@mui/joy";
+import { TransitionAPI } from "./transitions";
+import { alpha, lighten, darken } from "./bin/color";
+export * from "./scrollBar";
 
 const transitionConstants: Pick<TransitionAPI, "duration" | "easing"> = {
   duration: {
@@ -21,6 +22,8 @@ const transitionConstants: Pick<TransitionAPI, "duration" | "easing"> = {
 };
 
 function resolveVar(this: Theme, variable: ThemeCssVar): string {
+  console.log("resolveVar", this.cssVarPrefix);
+
   const value = getComputedStyle(document.documentElement).getPropertyValue(
     `--${this.cssVarPrefix ? `${this.cssVarPrefix}-` : ""}${variable}`
   );

@@ -5,12 +5,12 @@ import ListItem from "@mui/joy/ListItem";
 import ListItemButton, { ListItemButtonProps } from "@mui/joy/ListItemButton";
 import Stack from "@mui/joy/Stack";
 import Typography from "@mui/joy/Typography";
-import { sampleChat } from "../types";
 import { toggleMessagesPane } from "../utils";
 import AvatarWithStatus from "./AvatarWithStatusProps";
 import { ChatModel } from "@typings/models";
 import { useSession } from "@hooks/user";
 import { Avatar } from "@mui/joy";
+import { sampleChat } from "../hardoceTestes";
 
 type ChatListItemProps = ListItemButtonProps & {
   chat: ChatModel.Models.IChat;

@@ -1,20 +1,27 @@
-import { Button, Typography } from "@mui/joy";
+import { Button } from "@mui/joy";
+import React from "react";
+import BasicModalDialog from "./AddFriendForm";
 
 export default function AddFriend() {
+  const [open, setOpen] = React.useState<boolean>(false);
+
   return (
-    <Button
-      variant="outlined"
-      size="sm"
-      sx={{
-        border: "none",
-		backgroundColor: "green",
-        display: { xs: "none", md: "inline-flex" },
-      }}
-    >
-      <Typography>Add Friend</Typography>
-    </Button>
+    <React.Fragment>
+      <Button
+        onClick={() => setOpen(true)}
+        variant="solid"
+        color="success"
+        size="md"
+        sx={{
+          display: { xs: "none", md: "inline-flex" },
+          alignItems: "center",
+          fontWeight: 500,
+          fontSize: (theme) => theme.typography["body-md"].fontSize,
+        }}
+      >
+        Add Friend
+      </Button>
+      <BasicModalDialog open={open} setOpen={setOpen}></BasicModalDialog>
+    </React.Fragment>
   );
 }
-// var(--joy-palette-neutral-100, #F0F4F8)
-// var(--joy-palette-neutral-200, #DDE7EE)
-

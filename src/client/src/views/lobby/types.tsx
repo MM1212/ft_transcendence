@@ -1,14 +1,12 @@
-import { IUser } from "@typings/user";
 import MessagesPanel from "./components/MessagesPanel";
 import MessageChat from "./components/MessageChat";
 import ChatModel from "@typings/models/chat";
 import FriendsPanel from "./components/FriendsPanel";
-import { Route, Switch } from "wouter";
 import FriendsOnline from "./components/Friends/FriendsOnline";
 import FriendsAll from "./components/Friends/FriendsAll";
 import FriendsPending from "./components/Friends/FriendsPending";
 import FriendsBlocked from "./components/Friends/FriendsBlocked";
-import AddFriend from "./components/Friends/FriendsAddFriend";
+import { sampleChat } from "./hardoceTestes";
 
 export interface ChatsPaneProps {
   setSelectedChat: (chat: ChatModel.Models.IChat) => void;
@@ -36,164 +34,7 @@ export function formatTimestamp(timestamp: Date) {
   return fromattedTimestamp;
 }
 
-export const sampleUsers: IUser[] = [
-  {
-    id: 1,
-    studentId: 104676,
-    nickname: "Mário Granate",
-    avatar: "https://avatars.githubusercontent.com/u/63326242?s=96&v=4",
-    createdAt: 34 | 2,
-    online: true,
-    experience: "lvl 9 5000xp",
-  },
-  {
-    id: 3,
-    studentId: 95303,
-    nickname: "Anfreire",
-    avatar:
-      "https://cdn.intra.42.fr/users/7a6f505ef289bbba5827cb9a540b36d5/amaria-d.jpg",
-    createdAt: 34 | 2,
-    online: true,
-    experience: "lvl 1000 4xp",
-  },
-];
-
-export const sampleParticipant: ChatModel.Models.IChatParticipant = {
-  id: 1,
-  chatId: 1,
-  user: sampleUsers[0],
-  userId: sampleUsers[0].id,
-  role: ChatModel.Models.ChatParticipantRole.Owner,
-  toReadPings: 2,
-  createdAt: 0,
-};
-
-export const sampleParticipantAntonio: ChatModel.Models.IChatParticipant = {
-  id: 3,
-  chatId: 1,
-  user: sampleUsers[1],
-  userId: sampleUsers[1].id,
-  role: ChatModel.Models.ChatParticipantRole.Member,
-  toReadPings: 2,
-  createdAt: 0,
-};
-
-export const sampleChat: ChatModel.Models.IChat = {
-  id: 1,
-  type: ChatModel.Models.ChatType.Direct,
-  authorization: ChatModel.Models.ChatAccess.Private,
-  authorizationData: null,
-  name: "priv: Mario+Joao",
-  photo: null,
-  participants: [sampleParticipant, sampleParticipantAntonio],
-  createdAt: 0,
-  messages: [
-    {
-      id: 1,
-      chatId: 1,
-      type: ChatModel.Models.ChatMessageType.Normal,
-      message: "Eu sou o mario",
-      meta: {},
-      author: sampleParticipant,
-      authorId: sampleParticipant.id,
-      createdAt: 9.09,
-    },
-    {
-      id: 3,
-      chatId: 1,
-      type: ChatModel.Models.ChatMessageType.Normal,
-      message: "Eu sou o Anfreire",
-      meta: {},
-      author: sampleParticipantAntonio,
-      authorId: sampleParticipantAntonio.id,
-      createdAt: 9.1,
-    },
-  ],
-  // messages: [...new Array(20)].map((_,id) => {
-  //   const author = id % 2 === 0 ? sampleUsers[0] : sampleUsers[1];
-  //   return ({
-  //     id,
-  //     author: {
-  //       chatId: id,
-  //       createdAt: Date.now(),
-  //       id: id * 2,
-  //       role: ChatModel.Models.ChatParticipantRole.Banned,
-  //       toReadPings: 2,
-  //       user: author,
-  //       userId: author.id
-  //     },
-  //     authorId: id,
-  //     chatId: 1,
-  //     createdAt: Math.floor(Date.now() - Math.random() * 1000),
-  //     message: "BOAS",
-  //     meta: {},
-  //     type: ChatModel.Models.ChatMessageType.Normal
-  //   });
-  // }),
-};
-
 export const arrayChats: ChatModel.Models.IChat[] = [sampleChat];
-
-export const subTargets = [
-  {
-    label: "Online",
-    target: "/friends/online",
-    node:  <FriendsOnline />
-  },
-  {
-    label: "All",
-    target: "/friends/all",
-    node: (
-      <>
-        <FriendsAll />
-      </>
-    ),
-  },
-  {
-    label: "Pendig",
-    target: "/friends/pending",
-    node: (
-      <>
-        <FriendsPending />
-      </>
-    ),
-  },
-  {
-    label: "Blocked",
-    target: "/friends/blocked",
-    node: (
-      <>
-        <FriendsBlocked />
-      </>
-    ),
-  },
-];
-
-export const simpleTargets = [
-  {
-    label: "Messages",
-    target: "/messages",
-    node: (
-      <>
-        <MessagesPanel setSelectedChat={() => {}} />
-        <MessageChat chat={sampleChat} />
-      </>
-    ),
-  },
-  {
-    label: "Key Bindings",
-    target: "/keybindings",
-  },
-  {
-    label: "Friends",
-    target: "/friends",
-    node: (
-      <>
-        <FriendsPanel />
-      </>
-    ),
-  }
-]
 
 
 export const mainTargets = [
@@ -221,6 +62,7 @@ export const mainTargets = [
   },
   {
     label: "Friends",
+    route: "/friends/:rest*",
     target: "/friends",
     node: (
       <>
@@ -237,7 +79,3 @@ export const mainTargets = [
     target: "/exit",
   },
 ];
-
-export function myAssert(condition: boolean) {
-  if (!condition) throw new Error("myAssertion failed");
-}

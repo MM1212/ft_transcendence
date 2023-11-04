@@ -14,9 +14,9 @@ interface Color {
 }
 
 const getColorType = (color: string): ColorType => {
-  if (color.startsWith('rgb'))
-    return color.startsWith('rgba') ? ColorType.RGBA : ColorType.RGB;
-  if (color.startsWith('#') && (color.length === 7 || color.length === 4))
+  if (color.startsWith("rgb"))
+    return color.startsWith("rgba") ? ColorType.RGBA : ColorType.RGB;
+  if (color.startsWith("#") && (color.length === 7 || color.length === 4))
     return ColorType.HEX;
   return ColorType.UNK;
 };
@@ -44,7 +44,7 @@ const getColorChannels = (colorCode: string): Color => {
       color.a = a1 === undefined ? 255 : a1;
       break;
     default:
-      throw new Error('Unknown color type for ' + colorCode);
+      throw new Error("Unknown color type for " + colorCode);
   }
   return color as Color;
 };
@@ -58,23 +58,25 @@ const toColorType = (color: Color): string => {
     case ColorType.HEX:
       return `#${color.r.toString(16)}${color.g.toString(16)}${color.b.toString(
         16
-      )}`;
+      )}${color.a !== undefined ? color.a.toString(16) : ""}`;
     default:
-      throw new Error('Unknown color type for ' + color);
+      throw new Error("Unknown color type for " + color);
   }
 };
 
 export const alpha = (colorCode: string, delta: number): string => {
   const color = getColorChannels(colorCode);
-  color.a = Math.min(Math.max(color.a! * delta, 0), 255);
+  color.a = Math.floor(delta * 255);
   return toColorType(color);
 };
 
 export const lighten = (colorCode: string, delta: number): string => {
   const color = getColorChannels(colorCode);
-  color.r = Math.min(Math.max(color.r + delta, 0), 255);
-  color.g = Math.min(Math.max(color.g + delta, 0), 255);
-  color.b = Math.min(Math.max(color.b + delta, 0), 255);
+  console.log(color);
+
+  color.r = Math.floor(Math.min(Math.max(color.r + color.r * delta, 0), 255));
+  color.g = Math.floor(Math.min(Math.max(color.g + color.g * delta, 0), 255));
+  color.b = Math.floor(Math.min(Math.max(color.b + color.b * delta, 0), 255));
   return toColorType(color);
 };
 
@@ -88,4 +90,4 @@ export const getContrastRatio = (colorCode: string): number => {
     return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
   });
   return (0.2126 * r + 0.7152 * g + 0.0722 * b + 0.05) / 0.05;
-}
+};
