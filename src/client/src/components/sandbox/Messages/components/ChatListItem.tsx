@@ -6,12 +6,10 @@ import ListItemButton, { ListItemButtonProps } from '@mui/joy/ListItemButton';
 import Stack from '@mui/joy/Stack';
 import Typography from '@mui/joy/Typography';
 import AvatarWithStatus from './AvatarWithStatus';
-import { faCircle } from '@fortawesome/free-solid-svg-icons';
-import { ChatProps, MessageProps, UserProps } from '../types';
 import { toggleMessagesPane } from '../utils';
-import Icon from '@components/Icon';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import chatsState from '../state';
+import CircleIcon from '@components/icons/CircleIcon';
 
 type ChatListItemProps = {
   id: number;
@@ -23,7 +21,6 @@ export default function ChatListItem({ id }: ChatListItemProps) {
     useRecoilValue(chatsState.chatInfo(id));
   const participant = useRecoilValue(chatsState.selfParticipantByChat(id));
   if (!participant) return null;
-  console.log(participant);
 
   return (
     <React.Fragment>
@@ -48,7 +45,7 @@ export default function ChatListItem({ id }: ChatListItemProps) {
               online={online}
               src={photo ?? undefined}
               size="lg"
-              inset='.5rem'
+              inset=".5rem"
             />
             <Stack spacing={0.25} width="100%">
               <Box
@@ -59,8 +56,7 @@ export default function ChatListItem({ id }: ChatListItemProps) {
                 <Typography level="title-sm">{name}</Typography>
                 <Box>
                   {participant.toReadPings !== 0 && (
-                    <Icon
-                      icon={faCircle}
+                    <CircleIcon
                       sx={{ fontSize: 8, color: 'primary.plainColor' }}
                     />
                   )}

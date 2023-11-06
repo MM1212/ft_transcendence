@@ -1,7 +1,7 @@
 import { sessionAtom, usersAtom } from '@hooks/user/state';
 import tunnel from '@lib/tunnel';
 import ChatsModel from '@typings/models/chat';
-import { atom, selector, selectorFamily, waitForAll } from 'recoil';
+import { atom, atomFamily, selector, selectorFamily, waitForAll } from 'recoil';
 
 const Targets = ChatsModel.Endpoints.Targets;
 
@@ -23,7 +23,7 @@ const chatsState = new (class MessagesState {
   chatIds = selector<number[]>({
     key: 'chatIds',
     get: ({ get }) =>
-      get(this.chats)
+      [...get(this.chats)]
         .sort((a, b) => {
           const aLast = a.messages[0]?.createdAt ?? 0;
           const bLast = b.messages[0]?.createdAt ?? 0;
@@ -121,16 +121,63 @@ const chatsState = new (class MessagesState {
         return chat?.participants.find((p) => p.userId === self?.id) ?? null;
       },
   });
+  messageByIdx = selectorFamily<
+    ChatsModel.Models.IChatMessage | null,
+    { chatId: number; messageIdx: number }
+  >({
+    key: 'chatMessage',
+    get:
+      ({ chatId, messageIdx }) =>
+      ({ get }) => {
+        const chat = get(this.chat(chatId));
+        return chat?.messages[messageIdx] ?? null;
+      },
+  });
   message = selectorFamily<
     ChatsModel.Models.IChatMessage | null,
     { chatId: number; messageId: number }
   >({
     key: 'chatMessage',
+    cachePolicy_UNSTABLE: {
+      eviction: 'most-recent'
+    },
     get:
       ({ chatId, messageId }) =>
       ({ get }) => {
         const chat = get(this.chat(chatId));
         return chat?.messages.find((m) => m.id === messageId) ?? null;
+      },
+  });
+  messageInteractions = selectorFamily<
+    IMessageInteraction,
+    {
+      chatId: number;
+      messageIdx: number;
+    }
+  >({
+    key: 'chatMessageInteractions',
+    get:
+      ({ chatId, messageIdx }) =>
+      ({ get }) => {
+        const message = get(this.messageByIdx({ chatId, messageIdx }))!;
+        const prev = get(
+          this.messageByIdx({ chatId, messageIdx: messageIdx + 1 })
+        );
+        const next = get(
+          this.messageByIdx({ chatId, messageIdx: messageIdx - 1 })
+        );
+        const hasPrev =
+          prev &&
+          prev.authorId === message.authorId &&
+          Math.abs(prev.createdAt - message.createdAt) < 60000;
+        const hasNext =
+          next &&
+          next.authorId === message.authorId &&
+          Math.abs(message.createdAt - next.createdAt) < 60000;
+        return {
+          prev: !!hasPrev,
+          next: !!hasNext,
+        };
       },
   });
   messageIds = selectorFamily<number[], number>({
@@ -139,7 +186,7 @@ const chatsState = new (class MessagesState {
       (id) =>
       ({ get }) => {
         const chat = get(this.chat(id));
-        return chat?.messages.map((m) => m.id) ?? [];
+        return [...(chat?.messages ?? [])].map((m) => m.id);
       },
   });
   lastMessage = selectorFamily<ChatsModel.Models.IChatMessage | null, number>({
@@ -162,23 +209,26 @@ const chatsState = new (class MessagesState {
         const self = get(sessionAtom);
         const users = get(
           waitForAll(participants.map((p) => usersAtom(p.userId)))
-        ).filter((u) => u !== null && u.id !== self?.id);
+        ).filter(Boolean);
         if (info.type === ChatsModel.Models.ChatType.Direct) {
-          const other = users[0];
+          const other = users.find((u) => u.id !== self?.id);
 
           info.name = other?.nickname ?? 'Unknown';
           info.photo = other?.avatar ?? null;
           (info as ISelectedChatInfo).online = false;
         } else {
           (info as ISelectedChatInfo).participantNames = users
+            .filter((u) => u?.id !== self?.id)
             .map((p) => p.nickname)
             .join(', ');
           const lastMessageParticipant = participants.find(
             (p) => p.id === chat.messages[0]?.authorId
           );
+
           const lastMessageUser = users.find(
             (u) => u.id === lastMessageParticipant?.userId
           );
+
           (info as ISelectedChatInfo).lastMessageAuthorName =
             lastMessageUser?.id === self?.id
               ? 'You'
@@ -195,12 +245,22 @@ const chatsState = new (class MessagesState {
       return get(this.chatInfo(chatId));
     },
   });
+
+  chatsInput = atomFamily<string, number>({
+    key: 'chatsInput',
+    default: '',
+  });
 })();
 interface ISelectedChatInfo extends ChatsModel.Models.IChatInfo {
   online: boolean;
   participantNames: string;
   lastMessage: ChatsModel.Models.IChatMessage | null;
   lastMessageAuthorName: string;
+}
+
+interface IMessageInteraction {
+  prev: boolean;
+  next: boolean;
 }
 
 export default chatsState;

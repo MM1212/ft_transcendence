@@ -69,6 +69,18 @@ const testTheme = extendTheme({
         }),
       },
     },
+    JoyIconButton: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          transition: theme.transitions.create(
+            ['background-color', 'transform', 'box-shadow', 'border'],
+            {
+              duration: theme.transitions.duration.shortest,
+            }
+          ),
+        }),
+      },
+    },
   },
 });
 

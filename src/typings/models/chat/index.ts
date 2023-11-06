@@ -11,6 +11,7 @@ import UsersModel from '../users';
 
 namespace ChatsModel {
   export namespace Models {
+    export const MAX_MESSAGES_PER_CHAT = 50;
     export enum ChatType {
       Temp = 'TEMP',
       Group = 'GROUP',
@@ -232,7 +233,7 @@ namespace ChatsModel {
         EndpointMethods.Put,
         Targets.CreateMessage,
         Models.IChatMessage,
-        DTO.DB.CreateMessage,
+        DTO.NewMessage,
         DTO.ChatParams
       > {}
     export interface UpdateChatInfo

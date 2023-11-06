@@ -6,12 +6,14 @@ import { SWRConfig } from 'swr';
 import { Router } from 'wouter';
 import StateMounter from '@state/mounter';
 import NotificationsProvider from '@lib/notifications/Provider';
+import { DebugObserver } from '@components/DebugObserver';
 
 export default function AppProviders({
   children,
 }: React.PropsWithChildren<{}>): JSX.Element {
   return (
     <RecoilRoot>
+      <DebugObserver />
       <Router>
         <SWRConfig
           value={{

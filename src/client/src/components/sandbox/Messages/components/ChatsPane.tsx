@@ -5,17 +5,13 @@ import Typography from '@mui/joy/Typography';
 import { Box, Chip, CircularProgress, IconButton, Input } from '@mui/joy';
 import List from '@mui/joy/List';
 import ChatListItem from './ChatListItem';
-import { ChatProps } from '../types';
 import { toggleMessagesPane } from '../utils';
-import {
-  faPenToSquare,
-  faSearch,
-  faXmark,
-} from '@fortawesome/free-solid-svg-icons';
-import Icon from '@components/Icon';
 import { useRecoilValue } from 'recoil';
 import chatsState from '../state';
 import { useModalActions } from '@hooks/useModal';
+import PencilBoxIcon from '@components/icons/PencilBoxIcon';
+import CancelIcon from '@components/icons/CancelIcon';
+import MagnifyIcon from '@components/icons/MagnifyIcon';
 
 function ChatEntries() {
   const chatIds = useRecoilValue(chatsState.chatIds);
@@ -74,7 +70,7 @@ export default function ChatsPane() {
           sx={{ display: { xs: 'none', sm: 'unset' } }}
           onClick={open}
         >
-          <Icon icon={faPenToSquare} />
+          <PencilBoxIcon />
         </IconButton>
 
         <IconButton
@@ -87,13 +83,13 @@ export default function ChatsPane() {
           }}
           sx={{ display: { sm: 'none' } }}
         >
-          <Icon icon={faXmark} />
+          <CancelIcon />
         </IconButton>
       </Stack>
       <Box sx={{ px: 2, pb: 1.5 }}>
         <Input
           size="sm"
-          startDecorator={<Icon icon={faSearch} />}
+          startDecorator={<MagnifyIcon />}
           placeholder="Search"
           aria-label="Search"
         />

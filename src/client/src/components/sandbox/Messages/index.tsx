@@ -4,7 +4,7 @@ import MyMessages from './components/MyMessages';
 
 export default function MessagesSandbox() {
   return (
-    <Box sx={{ display: 'flex', minHeight: '100dvh' }}>
+    <Box sx={{ display: 'flex', height: '100dvh' }}>
       <MyMessages />
     </Box>
   );

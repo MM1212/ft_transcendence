@@ -1,12 +1,10 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   NotFoundException,
   Param,
   ParseIntPipe,
-  Patch,
   Put,
   Query,
 } from '@nestjs/common';
@@ -19,11 +17,9 @@ import ChatCtx from './decorators/Chat.pipe';
 import Chat from './chat';
 import {
   EndpointResponse,
-  buildEmptyResponse,
-  buildErrorResponse,
   buildOkResponse,
 } from '@typings/api';
-import { ChatAuth, ChatOPAuth } from './decorators/Role.guard';
+import { ChatAuth } from './decorators/Role.guard';
 
 const Targets = ChatsModel.Endpoints.Targets;
 
@@ -53,7 +49,9 @@ export class ChatsController {
     @Query('cursor', new ParseIntPipe({ errorHttpStatusCode: 400 }))
     cursor: number,
   ): Promise<EndpointResponse<ChatsModel.Endpoints.GetChatMessages>> {
-    return buildOkResponse(await chat.getMessages(cursor));
+    const messages = await chat.getMessages(cursor);
+    
+    return buildOkResponse(messages);
   }
 
   @Get(Targets.GetChatParticipants)

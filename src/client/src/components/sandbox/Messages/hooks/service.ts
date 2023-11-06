@@ -7,13 +7,19 @@ const useMessagesService = () => {
   const onNewMessage = useRecoilCallback(
     (ctx) => async (ev: ChatsModel.Sse.NewMessageEvent) => {
       const { data } = ev;
-      const chats = await ctx.snapshot.getPromise(chatsState.chats);
+      const chats = [...(await ctx.snapshot.getPromise(chatsState.chats))];
       const chatIdx = chats.findIndex((chat) => chat.id === data.chatId);
       if (chatIdx === -1) return;
+      if (
+        chats[chatIdx].messages.findIndex(
+          (message) => message.id === data.id
+        ) !== -1
+      )
+        return;
       const chat = { ...chats[chatIdx] };
       chat.messages = [data, ...chat.messages];
       chats[chatIdx] = chat;
-      ctx.set(chatsState.chats, [...chats]);
+      ctx.set(chatsState.chats, chats);
     },
     []
   );

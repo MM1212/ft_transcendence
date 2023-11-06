@@ -13,6 +13,7 @@ import { clearAllSwrCache } from '../swrUtils';
 import UsersModel from '@typings/models/users';
 import { sessionAtom, usersAtom } from './state';
 import { useSseEvent } from '@hooks/sse';
+import isEqual from 'lodash.isequal';
 
 type LoadingSession = { readonly loading: boolean };
 type IUser = UsersModel.Models.IUserInfo;
@@ -83,10 +84,14 @@ export const useLoggedInSession = (
 
 export const useSessionRecoilService = () => {
   const setSession = useSetRecoilState(sessionAtom);
-  const { user } = useSession();
+  const { user, loading } = useSession();
   React.useEffect(() => {
-    setSession(user ?? null);
-  }, [setSession, user]);
+    if (loading) return;
+    setSession((prev) => {
+      if (isEqual(prev, user)) return prev;
+      return user;
+    });
+  }, [setSession, user, loading]);
 
   return null;
 };

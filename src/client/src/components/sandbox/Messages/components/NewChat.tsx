@@ -1,22 +1,11 @@
 import React from 'react';
 import FormControl from '@mui/joy/FormControl';
 import FormLabel from '@mui/joy/FormLabel';
-import Input, { inputClasses } from '@mui/joy/Input';
+import Input from '@mui/joy/Input';
 import Modal from '@mui/joy/Modal';
 import ModalDialog from '@mui/joy/ModalDialog';
 import DialogTitle from '@mui/joy/DialogTitle';
-import DialogContent from '@mui/joy/DialogContent';
 import Stack from '@mui/joy/Stack';
-import Icon from '@components/Icon';
-import {
-  faComments,
-  faKey,
-  faLink,
-  faLock,
-  faPhotoVideo,
-  faTag,
-  faUsers,
-} from '@fortawesome/free-solid-svg-icons';
 import { useModal } from '@hooks/useModal';
 import { useForm } from '@mantine/form';
 import ChatsModel from '@typings/models/chat';
@@ -28,8 +17,6 @@ import {
   CircularProgress,
   DialogActions,
   FormHelperText,
-  ListItem,
-  ListItemButton,
   Textarea,
   textareaClasses,
 } from '@mui/joy';
@@ -47,6 +34,13 @@ import Collapse from '../../../transitions/Collapse';
 import { useRecoilCallback } from 'recoil';
 import chatsState from '../state';
 import notifications from '@lib/notifications/hooks';
+import KeyIcon from '@components/icons/KeyIcon';
+import FormTextboxPasswordIcon from '@components/icons/FormTextboxPasswordIcon';
+import AccountGroupIcon from '@components/icons/AccountGroupIcon';
+import LabelIcon from '@components/icons/LabelIcon';
+import ImageIcon from '@components/icons/ImageIcon';
+import LinkIcon from '@components/icons/LinkIcon';
+import LockIcon from '@components/icons/LockIcon';
 
 function PasswordMeterInput({ value, onChange, disabled }: any) {
   const minLength = 12;
@@ -60,7 +54,7 @@ function PasswordMeterInput({ value, onChange, disabled }: any) {
       <Input
         type="password"
         placeholder="Type in here…"
-        startDecorator={<Icon icon={faKey} />}
+        startDecorator={<FormTextboxPasswordIcon />}
         value={value}
         onChange={onChange}
         disabled={disabled}
@@ -160,7 +154,7 @@ function UsersAutocomplete({
             onQueryChange(value);
           }
         }}
-        startDecorator={<Icon icon={faUsers} />}
+        startDecorator={<AccountGroupIcon />}
         renderOption={(props: Record<string, unknown>, option) => (
           <AutocompleteOption
             {...props}
@@ -327,7 +321,7 @@ export default function NewChatModal(): JSX.Element {
                 required
                 placeholder="Enter group name"
                 {...form.getInputProps('name')}
-                startDecorator={<Icon icon={faTag} />}
+                startDecorator={<LabelIcon />}
                 endDecorator={
                   <Typography
                     level="body-sm"
@@ -377,7 +371,7 @@ export default function NewChatModal(): JSX.Element {
                   }
                 >
                   {(!form.isValid('photo') || !form.values.photo) && (
-                    <Icon icon={faPhotoVideo} size="lg" color="gray" />
+                    <ImageIcon size="lg" color="neutral" />
                   )}
                 </Avatar>
                 <Input
@@ -385,7 +379,7 @@ export default function NewChatModal(): JSX.Element {
                   type="url"
                   placeholder="Enter group photo url"
                   {...form.getInputProps('photo')}
-                  startDecorator={<Icon icon={faLink} />}
+                  startDecorator={<LinkIcon />}
                 />
               </Stack>
               {form.errors.photo && (
@@ -404,7 +398,7 @@ export default function NewChatModal(): JSX.Element {
                     form.values.authorization ===
                     ChatsModel.Models.ChatAccess.Private
                   }
-                  checkedIcon={<Icon icon={faLock} size="xs" />}
+                  checkedIcon={<LockIcon size="sm" />}
                   onChange={(ev) =>
                     form.setFieldValue(
                       'authorization',

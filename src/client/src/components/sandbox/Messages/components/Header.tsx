@@ -2,9 +2,8 @@ import * as React from 'react';
 import GlobalStyles from '@mui/joy/GlobalStyles';
 import IconButton from '@mui/joy/IconButton';
 import Sheet from '@mui/joy/Sheet';
-import { faBars } from '@fortawesome/free-solid-svg-icons';
 import { toggleSidebar } from '../utils';
-import Icon from '@components/Icon';
+import MenuIcon from '@components/icons/MenuIcon';
 
 export default function Header() {
   return (
@@ -41,7 +40,7 @@ export default function Header() {
         color="neutral"
         size="sm"
       >
-        <Icon icon={faBars} />
+        <MenuIcon />
       </IconButton>
     </Sheet>
   );

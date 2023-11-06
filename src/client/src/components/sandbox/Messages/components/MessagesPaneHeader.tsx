@@ -6,15 +6,12 @@ import IconButton from '@mui/joy/IconButton';
 import Stack from '@mui/joy/Stack';
 import Typography from '@mui/joy/Typography';
 import { toggleMessagesPane } from '../utils';
-import {
-  faChevronLeft,
-  faCircle,
-  faEllipsisV,
-  faPhoneVolume,
-} from '@fortawesome/free-solid-svg-icons';
-import Icon from '@components/Icon';
 import { useRecoilValue } from 'recoil';
 import chatsState from '../state';
+import ChevronLeftIcon from '@components/icons/ChevronLeftIcon';
+import CircleIcon from '@components/icons/CircleIcon';
+import PhoneInTalkIcon from '@components/icons/PhoneInTalkIcon';
+import DotsVerticalIcon from '@components/icons/DotsVerticalIcon';
 
 export default function MessagesPaneHeader() {
   const { name, photo, online, participantNames } = useRecoilValue(
@@ -42,7 +39,7 @@ export default function MessagesPaneHeader() {
           }}
           onClick={() => toggleMessagesPane()}
         >
-          <Icon icon={faChevronLeft} />
+          <ChevronLeftIcon />
         </IconButton>
         <Avatar size="lg" src={photo ?? undefined} />
         <Stack>
@@ -60,13 +57,7 @@ export default function MessagesPaneHeader() {
                   sx={{
                     borderRadius: 'sm',
                   }}
-                  startDecorator={
-                    <Icon
-                      icon={faCircle}
-                      sx={{ fontSize: 8 }}
-                      color="success"
-                    />
-                  }
+                  startDecorator={<CircleIcon />}
                   slotProps={{ root: { component: 'span' } }}
                 >
                   Online
@@ -91,7 +82,7 @@ export default function MessagesPaneHeader() {
       </Stack>
       <Stack spacing={1} direction="row" alignItems="center">
         <Button
-          startDecorator={<Icon icon={faPhoneVolume} />}
+          startDecorator={<PhoneInTalkIcon />}
           color="neutral"
           variant="outlined"
           size="sm"
@@ -113,7 +104,7 @@ export default function MessagesPaneHeader() {
         </Button>
 
         <IconButton size="sm" variant="plain" color="neutral">
-          <Icon icon={faEllipsisV} />
+          <DotsVerticalIcon />
         </IconButton>
       </Stack>
     </Stack>

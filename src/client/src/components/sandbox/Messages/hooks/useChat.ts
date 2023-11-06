@@ -11,7 +11,7 @@ const useChat = (chatId: number) => {
   const useParticipant = (participantId: number) =>
     useRecoilValue(chatsState.participant({ chatId, participantId }));
   const useMessage = (messageId: number) =>
-    useRecoilValue(chatsState.message({ chatId, messageId }));
+    useRecoilValue(chatsState.messageByIdx({ chatId, messageId }));
   const useSelf = () => useRecoilValue(chatsState.chat(chatId));
   return {
     useMessages,
