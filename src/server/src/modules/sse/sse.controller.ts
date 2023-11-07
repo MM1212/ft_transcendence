@@ -73,8 +73,11 @@ export class SseController implements OnModuleInit, OnModuleDestroy {
         console.log('SSE connection closed for user', user.id);
         subject.complete();
         this.clients.splice(this.clients.indexOf(client), 1);
+        if (this.clients.some((c) => c.id === user.id)) return;
+        this.service.local.emit('sse.disconnected', user.id);
       },
     });
+    this.service.local.emit('sse.connected', user.id);
     return observer.pipe(
       map((data) => {
         const event = new MessageEvent('message', {
@@ -96,7 +99,11 @@ export class SseController implements OnModuleInit, OnModuleDestroy {
     @HttpCtx() ctx: HTTPContext<true>,
   ): EmptyResponse {
     this.service.emitToAll<SSE.DTO.Test>('test', {
-      user: { id: ctx.user.id, name: ctx.user.nickname, avatar: ctx.user.avatar },
+      user: {
+        id: ctx.user.id,
+        name: ctx.user.nickname,
+        avatar: ctx.user.avatar,
+      },
       message,
     });
     return buildOkResponse(undefined);

@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   NotFoundException,
   Param,
@@ -23,7 +22,7 @@ import {
   buildErrorResponse,
   buildOkResponse,
 } from '@typings/api';
-import { ChatAuth, ChatOPAuth } from './decorators/Role.guard';
+import { ChatAuth } from './decorators/Role.guard';
 
 const Targets = ChatsModel.Endpoints.Targets;
 
@@ -53,7 +52,9 @@ export class ChatsController {
     @Query('cursor', new ParseIntPipe({ errorHttpStatusCode: 400 }))
     cursor: number,
   ): Promise<EndpointResponse<ChatsModel.Endpoints.GetChatMessages>> {
-    return buildOkResponse(await chat.getMessages(cursor));
+    const messages = await chat.getMessages(cursor);
+
+    return buildOkResponse(messages);
   }
 
   @Get(Targets.GetChatParticipants)
@@ -120,18 +121,18 @@ export class ChatsController {
   //   return buildOkResponse(resp);
   // }
 
-  // @Patch(Targets.UpdateParticipant)
-  // @ChatOPAuth()
-  // async updateParticipant(
-  //   @ChatCtx() chat: Chat,
-  //   @Param('participantId', new ParseIntPipe({ errorHttpStatusCode: 400 }))
-  //   participantId: number,
-  //   @Body() data: ChatsModel.DTO.DB.UpdateParticipant,
-  // ): Promise<EndpointResponse<ChatsModel.Endpoints.UpdateParticipant>> {
-  //   const [ok, resp] = await chat.updateParticipant(participantId, data);
-  //   if (!ok) return buildErrorResponse(resp);
-  //   return buildOkResponse(resp);
-  // }
+  @Patch(Targets.UpdateParticipant)
+  @ChatAuth()
+  async updateParticipant(
+    @ChatCtx() chat: Chat,
+    @Param('participantId', new ParseIntPipe({ errorHttpStatusCode: 400 }))
+    participantId: number,
+    @Body() data: ChatsModel.DTO.DB.UpdateParticipant,
+    @HttpCtx() { user }: HTTPContext<true>,
+  ): Promise<EndpointResponse<ChatsModel.Endpoints.UpdateParticipant>> {
+    await chat.updateParticipant(user, participantId, data);
+    return buildEmptyResponse();
+  }
 
   // @Patch(Targets.UpdateMessage)
   // @ChatAuth()

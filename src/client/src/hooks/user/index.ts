@@ -1,14 +1,22 @@
 import { AuthModel } from '@typings/api';
-import { IUser } from '@typings/user';
-import { FetchError, buildTunnelEndpoint, useTunnelEndpoint } from './tunnel';
+import {
+  FetchError,
+  buildTunnelEndpoint,
+  useTunnelEndpoint,
+} from '@/hooks/tunnel';
 import React from 'react';
 import {} from 'wouter';
 import useLocation from 'wouter/use-location';
 import tunnel from '@lib/tunnel';
-import { atom, useSetRecoilState } from 'recoil';
-import { clearAllSwrCache } from './swrUtils';
+import { useRecoilCallback, useRecoilValue, useSetRecoilState } from 'recoil';
+import { clearAllSwrCache } from '../swrUtils';
+import UsersModel from '@typings/models/users';
+import { sessionAtom, usersAtom } from './state';
+import { useSseEvent } from '@hooks/sse';
+import isEqual from 'lodash.isequal';
 
 type LoadingSession = { readonly loading: boolean };
+type IUser = UsersModel.Models.IUserInfo;
 
 interface LoggedInSession {
   readonly loggedIn: true;
@@ -24,11 +32,6 @@ type Session = LoadingSession &
   SessionActions &
   (LoggedInSession | { readonly loggedIn: false; readonly user: null });
 
-export const sessionAtom = atom<IUser | null>({
-  key: 'session',
-  default: null,
-});
-
 export const useSessionActions = (): SessionActions => {
   const login = async (): Promise<void> => {
     document.location.href = buildTunnelEndpoint(
@@ -36,9 +39,7 @@ export const useSessionActions = (): SessionActions => {
     );
   };
   const logout = async (): Promise<void> => {
-    const res = await tunnel.get<AuthModel.Endpoints.Logout>(
-      AuthModel.Endpoints.Targets.Logout
-    );
+    const res = await tunnel.get(AuthModel.Endpoints.Targets.Logout);
     if (!res) throw new Error('Failed to logout');
     await clearAllSwrCache();
   };
@@ -83,10 +84,49 @@ export const useLoggedInSession = (
 
 export const useSessionRecoilService = () => {
   const setSession = useSetRecoilState(sessionAtom);
-  const { user } = useSession();
+  const { user, loading } = useSession();
   React.useEffect(() => {
-    setSession(user ?? null);
-  }, [setSession, user]);
+    if (loading) return;
+    setSession((prev) => {
+      if (isEqual(prev, user)) return prev;
+      return user;
+    });
+  }, [setSession, user, loading]);
 
   return null;
+};
+
+export const useCurrentUser = (): IUser | null => useRecoilValue(sessionAtom);
+export const useUser = (id: number): IUser | null =>
+  useRecoilValue(usersAtom(id));
+
+export const useUsersService = () => {
+  const onUserUpdate = useRecoilCallback(
+    (ctx) => (ev: UsersModel.Sse.UserUpdatedEvent) => {
+      const {
+        data: { id, avatar, nickname, studentId, status },
+      } = ev;
+      const { state } = ctx.snapshot.getLoadable(usersAtom(id));
+      const { isSet, isActive, isModified } = ctx.snapshot.getInfo_UNSTABLE(usersAtom(id));
+      console.log(id, isSet, isActive, isModified);
+      
+      if (state === 'loading' || !isActive) {
+        console.warn('User not found in cache, skipping update');
+        return;
+      }
+      ctx.set(usersAtom(id), (prev) => ({
+        ...prev,
+        avatar,
+        nickname,
+        studentId,
+        status
+      }));
+    },
+    []
+  );
+
+  useSseEvent<UsersModel.Sse.UserUpdatedEvent>(
+    UsersModel.Sse.Events.UserUpdated,
+    onUserUpdate
+  );
 };
