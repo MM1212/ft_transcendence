@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 export const useKeybindsToggle = <T extends string[]>(
   keys: T,
@@ -18,12 +18,13 @@ export const useKeybindsToggle = <T extends string[]>(
     };
     const keydownHandler = keyHandler(true);
     const keyupHandler = keyHandler(false);
-    document.addEventListener('keydown', keydownHandler);
-    document.addEventListener('keyup', keyupHandler);
+    document.addEventListener("keydown", keydownHandler);
+    document.addEventListener("keyup", keyupHandler);
     return () => {
-      document.removeEventListener('keydown', keydownHandler);
-      document.removeEventListener('keyup', keyupHandler);
+      document.removeEventListener("keydown", keydownHandler);
+      document.removeEventListener("keyup", keyupHandler);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [handler, keys, ...deps]);
 };
+

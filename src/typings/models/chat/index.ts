@@ -5,32 +5,32 @@ import {
   GetEndpoint,
   GroupEndpointTargets,
   SseModel,
-} from '@typings/api';
-import { GroupEnumValues } from '@typings/utils';
-import UsersModel from '../users';
+} from "@typings/api";
+import { GroupEnumValues } from "@typings/utils";
+import UsersModel from "../users";
 
 namespace ChatsModel {
   export namespace Models {
     export const MAX_MESSAGES_PER_CHAT = 50;
     export enum ChatType {
-      Temp = 'TEMP',
-      Group = 'GROUP',
-      Direct = 'DIRECT',
+      Temp = "TEMP",
+      Group = "GROUP",
+      Direct = "DIRECT",
     }
     export enum ChatAccess {
-      Public = 'PUBLIC',
-      Private = 'PRIVATE',
+      Public = "PUBLIC",
+      Private = "PRIVATE",
     }
     export enum ChatParticipantRole {
-      Owner = 'OWNER',
-      Admin = 'ADMIN',
-      Member = 'MEMBER',
-      Banned = 'BANNED',
-      Left = 'LEFT',
+      Owner = "OWNER",
+      Admin = "ADMIN",
+      Member = "MEMBER",
+      Banned = "BANNED",
+      Left = "LEFT",
     }
     export enum ChatMessageType {
-      Normal = 'NORMAL',
-      Embed = 'EMBED',
+      Normal = "NORMAL",
+      Embed = "EMBED",
     }
 
     export interface IChatParticipant {
@@ -48,10 +48,10 @@ namespace ChatsModel {
 
     export namespace Embeds {
       export enum Type {
-        Media = 'media',
-        UserProfile = 'user-profile',
-        GameInvite = 'game-invite',
-        ChatInvite = 'chat-invite',
+        Media = "media",
+        UserProfile = "user-profile",
+        GameInvite = "game-invite",
+        ChatInvite = "chat-invite",
       }
       export interface Media {
         type: GroupEnumValues<Type.Media>;
@@ -103,16 +103,16 @@ namespace ChatsModel {
   export namespace DTO {
     export namespace DB {
       export interface ChatMessage
-        extends Omit<Models.IChatMessage, 'createdAt' | 'meta'> {
+        extends Omit<Models.IChatMessage, "createdAt" | "meta"> {
         createdAt: Date;
         meta: any;
       }
       export interface ChatParticipant
-        extends Omit<Models.IChatParticipant, 'createdAt'> {
+        extends Omit<Models.IChatParticipant, "createdAt"> {
         createdAt: Date;
       }
       export interface Chat
-        extends Omit<Models.IChat, 'participants' | 'createdAt' | 'messages'> {
+        extends Omit<Models.IChat, "participants" | "createdAt" | "messages"> {
         createdAt: Date;
         authorizationData: any;
         participants: ChatParticipant[];
@@ -124,34 +124,34 @@ namespace ChatsModel {
       export type GetUserChats = Models.IChat[];
       export type GetPublicChats = Models.IChatInfo[];
       export interface CreateDBParticipant
-        extends Pick<Models.IChatParticipant, 'role' | 'userId' | 'chatId'> {}
+        extends Pick<Models.IChatParticipant, "role" | "userId" | "chatId"> {}
       export interface CreateChat
         extends Pick<
           Models.IChat,
-          'type' | 'authorization' | 'name' | 'photo'  | 'topic'
+          "type" | "authorization" | "name" | "photo" | "topic"
         > {
         authorizationData: Models.IChatAuthorizationData | null;
-        participants: Omit<CreateDBParticipant, 'chatId'>[];
+        participants: Omit<CreateDBParticipant, "chatId">[];
       }
       export interface CreateMessage
         extends Pick<
           Models.IChatMessage,
-          'type' | 'message' | 'meta' | 'chatId' | 'authorId'
+          "type" | "message" | "meta" | "chatId" | "authorId"
         > {}
       export interface UpdateChatInfo
         extends Pick<
           Partial<Models.IChat>,
-          'name' | 'photo' | 'authorization' | 'authorizationData'
+          "name" | "photo" | "authorization" | "authorizationData"
         > {}
       export interface UpdateParticipant
         extends Pick<
           Partial<Models.IChatParticipant>,
-          'role' | 'toReadPings'
+          "role" | "toReadPings"
         > {}
       export interface UpdateMessage
         extends Pick<
           Partial<Models.IChatMessage>,
-          'type' | 'message' | 'meta'
+          "type" | "message" | "meta"
         > {}
     }
     export interface ChatParams extends Record<string, unknown> {
@@ -174,21 +174,21 @@ namespace ChatsModel {
   }
   export namespace Endpoints {
     export enum Targets {
-      GetChat = '/chats/:chatId',
-      GetChatParticipants = '/chats/:chatId/participants',
-      GetChatMessages = '/chats/:chatId/messages',
-      GetChatMessage = '/chats/:chatId/messages/:messageId',
-      GetUserChats = '/users/:id/chats',
-      GetSessionChats = '/chats',
-      GetPublicChats = '/chats/public',
-      CreateChat = '/chats',
-      CreateMessage = '/chats/:chatId/messages',
-      UpdateChatInfo = '/chats/:chatId',
-      UpdateParticipant = '/chats/:chatId/participants/:participantId',
-      UpdateMessage = '/chats/:chatId/messages/:messageId',
-      DeleteChat = '/chats/:chatId',
-      DeleteParticipant = '/chats/:chatId/participants/:participantId',
-      DeleteMessage = '/chats/:chatId/messages/:messageId',
+      GetChat = "/chats/:chatId",
+      GetChatParticipants = "/chats/:chatId/participants",
+      GetChatMessages = "/chats/:chatId/messages",
+      GetChatMessage = "/chats/:chatId/messages/:messageId",
+      GetUserChats = "/users/:id/chats",
+      GetSessionChats = "/chats",
+      GetPublicChats = "/chats/public",
+      CreateChat = "/chats",
+      CreateMessage = "/chats/:chatId/messages",
+      UpdateChatInfo = "/chats/:chatId",
+      UpdateParticipant = "/chats/:chatId/participants/:participantId",
+      UpdateMessage = "/chats/:chatId/messages/:messageId",
+      DeleteChat = "/chats/:chatId",
+      DeleteParticipant = "/chats/:chatId/participants/:participantId",
+      DeleteMessage = "/chats/:chatId/messages/:messageId",
     }
     export type All = GroupEndpointTargets<Targets>;
 
@@ -316,7 +316,7 @@ namespace ChatsModel {
   }
   export namespace Sse {
     export enum Events {
-      NewMessage = 'chat.new-message',
+      NewMessage = "chat.new-message",
     }
     export interface NewMessageEvent
       extends SseModel.Models.Event<Models.IChatMessage, Events.NewMessage> {}

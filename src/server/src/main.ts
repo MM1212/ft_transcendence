@@ -37,7 +37,7 @@ async function bootstrap() {
   });
 
   // Session
-
+  
   await app.register(secureSessionModule, {
     secret: configService.get<string>('BACKEND_SESSION_SECRET')!,
     salt: configService.get<string>('BACKEND_SESSION_SALT')!,

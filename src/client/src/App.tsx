@@ -1,10 +1,9 @@
-import { useState } from 'react';
-import reactLogo from './assets/react.svg';
-import viteLogo from '/vite.svg';
-import Button from '@mui/joy/Button';
-import { useSession } from '@hooks/user';
+import { useState } from "react";
+import reactLogo from "./assets/react.svg";
+import viteLogo from "/vite.svg";
+import Button from "@mui/joy/Button";
+import { useSession } from "@hooks/user";
 import {
-  Avatar,
   ButtonGroup,
   Container,
   List,
@@ -14,10 +13,10 @@ import {
   Sheet,
   Stack,
   Typography,
-} from '@mui/joy';
-import { buildTunnelEndpoint } from '@hooks/tunnel';
-import { AuthModel } from '@typings/api';
-import Link from '@components/Link';
+} from "@mui/joy";
+import { buildTunnelEndpoint } from "@hooks/tunnel";
+import { AuthModel } from "@typings/api";
+import Link from "@components/Link";
 
 import SseTester from '@components/SseTester';
 import { Redirect, Route, Switch } from 'wouter';
@@ -29,7 +28,7 @@ import ErrorPage from '@views/error';
 
 function MainRoute() {
   const [count, setCount] = useState(0);
-
+  if (count === 51) setCount(0);
   const { user, loading, loggedIn, logout } = useSession();
   return (
     <Container
@@ -159,9 +158,9 @@ function App() {
       <Route path="/sse">
         <SseTester />
       </Route>
-      <Route path="/lobby">
+      <Router base="/lobby" parent={router}>
         <Lobby />
-      </Route>
+      </Router>
       <SandboxRouter />
       <Route path="/error">
         <ErrorPage />
