@@ -26,6 +26,7 @@ function ChatEntries() {
 
 export default function ChatsPane() {
   const { open } = useModalActions('chat:new-chat');
+  const unreadPings = useRecoilValue(chatsState.unreadPings);
   return (
     <Sheet
       sx={{
@@ -48,14 +49,16 @@ export default function ChatsPane() {
           component="h1"
           fontWeight="lg"
           endDecorator={
-            <Chip
-              variant="soft"
-              color="primary"
-              size="md"
-              slotProps={{ root: { component: 'span' } }}
-            >
-              4
-            </Chip>
+            unreadPings > 0 && (
+              <Chip
+                variant="soft"
+                color="primary"
+                size="md"
+                slotProps={{ root: { component: 'span' } }}
+              >
+                {unreadPings}
+              </Chip>
+            )
           }
           sx={{ mr: 'auto' }}
         >

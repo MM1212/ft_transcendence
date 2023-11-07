@@ -215,8 +215,6 @@ class Chat extends CacheObserver<IChat> {
       this.id,
       cursor,
     );
-    console.log(messages);
-
     return messages;
   }
   public async getMessage(
@@ -240,11 +238,15 @@ class Chat extends CacheObserver<IChat> {
       authorId: participant.id,
       chatId: this.id,
     });
-    await this.helpers.db.chats.updateChatParticipants(this.id, {
-      toReadPings: {
-        increment: 1,
+    await this.helpers.db.chats.updateChatParticipants(
+      this.id,
+      {
+        toReadPings: {
+          increment: 1,
+        },
       },
-    });
+      [participant.id],
+    );
     this.participants.forEach((p) => {
       p.toReadPings++;
     });

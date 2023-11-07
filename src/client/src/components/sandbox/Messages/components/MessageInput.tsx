@@ -1,13 +1,7 @@
 import * as React from 'react';
-import Box from '@mui/joy/Box';
-import Button from '@mui/joy/Button';
 import FormControl from '@mui/joy/FormControl';
 import Textarea from '@mui/joy/Textarea';
 import { IconButton, Stack } from '@mui/joy';
-import FormatBoldIcon from '@components/icons/FormatBoldIcon';
-import FormatItalicIcon from '@components/icons/FormatItalicIcon';
-import FormatListBulletedIcon from '@components/icons/FormatListBulletedIcon';
-import FormatStrikethroughVariantIcon from '@components/icons/FormatStrikethroughVariantIcon';
 import SendIcon from '@components/icons/SendIcon';
 import { useRecoilCallback, useRecoilState } from 'recoil';
 import chatsState from '../state';
@@ -45,6 +39,7 @@ export default function MessageInput({ id }: { id: number }) {
           },
           ...prev,
         ]);
+        setInput('');
         const resp = await tunnel.put(
           ChatsModel.Endpoints.Targets.CreateMessage,
           {
@@ -60,11 +55,14 @@ export default function MessageInput({ id }: { id: number }) {
           'ms',
           'to resolve the request'
         );
-        if (resp.status !== 'ok')
+        if (resp.status !== 'ok') {
+          ctx.set(chatsState.messages(chat.id), (prev) =>
+            prev.filter((msg) => msg.id !== (nonce as any))
+          );
           throw new Error(resp.errorMsg ?? 'Unknown Error');
+        }
         console.log(performance.now() - now, 'ms', 'to set input to empty');
 
-        setInput('');
         ctx.set(chatsState.messages(chat.id), (prev) => {
           const next = [...prev];
           const idx = next.findIndex((msg) => msg.id === (nonce as any));

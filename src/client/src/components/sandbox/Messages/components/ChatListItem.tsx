@@ -2,7 +2,7 @@ import React from 'react';
 import Box from '@mui/joy/Box';
 import ListDivider from '@mui/joy/ListDivider';
 import ListItem from '@mui/joy/ListItem';
-import ListItemButton, { ListItemButtonProps } from '@mui/joy/ListItemButton';
+import ListItemButton from '@mui/joy/ListItemButton';
 import Stack from '@mui/joy/Stack';
 import Typography from '@mui/joy/Typography';
 import AvatarWithStatus from './AvatarWithStatus';

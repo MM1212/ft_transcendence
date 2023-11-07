@@ -116,6 +116,7 @@ namespace ChatsModel {
         createdAt: Date;
         authorizationData: any;
         participants: ChatParticipant[];
+        messages: ChatMessage[];
       }
       export interface GetChat extends Models.IChatDisplay {}
       export type GetChatParticipants = Models.IChatParticipant[];

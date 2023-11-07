@@ -21,7 +21,7 @@ export class Chats {
         ...p,
         createdAt: p.createdAt.getTime(),
       })),
-      messages: [],
+      messages: chat.messages.map(this.formatChatMessage.bind(this)),
     };
   }
   public formatChatMessage<T extends ChatModel.DTO.DB.ChatMessage | null>(
@@ -60,6 +60,12 @@ export class Chats {
       where: { id: data as number },
       include: {
         participants: true,
+        messages: {
+          orderBy: {
+            id: 'desc',
+          },
+          take: 1,
+        },
       },
     });
   }
@@ -273,10 +279,14 @@ export class Chats {
       Prisma.ChatParticipantUpdateManyMutationInput,
       Prisma.ChatParticipantUncheckedUpdateManyInput
     >,
+    filter: number[] = []
   ): Promise<Omit<ChatModel.Models.IChatParticipant, 'user'>[]> {
     return (await this.prisma.chatParticipant.updateMany({
       where: {
         chatId,
+        id: {
+          notIn: filter,
+        }
       },
       data,
     })) as unknown as Omit<ChatModel.Models.IChatParticipant, 'user'>[];

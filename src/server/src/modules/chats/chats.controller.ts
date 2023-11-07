@@ -19,7 +19,6 @@ import Chat from './chat';
 import {
   EndpointResponse,
   buildEmptyResponse,
-  buildErrorResponse,
   buildOkResponse,
 } from '@typings/api';
 import { ChatAuth } from './decorators/Role.guard';
@@ -36,6 +35,8 @@ export class ChatsController {
     @HttpCtx() { user }: HTTPContext<true>,
   ): Promise<EndpointResponse<ChatsModel.Endpoints.GetChats>> {
     const chats = await this.service.getAllByUserId(user.id);
+    console.log(chats.map((chat) => chat.display));
+    
     return buildOkResponse(chats.map((chat) => chat.display));
   }
 

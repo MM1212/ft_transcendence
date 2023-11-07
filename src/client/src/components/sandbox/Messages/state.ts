@@ -41,10 +41,7 @@ const chatsState = new (class MessagesState {
   });
   selectedChatId = atom<number>({
     key: 'selectedChatId',
-    default: selector<number>({
-      key: 'selectedChatId/selector',
-      get: ({ get }) => get(this.chatIds)[0] ?? -1,
-    }),
+    default: -1,
   });
   selectedChat = selector<ChatsModel.Models.IChat>({
     key: 'selectedChat',
@@ -179,6 +176,19 @@ const chatsState = new (class MessagesState {
           toReadPings: 0,
         });
       },
+  });
+  unreadPings = selector<number>({
+    key: 'chatUnreadPings',
+    get: ({ get }) => {
+      const self = get(sessionAtom);
+      const chats = get(this.chats);
+      return chats.reduce((acc, chat) => {
+        const participant = chat.participants.find(
+          (p) => p.userId === self?.id
+        );
+        return acc + (participant?.toReadPings ?? 0);
+      }, 0);
+    },
   });
   messageByIdx = selectorFamily<
     ChatsModel.Models.IChatMessage | null,
