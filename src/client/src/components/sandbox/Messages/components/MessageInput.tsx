@@ -124,13 +124,13 @@ export default function MessageInput({ id }: { id: number }) {
         size="md"
         color="primary"
         type="submit"
-        variant="solid"
+        variant="plain"
         sx={{
-          borderRadius: (theme) => theme.radius.lg,
+          borderRadius: (theme) => theme.radius.xl,
         }}
         disabled={input.trim().length === 0}
       >
-        <SendIcon />
+        <SendIcon size="sm" />
       </IconButton>
     </Stack>
   );
