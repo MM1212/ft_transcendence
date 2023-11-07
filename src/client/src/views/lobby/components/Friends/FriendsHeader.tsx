@@ -1,10 +1,10 @@
 import { Divider, Tabs, Typography, tabClasses } from "@mui/joy";
 import { Stack } from "@mui/joy";
-import AddFriend from "./Friends/FriendsAddFriend";
 import { TabList } from "@mui/joy";
 import Link from "@components/Link";
 import { Tab } from "@mui/joy";
 import { useLocation } from "wouter";
+import AddFriend from "./FriendsAddFriend";
 
 const tabs = [
   {

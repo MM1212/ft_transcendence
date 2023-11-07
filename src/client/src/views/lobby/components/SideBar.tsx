@@ -15,7 +15,7 @@ import { mainTargets } from "../types";
 import { useKeybindsToggle } from "@hooks/keybinds";
 
 export default function SideBar() {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = React.useState(true);
   const [lastRoute, setLastRoute] = React.useState<string>("/");
   const [location, navigate] = useLocation();
 
@@ -47,8 +47,7 @@ export default function SideBar() {
             sx: {
               boxShadow: "none",
               width: "80%",
-              minHeight: 0,
-              overflow: "hidden auto",
+              height: "100dvh",
               flexGrow: 1,
               display: "flex",
               flexDirection: "row",

@@ -1,17 +1,12 @@
-import AccountMinusIcon from "@components/icons/AccountMinusIcon";
-import AccountPlusIcon from "@components/icons/AccountPlusIcon";
-import CheckAllIcon from "@components/icons/CheckAllIcon";
-import CheckIcon from "@components/icons/CheckIcon";
-import CloseIcon from "@components/icons/CloseIcon";
-import { Avatar, IconButton, Sheet, Typography } from "@mui/joy";
-import { Tooltip } from "@mui/joy";
-import { Divider } from "@mui/joy";
-import { Stack } from "@mui/joy";
+import AccountRemoveIcon from "@components/icons/AccountRemoveIcon";
+import { Avatar, Divider, IconButton, Stack, Tooltip } from "@mui/joy";
+import { Typography } from "@mui/joy";
+import { Sheet } from "@mui/joy";
 import { samplePendingFriends } from "@views/lobby/hardoceTestes";
 
-export default function PendingFriendsGetter() {
-  const getPendingRequests = () => {
-    return "PENDING - " + samplePendingFriends.length;
+export default function BlockFriendsGetter() {
+  const getBlockedFriends = () => {
+    return "BLOCKED - " + samplePendingFriends.length;
   };
   return (
     <Sheet
@@ -28,7 +23,7 @@ export default function PendingFriendsGetter() {
           px: 1,
         }}
       >
-        {getPendingRequests()}
+        {getBlockedFriends()}
       </Typography>
       <Divider />
       <Stack p={1} spacing={1} justifyContent={"flex-end"}>
@@ -57,25 +52,12 @@ export default function PendingFriendsGetter() {
               <Stack>
                 <Typography level="title-lg">{user.nickname}</Typography>
                 <Typography fontWeight="light" fontSize={10}>
-                  Incoming Friend Request
+                  Blocked
                 </Typography>
               </Stack>
             </Stack>
             <Stack direction="row" spacing={1} alignItems={"center"} ml="auto">
-              <Tooltip title="Accept">
-                <IconButton
-                  color="neutral"
-                  sx={(theme) => ({
-                    "&:hover": {
-                      color: theme.getCssVar("palette-success-400"),
-                    },
-                    borderRadius: theme.radius.lg,
-                  })}
-                >
-                  <CheckIcon />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="Ignore">
+              <Tooltip title="Unblock">
                 <IconButton
                   color="neutral"
                   sx={(theme) => ({
@@ -88,7 +70,7 @@ export default function PendingFriendsGetter() {
                     borderRadius: theme.radius.lg,
                   })}
                 >
-                  <CloseIcon />
+                  <AccountRemoveIcon />
                 </IconButton>
               </Tooltip>
             </Stack>

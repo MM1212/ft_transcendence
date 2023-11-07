@@ -1,8 +1,9 @@
 import { Divider, Sheet } from "@mui/joy";
-import FriendsHeader from "./FriendsHeader";
 import FriendsGetter from "./Friends/FriendsGetter";
 import { Redirect, Route, Router, Switch, useRouter } from "wouter";
 import PendingFriendsGetter from "./Friends/PendingFriendsGetter";
+import BlockFriendsGetter from "./Friends/BlockFriendsGetter";
+import FriendsHeader from "./Friends/FriendsHeader";
 
 export default function FriendsPanel() {
   const router = useRouter();
@@ -15,7 +16,7 @@ export default function FriendsPanel() {
           height: "calc(100dvh - var(--Header-height))",
           overflowY: "auto",
           backgroundColor: "background.level1",
-          width: "60%",
+          width: "50%",
         }}
       >
         <FriendsHeader />
@@ -32,6 +33,9 @@ export default function FriendsPanel() {
           </Route>
           <Route path="/pending">
             <PendingFriendsGetter />
+          </Route>
+          <Route path="/Blocked">
+            <BlockFriendsGetter />
           </Route>
         </Switch>
       </Sheet>

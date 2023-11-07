@@ -23,6 +23,9 @@ dependencies:
   '@react-spring/web':
     specifier: ^9.7.3
     version: 9.7.3(react-dom@18.2.0)(react@18.2.0)
+  clsx:
+    specifier: ^2.0.0
+    version: 2.0.0
   lodash.debounce:
     specifier: ^4.0.8
     version: 4.0.8
@@ -56,6 +59,9 @@ dependencies:
   swr:
     specifier: ^2.2.2
     version: 2.2.2(react@18.2.0)
+  use-count-up:
+    specifier: ^3.0.1
+    version: 3.0.1(react@18.2.0)
   wouter:
     specifier: ^2.11.0
     version: 2.11.0(react@18.2.0)
@@ -3563,6 +3569,23 @@ packages:
     dependencies:
       punycode: 1.4.1
       qs: 6.11.2
+    dev: false
+
+  /use-count-up@3.0.1(react@18.2.0):
+    resolution: {integrity: sha512-jlVsXJYje6jh+xwQaCEYrwHoB+nRyillNEmr21bhe9kw7tpRzyrSq9jQs9UOlo+8hCFkuOmjUihL3IjEK/piVg==}
+    peerDependencies:
+      react: '>=16.8.0'
+    dependencies:
+      react: 18.2.0
+      use-elapsed-time: 3.0.2(react@18.2.0)
+    dev: false
+
+  /use-elapsed-time@3.0.2(react@18.2.0):
+    resolution: {integrity: sha512-2EY9lJ5DWbAvT8wWiEp6Ztnl46DjXz2j78uhWbXaz/bg3OfpbgVucCAlcN8Bih6hTJfFTdVYX9L6ySMn5py/wQ==}
+    peerDependencies:
+      react: '>=16.8.0'
+    dependencies:
+      react: 18.2.0
     dev: false
 
   /use-sync-external-store@1.2.0(react@18.2.0):

@@ -16,6 +16,7 @@
     "@mdi/js": "^7.3.67",
     "@mui/joy": "5.0.0-beta.6",
     "@react-spring/web": "^9.7.3",
+    "clsx": "^2.0.0",
     "lodash.debounce": "^4.0.8",
     "lodash.throttle": "^4.1.1",
     "moment": "^2.29.4",
@@ -27,6 +28,7 @@
     "socket.io-client": "^4.7.2",
     "sonner": "^1.1.0",
     "swr": "^2.2.2",
+    "use-count-up": "^3.0.1",
     "wouter": "^2.11.0"
   },
   "devDependencies": {

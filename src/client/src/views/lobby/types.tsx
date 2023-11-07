@@ -1,9 +1,10 @@
-import MessagesPanel from "./components/MessagesPanel";
-import MessageChat from "./components/MessageChat";
+import MessagesPanel from "./components/messages/MessagesPanel";
+import MessageChat from "./components/messages/MessageChat";
 import ChatModel from "@typings/models/chat";
 import FriendsPanel from "./components/FriendsPanel";
 import { sampleChat } from "./hardoceTestes";
 import Profile from "./components/user/Profile";
+import AchievementsPanel from "./components/AchievementsPanel";
 
 export interface ChatsPaneProps {
   setSelectedChat: (chat: ChatModel.Models.IChat) => void;
@@ -32,7 +33,6 @@ export function formatTimestamp(timestamp: Date) {
 }
 
 export const arrayChats: ChatModel.Models.IChat[] = [sampleChat];
-
 
 export const mainTargets = [
   {
@@ -70,6 +70,11 @@ export const mainTargets = [
   {
     label: "Achievements",
     target: "/achievements",
+    node: (
+      <>
+        <AchievementsPanel />
+      </>
+    ),
   },
   {
     label: "Profile",
@@ -78,7 +83,7 @@ export const mainTargets = [
       <>
         <Profile />
       </>
-    )
+    ),
   },
   {
     label: "Exit",

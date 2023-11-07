@@ -2,7 +2,7 @@ import { Sheet } from "@mui/joy";
 import ChatBubble from "./BubbleChat";
 import { Box } from "@mui/joy";
 import { Stack } from "@mui/joy";
-import AvatarWithStatus from "./AvatarWithStatusProps";
+import AvatarWithStatus from "../AvatarWithStatusProps";
 import ChatHeader from "./ChatHeader";
 import React from "react";
 import MessageInput from "./MessageTyping";

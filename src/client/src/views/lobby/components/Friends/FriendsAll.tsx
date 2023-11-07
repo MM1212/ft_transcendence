@@ -4,15 +4,15 @@ import clsx from "clsx";
 import { useRoute } from "wouter";
 
 export default function FriendsAll() {
-	const [selected] = useRoute("/All");
+  const [selected] = useRoute("/All");
   return (
     <Button
       color="neutral"
       variant="outlined"
       size="sm"
-	  className={clsx(listItemClasses.root, {
-		"Mui-selected": selected,
-	  })}
+      className={clsx(listItemClasses.root, {
+        "Mui-selected": selected,
+      })}
       sx={{
         border: "none",
         display: { xs: "none", md: "inline-flex" },

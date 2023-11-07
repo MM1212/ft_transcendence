@@ -1,6 +1,8 @@
 import { Button } from "@mui/joy";
 import React from "react";
 import BasicModalDialog from "./AddFriendForm";
+import { ListItemDecorator } from "@mui/joy";
+import AccountPlusIcon from "@components/icons/AccountPlusIcon";
 
 export default function AddFriend() {
   const [open, setOpen] = React.useState<boolean>(false);
@@ -18,6 +20,7 @@ export default function AddFriend() {
           fontWeight: 500,
           fontSize: (theme) => theme.typography["body-md"].fontSize,
         }}
+        startDecorator={<AccountPlusIcon />}
       >
         Add Friend
       </Button>

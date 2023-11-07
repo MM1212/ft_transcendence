@@ -3,6 +3,10 @@ import { Sheet, Stack } from "@mui/joy";
 import { sampleUsers } from "@views/lobby/hardoceTestes";
 import AvatarWithStatus from "../AvatarWithStatusProps";
 import { alpha } from "@theme";
+import MessageReplyIcon from "@components/icons/MessageReplyIcon";
+import DotsHorizontalIcon from "@components/icons/DotsHorizontalIcon";
+import DotsVerticalIcon from "@components/icons/DotsVerticalIcon";
+import { Tooltip } from "@mui/joy";
 
 export default function FriendsGetter({ type }: { type: string }) {
   console.log("type: " + type);
@@ -74,21 +78,27 @@ export default function FriendsGetter({ type }: { type: string }) {
                   alignItems="center"
                   ml="auto"
                 >
-                  <IconButton
-                    color="neutral"
-                    variant="soft"
-                    sx={{
-                      borderRadius: (theme) => theme.radius.lg,
-                      backgroundColor: (theme) =>
-                        alpha(
-                          theme.resolveVar("palette-background-level2"),
-                          0.75
-                        ),
-                    }}
-                  >
-                    A
-                  </IconButton>
-                  <IconButton color="neutral">B</IconButton>
+                  <Tooltip title="Message">
+                    <IconButton
+                      color="neutral"
+                      variant="soft"
+                      sx={{
+                        borderRadius: (theme) => theme.radius.lg,
+                        backgroundColor: (theme) =>
+                          alpha(
+                            theme.resolveVar("palette-background-level2"),
+                            0.75
+                          ),
+                      }}
+                    >
+                      <MessageReplyIcon size="sm" />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="More">
+                    <IconButton color="neutral">
+                      <DotsVerticalIcon />
+                    </IconButton>
+                  </Tooltip>
                 </Stack>
               </Stack>
             );

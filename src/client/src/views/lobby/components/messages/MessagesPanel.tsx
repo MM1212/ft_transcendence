@@ -6,21 +6,20 @@
 /*   By: mgranate_ls <mgranate_ls@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/21 17:22:36 by mgranate_ls       #+#    #+#             */
-/*   Updated: 2023/11/04 15:58:26 by mgranate_ls      ###   ########.fr       */
+/*   Updated: 2023/11/06 15:32:19 by mgranate_ls      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import { List } from "@mui/joy";
 import { Input } from "@mui/joy";
 import { Box, Chip, Sheet, Stack, Typography } from "@mui/joy";
-import { ChatsPaneProps } from "../types";
-import ChatListItem from "./ChatListItems";
-import { chatsState } from "../state";
+import { ChatsPaneProps } from "../../types";
+import ChatListItem from "../ChatListItems";
+import { chatsState } from "../../state";
 import { useRecoilState } from "recoil";
 
 export default function MessagesPanel({ setSelectedChat }: ChatsPaneProps) {
   const [chats, setChats] = useRecoilState(chatsState);
-  console.log("Chats:", chats);
   return (
     <Sheet
       sx={{
