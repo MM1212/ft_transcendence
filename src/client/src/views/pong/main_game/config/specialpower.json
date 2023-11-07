@@ -1,0 +1,31 @@
+{
+    "spark": {
+        "texture": "../../assets/spark.png",
+        "diameter": 32,
+        "vertices": 8
+    },
+
+    "fire": {
+        "texture": "../../assets/fireball.png",
+        "diameter": 32,
+        "vertices": 8
+    },
+
+    "ghost": {
+        "texture": "../../assets/ghost.png",
+        "diameter": 32,
+        "vertices": 8
+    },
+
+    "bubble": {
+        "texture": "../../assets/bubble_3.png",
+        "diameter": 32,
+        "vertices": 8
+    },
+
+    "ice": {
+        "texture": "../../assets/iceball.png",
+        "diameter": 32,
+        "vertices": 8
+    }
+}
