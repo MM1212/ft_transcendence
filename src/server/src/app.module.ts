@@ -14,6 +14,7 @@ import { Auth42Module } from './modules/auth/42/auth.module';
 import { AuthSessionModule } from './modules/auth/session/session.module';
 import { UsersModule } from './modules/users/users.module';
 import { ChatsModule } from './modules/chats/chats.module';
+import { PongModule } from './modules/pong/pong.module';
 
 @Module({
   imports: [
@@ -39,7 +40,8 @@ import { ChatsModule } from './modules/chats/chats.module';
     DbModule,
     forwardRef(() => LobbyModule),
     UsersModule,
-    ChatsModule
+    ChatsModule,
+    forwardRef(() => PongModule),
   ],
   providers: [AppService, { provide: APP_FILTER, useClass: GlobalFilter }],
   exports: [AppService],
