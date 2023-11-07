@@ -5,6 +5,7 @@ import {
   NotFoundException,
   Param,
   ParseIntPipe,
+  Patch,
   Put,
   Query,
 } from '@nestjs/common';
@@ -17,6 +18,8 @@ import ChatCtx from './decorators/Chat.pipe';
 import Chat from './chat';
 import {
   EndpointResponse,
+  buildEmptyResponse,
+  buildErrorResponse,
   buildOkResponse,
 } from '@typings/api';
 import { ChatAuth } from './decorators/Role.guard';
@@ -50,7 +53,7 @@ export class ChatsController {
     cursor: number,
   ): Promise<EndpointResponse<ChatsModel.Endpoints.GetChatMessages>> {
     const messages = await chat.getMessages(cursor);
-    
+
     return buildOkResponse(messages);
   }
 
@@ -118,18 +121,18 @@ export class ChatsController {
   //   return buildOkResponse(resp);
   // }
 
-  // @Patch(Targets.UpdateParticipant)
-  // @ChatOPAuth()
-  // async updateParticipant(
-  //   @ChatCtx() chat: Chat,
-  //   @Param('participantId', new ParseIntPipe({ errorHttpStatusCode: 400 }))
-  //   participantId: number,
-  //   @Body() data: ChatsModel.DTO.DB.UpdateParticipant,
-  // ): Promise<EndpointResponse<ChatsModel.Endpoints.UpdateParticipant>> {
-  //   const [ok, resp] = await chat.updateParticipant(participantId, data);
-  //   if (!ok) return buildErrorResponse(resp);
-  //   return buildOkResponse(resp);
-  // }
+  @Patch(Targets.UpdateParticipant)
+  @ChatAuth()
+  async updateParticipant(
+    @ChatCtx() chat: Chat,
+    @Param('participantId', new ParseIntPipe({ errorHttpStatusCode: 400 }))
+    participantId: number,
+    @Body() data: ChatsModel.DTO.DB.UpdateParticipant,
+    @HttpCtx() { user }: HTTPContext<true>,
+  ): Promise<EndpointResponse<ChatsModel.Endpoints.UpdateParticipant>> {
+    await chat.updateParticipant(user, participantId, data);
+    return buildEmptyResponse();
+  }
 
   // @Patch(Targets.UpdateMessage)
   // @ChatAuth()

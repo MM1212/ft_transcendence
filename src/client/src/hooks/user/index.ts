@@ -104,15 +104,22 @@ export const useUsersService = () => {
   const onUserUpdate = useRecoilCallback(
     (ctx) => (ev: UsersModel.Sse.UserUpdatedEvent) => {
       const {
-        data: { id, avatar, nickname, studentId },
+        data: { id, avatar, nickname, studentId, status },
       } = ev;
-      const { isSet } = ctx.snapshot.getInfo_UNSTABLE(usersAtom(id));
-      if (!isSet) return;
+      const { state } = ctx.snapshot.getLoadable(usersAtom(id));
+      const { isSet, isActive, isModified } = ctx.snapshot.getInfo_UNSTABLE(usersAtom(id));
+      console.log(id, isSet, isActive, isModified);
+      
+      if (state === 'loading' || !isActive) {
+        console.warn('User not found in cache, skipping update');
+        return;
+      }
       ctx.set(usersAtom(id), (prev) => ({
         ...prev,
         avatar,
         nickname,
         studentId,
+        status
       }));
     },
     []

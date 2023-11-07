@@ -49,6 +49,9 @@ class Participant extends CacheObserver<ChatsModel.Models.IChatParticipant> {
   public get toReadPings(): number {
     return this.get('toReadPings');
   }
+  public set toReadPings(value: number) {
+    this.set('toReadPings', value);
+  }
   public get createdAt(): number {
     return this.get('createdAt');
   }
@@ -208,9 +211,12 @@ class Chat extends CacheObserver<IChat> {
         );
       return this.lastMessages;
     }
-    const messages = await this.helpers.db.chats.getChatMessages(this.id, cursor);
+    const messages = await this.helpers.db.chats.getChatMessages(
+      this.id,
+      cursor,
+    );
     console.log(messages);
-    
+
     return messages;
   }
   public async getMessage(
@@ -228,17 +234,27 @@ class Chat extends CacheObserver<IChat> {
     const participant = this.getParticipantByUserId(author.id);
     if (!participant) throw new ForbiddenException();
     console.log(author, data);
-    
+
     const result = await this.helpers.db.chats.createChatMessage({
       ...data,
       authorId: participant.id,
       chatId: this.id,
     });
+    await this.helpers.db.chats.updateChatParticipants(this.id, {
+      toReadPings: {
+        increment: 1,
+      },
+    });
+    this.participants.forEach((p) => {
+      p.toReadPings++;
+    });
     console.log(this.get('messages'));
-    
+
     this.set('messages', (prev) => [result, ...prev]);
     if (this.lastMessages.length > ChatsModel.Models.MAX_MESSAGES_PER_CHAT)
-      this.set('messages', (prev) => prev.slice(0, ChatsModel.Models.MAX_MESSAGES_PER_CHAT));
+      this.set('messages', (prev) =>
+        prev.slice(0, ChatsModel.Models.MAX_MESSAGES_PER_CHAT),
+      );
     this.helpers.sseService.emitToTargets<ChatsModel.Sse.NewMessageEvent>(
       ChatsModel.Sse.Events.NewMessage,
       author.id,
@@ -246,6 +262,23 @@ class Chat extends CacheObserver<IChat> {
       result,
     );
     return result;
+  }
+
+  public async updateParticipant(
+    op: User,
+    participantId: number,
+    data: ChatsModel.DTO.UpdateParticipant,
+  ): Promise<Participant> {
+    const participant = this.getParticipant(participantId, true);
+    if (!participant) throw new ForbiddenException();
+    if (!participant.isAdmin() && participant.userId !== op.id)
+      throw new ForbiddenException();
+    const result = await this.helpers.db.chats.updateChatParticipant(
+      participantId,
+      data,
+    );
+    participant.setTo(result);
+    return participant;
   }
 }
 

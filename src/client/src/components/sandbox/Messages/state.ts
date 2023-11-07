@@ -1,7 +1,15 @@
 import { sessionAtom, usersAtom } from '@hooks/user/state';
 import tunnel from '@lib/tunnel';
 import ChatsModel from '@typings/models/chat';
-import { atom, atomFamily, selector, selectorFamily, waitForAll } from 'recoil';
+import UsersModel from '@typings/models/users';
+import {
+  DefaultValue,
+  atom,
+  atomFamily,
+  selector,
+  selectorFamily,
+  waitForAll,
+} from 'recoil';
 
 const Targets = ChatsModel.Endpoints.Targets;
 
@@ -68,6 +76,18 @@ const chatsState = new (class MessagesState {
         if (!chat) throw new Error('Chat not found');
         return chat;
       },
+    set:
+      (id) =>
+      ({ set }, newValue) => {
+        if (newValue instanceof DefaultValue) return;
+        set(this.chats, (prev) => {
+          const idx = prev.findIndex((c) => c.id === id);
+          if (idx === -1) return prev;
+          const tmp = [...prev];
+          tmp[idx] = newValue;
+          return tmp;
+        });
+      },
   });
   messages = selectorFamily<ChatsModel.Models.IChatMessage[], number>({
     key: 'chatMessages',
@@ -76,6 +96,15 @@ const chatsState = new (class MessagesState {
       ({ get }) => {
         const chat = get(this.chat(id));
         return chat?.messages ?? [];
+      },
+    set:
+      (id) =>
+      ({ set }, newValue) => {
+        if (newValue instanceof DefaultValue) return;
+        set(this.chat(id), (prev) => ({
+          ...prev,
+          messages: newValue,
+        }));
       },
   });
   participants = selectorFamily<ChatsModel.Models.IChatParticipant[], number>({
@@ -86,9 +115,18 @@ const chatsState = new (class MessagesState {
         const chat = get(this.chat(id));
         return chat?.participants ?? [];
       },
+    set:
+      (id) =>
+      ({ set }, newValue) => {
+        if (newValue instanceof DefaultValue) return;
+        set(this.chat(id), (prev) => ({
+          ...prev,
+          participants: newValue,
+        }));
+      },
   });
   participant = selectorFamily<
-    ChatsModel.Models.IChatParticipant | null,
+    ChatsModel.Models.IChatParticipant,
     { chatId: number; participantId: number }
   >({
     key: 'chatParticipant',
@@ -96,7 +134,19 @@ const chatsState = new (class MessagesState {
       ({ chatId, participantId }) =>
       ({ get }) => {
         const chat = get(this.chat(chatId));
-        return chat?.participants.find((p) => p.id === participantId) ?? null;
+        return chat.participants.find((p) => p.id === participantId)!;
+      },
+    set:
+      ({ chatId, participantId }) =>
+      ({ set }, newValue) => {
+        if (newValue instanceof DefaultValue) return;
+        set(this.participants(chatId), (prev) => {
+          const idx = prev.findIndex((p) => p.id === participantId);
+          if (idx === -1) return prev;
+          const tmp = [...prev];
+          tmp[idx] = newValue;
+          return tmp;
+        });
       },
   });
   participantIds = selectorFamily<number[], number>({
@@ -109,7 +159,7 @@ const chatsState = new (class MessagesState {
       },
   });
   selfParticipantByChat = selectorFamily<
-    ChatsModel.Models.IChatParticipant | null,
+    ChatsModel.Models.IChatParticipant,
     number
   >({
     key: 'chatSelfParticipant',
@@ -118,7 +168,16 @@ const chatsState = new (class MessagesState {
       ({ get }) => {
         const chat = get(this.chat(id));
         const self = get(sessionAtom);
-        return chat?.participants.find((p) => p.userId === self?.id) ?? null;
+        return chat.participants.find((p) => p.userId === self?.id)!;
+      },
+    set:
+      (id) =>
+      ({ set }, newValue) => {
+        if (newValue instanceof DefaultValue) return;
+        set(this.participant({ chatId: id, participantId: newValue.id }), {
+          ...newValue,
+          toReadPings: 0,
+        });
       },
   });
   messageByIdx = selectorFamily<
@@ -139,7 +198,7 @@ const chatsState = new (class MessagesState {
   >({
     key: 'chatMessage',
     cachePolicy_UNSTABLE: {
-      eviction: 'most-recent'
+      eviction: 'most-recent',
     },
     get:
       ({ chatId, messageId }) =>
@@ -215,7 +274,8 @@ const chatsState = new (class MessagesState {
 
           info.name = other?.nickname ?? 'Unknown';
           info.photo = other?.avatar ?? null;
-          (info as ISelectedChatInfo).online = false;
+          (info as ISelectedChatInfo).status =
+            other?.status ?? UsersModel.Models.Status.Offline;
         } else {
           (info as ISelectedChatInfo).participantNames = users
             .filter((u) => u?.id !== self?.id)
@@ -252,7 +312,7 @@ const chatsState = new (class MessagesState {
   });
 })();
 interface ISelectedChatInfo extends ChatsModel.Models.IChatInfo {
-  online: boolean;
+  status: UsersModel.Models.Status;
   participantNames: string;
   lastMessage: ChatsModel.Models.IChatMessage | null;
   lastMessageAuthorName: string;

@@ -2,7 +2,6 @@ import * as React from 'react';
 import Box, { BoxProps } from '@mui/joy/Box';
 import Sheet from '@mui/joy/Sheet';
 import Stack, { StackProps } from '@mui/joy/Stack';
-import AvatarWithStatus from './AvatarWithStatus';
 import ChatBubble from './ChatBubble';
 import MessageInput from './MessageInput';
 import MessagesPaneHeader from './MessagesPaneHeader';
@@ -11,25 +10,8 @@ import chatsState from '../state';
 import tunnel from '@lib/tunnel';
 import ChatsModel from '@typings/models/chat';
 import notifications from '@lib/notifications/hooks';
-import { usersAtom } from '@hooks/user/state';
 import InfiniteScroll from '@components/InfiniteScroll';
 import { CircularProgress, Typography } from '@mui/joy';
-
-function UserAvatar({ userId }: { userId: number }) {
-  const user = useRecoilValue(usersAtom(userId));
-  if (!user) return null;
-  return <AvatarWithStatus online={user.online} src={user.avatar} />;
-}
-
-function ParticipantAvatar({ pId, chatId }: { pId: number; chatId: number }) {
-  const participant = useRecoilValue(
-    chatsState.participant({ chatId, participantId: pId })
-  );
-
-  if (!participant) return null;
-
-  return <UserAvatar userId={participant.userId} />;
-}
 
 function ChatMessages({ id }: { id: number }) {
   const messages = useRecoilValue(chatsState.messages(id));
@@ -168,17 +150,21 @@ function ChatMessages({ id }: { id: number }) {
         }
         inverse
       >
-        {messages.map((message, index: number) => (
-          <React.Suspense fallback={<></>} key={`${id}-${message.id}`}>
-            <ChatBubble
-              chatId={id}
-              messageId={message.id}
-              message={message}
-              key={`${id}-${message.id}`}
-              features={computeMessageFeatures(messages, index)}
-            />
-          </React.Suspense>
-        ))}
+        {messages.map((message, index: number) => {
+          const features = computeMessageFeatures(messages, index);
+          return (
+            <React.Suspense fallback={<></>} key={`${id}-${message.id}`}>
+              <ChatBubble
+                chatId={id}
+                messageId={message.id}
+                message={message}
+                key={`${id}-${message.id}`}
+                featuresNext={features.next}
+                featuresPrev={features.prev}
+              />
+            </React.Suspense>
+          );
+        })}
       </InfiniteScroll>
     ),
     [computeMessageFeatures, hasMore, id, messages, next]

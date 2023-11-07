@@ -9,14 +9,16 @@ import { toggleMessagesPane } from '../utils';
 import { useRecoilValue } from 'recoil';
 import chatsState from '../state';
 import ChevronLeftIcon from '@components/icons/ChevronLeftIcon';
-import CircleIcon from '@components/icons/CircleIcon';
 import PhoneInTalkIcon from '@components/icons/PhoneInTalkIcon';
 import DotsVerticalIcon from '@components/icons/DotsVerticalIcon';
+import AvatarWithStatus from './AvatarWithStatus';
+import ChatsModel from '@typings/models/chat';
 
 export default function MessagesPaneHeader() {
-  const { name, photo, online, participantNames } = useRecoilValue(
+  const { name, photo, status, participantNames, type } = useRecoilValue(
     chatsState.selectedChatInfo
   );
+
   return (
     <Stack
       direction="row"
@@ -41,32 +43,22 @@ export default function MessagesPaneHeader() {
         >
           <ChevronLeftIcon />
         </IconButton>
-        <Avatar size="lg" src={photo ?? undefined} />
+        {type === ChatsModel.Models.ChatType.Direct ? (
+          <AvatarWithStatus
+            status={status}
+            src={photo ?? undefined}
+            size="lg"
+            inset=".4rem"
+          />
+        ) : (
+          <Avatar src={photo ?? undefined} size="lg" />
+        )}{' '}
         <Stack>
-          <Typography
-            fontWeight="lg"
-            fontSize="lg"
-            component="h2"
-            noWrap
-            endDecorator={
-              online ? (
-                <Chip
-                  variant="outlined"
-                  size="sm"
-                  color="neutral"
-                  sx={{
-                    borderRadius: 'sm',
-                  }}
-                  startDecorator={<CircleIcon />}
-                  slotProps={{ root: { component: 'span' } }}
-                >
-                  Online
-                </Chip>
-              ) : undefined
-            }
-          >
-            {name}
-          </Typography>
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <Typography fontWeight="lg" fontSize="lg" component="h2" noWrap>
+              {name}
+            </Typography>
+          </Stack>
           {participantNames && (
             <Typography
               fontSize="sm"

@@ -1,12 +1,9 @@
 import * as React from 'react';
-import Avatar from '@mui/joy/Avatar';
 import Box from '@mui/joy/Box';
 import IconButton from '@mui/joy/IconButton';
 import Stack from '@mui/joy/Stack';
 import Sheet from '@mui/joy/Sheet';
 import Typography from '@mui/joy/Typography';
-import { MessageProps } from '../types';
-import FileImportIcon from '@components/icons/FileImportIcon';
 import HeartIcon from '@components/icons/HeartIcon';
 import PartyPopperIcon from '@components/icons/PartyPopperIcon';
 import ChatsModel from '@typings/models/chat';
@@ -14,32 +11,44 @@ import { useRecoilValue } from 'recoil';
 import chatsState from '../state';
 import { sessionAtom, usersAtom } from '@hooks/user/state';
 import AvatarWithStatus from './AvatarWithStatus';
-import Moment from 'react-moment';
 import moment from 'moment';
+import { Tooltip } from '@mui/joy';
 
 type ChatBubbleProps = {
   message: ChatsModel.Models.IChatMessage;
   messageId: number;
   chatId: number;
-  features: {prev: boolean, next: boolean}
+  featuresPrev: boolean;
+  featuresNext: boolean;
 };
 export default function ChatBubble({
   chatId,
   message: messageData,
-  messageId,
-  features // message: messageData, // messageIdx,
+  featuresNext,
+  featuresPrev, // message: messageData, // messageIdx,
 }: ChatBubbleProps) {
-  const { authorId, createdAt, message, type, meta } =
+  const features = React.useMemo(
+    () => ({
+      prev: featuresPrev,
+      next: featuresNext,
+    }),
+    [featuresNext, featuresPrev]
+  );
+  const {
+    authorId,
+    createdAt,
+    message,
+    type,
+    pending,
+  }: ChatsModel.Models.IChatMessage & { pending?: boolean } =
     messageData; /* useRecoilValue(chatsState.message({ chatId, messageId }))! */
+
   const author = useRecoilValue(
     chatsState.participant({ chatId, participantId: authorId })
   )!;
   const user = useRecoilValue(usersAtom(author.userId))!;
   const self = useRecoilValue(sessionAtom);
   const isSent = self?.id === user?.id;
-  const [isHovered, setIsHovered] = React.useState<boolean>(false);
-  const [isLiked, setIsLiked] = React.useState<boolean>(false);
-  const [isCelebrated, setIsCelebrated] = React.useState<boolean>(false);
   return React.useMemo(
     () => (
       <Stack
@@ -55,7 +64,7 @@ export default function ChatBubble({
       >
         {!isSent && (
           <AvatarWithStatus
-            online={user.online}
+            status={user.status}
             src={user.avatar}
             hide={features.prev}
           />
@@ -72,9 +81,18 @@ export default function ChatBubble({
               <Typography level="body-xs">{user.nickname}</Typography>
             )}
             {!features.prev && (
-              <Typography level="body-xs">
-                {moment(createdAt).fromNow()}
-              </Typography>
+              <Tooltip
+                title={moment(createdAt).format(
+                  'dddd, MMMM Do YYYY, h:mm:ss a'
+                )}
+                enterDelay={1000}
+                placement="top"
+                arrow
+              >
+                <Typography level="body-xs">
+                  {moment(createdAt).fromNow(true)}
+                </Typography>
+              </Tooltip>
             )}
           </Stack>
           {type === ChatsModel.Models.ChatMessageType.Embed ? (
@@ -112,12 +130,9 @@ export default function ChatBubble({
                 alignItems: 'center',
                 justifyContent: isSent ? 'flex-end' : 'flex-start',
               }}
-              onMouseEnter={() => setIsHovered(true)}
-              onMouseLeave={() => setIsHovered(false)}
             >
               <Sheet
-                color={isSent ? 'primary' : 'neutral'}
-                variant={isSent ? 'solid' : 'soft'}
+                variant={isSent && !pending ? 'solid' : 'soft'}
                 sx={(theme) => ({
                   p: 1.25,
                   borderRadius: 'lg',
@@ -130,7 +145,11 @@ export default function ChatBubble({
                   borderBottomLeftRadius:
                     isSent || !features.next ? undefined : theme.radius.xs,
                   backgroundColor: isSent
-                    ? 'var(--joy-palette-primary-solidBg)'
+                    ? theme.getCssVar(
+                        !pending
+                          ? 'palette-primary-solidBg'
+                          : 'palette-primary-softBg'
+                      )
                     : 'background.body',
                   display: 'flex',
                   alignItems: 'center',
@@ -153,45 +172,6 @@ export default function ChatBubble({
                   {message}
                 </Typography>
               </Sheet>
-              {(isHovered || isLiked || isCelebrated) && (
-                <Stack
-                  direction="row"
-                  justifyContent={isSent ? 'flex-end' : 'flex-start'}
-                  spacing={0.5}
-                  sx={{
-                    position: 'absolute',
-                    top: '50%',
-                    p: 1.5,
-                    ...(isSent
-                      ? {
-                          left: 0,
-                          transform: 'translate(-100%, -50%)',
-                        }
-                      : {
-                          right: 0,
-                          transform: 'translate(100%, -50%)',
-                        }),
-                  }}
-                >
-                  <IconButton
-                    variant={isLiked ? 'soft' : 'plain'}
-                    color={isLiked ? 'danger' : 'neutral'}
-                    size="sm"
-                    onClick={() => setIsLiked((prevState) => !prevState)}
-                  >
-                    {isLiked ? '❤️' : <HeartIcon />}
-                  </IconButton>
-
-                  <IconButton
-                    variant={isCelebrated ? 'soft' : 'plain'}
-                    color={isCelebrated ? 'warning' : 'neutral'}
-                    size="sm"
-                    onClick={() => setIsCelebrated((prevState) => !prevState)}
-                  >
-                    {isCelebrated ? '🎉' : <PartyPopperIcon />}
-                  </IconButton>
-                </Stack>
-              )}
             </Box>
           )}
         </Box>
@@ -201,15 +181,13 @@ export default function ChatBubble({
       createdAt,
       features.next,
       features.prev,
-      isCelebrated,
-      isHovered,
-      isLiked,
       isSent,
       message,
+      pending,
       type,
       user.avatar,
       user.nickname,
-      user.online,
+      user.status,
     ]
   );
 }

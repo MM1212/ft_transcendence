@@ -1,19 +1,33 @@
 import React from 'react';
 import Badge from '@mui/joy/Badge';
 import Avatar, { AvatarProps } from '@mui/joy/Avatar';
+import UsersModel from '@typings/models/users';
+import { ColorPaletteProp } from '@mui/joy';
 
 type AvatarWithStatusProps = AvatarProps & {
-  online?: boolean;
+  status?: UsersModel.Models.Status;
   inset?: string;
   hide?: boolean;
 };
 
 export default function AvatarWithStatus({
-  online = false,
+  status = UsersModel.Models.Status.Offline,
   inset = '.25rem',
   hide = false,
   ...rest
 }: AvatarWithStatusProps) {
+  const color = React.useMemo<ColorPaletteProp>(() => {
+    switch (status) {
+      case UsersModel.Models.Status.Online:
+        return 'success';
+      case UsersModel.Models.Status.Away:
+        return 'warning';
+      case UsersModel.Models.Status.Busy:
+        return 'danger';
+      default:
+        return 'neutral';
+    }
+  }, [status]);
   return (
     <div
       style={{
@@ -22,8 +36,8 @@ export default function AvatarWithStatus({
       }}
     >
       <Badge
-        color={online ? 'success' : 'neutral'}
-        variant={online ? 'solid' : 'soft'}
+        color={color}
+        variant="solid"
         size="sm"
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
         badgeInset={inset}

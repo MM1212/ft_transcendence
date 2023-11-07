@@ -168,6 +168,8 @@ namespace ChatsModel {
     export interface NewChat extends DB.CreateChat {}
     export interface NewMessage
       extends Omit<DB.CreateMessage, 'authorId' | 'chatId'> {}
+    export interface UpdateParticipant
+      extends DTO.DB.UpdateParticipant {}
   }
   export namespace Endpoints {
     export enum Targets {

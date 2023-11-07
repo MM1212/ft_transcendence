@@ -3,6 +3,7 @@ import { PrismaService } from '@/modules/db/prisma';
 import { ChatModel } from '@typings/api/models';
 import { JsonObject } from '@prisma/client/runtime/library';
 import ChatsModel from '@typings/models/chat';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class Chats {
@@ -49,10 +50,10 @@ export class Chats {
           participants: true,
           messages: {
             orderBy: {
-              id: 'desc'
+              id: 'desc',
             },
             take: 1,
-          }
+          },
         },
       });
     return await this.prisma.chat.findUnique({
@@ -157,8 +158,8 @@ export class Chats {
           chatId,
         },
         orderBy: {
-          id: 'desc'
-        }
+          id: 'desc',
+        },
       })
     ).map(this.formatChatMessage.bind(this));
   }
@@ -227,7 +228,7 @@ export class Chats {
     data: ChatModel.DTO.DB.CreateMessage,
   ): Promise<ChatModel.Models.IChatMessage> {
     console.log(data);
-    
+
     return this.formatChatMessage(
       await this.prisma.chatMessage.create({
         data,
@@ -265,6 +266,20 @@ export class Chats {
       },
       data,
     })) as unknown as Omit<ChatModel.Models.IChatParticipant, 'user'>;
+  }
+  public async updateChatParticipants(
+    chatId: number,
+    data: Prisma.XOR<
+      Prisma.ChatParticipantUpdateManyMutationInput,
+      Prisma.ChatParticipantUncheckedUpdateManyInput
+    >,
+  ): Promise<Omit<ChatModel.Models.IChatParticipant, 'user'>[]> {
+    return (await this.prisma.chatParticipant.updateMany({
+      where: {
+        chatId,
+      },
+      data,
+    })) as unknown as Omit<ChatModel.Models.IChatParticipant, 'user'>[];
   }
   public async updateChatMessage(
     messageId: number,

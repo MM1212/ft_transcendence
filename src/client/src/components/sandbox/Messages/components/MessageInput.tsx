@@ -18,20 +18,33 @@ import notifications from '@lib/notifications/hooks';
 export default function MessageInput({ id }: { id: number }) {
   const [input, setInput] = useRecoilState(chatsState.chatsInput(id));
   const formRef = React.useRef<HTMLFormElement>(null);
-  const [loading, setLoading] = React.useState(false);
   const submit = useRecoilCallback(
     (ctx) => async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
       if (input.trim().length === 0) return;
       console.log(input);
 
-      setLoading(true);
       try {
-        const chats = [...(await ctx.snapshot.getPromise(chatsState.chats))];
-        const chatIdx = chats.findIndex((chat) => chat.id === id);
-        if (chatIdx === -1) throw new Error('Could not find chat');
-        const chat = { ...chats[chatIdx] };
+        const chat = await ctx.snapshot.getPromise(chatsState.chat(id));
+        if (!chat) throw new Error('Could not find chat');
         const now = performance.now();
+        const selfParticipant = await ctx.snapshot.getPromise(
+          chatsState.selfParticipantByChat(chat.id)
+        );
+        const nonce = Math.random().toString(36).slice(2);
+        ctx.set(chatsState.messages(chat.id), (prev) => [
+          {
+            id: nonce as any,
+            chatId: chat.id,
+            type: ChatsModel.Models.ChatMessageType.Normal,
+            message: input.trim(),
+            meta: {},
+            createdAt: Date.now(),
+            authorId: selfParticipant.id,
+            pending: true,
+          },
+          ...prev,
+        ]);
         const resp = await tunnel.put(
           ChatsModel.Endpoints.Targets.CreateMessage,
           {
@@ -50,24 +63,39 @@ export default function MessageInput({ id }: { id: number }) {
         if (resp.status !== 'ok')
           throw new Error(resp.errorMsg ?? 'Unknown Error');
         console.log(performance.now() - now, 'ms', 'to set input to empty');
-        chat.messages = [resp.data, ...chat.messages];
-        chats[chatIdx] = chat;
-        
+
         setInput('');
-        setLoading(false);
-        ctx.set(chatsState.chats, chats);
+        ctx.set(chatsState.messages(chat.id), (prev) => {
+          const next = [...prev];
+          const idx = next.findIndex((msg) => msg.id === (nonce as any));
+          if (idx === -1) return next;
+          next[idx] = resp.data;
+          return next;
+        });
         console.log(performance.now() - now, 'ms', 'to set chats');
       } catch (e) {
         console.error(e);
         notifications.error('Could not send message', (e as Error).message);
-        setLoading(false);
       }
     },
     [id, input, setInput]
   );
   return (
-    <Box sx={{ px: 2, pb: 3 }}>
-      <FormControl component="form" onSubmit={submit} ref={formRef}>
+    <Stack
+      sx={{ px: 2, pb: 3 }}
+      direction="row"
+      alignItems="center"
+      spacing={1}
+      width="100%"
+      component="form"
+      onSubmit={submit}
+      ref={formRef}
+    >
+      <FormControl
+        style={{
+          flexGrow: 1,
+        }}
+      >
         <Textarea
           placeholder="Type something here…"
           aria-label="Message"
@@ -75,46 +103,6 @@ export default function MessageInput({ id }: { id: number }) {
           value={input}
           minRows={1}
           maxRows={10}
-          endDecorator={
-            <Stack
-              direction="row"
-              justifyContent="space-between"
-              alignItems="center"
-              flexGrow={1}
-              sx={{
-                pt: 0.75,
-                pr: 1,
-                borderTop: '1px solid',
-                borderColor: 'divider',
-              }}
-            >
-              <div>
-                <IconButton size="sm" variant="plain" color="neutral">
-                  <FormatBoldIcon />
-                </IconButton>
-                <IconButton size="sm" variant="plain" color="neutral">
-                  <FormatItalicIcon />
-                </IconButton>
-                <IconButton size="sm" variant="plain" color="neutral">
-                  <FormatStrikethroughVariantIcon />
-                </IconButton>
-                <IconButton size="sm" variant="plain" color="neutral">
-                  <FormatListBulletedIcon />
-                </IconButton>
-              </div>
-              <Button
-                size="sm"
-                color="primary"
-                sx={{ alignSelf: 'center', borderRadius: 'sm' }}
-                endDecorator={<SendIcon />}
-                type="submit"
-                disabled={input.trim().length === 0}
-                loading={loading}
-              >
-                Send
-              </Button>
-            </Stack>
-          }
           onKeyDown={(event) => {
             if (
               event.code === 'Enter' &&
@@ -128,9 +116,22 @@ export default function MessageInput({ id }: { id: number }) {
           }}
           sx={{
             '& textarea:first-of-type': {},
+            flexGrow: 1,
           }}
         />
       </FormControl>
-    </Box>
+      <IconButton
+        size="md"
+        color="primary"
+        type="submit"
+        variant="solid"
+        sx={{
+          borderRadius: (theme) => theme.radius.lg,
+        }}
+        disabled={input.trim().length === 0}
+      >
+        <SendIcon />
+      </IconButton>
+    </Stack>
   );
 }

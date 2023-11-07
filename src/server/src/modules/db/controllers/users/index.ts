@@ -49,6 +49,7 @@ export class Users {
     ).map<UsersModel.Models.IUserInfo>((user) => ({
       ...user,
       createdAt: user.createdAt.getTime(),
+      status: UsersModel.Models.Status.Offline,
     }));
   }
   async exists(id: number): Promise<boolean> {
@@ -118,6 +119,7 @@ export class Users {
     ).map<UsersModel.Models.IUserInfo>((user) => ({
       ...user,
       createdAt: user.createdAt.getTime(),
+      status: UsersModel.Models.Status.Offline,
     }));
   }
 }

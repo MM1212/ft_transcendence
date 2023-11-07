@@ -10,12 +10,19 @@ import { GroupEnumValues } from '@typings/utils';
 
 namespace UsersModel {
   export namespace Models {
+    export enum Status {
+      Offline,
+      Online,
+      Busy,
+      Away
+    }
     export interface IUser {
       id: number;
       studentId: number;
       nickname: string;
       avatar: string;
       createdAt: number;
+      status: Status;
       friends: number[];
       chats: number[];
     }
@@ -23,13 +30,13 @@ namespace UsersModel {
   }
   export namespace DTO {
     export namespace DB {
-      export interface IUser extends Omit<Models.IUserInfo, 'createdAt'> {
+      export interface IUser extends Omit<Models.IUserInfo, 'createdAt' | 'status'> {
         createdAt: Date;
         friends: { id: number }[];
         friendOf: { id: number }[];
         chats: { id: number }[];
       }
-      export interface IUserInfo extends Omit<Models.IUserInfo, 'createdAt'> {
+      export interface IUserInfo extends Omit<Models.IUserInfo, 'createdAt' | 'status'> {
         createdAt: Date;
       }
       export interface IUserCreate
@@ -66,6 +73,8 @@ namespace UsersModel {
       GetUser = '/users/:id',
       SearchUsers = '/users/search',
       PatchUser = '/users/:id',
+      GetFriends = '/users/:id/friends',
+      GetBlocked = '/users/:id/blocked',
     }
 
     export type All = GroupEnumValues<Targets>;
@@ -92,10 +101,14 @@ namespace UsersModel {
         { id: number }
       > {}
 
+    export interface GetFriends
+      extends GetEndpoint<Targets.GetFriends, DTO.GetUsers, DTO.GetUserParams> {}
+
     export type Registry = {
       [EndpointMethods.Get]: {
         [Targets.GetUsers]: GetUsers;
         [Targets.GetUser]: GetUser;
+        [Targets.GetFriends]: GetFriends;
       };
       [EndpointMethods.Post]: {
         [Targets.SearchUsers]: SearchUsers;

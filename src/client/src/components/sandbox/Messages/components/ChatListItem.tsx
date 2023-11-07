@@ -10,6 +10,9 @@ import { toggleMessagesPane } from '../utils';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import chatsState from '../state';
 import CircleIcon from '@components/icons/CircleIcon';
+import { Avatar } from '@mui/joy';
+import ChatsModel from '@typings/models/chat';
+import moment from 'moment';
 
 type ChatListItemProps = {
   id: number;
@@ -17,11 +20,19 @@ type ChatListItemProps = {
 
 export default function ChatListItem({ id }: ChatListItemProps) {
   const [selected, setSelected] = useRecoilState(chatsState.isChatSelected(id));
-  const { lastMessage, lastMessageAuthorName, name, photo, createdAt, online } =
-    useRecoilValue(chatsState.chatInfo(id));
+  const {
+    lastMessage,
+    lastMessageAuthorName,
+    name,
+    photo,
+    createdAt,
+    status,
+    type,
+  } = useRecoilValue(chatsState.chatInfo(id));
+  
   const participant = useRecoilValue(chatsState.selfParticipantByChat(id));
   if (!participant) return null;
-
+  const timestamp = lastMessage?.createdAt ?? createdAt;
   return (
     <React.Fragment>
       <ListItem>
@@ -41,12 +52,16 @@ export default function ChatListItem({ id }: ChatListItemProps) {
           }}
         >
           <Stack direction="row" spacing={1} alignItems="center" width="100%">
-            <AvatarWithStatus
-              online={online}
-              src={photo ?? undefined}
-              size="lg"
-              inset=".5rem"
-            />
+            {type === ChatsModel.Models.ChatType.Direct ? (
+              <AvatarWithStatus
+                status={status}
+                src={photo ?? undefined}
+                size="lg"
+                inset=".5rem"
+              />
+            ) : (
+              <Avatar src={photo ?? undefined} size="lg" />
+            )}
             <Stack spacing={0.25} width="100%">
               <Box
                 display="flex"
@@ -54,7 +69,7 @@ export default function ChatListItem({ id }: ChatListItemProps) {
                 alignItems="center"
               >
                 <Typography level="title-sm">{name}</Typography>
-                <Box>
+                <Stack direction="row" alignItems="center" spacing={1}>
                   {participant.toReadPings !== 0 && (
                     <CircleIcon
                       sx={{ fontSize: 8, color: 'primary.plainColor' }}
@@ -65,9 +80,9 @@ export default function ChatListItem({ id }: ChatListItemProps) {
                     display={{ xs: 'none', md: 'block' }}
                     noWrap
                   >
-                    5 mins ago
+                    {moment(timestamp).fromNow()}
                   </Typography>
-                </Box>
+                </Stack>
               </Box>
               {lastMessage && (
                 <Typography
