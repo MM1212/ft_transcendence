@@ -25,6 +25,7 @@ import Lobby from '@views/lobby';
 import Notification, { NotificationProps } from '@lib/notifications/hooks';
 import { toast } from 'sonner';
 import notifications from '@lib/notifications/hooks';
+import Pong from '@views/pong';
 
 function App() {
   const [count, setCount] = useState(0);
@@ -160,6 +161,9 @@ function App() {
       </Route>
       <Route path="/lobby">
         <Lobby />
+      </Route>
+      <Route path="/pong">
+        <Pong />
       </Route>
       <Route>
         <Redirect to="/404" />
