@@ -57,7 +57,7 @@ export const mainTargets = [
   {
     label: "Customization",
     target: "/customization",
-    // node: <CustomizationPanel />,
+    node: <CustomizationPanel />,
   },
   {
     label: "Friends",

@@ -12,6 +12,14 @@ export const myAchievements: string[] = [
   "https://cdn-icons-png.flaticon.com/512/8744/8744961.png",
 ];
 
+export const myCustomizations: string[] = [
+  "Top Cloth",
+  "Bottom Cloth",
+  "Shoes",
+  "Head",
+  "Skin Color",
+];
+
 export const backGroundImg =
   "https://png.pngtree.com/thumb_back/fh260/background/20200714/pngtree-modern-double-color-futuristic-neon-background-image_351866.jpg";
 

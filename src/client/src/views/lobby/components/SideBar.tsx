@@ -40,11 +40,12 @@ export default function SideBar() {
     <Sheet className="SideBar">
       <Drawer
         open={open}
-        onClose={handleCloseDrawer}
+        // onClose={handleCloseDrawer}
         className="SideBar"
         slotProps={{
           content: {
             sx: {
+              overflow: "unset",
               boxShadow: "none",
               width: "100%",
               height: "100dvh",
