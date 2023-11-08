@@ -13,7 +13,9 @@ export const myAchievements: string[] = [
 ];
 
 export const backGroundImg =
-  "https://png.pngtree.com/thumb_back/fh260/background/20200731/pngtree-blue-carbon-background-with-sport-style-and-golden-light-image_371487.jpg";
+  "https://png.pngtree.com/thumb_back/fh260/background/20200714/pngtree-modern-double-color-futuristic-neon-background-image_351866.jpg";
+
+//   "https://png.pngtree.com/thumb_back/fh260/background/20200731/pngtree-blue-carbon-background-with-sport-style-and-golden-light-image_371487.jpg";
 
 export const sampleUsers: IUser[] = [
   {

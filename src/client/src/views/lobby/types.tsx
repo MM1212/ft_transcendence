@@ -5,6 +5,7 @@ import FriendsPanel from "./components/FriendsPanel";
 import { sampleChat } from "./hardoceTestes";
 import Profile from "./components/user/Profile";
 import AchievementsPanel from "./components/AchievementsPanel";
+import CustomizationPanel from "./components/CustomizationPanel";
 
 export interface ChatsPaneProps {
   setSelectedChat: (chat: ChatModel.Models.IChat) => void;
@@ -54,18 +55,15 @@ export const mainTargets = [
     ),
   },
   {
-    label: "Key Bindings",
-    target: "/keybindings",
+    label: "Customization",
+    target: "/customization",
+    // node: <CustomizationPanel />,
   },
   {
     label: "Friends",
     route: "/friends/:rest*",
     target: "/friends",
-    node: (
-      <>
-        <FriendsPanel />
-      </>
-    ),
+    node: <FriendsPanel />,
   },
   {
     label: "Achievements",

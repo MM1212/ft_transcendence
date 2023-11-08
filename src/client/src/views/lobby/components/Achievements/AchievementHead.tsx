@@ -23,7 +23,7 @@ export default function AchievementHead() {
         borderBottom: "1px solid",
         borderColor: "divider",
         backgroundColor: "background.level1",
-        height: "25%",
+        height: "20%",
       }}
       py={{ xs: 2, md: 2 }}
       px={{ xs: 1, md: 2 }}
