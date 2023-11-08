@@ -1,5 +1,5 @@
-import { Box, Button, IconButton, Sheet, Slider } from "@mui/joy";
-import { Avatar, Badge, Chip, Stack, Typography } from "@mui/joy";
+import { Box, IconButton, Sheet } from "@mui/joy";
+import { Avatar, Stack, Typography } from "@mui/joy";
 import UsersModel from "@typings/models/users";
 import AchivementBar from "./AchievementBar";
 
@@ -13,7 +13,6 @@ const UserTest: UsersModel.Models.IUser = {
   friends: [2, 3, 4, 5],
   chats: [1, 2, 3, 4],
 };
-
 
 export default function AchievementHead() {
   return (

@@ -1,6 +1,20 @@
 import { ChatModel } from "@typings/models";
 import { IUser } from "@typings/user";
 
+export const myAchievements: string[] = [
+  "https://cdn-icons-png.flaticon.com/512/4047/4047954.png",
+  "https://cdn-icons-png.flaticon.com/512/8744/8744961.png",
+  "https://cdn-icons-png.flaticon.com/512/8683/8683795.png",
+  "https://cdn-icons-png.flaticon.com/512/8744/8744961.png",
+  "https://cdn-icons-png.flaticon.com/512/4047/4047954.png",
+  "https://cdn-icons-png.flaticon.com/512/8744/8744961.png",
+  "https://cdn-icons-png.flaticon.com/512/8744/8744961.png",
+  "https://cdn-icons-png.flaticon.com/512/8744/8744961.png",
+];
+
+export const backGroundImg =
+  "https://png.pngtree.com/thumb_back/fh260/background/20200731/pngtree-blue-carbon-background-with-sport-style-and-golden-light-image_371487.jpg";
+
 export const sampleUsers: IUser[] = [
   {
     id: 2,

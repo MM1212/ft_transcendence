@@ -46,7 +46,7 @@ export default function SideBar() {
           content: {
             sx: {
               boxShadow: "none",
-              width: "80%",
+              width: "100%",
               height: "100dvh",
               flexGrow: 1,
               display: "flex",
@@ -56,7 +56,6 @@ export default function SideBar() {
           },
         }}
       >
-        <>{console.log("mounted")}</>
         <Box
           sx={{
             // backgroundColor: theme=>lighten(theme.resolveVar("palette-background-level1"), 0.7),

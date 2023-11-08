@@ -27,7 +27,7 @@ export default function Profile() {
           height: "calc(100dvh - var(--Header-height))",
           overflowY: "auto",
           backgroundColor: "background.level1",
-          width: "45dvh",
+          width: "40%",
         }}
       >
         <Stack direction="column" justifyContent="center" alignItems="center">

@@ -1,19 +1,19 @@
 import * as React from "react";
 import LinearProgress from "@mui/joy/LinearProgress";
-import { useCountUp } from "use-count-up";
+// import { useCountUp } from "use-count-up";
 
 export default function AchivementBar() {
-  const { value } = useCountUp({
-    isCounting: true,
-    duration: 5,
-    easing: "linear",
-    start: 0,
-    end: 70,
-    onComplete: () => ({
-      shouldRepeat: false,
-      delay: 0.05,
-    }),
-  });
+  //   const { value } = useCountUp({
+  //     isCounting: true,
+  //     duration: 5,
+  //     easing: "linear",
+  //     start: 0,
+  //     end: 70,
+  //     onComplete: () => ({
+  //       shouldRepeat: false,
+  //       delay: 0.05,
+  //     }),
+  //   });
 
   return (
     <LinearProgress
@@ -21,7 +21,7 @@ export default function AchivementBar() {
       variant="soft"
       color="primary"
       size="sm"
-      value={Number(value!)}
+      value={Number(70)}
       sx={{
         border: "none",
         "--LinearProgress-radius": "20px",
