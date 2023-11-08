@@ -1,12 +1,14 @@
 /* eslint-disable react-refresh/only-export-components */
 import { buildTunnelEndpoint } from '@hooks/tunnel';
-import { SseModel } from '@typings/api/models';
+import { AuthModel, SseModel } from '@typings/api/models';
 import React from 'react';
 import { useRecoilValue } from 'recoil';
 import { eventCacheAtom } from './store';
+import { mutate } from 'swr';
 
 const useSseService = () => {
   const eventCache = useRecoilValue(eventCacheAtom);
+
   React.useEffect(() => {
     const eventSource = new EventSource(
       buildTunnelEndpoint(SseModel.Endpoints.Targets.Connect),
@@ -15,7 +17,7 @@ const useSseService = () => {
       }
     );
     eventSource.onopen = () =>
-      console.log('SSE connection opened', eventSource.readyState);
+      mutate(buildTunnelEndpoint(AuthModel.Endpoints.Targets.Session));
     eventSource.addEventListener('close', () =>
       console.log('SSE connection closed')
     );

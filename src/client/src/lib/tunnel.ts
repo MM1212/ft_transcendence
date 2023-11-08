@@ -14,8 +14,6 @@ class APITunnel implements ITunnel {
     uri: API.EndpointTarget<T>,
     params: API.EndpointParams<T> = {} as API.EndpointParams<T>
   ): string {
-    console.log(uri, params);
-    
     if (!params) return this.buildUrl(uri);
     const url = new URL(
       this.buildUrl(

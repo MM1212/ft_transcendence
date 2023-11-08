@@ -14,12 +14,12 @@ export class UsersService {
   @OnEvent('sse.connected')
   private async onSseConnected(userId: number) {
     console.log('User connected', userId);
-    
+
     const user = await this.get(userId);
-    if (!user) return;
+    if (!user || !user.isOffline) return;
     user.set('status', UsersModel.Models.Status.Online);
     console.log(user.public);
-    
+
     user.propagate();
   }
   @OnEvent('sse.disconnected')

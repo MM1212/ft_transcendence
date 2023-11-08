@@ -6,27 +6,27 @@ import { SWRConfig } from 'swr';
 import { Router } from 'wouter';
 import StateMounter from '@state/mounter';
 import NotificationsProvider from '@lib/notifications/Provider';
-import { DebugObserver } from '@components/DebugObserver';
 import moment from 'moment';
+import ErrorBoundary from '@components/ExceptionCatcher';
 
-moment.locale('en', {
+moment.updateLocale('en', {
   relativeTime: {
     future: 'in %s',
     past: '%s ago',
-    s:  '1s',
+    s: '1s',
     ss: '%ss',
-    m:  '1m',
+    m: '1m',
     mm: '%dm',
-    h:  '1h',
+    h: '1h',
     hh: '%dh',
-    d:  '1d',
+    d: '1d',
     dd: '%dd',
-    M:  '1M',
+    M: '1M',
     MM: '%dM',
-    y:  '1Y',
-    yy: '%dY'
-  }
-})
+    y: '1Y',
+    yy: '%dY',
+  },
+});
 
 export default function AppProviders({
   children,
@@ -55,7 +55,7 @@ export default function AppProviders({
           >
             <CssBaseline />
             <NotificationsProvider />
-            {children}
+            <ErrorBoundary>{children}</ErrorBoundary>
           </CssVarsProvider>
         </SWRConfig>
       </Router>

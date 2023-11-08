@@ -41,6 +41,26 @@ class User extends CacheObserver<UsersModel.Models.IUser> {
     return this.get('createdAt');
   }
 
+  public get status(): UsersModel.Models.Status {
+    return this.get('status');
+  }
+
+  public get isOnline(): boolean {
+    return this.status === UsersModel.Models.Status.Online;
+  }
+
+  public get isOffline(): boolean {
+    return this.status === UsersModel.Models.Status.Offline;
+  }
+
+  public get isAway(): boolean {
+    return this.status === UsersModel.Models.Status.Away;
+  }
+
+  public get isBusy(): boolean {
+    return this.status === UsersModel.Models.Status.Busy;
+  }
+
   public async refresh(): Promise<void> {
     const data = await this.helpers.db.users.get(this.id);
     if (!data)

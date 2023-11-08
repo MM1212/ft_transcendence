@@ -107,9 +107,7 @@ export const useUsersService = () => {
         data: { id, avatar, nickname, studentId, status },
       } = ev;
       const { state } = ctx.snapshot.getLoadable(usersAtom(id));
-      const { isSet, isActive, isModified } = ctx.snapshot.getInfo_UNSTABLE(usersAtom(id));
-      console.log(id, isSet, isActive, isModified);
-      
+      const { isActive } = ctx.snapshot.getInfo_UNSTABLE(usersAtom(id));
       if (state === 'loading' || !isActive) {
         console.warn('User not found in cache, skipping update');
         return;
@@ -119,7 +117,7 @@ export const useUsersService = () => {
         avatar,
         nickname,
         studentId,
-        status
+        status,
       }));
     },
     []

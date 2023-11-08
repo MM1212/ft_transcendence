@@ -1,4 +1,4 @@
-import useMessagesService from '@components/sandbox/Messages/hooks/service';
+import useMessagesService from '@apps/Chat/hooks/service';
 import useSseService from '@hooks/sse/Provider';
 import { useSessionRecoilService, useUsersService } from '@hooks/user';
 

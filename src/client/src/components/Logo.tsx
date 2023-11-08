@@ -1,4 +1,13 @@
-import { Button, DialogActions, FormLabel, Input } from '@mui/joy';
+import {
+  Button,
+  ColorPaletteProp,
+  DialogActions,
+  FormLabel,
+  Input,
+  Option,
+  Select,
+  Typography,
+} from '@mui/joy';
 import {
   Avatar,
   DialogContent,
@@ -8,45 +17,110 @@ import {
   ModalDialog,
   Stack,
 } from '@mui/joy';
-import React from 'react';
+import React, { memo } from 'react';
 import { mutate } from 'swr';
 import { buildTunnelEndpoint } from '@hooks/tunnel';
 import tunnel from '@lib/tunnel';
 import UsersModel from '@typings/models/users';
-type IUser = UsersModel.Models.IUserInfo;
-type State = Pick<IUser, 'avatar' | 'nickname'>;
+import { AuthModel } from '@typings/models';
+import CircleIcon from './icons/CircleIcon';
+import { useModal } from '@hooks/useModal';
+import notifications from '@lib/notifications/hooks';
+import { useCurrentUser } from '@hooks/user';
 
-export default function Logo(user: IUser): JSX.Element {
-  const [input, setInput] = React.useState<State>(user);
-  const [open, setOpen] = React.useState<boolean>(false);
+type IUser = UsersModel.Models.IUserInfo;
+type State = Pick<IUser, 'avatar' | 'nickname' | 'status'>;
+
+const statusOptions = [
+  { color: 'success', label: 'Online', value: UsersModel.Models.Status.Online },
+  { color: 'warning', label: 'Away', value: UsersModel.Models.Status.Away },
+  { color: 'danger', label: 'Busy', value: UsersModel.Models.Status.Busy },
+  {
+    color: 'neutral',
+    label: 'Offline',
+    value: UsersModel.Models.Status.Offline,
+  },
+] as {
+  color: ColorPaletteProp;
+  label: string;
+  value: UsersModel.Models.Status;
+}[];
+
+const StatusIndicator = memo(function StatusIndicator({
+  label,
+  color,
+}: (typeof statusOptions)[number]): JSX.Element {
+  return (
+    <Stack direction="row" spacing={1} alignItems="center">
+      <CircleIcon size="xs" color={color} />
+      <Typography>{label}</Typography>
+    </Stack>
+  );
+});
+
+export default function Logo(): JSX.Element {
+  const user = useCurrentUser();
+  const [input, setInput] = React.useState<State>(user ?? ({} as State));
+  const [loading, setLoading] = React.useState(false);
+  const { close, open, isOpened } = useModal('user-profile-edit');
 
   const updateProperty = React.useCallback(
-    (key: keyof State) => (ev: React.ChangeEvent<HTMLInputElement>) => {
-      setInput((prev) => ({ ...prev, [key]: ev.target.value }));
-    },
+    <T extends keyof State>(key: T) =>
+      (value: State[T]) => {
+        setInput((prev) => ({ ...prev, [key]: value }));
+      },
     []
   );
-  const cancelProperties = React.useCallback(async () => {
-    setOpen(false);
-  }, []);
+  const updateInputProperty = React.useCallback(
+    <T extends keyof State>(key: T) =>
+      (event: React.ChangeEvent<HTMLInputElement>) => {
+        updateProperty(key)(event.target.value as State[T]);
+      },
+    [updateProperty]
+  );
 
   const submitProperties = React.useCallback(async () => {
-    const resp = await tunnel.patch(UsersModel.Endpoints.Targets.PatchUser, {
-      avatar: input.avatar,
-      nickname: input.nickname,
-    });
-    if (resp.status === 'ok')
-      mutate(buildTunnelEndpoint(Endpoints.UsersMe), undefined, {
-        revalidate: true,
-      });
-    else console.error(resp.errorMsg);
-  }, [input]);
+    if (!user) return;
+    const { avatar, nickname, status } = input;
+    try {
+      setLoading(true);
+      const resp = await tunnel.patch(
+        UsersModel.Endpoints.Targets.PatchUser,
+        {
+          avatar,
+          nickname,
+          status,
+        },
+        {
+          id: user.id,
+        }
+      );
+      if (resp.status === 'ok')
+        mutate(
+          buildTunnelEndpoint(AuthModel.Endpoints.Targets.Session),
+          undefined,
+          {
+            revalidate: true,
+          }
+        );
+      else throw new Error(resp.errorMsg);
+
+      close();
+      notifications.success('User updated!');
+    } catch (error) {
+      console.error(error);
+      notifications.error('Could not update user', (error as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  }, [user, input, close]);
 
   React.useEffect(() => {
-    setInput(user);
+    setInput(user ?? ({} as State));
   }, [user]);
 
   const propertiesUpdated = React.useMemo(() => {
+    if (!user) return false;
     for (const key in input) {
       if (input[key as keyof State] !== user[key as keyof IUser]) return true;
     }
@@ -55,19 +129,15 @@ export default function Logo(user: IUser): JSX.Element {
 
   return (
     <>
-      <Avatar
-        src={user.avatar}
-        onClick={() => setOpen(true)}
-        style={{ cursor: 'pointer' }}
-      />
-      <Modal open={open} onClose={() => setOpen(false)}>
+      <Avatar src={user?.avatar} onClick={open} style={{ cursor: 'pointer' }} />
+      <Modal open={isOpened} onClose={close}>
         <ModalDialog>
           <DialogTitle></DialogTitle>
           <DialogContent>
             <form
               onSubmit={(event: React.FormEvent<HTMLFormElement>) => {
                 event.preventDefault();
-                setOpen(false);
+                submitProperties();
               }}
             >
               <Stack spacing={2} direction="row" alignItems="center">
@@ -79,7 +149,7 @@ export default function Logo(user: IUser): JSX.Element {
                       autoFocus
                       required
                       value={input.nickname}
-                      onChange={updateProperty('nickname')}
+                      onChange={updateInputProperty('nickname')}
                       error={!input.nickname}
                     />
                   </FormControl>
@@ -88,19 +158,54 @@ export default function Logo(user: IUser): JSX.Element {
                     <Input
                       value={input.avatar}
                       type="url"
-                      onChange={updateProperty('avatar')}
+                      onChange={updateInputProperty('avatar')}
                       error={!input.avatar}
                     />
+                  </FormControl>
+                  <FormControl>
+                    <FormLabel>Status</FormLabel>
+                    <Select
+                      value={input.status}
+                      onChange={(_, value) =>
+                        updateProperty('status')(
+                          value ?? UsersModel.Models.Status.Offline
+                        )
+                      }
+                    >
+                      {statusOptions.map(({ color, label, value }) => (
+                        <Option
+                          value={value}
+                          label={
+                            <StatusIndicator
+                              color={color}
+                              label={label}
+                              value={value}
+                            />
+                          }
+                          key={value}
+                        >
+                          <StatusIndicator
+                            color={color}
+                            label={label}
+                            value={value}
+                          />
+                        </Option>
+                      ))}
+                    </Select>
                   </FormControl>
                 </Stack>
               </Stack>
             </form>
           </DialogContent>
           <DialogActions>
-            <Button onClick={submitProperties} disabled={!propertiesUpdated}>
+            <Button
+              onClick={submitProperties}
+              disabled={!propertiesUpdated}
+              loading={loading}
+            >
               Submit
             </Button>
-            <Button variant="plain" color="neutral" onClick={cancelProperties}>
+            <Button variant="plain" color="neutral" onClick={close}>
               Cancel
             </Button>
           </DialogActions>

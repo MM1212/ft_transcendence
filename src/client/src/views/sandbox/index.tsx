@@ -1,4 +1,4 @@
-import MessagesSandbox from '@components/sandbox/Messages';
+// import MessagesSandbox from '@components/sandbox/Messages';
 import InfiniteScrollSandbox from '@components/sandbox/infinite';
 import { Route, Router, Switch, useRouter } from 'wouter';
 
@@ -7,9 +7,9 @@ export default function SandboxRouter() {
   return (
     <Router base="/sandbox" parent={router}>
       <Switch>
-        <Route path="/messages">
+        {/* <Route path="/messages">
           <MessagesSandbox />
-        </Route>
+        </Route> */}
         <Route path="/infinite">
           <InfiniteScrollSandbox />
         </Route>
