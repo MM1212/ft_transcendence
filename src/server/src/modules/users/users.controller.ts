@@ -71,11 +71,11 @@ export class UsersController {
   @Patch(UsersModel.Endpoints.Targets.PatchUser)
   async patch(
     @Param('id', ParseIntPipe, ValidationPipe) id: number,
-    @Body() { avatar, nickname }: UsersModel.DTO.PatchUser,
+    @Body() { avatar, nickname, status }: UsersModel.DTO.PatchUser,
     @HttpCtx() { user }: HTTPContext<true>,
   ): Promise<EndpointResponse<UsersModel.Endpoints.PatchUser>> {
     if (user.id !== id) throw new ForbiddenException();
-    const ok = await user.save({ avatar, nickname }, true);
+    const ok = await user.save({ avatar, nickname, status }, true);
     if (!ok) return buildErrorResponse('Failed to update profile');
     return buildOkResponse(user.public);
   }

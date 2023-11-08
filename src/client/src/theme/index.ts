@@ -1,6 +1,7 @@
 import { Theme, ThemeCssVar, extendTheme } from '@mui/joy';
 import { TransitionAPI } from './transitions';
 import { alpha, lighten, darken } from './bin/color';
+export * from './scrollBar';
 
 const transitionConstants: Pick<TransitionAPI, 'duration' | 'easing'> = {
   duration: {
@@ -34,7 +35,7 @@ function resolveVar(this: Theme, variable: ThemeCssVar): string {
 const testTheme = extendTheme({
   transitions: {
     ...transitionConstants,
-    create: (props, options) => {
+    create: (props, options = {}) => {
       if (!props) return '';
       const {
         duration = transitionConstants.duration.standard,
@@ -56,6 +57,7 @@ const testTheme = extendTheme({
   alpha,
   lighten,
   darken,
+  
   components: {
     JoyButton: {
       styleOverrides: {
@@ -67,6 +69,41 @@ const testTheme = extendTheme({
             }
           ),
         }),
+      },
+    },
+    JoyIconButton: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          transition: theme.transitions.create(
+            ['background-color', 'transform', 'box-shadow', 'border'],
+            {
+              duration: theme.transitions.duration.shortest,
+            }
+          ),
+        }),
+      },
+    },
+    JoySvgIcon: {
+      styleOverrides: {
+        root: ({ theme, ownerState }) => ({
+          ...(ownerState.size === 'xs' && {
+            fontSize: theme.fontSize.xs,
+          }),
+          ...(ownerState.size === 'xxs' && {
+            fontSize: '0.50rem',
+          }),
+        }),
+      },
+    },
+    JoyTooltip: {
+      defaultProps: {
+        placement: 'top',
+        arrow: true,
+      },
+      styleOverrides: {
+        root: {
+          boxShadow: 'none',
+        },
       },
     },
   },

@@ -8,10 +8,7 @@ import {
   ForbiddenException,
   UseGuards,
 } from '@nestjs/common';
-import { Auth } from '@typings/auth';
 import { Request } from '@typings/http';
-import { UsersService } from '@/modules/users/users.service';
-import UserExtSession from '@/modules/users/user/ext/Session';
 import { ChatsService } from '../chats.service';
 import { Reflector } from '@nestjs/core';
 import ChatsModel from '@typings/models/chat';
@@ -47,7 +44,8 @@ export class RolesGuard implements CanActivate {
       const cParticipant = chat.getParticipantByUserId(userData.id, true);
       if (!cParticipant) throw new UnauthorizedException();
       const roles = this.reflector.get(ChatRoles, context.getHandler());
-      if (!roles) return true;
+
+      if (!roles || !roles.length) return true;
       if (!roles.includes(cParticipant.role)) throw new ForbiddenException();
     } catch (e) {
       throw new UnauthorizedException();
@@ -57,7 +55,7 @@ export class RolesGuard implements CanActivate {
 }
 
 export const ChatAuth = (...roles: ChatsModel.Models.ChatParticipantRole[]) =>
-  applyDecorators(ChatRoles(roles ?? undefined), UseGuards(RolesGuard));
+  applyDecorators(ChatRoles(roles), UseGuards(RolesGuard));
 
 export const ChatOPAuth = () => ChatAuth(
   ChatsModel.Models.ChatParticipantRole.Admin,

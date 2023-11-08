@@ -28,6 +28,7 @@ class UserExtSession extends UserExtBase {
       nickname: this.observer.get('nickname'),
       avatar: this.observer.get('avatar'),
       createdAt: this.observer.get('createdAt'),
+      status: this.observer.get('status'),
     };
   }
   get loggedIn(): boolean {

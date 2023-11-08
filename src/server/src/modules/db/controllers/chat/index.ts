@@ -1,16 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/modules/db/prisma';
 import { ChatModel } from '@typings/api/models';
-import { IUser } from '@typings/user';
 import { JsonObject } from '@prisma/client/runtime/library';
-
-const SIMPLE_DB_USER: Record<keyof IUser, true> = {
-  id: true,
-  nickname: true,
-  avatar: true,
-  studentId: true,
-  createdAt: true,
-};
+import ChatsModel from '@typings/models/chat';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class Chats {
@@ -28,7 +21,7 @@ export class Chats {
         ...p,
         createdAt: p.createdAt.getTime(),
       })),
-      messages: [],
+      messages: chat.messages.map(this.formatChatMessage.bind(this)),
     };
   }
   public formatChatMessage<T extends ChatModel.DTO.DB.ChatMessage | null>(
@@ -55,12 +48,24 @@ export class Chats {
         },
         include: {
           participants: true,
+          messages: {
+            orderBy: {
+              id: 'desc',
+            },
+            take: 1,
+          },
         },
       });
     return await this.prisma.chat.findUnique({
       where: { id: data as number },
       include: {
         participants: true,
+        messages: {
+          orderBy: {
+            id: 'desc',
+          },
+          take: 1,
+        },
       },
     });
   }
@@ -138,13 +143,14 @@ export class Chats {
   ): Promise<ChatModel.Models.IChatMessage[]> {
     return (
       await this.prisma.chatMessage.findMany({
-        take: 50,
-        skip: cursor ? 1 : 0,
-        cursor: cursor
-          ? {
-              id: cursor,
-            }
-          : undefined,
+        take: ChatsModel.Models.MAX_MESSAGES_PER_CHAT,
+        skip: cursor !== undefined ? 1 : 0,
+        cursor:
+          cursor !== undefined
+            ? {
+                id: cursor,
+              }
+            : undefined,
         select: {
           id: true,
           message: true,
@@ -156,6 +162,9 @@ export class Chats {
         },
         where: {
           chatId,
+        },
+        orderBy: {
+          id: 'desc',
         },
       })
     ).map(this.formatChatMessage.bind(this));
@@ -169,9 +178,7 @@ export class Chats {
           id: messageId,
         },
         include: {
-          author: {
-            select: SIMPLE_DB_USER,
-          },
+          author: true,
         },
       }),
     );
@@ -226,6 +233,8 @@ export class Chats {
   public async createChatMessage(
     data: ChatModel.DTO.DB.CreateMessage,
   ): Promise<ChatModel.Models.IChatMessage> {
+    console.log(data);
+
     return this.formatChatMessage(
       await this.prisma.chatMessage.create({
         data,
@@ -263,6 +272,24 @@ export class Chats {
       },
       data,
     })) as unknown as Omit<ChatModel.Models.IChatParticipant, 'user'>;
+  }
+  public async updateChatParticipants(
+    chatId: number,
+    data: Prisma.XOR<
+      Prisma.ChatParticipantUpdateManyMutationInput,
+      Prisma.ChatParticipantUncheckedUpdateManyInput
+    >,
+    filter: number[] = []
+  ): Promise<Omit<ChatModel.Models.IChatParticipant, 'user'>[]> {
+    return (await this.prisma.chatParticipant.updateMany({
+      where: {
+        chatId,
+        id: {
+          notIn: filter,
+        }
+      },
+      data,
+    })) as unknown as Omit<ChatModel.Models.IChatParticipant, 'user'>[];
   }
   public async updateChatMessage(
     messageId: number,

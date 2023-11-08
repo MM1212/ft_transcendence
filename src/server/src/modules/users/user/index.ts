@@ -41,6 +41,26 @@ class User extends CacheObserver<UsersModel.Models.IUser> {
     return this.get('createdAt');
   }
 
+  public get status(): UsersModel.Models.Status {
+    return this.get('status');
+  }
+
+  public get isOnline(): boolean {
+    return this.status === UsersModel.Models.Status.Online;
+  }
+
+  public get isOffline(): boolean {
+    return this.status === UsersModel.Models.Status.Offline;
+  }
+
+  public get isAway(): boolean {
+    return this.status === UsersModel.Models.Status.Away;
+  }
+
+  public get isBusy(): boolean {
+    return this.status === UsersModel.Models.Status.Busy;
+  }
+
   public async refresh(): Promise<void> {
     const data = await this.helpers.db.users.get(this.id);
     if (!data)
@@ -50,7 +70,7 @@ class User extends CacheObserver<UsersModel.Models.IUser> {
     this.setTo(data);
   }
   public async save(
-    { avatar, nickname }: NestedPartial<UsersModel.Models.IUserInfo> = this
+    { avatar, nickname, status }: NestedPartial<UsersModel.Models.IUserInfo> = this
       .public,
     propagate: boolean = false,
   ): Promise<boolean> {
@@ -59,6 +79,8 @@ class User extends CacheObserver<UsersModel.Models.IUser> {
       nickname,
     });
     if (!result) return false;
+    if (status !== undefined)
+      this.set('status', status);
     for (const [key, value] of Object.entries(result))
       this.set(key as keyof UsersModel.Models.IUser, value as any);
     if (propagate) this.propagate();

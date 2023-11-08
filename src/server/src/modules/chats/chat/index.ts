@@ -49,6 +49,9 @@ class Participant extends CacheObserver<ChatsModel.Models.IChatParticipant> {
   public get toReadPings(): number {
     return this.get('toReadPings');
   }
+  public set toReadPings(value: number) {
+    this.set('toReadPings', value);
+  }
   public get createdAt(): number {
     return this.get('createdAt');
   }
@@ -67,7 +70,10 @@ class Chat extends CacheObserver<IChat> {
       ...data,
       participants: [],
     });
-    this.set('participants', data.participants.map((p) => new Participant(p, this)));
+    this.set(
+      'participants',
+      data.participants.map((p) => new Participant(p, this)),
+    );
   }
   public get public(): ChatsModel.Models.IChatInfo {
     const { messages, authorizationData, ...chat } = this.get();
@@ -80,6 +86,7 @@ class Chat extends CacheObserver<IChat> {
     const { messages, authorizationData, participants, ...chat } = this.get();
     return {
       ...chat,
+      participants: participants.map((p: Participant) => p.public),
       messages: this.lastMessage ? [this.lastMessage] : [],
     } satisfies ChatsModel.Models.IChatDisplay;
   }
@@ -196,8 +203,19 @@ class Chat extends CacheObserver<IChat> {
   public async getMessages(
     cursor: number,
   ): Promise<ChatsModel.Models.IChatMessage[]> {
-    if (cursor === -1) return this.lastMessages;
-    return await this.helpers.db.chats.getChatMessages(this.id, cursor);
+    if (cursor === -1) {
+      if (this.lastMessages.length < ChatsModel.Models.MAX_MESSAGES_PER_CHAT)
+        this.set(
+          'messages',
+          await this.helpers.db.chats.getChatMessages(this.id),
+        );
+      return this.lastMessages;
+    }
+    const messages = await this.helpers.db.chats.getChatMessages(
+      this.id,
+      cursor,
+    );
+    return messages;
   }
   public async getMessage(
     messageId: number,
@@ -211,15 +229,34 @@ class Chat extends CacheObserver<IChat> {
     author: User,
     data: ChatsModel.DTO.NewMessage,
   ): Promise<ChatsModel.Models.IChatMessage> {
-    if (!this.hasParticipantByUserId(author.id)) throw new ForbiddenException();
+    const participant = this.getParticipantByUserId(author.id);
+    if (!participant) throw new ForbiddenException();
+    console.log(author, data);
+
     const result = await this.helpers.db.chats.createChatMessage({
       ...data,
-      authorId: author.id,
+      authorId: participant.id,
       chatId: this.id,
     });
+    await this.helpers.db.chats.updateChatParticipants(
+      this.id,
+      {
+        toReadPings: {
+          increment: 1,
+        },
+      },
+      [participant.id],
+    );
+    this.participants.forEach((p) => {
+      p.toReadPings++;
+    });
+    console.log(this.get('messages'));
+
     this.set('messages', (prev) => [result, ...prev]);
-    if (this.lastMessages.length > 50)
-      this.set('messages', (prev) => prev.slice(0, 50));
+    if (this.lastMessages.length > ChatsModel.Models.MAX_MESSAGES_PER_CHAT)
+      this.set('messages', (prev) =>
+        prev.slice(0, ChatsModel.Models.MAX_MESSAGES_PER_CHAT),
+      );
     this.helpers.sseService.emitToTargets<ChatsModel.Sse.NewMessageEvent>(
       ChatsModel.Sse.Events.NewMessage,
       author.id,
@@ -227,6 +264,23 @@ class Chat extends CacheObserver<IChat> {
       result,
     );
     return result;
+  }
+
+  public async updateParticipant(
+    op: User,
+    participantId: number,
+    data: ChatsModel.DTO.UpdateParticipant,
+  ): Promise<Participant> {
+    const participant = this.getParticipant(participantId, true);
+    if (!participant) throw new ForbiddenException();
+    if (!participant.isAdmin() && participant.userId !== op.id)
+      throw new ForbiddenException();
+    const result = await this.helpers.db.chats.updateChatParticipant(
+      participantId,
+      data,
+    );
+    participant.setTo(result);
+    return participant;
   }
 }
 

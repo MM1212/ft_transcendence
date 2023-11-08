@@ -35,6 +35,7 @@ import { ChatsModule } from './modules/chats/chats.module';
     Auth42Module,
     AuthSessionModule,
     SseModule,
+    UsersModule,
     PrismaModule,
     DbModule,
     forwardRef(() => LobbyModule),
