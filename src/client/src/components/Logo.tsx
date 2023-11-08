@@ -1,4 +1,4 @@
-import { Button, DialogActions, FormLabel, Input } from "@mui/joy";
+import { Button, DialogActions, FormLabel, Input } from '@mui/joy';
 import {
   Avatar,
   DialogContent,
@@ -7,15 +7,14 @@ import {
   Modal,
   ModalDialog,
   Stack,
-} from "@mui/joy";
-import { IUser } from "@typings/user";
-import React from "react";
-import { mutate } from "swr";
-import { buildTunnelEndpoint } from "@hooks/tunnel";
-import tunnel from "@lib/tunnel";
-import API, { Endpoints } from "@typings/api";
-
-type State = Pick<IUser, "avatar" | "nickname">;
+} from '@mui/joy';
+import React from 'react';
+import { mutate } from 'swr';
+import { buildTunnelEndpoint } from '@hooks/tunnel';
+import tunnel from '@lib/tunnel';
+import UsersModel from '@typings/models/users';
+type IUser = UsersModel.Models.IUserInfo;
+type State = Pick<IUser, 'avatar' | 'nickname'>;
 
 export default function Logo(user: IUser): JSX.Element {
   const [input, setInput] = React.useState<State>(user);
@@ -27,16 +26,16 @@ export default function Logo(user: IUser): JSX.Element {
     },
     []
   );
-	const cancelProperties = React.useCallback(async () => {
-		setOpen(false);
-	}, []);
-	
+  const cancelProperties = React.useCallback(async () => {
+    setOpen(false);
+  }, []);
+
   const submitProperties = React.useCallback(async () => {
-    const resp = await tunnel.put<{}, API.Payloads.UsersUserUpdate>(
-      Endpoints.UsersUserUpdate,
-      input
-    );
-    if (resp.status === "ok")
+    const resp = await tunnel.patch(UsersModel.Endpoints.Targets.PatchUser, {
+      avatar: input.avatar,
+      nickname: input.nickname,
+    });
+    if (resp.status === 'ok')
       mutate(buildTunnelEndpoint(Endpoints.UsersMe), undefined, {
         revalidate: true,
       });
@@ -59,7 +58,7 @@ export default function Logo(user: IUser): JSX.Element {
       <Avatar
         src={user.avatar}
         onClick={() => setOpen(true)}
-        style={{ cursor: "pointer" }}
+        style={{ cursor: 'pointer' }}
       />
       <Modal open={open} onClose={() => setOpen(false)}>
         <ModalDialog>
@@ -80,7 +79,7 @@ export default function Logo(user: IUser): JSX.Element {
                       autoFocus
                       required
                       value={input.nickname}
-                      onChange={updateProperty("nickname")}
+                      onChange={updateProperty('nickname')}
                       error={!input.nickname}
                     />
                   </FormControl>
@@ -88,8 +87,8 @@ export default function Logo(user: IUser): JSX.Element {
                     <FormLabel>Avatar</FormLabel>
                     <Input
                       value={input.avatar}
-											type="url"
-                      onChange={updateProperty("avatar")}
+                      type="url"
+                      onChange={updateProperty('avatar')}
                       error={!input.avatar}
                     />
                   </FormControl>

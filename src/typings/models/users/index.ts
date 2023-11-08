@@ -14,7 +14,7 @@ namespace UsersModel {
       Offline,
       Online,
       Busy,
-      Away
+      Away,
     }
     export interface IUser {
       id: number;
@@ -30,13 +30,15 @@ namespace UsersModel {
   }
   export namespace DTO {
     export namespace DB {
-      export interface IUser extends Omit<Models.IUserInfo, 'createdAt' | 'status'> {
+      export interface IUser
+        extends Omit<Models.IUserInfo, 'createdAt' | 'status'> {
         createdAt: Date;
         friends: { id: number }[];
         friendOf: { id: number }[];
         chats: { id: number }[];
       }
-      export interface IUserInfo extends Omit<Models.IUserInfo, 'createdAt' | 'status'> {
+      export interface IUserInfo
+        extends Omit<Models.IUserInfo, 'createdAt' | 'status'> {
         createdAt: Date;
       }
       export interface IUserCreate
@@ -62,7 +64,7 @@ namespace UsersModel {
       excluseSelf?: boolean;
     }
     export type PatchUser = Partial<
-      Pick<Models.IUserInfo, 'nickname' | 'avatar'>
+      Pick<Models.IUserInfo, 'nickname' | 'avatar' | 'status'>
     >;
 
     export interface SseUserUpdate extends Models.IUserInfo {}
@@ -96,13 +98,17 @@ namespace UsersModel {
       extends Endpoint<
         EndpointMethods.Patch,
         Targets.PatchUser,
+        Models.IUserInfo,
         DTO.PatchUser,
-        PatchUser,
         { id: number }
       > {}
 
     export interface GetFriends
-      extends GetEndpoint<Targets.GetFriends, DTO.GetUsers, DTO.GetUserParams> {}
+      extends GetEndpoint<
+        Targets.GetFriends,
+        DTO.GetUsers,
+        DTO.GetUserParams
+      > {}
 
     export type Registry = {
       [EndpointMethods.Get]: {
@@ -120,7 +126,7 @@ namespace UsersModel {
   }
   export namespace Sse {
     export enum Events {
-      UserUpdated = 'users.userUpdated'
+      UserUpdated = 'users.userUpdated',
     }
     export interface UserUpdatedEvent
       extends SseModel.Models.Event<DTO.SseUserUpdate, Events.UserUpdated> {}

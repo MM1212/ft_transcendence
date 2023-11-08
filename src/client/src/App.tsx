@@ -25,6 +25,7 @@ import { NotificationProps } from '@lib/notifications/hooks';
 import notifications from '@lib/notifications/hooks';
 import SandboxRouter from '@views/sandbox';
 import ErrorPage from '@views/error';
+import Logo from "@components/Logo";
 
 function MainRoute() {
   const [count, setCount] = useState(0);
@@ -80,7 +81,7 @@ function MainRoute() {
             <List size="lg">
               <ListItem>
                 <ListItemDecorator>
-                  <Avatar src={user.avatar} />
+                  <Logo src={user.avatar} />
                 </ListItemDecorator>
                 <ListItemContent>
                   <Typography level="title-sm">{user.nickname}</Typography>

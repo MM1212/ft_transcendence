@@ -75,7 +75,7 @@ export const allowPlayerFocus = atom<boolean>({
 });
 
 export const chatsState = atom<ChatModel.Models.IChat[]>({
-  key: "chats",
+  key: "chats/old",
   default: arrayChats,
 });
 
