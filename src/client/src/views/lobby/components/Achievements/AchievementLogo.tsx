@@ -1,9 +1,19 @@
 import { Card, CardContent, CardCover, Stack, Typography } from "@mui/joy";
-import { backGroundImg, myAchievements } from "@views/lobby/hardoceTestes";
+import { backGroundImg } from "@views/lobby/hardoceTestes";
+import IetiBadgeAchievment from "@views/lobby/components/Achievements/assets/IetiBadgeAchievment.jpg";
+import OctopBadgeAchievement from "@views/lobby/components/Achievements/assets/OctopBadgeAchievement.jpg";
+import RedBadge from "@views/lobby/components/Achievements/assets/RedBadge.jpg";
 
 export default function AchievementLogo() {
-  const testImg =
-    "https://avatars.githubusercontent.com/u/63326242?s=400&u=376c4486d63d0bb1cecac84ea231fd3d449a7246&v=4";
+  const myAchievements: string[] = [
+    IetiBadgeAchievment,
+    OctopBadgeAchievement,
+    RedBadge,
+    IetiBadgeAchievment,
+    OctopBadgeAchievement,
+    RedBadge,
+  ];
+
   return (
     <>
       {myAchievements.map((achievement, index) => (
@@ -20,7 +30,7 @@ export default function AchievementLogo() {
           direction="row"
           spacing={1}
         >
-          <img src={testImg} alt={`Achievement ${index}`} />
+          <img src={achievement} alt={`Achievement ${index}`} />
           <Card component="li" sx={{ minWidth: 300, flexGrow: 1 }}>
             <CardContent>
               <Typography
