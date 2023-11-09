@@ -15,7 +15,7 @@ import { mainTargets } from "../types";
 import { useKeybindsToggle } from "@hooks/keybinds";
 
 export default function SideBar() {
-  const [open, setOpen] = React.useState(true);
+  const [open, setOpen] = React.useState(false);
   const [lastRoute, setLastRoute] = React.useState<string>("/");
   const [location, navigate] = useLocation();
 
@@ -40,7 +40,7 @@ export default function SideBar() {
     <Sheet className="SideBar">
       <Drawer
         open={open}
-        // onClose={handleCloseDrawer}
+        onClose={handleCloseDrawer}
         className="SideBar"
         slotProps={{
           content: {

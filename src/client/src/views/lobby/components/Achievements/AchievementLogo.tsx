@@ -51,7 +51,7 @@ export default function AchievementLogo() {
                   paddingTop: "40px",
                 }}
               >
-                In the crucible of combat, you've emerged as an indomitable
+                In the crucible of combat, you have emerged as an indomitable
                 force, triumphing over a relentless horde of 100 adversaries
                 without a single defeat. Your unyielding spirit and unwavering
                 resolve mark you as a true champion. The path to glory lies open
