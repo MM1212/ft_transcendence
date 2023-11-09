@@ -4,6 +4,7 @@ import { SparkTex } from "../index";
 import { Bar } from "@shared/Pong/Paddles/Bar";
 import * as PIXI from "pixi.js";
 import { Spark } from "@shared/Pong/SpecialPowers/Spark";
+import { UIEffect } from "./Effect";
 
 export class UISpark extends Spark {
     public displayObject: PIXI.Sprite;
@@ -27,6 +28,11 @@ export class UISpark extends Spark {
         //console.log("not collide")
         if (super.onCollide(target) === true)
         {
+            if (target instanceof Bar)
+            {
+                if (target.getEffect === undefined)
+                    target.setEffect(new UIEffect("REVERSE", target));
+            }
             this.game.remove(this);
             return true;
         }

@@ -7,9 +7,10 @@ import { UIArenaWall } from './Collisions/Arena';
 import { Debug } from './utils/Debug';
 import { drawLines } from './utils/drawUtils';
 import { UIPlayer } from './Paddles/Player';
-import {hue_value,score,P_START_DIST,ARENA_SIZE,P1Tex,P2Tex,BallTex,DEFAULT_LINE_COLOR,DEFAULT_FIELD_COLOR} from './index';
+import {hue_value,P_START_DIST,ARENA_SIZE,P1Tex,P2Tex,BallTex,DEFAULT_LINE_COLOR,DEFAULT_FIELD_COLOR} from './index';
 import { gameConfig } from '@shared/Pong/config/configInterface';
 import { SpecialPowerType } from '@shared/Pong/SpecialPowers/SpecialPower';
+import { score } from '@shared/Pong/main';
 
 import { KeyControls } from './Paddles/Player';
 //import { UIMarioBox } from './SpecialPowers/MarioBox';
@@ -151,7 +152,6 @@ export class UIGame extends Game {
             this.scoreElement.text = `${score[0]}     ${score[1]}`;
             this.backgroundHue.hue(hue_value, false);
             //hue_value += 1;
-
         
             this.debug.debugDraw(this.gameObjects as UIGameObject[]);
         }

@@ -1,5 +1,6 @@
 import { EndpointMethods, Endpoints, GroupEndpointTargets } from "@typings/api";
 
+
 namespace PongModel {
     export namespace Endpoints {
 
@@ -15,6 +16,8 @@ namespace PongModel {
             PowerIceTexture = "/static/pong/PowerIce.png",
             PowerSparkTexture = "/static/pong/PowerSpark.png",
             PowerGhostTexture = "/static/pong/PowerGhost.png",
+            FireballJSON = "/static/pong/Fireball.json",
+            FireballAnimDict = "/static/pong/Fireball",
         }
         export type All = GroupEndpointTargets<Targets>;
     }

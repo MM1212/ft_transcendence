@@ -8,12 +8,12 @@ export class UIEffect extends Effect {
 
     update(delta: number, obj: UIGameObject): void {
         super.update(delta, obj);
-        if (this.effectCur >= this.effectMax) {
-            if (obj.hitAmountEffect <= 0)
-            {
-                if (obj.displayObject.alpha === 0)
-                    obj.displayObject.alpha = 1;
-            }
+        console.log("here", obj.hitAmountEffect);
+        if (obj.hitAmountEffect <= 0)
+        {
+            console.log('effect over', obj.displayObject.alpha);
+            if (obj.displayObject.alpha < 1)
+                obj.displayObject.alpha = 1;
         }
     }
 }

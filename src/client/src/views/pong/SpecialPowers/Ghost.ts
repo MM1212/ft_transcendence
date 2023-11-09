@@ -4,6 +4,7 @@ import { GhostTex } from "../index";
 import { Bar } from "@shared/Pong/Paddles/Bar";
 import * as PIXI from "pixi.js";
 import { Ghost } from "@shared/Pong/SpecialPowers/Ghost";
+import { UIEffect } from "./Effect";
 
 export class UIGhost extends Ghost {
     public displayObject: PIXI.Sprite;
@@ -27,6 +28,7 @@ export class UIGhost extends Ghost {
         {
             this.game.remove(this);
             target.displayObject.alpha = 0;
+            target.setEffect(new UIEffect("INVISIBLE", target));
             return true;
         }
         return false;

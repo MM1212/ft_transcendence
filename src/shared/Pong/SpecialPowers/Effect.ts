@@ -12,30 +12,26 @@ export class Effect {
         this.effectCur = 0;
         this.effectMax = 100;
         this.effectType = effectName;
+        target.increaseHitAmount();
         switch (this.effectType) {
             case 'SLOW':
                 this.effectMax = 120;
-                target.increaseHitAmount();
                 target.setEffectVelocity(new Vector2D(0, 0.5));
                 break;
             case 'STOP':
                 this.effectMax = this.effectCur + 80;
-                target.increaseHitAmount();
                 target.setEffectVelocity(new Vector2D(0, 0));
                 break;
             case 'REVERSE':
                 this.effectMax = 200;
-                target.increaseHitAmount();
                 target.setEffectVelocity(new Vector2D(0, -1));
                 break;
             case 'CANNON':
                 this.effectMax = 150;
-                target.increaseHitAmount();
                 target.setEffectVelocity(new Vector2D(1, 1));
                 break;
             case 'INVISIBLE':
                 this.effectMax = 50;
-                target.increaseHitAmount();
                 target.setEffectVelocity(new Vector2D(1, 1));
                 break;
             default:

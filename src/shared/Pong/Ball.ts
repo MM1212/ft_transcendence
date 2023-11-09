@@ -93,7 +93,7 @@ export class Ball extends GameObject {
         this.collider.lastCollision = target.collider;
         if (target instanceof ArenaWall) {
             this.velocity.y = -this.velocity.y;
-        } else if (target instanceof Player || target instanceof Bot || target instanceof Bubble) {
+        } else if (target instanceof Player || target instanceof Bot) {
             // where the ball hit
             let collidePoint = this.getCenter.y - target.getCenter.y;
             // normalize the value
@@ -122,31 +122,5 @@ export class Ball extends GameObject {
                 return;
             }
         }
-    }
-}
-
-export class UIBall extends Ball {
-    public displayObject: PIXI.Sprite;
-    constructor(x: number, y: number, texture: PIXI.Texture, game: Game) {
-        super(x, y, game);
-        this.displayObject = PIXI.Sprite.from(texture);
-        this.displayObject.anchor.set(0.5);
-        this.displayObject.x = x;
-        this.displayObject.y = y;
-
-        // todo: color change
-        const blueTranform = new PIXI.ColorMatrixFilter();
-        blueTranform.hue(60, false);
-        this.displayObject.filters = [blueTranform];
-    }
-
-    update(delta: number): void {
-        super.update(delta);
-        this.displayObject.x = this.center.x;
-        this.displayObject.y = this.center.y;
-    }
-
-    onCollide(target: GameObject): void {
-        super.onCollide(target);
     }
 }

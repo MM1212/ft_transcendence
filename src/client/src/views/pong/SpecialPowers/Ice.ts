@@ -4,6 +4,7 @@ import { IceTex } from "../index";
 import { Bar } from "@shared/Pong/Paddles/Bar";
 import * as PIXI from "pixi.js";
 import { Ice } from "@shared/Pong/SpecialPowers/Ice";
+import { UIEffect } from "./Effect";
 
 export class UIIce extends Ice {
     public displayObject: PIXI.Sprite;
@@ -25,6 +26,10 @@ export class UIIce extends Ice {
     onCollide(target: UIGameObject): boolean {
         if (super.onCollide(target) === true)
         {    
+            if (target.getEffect === undefined)
+                target.setEffect(new UIEffect("SLOW", target));
+            else
+                target.setEffect(new UIEffect("STOP", target));
             this.game.remove(this);
             return true;
         }

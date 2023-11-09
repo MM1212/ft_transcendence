@@ -1,8 +1,0 @@
-{
-"paddle": {
-    "width": 20,
-    "height": 100,
-    "colliderType": "rectangle",
-    "colliderData": {}
-  }
-}

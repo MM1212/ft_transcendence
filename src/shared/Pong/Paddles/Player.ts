@@ -4,7 +4,6 @@ import { SpecialPowerType } from '../SpecialPowers/SpecialPower';
 import { Game } from '../Game';
 import { GameObject } from '../GameObject';
 
-
 /* ----------------- Velocity ----------------- */
 const UP    = new Vector2D(0, -5);
 const DOWN  = new Vector2D(0, 5);
@@ -46,7 +45,7 @@ export class Player extends Bar
             {
                 if (this.specialPowerType !== undefined)
                 {
-                    this.power = Bar.create(this.specialPowerType, this.center, this.direction.x, this);
+                    this.power = this.createPower(this.specialPowerType, this.center, this.direction.x, this);
                     if (this.power !== undefined)
                     {
                         this.game.add(this.power as unknown as GameObject);
@@ -59,6 +58,11 @@ export class Player extends Bar
                 this.shooter?.shootBall(this);
             }
         }
+    }
+
+    protected createPower(specialPower: SpecialPowerType, center: Vector2D, direction: number, shooter: Bar)
+    {
+        return Bar.create(specialPower, center, direction, shooter);
     }
 
     onKeyUp(e: KeyboardEvent): void {
