@@ -5,8 +5,10 @@ import { NestedPartial } from '@shared/CacheObserver/types';
 import UserExtSession from './ext/Session';
 import { Session } from '@fastify/secure-session';
 import { IAuthSession } from '@typings/auth/session';
+import UserExtFriends from './ext/Friends';
 
 class User extends CacheObserver<UsersModel.Models.IUser> {
+  public readonly friends: UserExtFriends = new UserExtFriends(this);
   constructor(
     data: UsersModel.Models.IUser,
     public readonly helpers: UserDependencies,
@@ -16,7 +18,7 @@ class User extends CacheObserver<UsersModel.Models.IUser> {
 
   public get public(): UsersModel.Models.IUserInfo {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { friends, chats, ...user } = this.get();
+    const { friends, blocked, chats, ...user } = this.get();
     return user;
   }
 
@@ -70,8 +72,11 @@ class User extends CacheObserver<UsersModel.Models.IUser> {
     this.setTo(data);
   }
   public async save(
-    { avatar, nickname, status }: NestedPartial<UsersModel.Models.IUserInfo> = this
-      .public,
+    {
+      avatar,
+      nickname,
+      status,
+    }: NestedPartial<UsersModel.Models.IUserInfo> = this.public,
     propagate: boolean = false,
   ): Promise<boolean> {
     const result = await this.helpers.db.users.update(this.id, {
@@ -79,8 +84,7 @@ class User extends CacheObserver<UsersModel.Models.IUser> {
       nickname,
     });
     if (!result) return false;
-    if (status !== undefined)
-      this.set('status', status);
+    if (status !== undefined) this.set('status', status);
     for (const [key, value] of Object.entries(result))
       this.set(key as keyof UsersModel.Models.IUser, value as any);
     if (propagate) this.propagate();

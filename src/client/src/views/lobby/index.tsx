@@ -21,7 +21,7 @@ import LobbyModel from '@typings/models/lobby';
 const rendererOptions: Partial<Pixi.IApplicationOptions> = {};
 const mainTex = Pixi.Texture.from('https://pixijs.com/assets/bunny.png');
 const backgroundTex = Pixi.Texture.from(
-  buildTunnelEndpoint(LobbyModel.Endpoints.Targets.StaticBackground)
+  LobbyModel.Endpoints.Targets.StaticBackground
 );
 
 const initSprite = (app: Pixi.Application, player: InitdPlayer) => {

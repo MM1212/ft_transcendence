@@ -11,7 +11,11 @@ import {
   Button,
   FormHelperText,
 } from '@mui/joy';
-import { sampleUsers } from '@apps/Lobby/state/mockup';
+import tunnel from '@lib/tunnel';
+import UsersModel from '@typings/models/users';
+import { useRecoilCallback } from 'recoil';
+import { sessionAtom } from '@hooks/user';
+import notifications from '@lib/notifications/hooks';
 
 export default function BasicModalDialog({
   setOpen,
@@ -21,25 +25,38 @@ export default function BasicModalDialog({
   open: boolean;
 }) {
   const [inputValue, setInputValue] = useState<string>('');
-  const [isInputValid, setIsInputValid] = useState<boolean>(true);
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const value = formData.get('nickname') as string;
+  const handleSubmit = useRecoilCallback(
+    (ctx) => async (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      const formData = new FormData(event.currentTarget);
+      const value = formData.get('nickname') as string;
 
-    setInputValue(value);
-
-    const isValid = sampleUsers.some((user) => user.nickname === value);
-    setIsInputValid(isValid);
-    setIsSubmitting(true);
-  };
-  const message = isInputValid
-    ? 'Friend Request Sent'
-    : 'User does not exist or is already your friend';
+      try {
+        const self = await ctx.snapshot.getPromise(sessionAtom);
+        if (!self) throw new Error('You are not logged in');
+        const resp = await tunnel.post(
+          UsersModel.Endpoints.Targets.AddFriendByName,
+          {
+            nickname: value,
+          },
+          {
+            id: self.id,
+          }
+        );
+        if (resp.status !== 'ok') throw new Error(resp.errorMsg);
+        setOpen(false);
+        setInputValue('');
+        notifications.success('Add friend', 'Friend added (TEMP)');
+      } catch (e) {
+        setFeedbackMessage((e as Error).message);
+      }
+    },
+    [setOpen]
+  );
   useEffect(() => {
-    setIsInputValid(true);
+    setFeedbackMessage(null);
   }, [open]);
 
   return (
@@ -48,14 +65,22 @@ export default function BasicModalDialog({
         <ModalDialog>
           <DialogTitle>Add Friend</DialogTitle>
           <DialogContent>
-            You can add a friend with their intra username
+            You can add a friend with their nickname
           </DialogContent>
           <form onSubmit={handleSubmit}>
             <Stack spacing={2}>
-              <FormControl color={isInputValid ? 'neutral' : 'danger'}>
+              <FormControl color={feedbackMessage ? 'neutral' : 'danger'}>
                 <FormLabel>Name</FormLabel>
-                <Input name="nickname" placeholder="Intra username" autoFocus />
-                {isSubmitting && <FormHelperText>{message}</FormHelperText>}
+                <Input
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  name="nickname"
+                  placeholder="nickname"
+                  autoFocus
+                />
+                {feedbackMessage && (
+                  <FormHelperText>{feedbackMessage}</FormHelperText>
+                )}
               </FormControl>
               <Button type="submit">Send Friend Request</Button>
             </Stack>

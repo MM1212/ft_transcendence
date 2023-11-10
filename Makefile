@@ -8,8 +8,10 @@ SERVER_DIR = src/server
 CLIENT_DIR = src/client
 PROD_DIR = production
 
+
 DB_FILE = $(SERVER_DIR)/prisma/schema.prisma
 DB_MIGRATE_FILE = $(SERVER_DIR)/prisma/migrations/.schema.prisma
+DB_COMPOSE_FILE = $(PROD_DIR)/docker-compose.yml
 
 setup:
 ifeq ($(shell test envs/.tokens.env), 1)
@@ -50,7 +52,7 @@ endif
 
 env: envs/.active.env
 
-envs/.active.env:
+envs/.active.env: envs/.env.$(MODE) envs/.tokens.env
 	cp envs/.env.$(MODE) envs/.env.tmp
 	make generate_session_key
 	make setup_tokens
@@ -79,10 +81,10 @@ endif
 endif
 
 db_start:
-	docker compose -f $(PROD_DIR)/docker-compose.yml up -d
+	docker compose -f $(DB_COMPOSE_FILE) up -d
 
 db_stop:
-	docker compose -f $(PROD_DIR)/docker-compose.yml down
+	docker compose -f $(DB_COMPOSE_FILE) down
 
 db_studio:
 	cd $(SERVER_DIR) && pnpx prisma studio
@@ -104,3 +106,12 @@ $(DB_FILE):
 
 db_rebuild:
 	cd $(SERVER_DIR) && pnpx prisma migrate reset --force && pnpx prisma migrate dev --name init
+
+prod_build:
+	$(MAKE) env mode=production
+	cd $(CLIENT_DIR) && pnpm build
+	cd $(SERVER_DIR) && pnpm build
+	cp -r $(CLIENT_DIR)/dist $(SERVER_DIR)/dist/public
+
+prod_start:
+	cd $(SERVER_DIR) && pnpm start:prod

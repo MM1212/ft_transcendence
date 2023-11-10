@@ -22,6 +22,8 @@ model User {
   characters         Character[]
   friends            User[]            @relation("friends")
   friendOf           User[]            @relation("friends")
+  blocked            User[]            @relation("blocked")
+  blockedBy          User[]            @relation("blocked")
   chats              ChatParticipant[]
   notifications      Notification[]
 

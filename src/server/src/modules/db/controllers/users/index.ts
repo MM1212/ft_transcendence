@@ -13,6 +13,12 @@ const USER_EXT_QUERY = Prisma.validator<Prisma.UserSelect>()({
   friendOf: {
     select: { id: true },
   },
+  blocked: {
+    select: { id: true },
+  },
+  blockedBy: {
+    select: { id: true },
+  },
 });
 
 @Injectable()
@@ -32,6 +38,11 @@ export class Users {
       ...user.friendOf.map((friend) => friend.id),
     ];
     delete (formatted as any).friendOf;
+    formatted.blocked = [
+      ...user.blocked.map((blocked) => blocked.id),
+      ...user.blockedBy.map((blocked) => blocked.id),
+    ];
+    delete (formatted as any).blockedBy;
     formatted.chats = user.chats.map((chat) => chat.id);
     formatted.createdAt = user.createdAt.getTime();
     return formatted as unknown as U;
@@ -73,6 +84,16 @@ export class Users {
     return this.formatUser(
       await this.prisma.user.findUnique({
         where: { studentId },
+        include: USER_EXT_QUERY,
+      }),
+    );
+  }
+  async getByNickname(
+    nickname: string,
+  ): Promise<UsersModel.Models.IUser | null> {
+    return this.formatUser(
+      await this.prisma.user.findUnique({
+        where: { nickname },
         include: USER_EXT_QUERY,
       }),
     );

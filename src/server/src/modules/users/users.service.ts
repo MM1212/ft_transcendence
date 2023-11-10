@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { UserDependencies } from './user/dependencies';
 import User from './user';
 import { DbService } from '../db';
@@ -9,7 +9,10 @@ import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 export class UsersService {
   private readonly users: Map<number, User> = new Map();
   private readonly studentIds: Map<number, number> = new Map();
-  constructor(private readonly deps: UserDependencies) {}
+  constructor(
+    @Inject(forwardRef(() => UserDependencies))
+    private readonly deps: UserDependencies,
+  ) {}
 
   @OnEvent('sse.connected')
   private async onSseConnected(userId: number) {
@@ -75,6 +78,14 @@ export class UsersService {
     if (!id) id = (await this.db.users.getByStudentId(studentId))?.id;
     if (!id) return null;
     return await this.get(id, fetch);
+  }
+  public async getByNickname(
+    nickname: string,
+    fetch: boolean = false,
+  ): Promise<User | null> {
+    const data = await this.db.users.getByNickname(nickname);
+    if (!data) return null;
+    return await this.get(data.id, fetch);
   }
 
   private async fetch(id: number): Promise<UsersModel.Models.IUser | null> {

@@ -1,0 +1,89 @@
+import { usersAtom } from '@hooks/user';
+import notifications from '@lib/notifications/hooks';
+import tunnel from '@lib/tunnel';
+import UsersModel from '@typings/models/users';
+import { atom, selector, selectorFamily, waitForAll } from 'recoil';
+
+const friendsState = new (class FriendsState {
+  friends = atom<number[]>({
+    key: 'user/friends',
+    default: selector<number[]>({
+      key: 'user/friends/default',
+      get: async () => {
+        try {
+          const resp = await tunnel.get(
+            UsersModel.Endpoints.Targets.GetSessionFriends
+          );
+          if (resp.status !== 'ok') throw new Error(resp.errorMsg);
+          return resp.data;
+        } catch (e) {
+          console.error(e);
+          notifications.error((e as Error).message);
+          return [];
+        }
+      },
+    }),
+  });
+  blocked = atom<number[]>({
+    key: 'user/blocked',
+    default: selector<number[]>({
+      key: 'user/blocked/default',
+      get: async () => {
+        try {
+          const resp = await tunnel.get(
+            UsersModel.Endpoints.Targets.GetSessionBlocked
+          );
+          if (resp.status !== 'ok') throw new Error(resp.errorMsg);
+          return resp.data;
+        } catch (e) {
+          console.error(e);
+          notifications.error((e as Error).message);
+          return [];
+        }
+      },
+    }),
+  });
+  friend = selectorFamily<UsersModel.Models.IUserInfo | null, number>({
+    key: 'user/friend',
+    get:
+      (id) =>
+      ({ get }) => {
+        const friends = get(this.friends);
+        if (!friends.includes(id)) return null;
+        return get(usersAtom(id));
+      },
+  });
+  blockedUser = selectorFamily<UsersModel.Models.IUserInfo | null, number>({
+    key: 'user/blockedUser',
+    get:
+      (id) =>
+      ({ get }) => {
+        const blocked = get(this.blocked);
+        if (!blocked.includes(id)) return null;
+        return get(usersAtom(id));
+      },
+  });
+
+  onlineFriends = selector<number[]>({
+    key: 'user/friends/online',
+    get: ({ get }) => {
+      const friends = get(this.friends);
+      const users = get(waitForAll(friends.map(usersAtom)));
+      return (
+        users.filter(
+          (user) => user?.status !== UsersModel.Models.Status.Offline
+        ) as UsersModel.Models.IUserInfo[]
+      )
+        .sort((a, b) => {
+          const aOnline = a.status !== UsersModel.Models.Status.Offline;
+          const bOnline = b.status !== UsersModel.Models.Status.Offline;
+          if (aOnline && !bOnline) return 1;
+          if (!aOnline && bOnline) return -1;
+          return 0;
+        })
+        .map((user) => user.id);
+    },
+  });
+})();
+
+export default friendsState;

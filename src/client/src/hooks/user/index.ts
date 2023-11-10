@@ -14,6 +14,7 @@ import UsersModel from '@typings/models/users';
 import { sessionAtom, usersAtom } from './state';
 import { useSseEvent } from '@hooks/sse';
 import isEqual from 'lodash.isequal';
+import { useFriendsService } from '@apps/Friends/state/service';
 export * from './state';
 type LoadingSession = { readonly loading: boolean };
 type IUser = UsersModel.Models.IUserInfo;
@@ -106,6 +107,16 @@ export const useUsersService = () => {
       const {
         data: { id, avatar, nickname, studentId, status },
       } = ev;
+      const userUpdate: Partial<UsersModel.Models.IUserInfo> = {
+        avatar,
+        nickname,
+        studentId,
+        status,
+      };
+      for (const key in userUpdate) {
+        if (userUpdate[key as keyof typeof userUpdate] === undefined)
+          delete userUpdate[key as keyof typeof userUpdate];
+      }
       const { state } = ctx.snapshot.getLoadable(usersAtom(id));
       const { isActive } = ctx.snapshot.getInfo_UNSTABLE(usersAtom(id));
       if (state === 'loading' || !isActive) {
@@ -114,10 +125,7 @@ export const useUsersService = () => {
       }
       ctx.set(usersAtom(id), (prev) => ({
         ...prev,
-        avatar,
-        nickname,
-        studentId,
-        status,
+        ...userUpdate,
       }));
     },
     []
@@ -127,4 +135,6 @@ export const useUsersService = () => {
     UsersModel.Sse.Events.UserUpdated,
     onUserUpdate
   );
+
+  useFriendsService();
 };

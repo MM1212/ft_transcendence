@@ -1,4 +1,4 @@
-import { Module, forwardRef } from '@nestjs/common';
+import { Module, ModuleMetadata, forwardRef } from '@nestjs/common';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
@@ -14,6 +14,7 @@ import { Auth42Module } from './modules/auth/42/auth.module';
 import { AuthSessionModule } from './modules/auth/session/session.module';
 import { UsersModule } from './modules/users/users.module';
 import { ChatsModule } from './modules/chats/chats.module';
+import { IS_PROD } from './helpers/constants';
 
 @Module({
   imports: [
@@ -28,10 +29,12 @@ import { ChatsModule } from './modules/chats/chats.module';
       delimiter: '.',
       global: true,
     }),
-    ServeStaticModule.forRoot({
-      rootPath: path.join(__dirname, '..', '..', 'static'),
-      serveRoot: '/static',
-    }),
+    IS_PROD
+      ? ServeStaticModule.forRoot({
+          rootPath: path.join(__dirname, '..', '..', 'public'),
+          exclude: ['/api/(.*)', 'socket.io(.*)'],
+        })
+      : null,
     Auth42Module,
     AuthSessionModule,
     SseModule,
@@ -40,8 +43,8 @@ import { ChatsModule } from './modules/chats/chats.module';
     DbModule,
     forwardRef(() => LobbyModule),
     UsersModule,
-    ChatsModule
-  ],
+    ChatsModule,
+  ].filter(Boolean) as ModuleMetadata['imports'],
   providers: [AppService, { provide: APP_FILTER, useClass: GlobalFilter }],
   exports: [AppService],
 })
