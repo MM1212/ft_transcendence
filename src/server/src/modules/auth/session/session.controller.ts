@@ -4,12 +4,12 @@ import HttpCtx from '@/helpers/decorators/httpCtx';
 import { HTTPContext } from '@typings/http';
 import * as API from '@typings/api';
 
-@Controller('auth/session')
+@Controller()
 export class SessionController {
   constructor() {}
 
   @Auth()
-  @Get()
+  @Get(API.AuthModel.Endpoints.Targets.Session)
   async me(
     @HttpCtx() ctx: HTTPContext<true>,
   ): Promise<API.EndpointResponse<API.AuthModel.Endpoints.Session>> {

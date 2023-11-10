@@ -1,8 +1,38 @@
 import { Divider, Sheet } from '@mui/joy';
 import FriendsHeader from '../components/FriendsHeader';
-import FriendsGetter from '../components/FriendsGetter';
+import FriendsDisplay, {
+  FriendsDisplayWrapper,
+} from '../components/FriendsDisplay';
 import { Redirect, Route, Router, Switch, useRouter } from 'wouter';
 import PendingFriendsGetter from '../components/PendingFriendsGetter';
+import { useRecoilValue } from 'recoil';
+import friendsState from '../state';
+import FriendBlockedDisplay from '../components/FriendsBlockedDisplay';
+import React from 'react';
+
+function OnlineFriends(): JSX.Element {
+  const friends = useRecoilValue(friendsState.onlineFriends);
+  return <FriendsDisplay ids={friends} label="online" />;
+}
+
+function AllFriends(): JSX.Element {
+  const friends = useRecoilValue(friendsState.friends);
+  return <FriendsDisplay ids={friends} label="all friends" />;
+}
+
+function BlockedFriends(): JSX.Element {
+  const friends = useRecoilValue(friendsState.blocked);
+  return React.useMemo(
+    () => (
+      <FriendsDisplayWrapper length={friends.length} label="blocked">
+        {friends.map((id) => (
+          <FriendBlockedDisplay key={id} id={id} />
+        ))}
+      </FriendsDisplayWrapper>
+    ),
+    [friends]
+  );
+}
 
 export default function FriendsPanel() {
   const router = useRouter();
@@ -21,16 +51,19 @@ export default function FriendsPanel() {
         <Divider />
         <Switch>
           <Route path="/">
-            <FriendsGetter type="online" />
+            <OnlineFriends />
           </Route>
           <Route path="/online">
             <Redirect to="/" />
           </Route>
           <Route path="/all">
-            <FriendsGetter type="all" />
+            <AllFriends />
           </Route>
           <Route path="/pending">
             <PendingFriendsGetter />
+          </Route>
+          <Route path="/blocked">
+            <BlockedFriends />
           </Route>
         </Switch>
       </Sheet>
