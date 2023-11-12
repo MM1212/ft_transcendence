@@ -45,6 +45,7 @@ export class Users {
     delete (formatted as any).blockedBy;
     formatted.chats = user.chats.map((chat) => chat.id);
     formatted.createdAt = user.createdAt.getTime();
+    formatted.status = UsersModel.Models.Status.Offline;
     return formatted as unknown as U;
   }
 

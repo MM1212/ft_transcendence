@@ -23,12 +23,13 @@ namespace UsersModel {
       avatar: string;
       createdAt: number;
       status: Status;
+      storedStatus: Status;
       friends: number[];
       blocked: number[];
       chats: number[];
     }
     export interface IUserInfo
-      extends Omit<IUser, 'friends' | 'blocked' | 'chats'> {}
+      extends Omit<IUser, 'friends' | 'blocked' | 'chats' | 'storedStatus'> {}
   }
   export namespace DTO {
     export namespace DB {
@@ -40,6 +41,7 @@ namespace UsersModel {
         chats: { id: number }[];
         blocked: { id: number }[];
         blockedBy: { id: number }[];
+        storedStatus: Models.Status;
       }
       export interface IUserInfo
         extends Omit<Models.IUserInfo, 'createdAt' | 'status'> {
