@@ -1,7 +1,7 @@
 import { Controller, Get, HttpRedirectResponse, Redirect } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import HttpCtx from '@/helpers/decorators/httpCtx';
-import { HTTPContext, Response } from 'typings/http';
+import { HTTPContext } from 'typings/http';
 import * as API from '@typings/api';
 import { ConfigService } from '@nestjs/config';
 
@@ -15,7 +15,7 @@ export class AuthController {
   @Get('login')
   @Redirect(undefined, 302)
   login(@HttpCtx() ctx: HTTPContext): Partial<HttpRedirectResponse> {
-    const { req, res, user } = ctx;
+    const { req, user } = ctx;
     const userData = req.session.get('user');
     if (
       userData &&

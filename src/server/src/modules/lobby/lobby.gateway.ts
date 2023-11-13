@@ -14,7 +14,7 @@ import { Lobbies } from '@typings/lobby';
 import { randomInt } from 'crypto';
 
 @WebSocketGateway({
-  namespace: 'lobby',
+  namespace: 'api/lobby',
   cors: {
     origin: ['http://localhost:3000'],
     credentials: true,
@@ -33,7 +33,6 @@ export class LobbyGateway
 
   constructor(private readonly rootService: AppService) {}
   afterInit() {
-    console.log('LobbyGateway initialized');
     setInterval(() => this.onTick(), 1000 / 60);
   }
   handleConnection(

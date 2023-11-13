@@ -16,7 +16,7 @@ namespace AuthModel {
     export enum Targets {
       Login = '/auth/42/login',
       Logout = '/auth/42/logout',
-      Session = '/auth/session',
+      Session = '/me',
     }
     export type All = GroupEndpointTargets<Targets>;
     export interface Login extends GetEndpoint<Targets.Login, undefined> {}

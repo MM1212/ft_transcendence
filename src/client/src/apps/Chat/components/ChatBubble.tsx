@@ -164,6 +164,7 @@ export default function ChatBubble({
                       : 'var(--joy-palette-text-primary)',
                     width: 'fit-content',
                     whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-word',
                   }}
                 >
                   {message}

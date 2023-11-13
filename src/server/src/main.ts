@@ -7,7 +7,6 @@ import {
 import ConfigService, { ConfigServiceClass } from '@/modules/config';
 import secureSessionModule from '@fastify/secure-session';
 import cookiesModule from '@fastify/cookie';
-import setupLogger from './helpers/logger';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import { AppService } from './app.service';
 
@@ -15,7 +14,7 @@ async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter({
-      logger: setupLogger(),
+      logger: true/* setupLogger() */,
     }),
   );
   const configService = app.get<ConfigService>(ConfigServiceClass);
@@ -37,7 +36,6 @@ async function bootstrap() {
   });
 
   // Session
-  
   await app.register(secureSessionModule, {
     secret: configService.get<string>('BACKEND_SESSION_SECRET')!,
     salt: configService.get<string>('BACKEND_SESSION_SALT')!,
@@ -58,6 +56,8 @@ async function bootstrap() {
   };
 
   app.get(AppService).setApp(app);
+
+  app.setGlobalPrefix('/api');
 
   await app.listen(host.port, host.ip);
 }
