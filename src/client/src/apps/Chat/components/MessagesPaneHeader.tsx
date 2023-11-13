@@ -1,6 +1,4 @@
-import * as React from 'react';
 import Avatar from '@mui/joy/Avatar';
-import Button from '@mui/joy/Button';
 import IconButton from '@mui/joy/IconButton';
 import Stack from '@mui/joy/Stack';
 import Typography from '@mui/joy/Typography';
