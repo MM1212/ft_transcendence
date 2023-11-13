@@ -240,20 +240,23 @@ export default function Lobby() {
   );
   useKeybindsToggle(['KeyW', 'KeyA', 'KeyS', 'KeyD'], onBindToggle, []);
 
-  return (
-    <Sheet
-      className="Lobby"
-      ref={ref}
-      sx={{
-        width: '100dvw',
-        height: '100dvh',
-        position: 'relative',
-        zIndex: 1,
-      }}
-      onFocus={() => console.log('focus')}
-    >
-      {/* <Sidebar /> */}
-      <ChatBox />
-    </Sheet>
+  return React.useMemo(
+    () => (
+      <Sheet
+        className="Lobby"
+        ref={ref}
+        sx={{
+          width: '100dvw',
+          height: '100dvh',
+          position: 'relative',
+          zIndex: 1,
+        }}
+        onFocus={() => console.log('focus')}
+      >
+        {/* <Sidebar /> */}
+        <ChatBox />
+      </Sheet>
+    ),
+    []
   );
 }

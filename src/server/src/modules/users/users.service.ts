@@ -3,7 +3,7 @@ import { UserDependencies } from './user/dependencies';
 import User from './user';
 import { DbService } from '../db';
 import UsersModel from '@typings/models/users';
-import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
+import { OnEvent } from '@nestjs/event-emitter';
 
 @Injectable()
 export class UsersService {
@@ -20,7 +20,7 @@ export class UsersService {
 
     const user = await this.get(userId);
     if (!user || !user.isOffline) return;
-    user.set('status', UsersModel.Models.Status.Online);
+    user.set('status', user.get('storedStatus'));
     console.log(user.public);
 
     user.propagate();
