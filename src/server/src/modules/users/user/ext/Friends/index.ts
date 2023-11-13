@@ -33,6 +33,7 @@ class UserExtFriends extends UserExtBase {
   async add(id: number): Promise<void> {
     const target = await this.helpers.usersService.get(id);
     if (!target) throw new Error('User not found');
+    if (this.user.id === target.id) throw new Error('You cannot add yourself');
     if (this.is(target.id)) throw new Error('User already added');
     if (this.isBlocked(target.id)) throw new Error('User is blocked');
     if (target.friends.isBlocked(this.user.id))
@@ -43,12 +44,7 @@ class UserExtFriends extends UserExtBase {
   async addByName(name: string): Promise<void> {
     const target = await this.helpers.usersService.getByNickname(name);
     if (!target) throw new Error('User not found');
-    if (this.is(target.id)) throw new Error('User already added');
-    if (this.isBlocked(target.id)) throw new Error('User is blocked');
-    if (target.friends.isBlocked(this.user.id))
-      throw new Error('User has blocked you');
-    // temporarly call acceptFriendRequest
-    await this.acceptFriendRequest(target.id);
+    await this.add(target.id);
   }
   private async acceptFriendRequest(id: number): Promise<void> {
     const target = await this.helpers.usersService.get(id);
@@ -100,6 +96,8 @@ class UserExtFriends extends UserExtBase {
   async block(id: number): Promise<void> {
     const target = await this.helpers.usersService.get(id);
     if (!target) throw new Error('User not found');
+    if (this.user.id === target.id)
+      throw new Error('You cannot block yourself');
     if (this.blockedIds.includes(id)) throw new Error('User already blocked');
     if (this.ids.includes(id)) await this.remove(id);
     await this.helpers.db.users.update(this.user.id, {
