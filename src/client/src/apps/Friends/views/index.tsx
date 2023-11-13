@@ -1,14 +1,14 @@
-import { Divider, Sheet } from '@mui/joy';
-import FriendsHeader from '../components/FriendsHeader';
+import { Divider, Sheet } from "@mui/joy";
+import FriendsHeader from "../components/FriendsHeader";
 import FriendsDisplay, {
   FriendsDisplayWrapper,
-} from '../components/FriendsDisplay';
-import { Redirect, Route, Router, Switch, useRouter } from 'wouter';
-import PendingFriendsGetter from '../components/PendingFriendsGetter';
-import { useRecoilValue } from 'recoil';
-import friendsState from '../state';
-import FriendBlockedDisplay from '../components/FriendsBlockedDisplay';
-import React from 'react';
+} from "../components/FriendsDisplay";
+import { Redirect, Route, Router, Switch, useRouter } from "wouter";
+import PendingFriendsGetter from "../components/PendingFriendsGetter";
+import { useRecoilValue } from "recoil";
+import friendsState from "../state";
+import FriendBlockedDisplay from "../components/FriendsBlockedDisplay";
+import React from "react";
 
 function OnlineFriends(): JSX.Element {
   const friends = useRecoilValue(friendsState.onlineFriends);
@@ -16,7 +16,7 @@ function OnlineFriends(): JSX.Element {
 }
 
 function AllFriends(): JSX.Element {
-  const friends = useRecoilValue(friendsState.friends);
+  const friends = useRecoilValue(friendsState.allFriends);
   return <FriendsDisplay ids={friends} label="all friends" />;
 }
 
@@ -40,11 +40,11 @@ export default function FriendsPanel() {
     <Router base="/friends" parent={router}>
       <Sheet
         sx={{
-          borderRight: '1px solid',
-          borderColor: 'divider',
-          height: '100%',
-          overflowY: 'auto',
-          width: '80dvh',
+          borderRight: "1px solid",
+          borderColor: "divider",
+          height: "100%",
+          overflowY: "auto",
+          width: "80dvh",
         }}
       >
         <FriendsHeader />
