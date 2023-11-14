@@ -65,7 +65,14 @@ export class ChatsService {
       role: ChatsModel.Models.ChatParticipantRole.Owner,
       userId: author.id,
     });
-    const chat = await this.db.chats.createChat(data);
-    return this.build(chat);
+    const chatData = await this.db.chats.createChat(data);
+    const chat = this.build(chatData);
+    this.deps.sseService.emitToTargets<ChatsModel.Sse.NewChatEvent>(
+      ChatsModel.Sse.Events.NewChat,
+      author.id,
+      chat.participants.map((p) => p.userId),
+      chat.display,
+    );
+    return chat;
   }
 }

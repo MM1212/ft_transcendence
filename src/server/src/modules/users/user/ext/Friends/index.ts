@@ -1,6 +1,7 @@
 import UsersModel from '@typings/models/users';
 import User from '../..';
 import UserExtBase from '../Base';
+import { HttpError } from '@/helpers/decorators/httpError';
 
 class UserExtFriends extends UserExtBase {
   constructor(user: User) {
@@ -32,23 +33,23 @@ class UserExtFriends extends UserExtBase {
   }
   async add(id: number): Promise<void> {
     const target = await this.helpers.usersService.get(id);
-    if (!target) throw new Error('User not found');
-    if (this.user.id === target.id) throw new Error('You cannot add yourself');
-    if (this.is(target.id)) throw new Error('User already added');
-    if (this.isBlocked(target.id)) throw new Error('User is blocked');
+    if (!target) throw new HttpError('User not found');
+    if (this.user.id === target.id) throw new HttpError('You cannot add yourself');
+    if (this.is(target.id)) throw new HttpError('User already added');
+    if (this.isBlocked(target.id)) throw new HttpError('User is blocked');
     if (target.friends.isBlocked(this.user.id))
-      throw new Error('User has blocked you');
+      throw new HttpError('User has blocked you');
     // temporarly call acceptFriendRequest
     await this.acceptFriendRequest(id);
   }
   async addByName(name: string): Promise<void> {
     const target = await this.helpers.usersService.getByNickname(name);
-    if (!target) throw new Error('User not found');
+    if (!target) throw new HttpError('User not found');
     await this.add(target.id);
   }
   private async acceptFriendRequest(id: number): Promise<void> {
     const target = await this.helpers.usersService.get(id);
-    if (!target) throw new Error('User not found');
+    if (!target) throw new HttpError('User not found');
     await this.helpers.db.users.update(this.user.id, {
       friends: {
         connect: { id },
@@ -68,8 +69,8 @@ class UserExtFriends extends UserExtBase {
   }
   async remove(id: number): Promise<void> {
     const target = await this.helpers.usersService.get(id);
-    if (!target) throw new Error('User not found');
-    if (!this.ids.includes(id)) throw new Error('User not found');
+    if (!target) throw new HttpError('User not found');
+    if (!this.ids.includes(id)) throw new HttpError('User not found');
     await this.helpers.db.users.update(this.user.id, {
       friends: {
         disconnect: { id },
@@ -95,10 +96,10 @@ class UserExtFriends extends UserExtBase {
   }
   async block(id: number): Promise<void> {
     const target = await this.helpers.usersService.get(id);
-    if (!target) throw new Error('User not found');
+    if (!target) throw new HttpError('User not found');
     if (this.user.id === target.id)
-      throw new Error('You cannot block yourself');
-    if (this.blockedIds.includes(id)) throw new Error('User already blocked');
+      throw new HttpError('You cannot block yourself');
+    if (this.blockedIds.includes(id)) throw new HttpError('User already blocked');
     if (this.ids.includes(id)) await this.remove(id);
     await this.helpers.db.users.update(this.user.id, {
       blocked: {
@@ -111,8 +112,8 @@ class UserExtFriends extends UserExtBase {
   }
   async unblock(id: number): Promise<void> {
     const target = await this.helpers.usersService.get(id);
-    if (!target) throw new Error('User not found');
-    if (!this.blockedIds.includes(id)) throw new Error('User not blocked');
+    if (!target) throw new HttpError('User not found');
+    if (!this.blockedIds.includes(id)) throw new HttpError('User not blocked');
     await this.helpers.db.users.update(this.user.id, {
       blocked: {
         disconnect: { id },

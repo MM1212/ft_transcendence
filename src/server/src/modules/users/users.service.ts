@@ -4,6 +4,7 @@ import User from './user';
 import { DbService } from '../db';
 import UsersModel from '@typings/models/users';
 import { OnEvent } from '@nestjs/event-emitter';
+import { HttpError } from '@/helpers/decorators/httpError';
 
 @Injectable()
 export class UsersService {
@@ -105,7 +106,7 @@ export class UsersService {
 
   public async create(data: UsersModel.DTO.DB.IUserCreate): Promise<User> {
     const userData = await this.db.users.create(data);
-    if (!userData) throw new Error('Failed to create user');
+    if (!userData) throw new HttpError('Failed to create user');
     return this.build(userData);
   }
   public async delete(id: number): Promise<boolean> {

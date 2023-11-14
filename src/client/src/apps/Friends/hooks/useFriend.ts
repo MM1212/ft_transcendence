@@ -32,7 +32,7 @@ const useFriend = (friendId: number) => {
         if (!self) throw new Error("You are not logged in");
         const resp = await tunnel.put(
           UsersModel.Endpoints.Targets.BlockUser,
-          {},
+          undefined,
           {
             id: self.id,
             blockedId: friendId,

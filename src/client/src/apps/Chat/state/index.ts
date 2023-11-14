@@ -41,7 +41,7 @@ const chatsState = new (class MessagesState {
   });
   selectedChatId = atom<number>({
     key: 'selectedChatId',
-    default: -1,
+    default: -1
   });
   selectedChat = selector<ChatsModel.Models.IChat | null>({
     key: 'selectedChat',

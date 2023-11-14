@@ -18,6 +18,7 @@ export interface Endpoint<
 > {
   method: M;
   type: T;
+  _r: R;
   response: API.Response<R>;
   data: D;
   params: P;
@@ -27,6 +28,9 @@ export type EndpointTarget<T extends Endpoint<EndpointMethods, string>> =
   T['type'];
 export type EndpointResponse<T extends Endpoint<EndpointMethods, string>> =
   T['response'];
+export type InternalEndpointResponse<
+  T extends Endpoint<EndpointMethods, string>
+> = T['_r'];
 export type EndpointData<T extends Endpoint<EndpointMethods, string>> =
   T['data'];
 export type EndpointParams<T extends Endpoint<EndpointMethods, string>> =

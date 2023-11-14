@@ -1,15 +1,15 @@
-import AccountGroupIcon from "@components/icons/AccountGroupIcon";
-import AccountIcon from "@components/icons/AccountIcon";
-import ControllerIcon from "@components/icons/ControllerIcon";
-import ForumIcon from "@components/icons/ForumIcon";
-import HangerIcon from "@components/icons/HangerIcon";
-import HistoryIcon from "@components/icons/HistoryIcon";
-import HomeIcon from "@components/icons/HomeIcon";
-import ImageFilterCenterFocusIcon from "@components/icons/ImageFilterCenterFocusIcon";
-import PlayIcon from "@components/icons/PlayIcon";
-import TableTennisIcon from "@components/icons/TableTennisIcon";
-import TrophyIcon from "@components/icons/TrophyIcon";
-import React from "react";
+import AccountGroupIcon from '@components/icons/AccountGroupIcon';
+import AccountIcon from '@components/icons/AccountIcon';
+import ControllerIcon from '@components/icons/ControllerIcon';
+import ForumIcon from '@components/icons/ForumIcon';
+import HangerIcon from '@components/icons/HangerIcon';
+import HistoryIcon from '@components/icons/HistoryIcon';
+import HomeIcon from '@components/icons/HomeIcon';
+import ImageFilterCenterFocusIcon from '@components/icons/ImageFilterCenterFocusIcon';
+import PlayIcon from '@components/icons/PlayIcon';
+import TableTennisIcon from '@components/icons/TableTennisIcon';
+import TrophyIcon from '@components/icons/TrophyIcon';
+import React from 'react';
 
 export interface ISidebarSingleRoute {
   path: string;
@@ -33,72 +33,72 @@ export type ISidebarRoute = ISidebarSingleRoute | ISidebarNestedRoute;
 
 const routes: ISidebarRoute[] = [
   {
-    label: "Home",
-    path: "/",
+    label: 'Home',
+    path: '/',
     icon: <HomeIcon />,
     // Component: React.lazy(() => import('@views/home')),
   },
   {
-    label: "My Profile",
-    path: "/profile",
+    label: 'My Profile',
+    path: '/profile',
     icon: <AccountIcon />,
-    Component: React.lazy(() => import("@apps/Profile/views")),
+    Component: React.lazy(() => import('@apps/Profile/views')),
     exact: false,
   },
   {
-    label: "Lobby (TEMP)",
-    path: "/lobby",
+    label: 'Lobby (TEMP)',
+    path: '/lobby',
     icon: <ImageFilterCenterFocusIcon />,
-    Component: React.lazy(() => import("@views/lobby")),
+    Component: React.lazy(() => import('@views/lobby')),
   },
   {
-    label: "Messages",
-    path: "/messages",
+    label: 'Messages',
+    path: '/messages',
     icon: <ForumIcon />,
     exact: false,
-    Component: React.lazy(() => import("@apps/Chat/views")),
+    Component: React.lazy(() => import('@apps/Chat/views')),
   },
   {
-    label: "Friends",
-    path: "/friends",
-    routePath: "/friends/:rest*",
+    label: 'Friends',
+    path: '/friends',
+    routePath: '/friends/:rest*',
     icon: <AccountGroupIcon />,
     exact: false,
-    Component: React.lazy(() => import("@apps/Friends/views")),
+    Component: React.lazy(() => import('@apps/Friends/views')),
   },
   {
-    label: "Achievements",
-    path: "/achievements",
+    label: 'Achievements',
+    path: '/achievements',
     icon: <TrophyIcon />,
     exact: false,
-    Component: React.lazy(() => import("@apps/Achievements/views")),
+    Component: React.lazy(() => import('@apps/Achievements/views')),
   },
   {
-    label: "Customization",
-    path: "/customization",
+    label: 'Customization',
+    path: '/customization',
     icon: <HangerIcon />,
     exact: false,
-    Component: React.lazy(() => import("@apps/Customization/views")),
+    Component: React.lazy(() => import('@apps/Customization/views')),
   },
   {
-    label: "Games",
+    label: 'Games',
     icon: <ControllerIcon />,
     children: [
       {
-        label: "Pong",
-        path: "/pong",
+        label: 'Pong',
+        path: '/pong',
         icon: <TableTennisIcon />,
         children: [
           {
-            label: "Play",
-            path: "/",
+            label: 'Play',
+            path: '/',
             icon: <PlayIcon />,
             exact: false,
             // Component: React.lazy(() => import('@views/pong')),
           },
           {
-            label: "Match History",
-            path: "/history",
+            label: 'Match History',
+            path: '/history',
             icon: <HistoryIcon />,
             exact: false,
             // Component: React.lazy(() => import('@views/pong')),

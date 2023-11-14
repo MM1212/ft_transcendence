@@ -13,7 +13,6 @@ import { HTTPContext } from '@typings/http';
 import { SSE } from '@typings/sse';
 import { OnConnectionClosed } from '@/helpers/decorators/socket';
 import { Auth } from '@/modules/auth/decorators';
-import { EmptyResponse, buildOkResponse } from '@typings/api';
 
 interface InternalNetPayload {
   event: string;
@@ -94,10 +93,7 @@ export class SseController implements OnModuleInit, OnModuleDestroy {
   }
   @Post('test')
   @Auth()
-  test(
-    @Body('message') message: string,
-    @HttpCtx() ctx: HTTPContext<true>,
-  ): EmptyResponse {
+  test(@Body('message') message: string, @HttpCtx() ctx: HTTPContext<true>) {
     this.service.emitToAll<SSE.DTO.Test>('test', {
       user: {
         id: ctx.user.id,
@@ -106,6 +102,5 @@ export class SseController implements OnModuleInit, OnModuleDestroy {
       },
       message,
     });
-    return buildOkResponse(undefined);
   }
 }

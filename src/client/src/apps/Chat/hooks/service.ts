@@ -36,6 +36,19 @@ const useMessagesService = () => {
     []
   );
 
+  const onNewChat = useRecoilCallback(
+    (ctx) => async (ev: ChatsModel.Sse.NewChatEvent) => {
+      const { data } = ev;
+      const chats = [...(await ctx.snapshot.getPromise(chatsState.chats))];
+      chats.push({
+        ...data,
+        authorizationData: null,
+      } satisfies ChatsModel.Models.IChat);
+      ctx.set(chatsState.chats, chats);
+    },
+    []
+  );
+
   const selectedChatId = useRecoilValue(chatsState.selectedChatId);
 
   const onSelectedChatIdChange = useRecoilCallback(
@@ -67,6 +80,10 @@ const useMessagesService = () => {
   useSseEvent<ChatsModel.Sse.NewMessageEvent>(
     ChatsModel.Sse.Events.NewMessage,
     onNewMessage
+  );
+  useSseEvent<ChatsModel.Sse.NewChatEvent>(
+    ChatsModel.Sse.Events.NewChat,
+    onNewChat
   );
 };
 

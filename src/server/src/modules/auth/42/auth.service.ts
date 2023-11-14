@@ -10,6 +10,7 @@ import { Auth } from '@typings/auth';
 import { ConfigService } from '@nestjs/config';
 import { IntraAPI } from '@/helpers/Intra';
 import { UsersService } from '@/modules/users/users.service';
+import { HttpError } from '@/helpers/decorators/httpError';
 
 @Injectable()
 export class AuthService {
@@ -116,13 +117,13 @@ export class AuthService {
       throw new BadRequestException('Invalid state');
     session.set('nonce', undefined);
     const resp = await this.requestToken<Auth.NewToken>('new', { code });
-    if (resp.status !== 'ok') throw new Error(resp.errorMsg);
+    if (resp.status !== 'ok') throw new HttpError(resp.errorMsg);
 
     this.intra.token = resp.data.access_token;
     try {
       const apiData = await this.intra.me();
       if (!apiData) throw new Error('Failed to get user data from 42 API');
-      if ((apiData as any).error) throw new Error((apiData as any).error);
+      if ((apiData as any).error) throw new HttpError((apiData as any).error);
       const {
         id,
         login,
@@ -143,7 +144,7 @@ export class AuthService {
     } catch (e) {
       console.error(e);
       req.session.set('user', { loggedIn: false });
-      throw new Error('Failed to get user data from 42 API');
+      throw new HttpError('Failed to get user data from 42 API');
     }
   }
 }

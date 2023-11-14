@@ -1,11 +1,12 @@
 import { Auth } from '@typings/auth';
 import UserExtSession from '.';
+import { HttpError } from '@/helpers/decorators/httpError';
 
  class UserExtSessionAuth {
   constructor(private readonly session: UserExtSession) {}
   public get raw(): Auth.Token {
     if (!this.session.loggedIn)
-      throw new Error('User is not logged in; User#auth#data');
+      throw new HttpError('User is not logged in; User#auth#data');
     return this.session.observer.get('token');
   }
   get token(): string {

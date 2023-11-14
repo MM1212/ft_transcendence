@@ -44,13 +44,13 @@ class APITunnel implements ITunnel {
         case API.EndpointMethods.Get:
           return await rest.get<any>(url);
         case API.EndpointMethods.Post:
-          return await rest.post<any>(url, data);
+          return await rest.post<any>(url, data ?? {});
         case API.EndpointMethods.Put:
-          return await rest.put<any>(url, data);
+          return await rest.put<any>(url, data ?? {});
         case API.EndpointMethods.Delete:
           return await rest.del<any>(url);
         case API.EndpointMethods.Patch:
-          return await rest.patch<any>(url, data);
+          return await rest.patch<any>(url, data ?? {});
         default:
           return await rest.get<any>(url);
       }

@@ -13,7 +13,7 @@ import notifications from '@lib/notifications/hooks';
 import InfiniteScroll from '@components/InfiniteScroll';
 import { CircularProgress, Typography } from '@mui/joy';
 
-function ChatMessages({ id }: { id: number }) {
+function ChatMessagesImpl({ id }: { id: number }) {
   const messages = useRecoilValue(chatsState.messages(id));
 
   const [hasMore, setHasMore] = React.useState(true);
@@ -170,6 +170,7 @@ function ChatMessages({ id }: { id: number }) {
     [computeMessageFeatures, hasMore, id, messages, next]
   );
 }
+const ChatMessages = React.memo(ChatMessagesImpl);
 
 export default function MessagesPane() {
   const selectedChatId = useRecoilValue(chatsState.selectedChatId);
