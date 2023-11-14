@@ -1,11 +1,10 @@
-import { Game } from './Game';
-import { Vector2D } from './utils/Vector';
 
-export const WINDOW_WIDTH = window.innerWidth * 0.8;
-export const WINDOW_HEIGHT = window.innerHeight * 0.8;
 export const P_START_DIST = 40; // Player starting distance from the edge of the canvas
 export const MULTIPLAYER_START_POS = 80;
 export const ARENA_SIZE = 50;
+
+export const WINDOWSIZE_X = 800;
+export const WINDOWSIZE_Y = 600;
 
 export const score: [number, number] = [0, 0];
 

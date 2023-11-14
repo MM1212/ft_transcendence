@@ -1,14 +1,14 @@
 import { Bar } from "../Paddles/Bar";
 import { Vector2D } from "../utils/Vector";
 import { Game } from "../Game";
-import { UIBall } from "../Ball";
+import { Ball } from "../Ball";
 
 export class Shooter {
     protected line: {start: Vector2D, end: Vector2D}
     protected angle: number;
     protected center: Vector2D;
     protected direction: Vector2D = new Vector2D(1, 0);
-    protected ballRef: UIBall | undefined;
+    protected ballRef: Ball | undefined;
 
     protected upDown: number = 1;
     
@@ -16,7 +16,7 @@ export class Shooter {
     {
         this.line = {start: Vector2D.Zero, end: Vector2D.Zero};
         this.angle = -(Math.PI / 4);
-        this.ballRef = this.game.getObjectByTag("Bolinha") as UIBall;
+        this.ballRef = this.game.getObjectByTag("Bolinha") as Ball;
         if (!this.ballRef)
             throw new Error("Ball not found");
         

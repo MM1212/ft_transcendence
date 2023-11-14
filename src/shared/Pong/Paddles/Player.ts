@@ -23,12 +23,13 @@ export interface KeyControls {
 /* ------------------- Player ------------------- */
 export class Player extends Bar
 {
-    private keyPressed: KeyState = {
+    public keyPressed: KeyState = {
         up: false,
         down: false,
         boost: false,
         shoot: false,
     };
+
     constructor (
         x: number, y: number, public keys: KeyControls, tag: string, public direction: Vector2D, specialPower: SpecialPowerType, game: Game)
     {

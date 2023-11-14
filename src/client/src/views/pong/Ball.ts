@@ -26,7 +26,7 @@ export class UIBall extends Ball {
             this.effect.update(delta, this);
         }
     }
-
+    
     onCollide(target: GameObject): void {
         super.onCollide(target);
     }

@@ -1,6 +1,7 @@
 import { Bar } from "./Bar";
 import { Vector2D } from "../utils/Vector";
 import { Game } from "../Game";
+import { GameObject } from "../GameObject";
 
 const UP    = new Vector2D(0, -5);
 const DOWN  = new Vector2D(0, 5);
@@ -52,5 +53,9 @@ export class Bot extends Bar {
             this.effect.update(delta, this);
         }
         return ret;
+    }
+
+    onCollide(target: GameObject, line: { start: Vector2D; end: Vector2D; }): void {
+        
     }
 }

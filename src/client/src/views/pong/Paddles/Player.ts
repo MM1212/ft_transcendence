@@ -58,7 +58,7 @@ export class UIPlayer extends Player {
         super.setScale(scale);
         this.setScaleDisplayObject(scale);
         this.setDisplayObjectCoords(this.center);
-    }    
+    }
 
     update(delta: number): boolean {
         if (super.update(delta) === true)
