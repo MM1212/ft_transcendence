@@ -53,7 +53,8 @@ const routes: ISidebarRoute[] = [
   },
   {
     label: 'Messages',
-    path: '/messages',
+    path: '/messages/',
+    routePath: '/messages/:chatId*',
     icon: <ForumIcon />,
     exact: false,
     Component: React.lazy(() => import('@apps/Chat/views')),

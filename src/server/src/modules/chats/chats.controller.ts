@@ -2,10 +2,12 @@ import {
   Body,
   Controller,
   Get,
+  InternalServerErrorException,
   NotFoundException,
   Param,
   ParseIntPipe,
   Patch,
+  Post,
   Put,
   Query,
 } from '@nestjs/common';
@@ -16,10 +18,10 @@ import HttpCtx from '@/helpers/decorators/httpCtx';
 import { HTTPContext } from '@typings/http';
 import ChatCtx from './decorators/Chat.pipe';
 import Chat from './chat';
-import {
-  InternalEndpointResponse,
-} from '@typings/api';
+import { InternalEndpointResponse } from '@typings/api';
 import { ChatAuth } from './decorators/Role.guard';
+import UserCtx from '../users/decorators/User.pipe';
+import User from '../users/user';
 
 const Targets = ChatsModel.Endpoints.Targets;
 
@@ -134,50 +136,70 @@ export class ChatsController {
     await chat.updateParticipant(user, participantId, data);
   }
 
-  // @Patch(Targets.UpdateMessage)
-  // @ChatAuth()
-  // async updateMessage(
-  //   @ChatCtx() chat: Chat,
-  //   @Param('messageId', new ParseIntPipe({ errorHttpStatusCode: 400 }))
-  //   messageId: number,
-  //   @Body() data: ChatsModel.DTO.DB.UpdateMessage,
-  // ): Promise<InternalEndpointResponse<ChatsModel.Endpoints.UpdateMessage>> {
-  //   const [ok, resp] = await chat.updateMessage(messageId, data);
-  //   if (!ok) return buildErrorResponse(resp);
-  //   return (resp);
-  // }
-
-  // @Delete(Targets.DeleteChat)
-  // @ChatAuth(ChatsModel.Models.ChatParticipantRole.Owner)
-  // async delete(
-  //   @ChatCtx() chat: Chat,
-  // ): Promise<InternalEndpointResponse<ChatsModel.Endpoints.DeleteChat>> {
-  //   const ok = await chat.delete();
-  //   if (!ok) return buildErrorResponse('Failed to delete chat');
-  //   return buildEmptyResponse();
-  // }
-
-  // @Delete(Targets.DeleteParticipant)
-  // @ChatOPAuth()
-  // async deleteParticipant(
-  //   @ChatCtx() chat: Chat,
-  //   @Param('participantId', new ParseIntPipe({ errorHttpStatusCode: 400 }))
-  //   participantId: number,
-  // ): Promise<InternalEndpointResponse<ChatsModel.Endpoints.DeleteParticipant>> {
-  //   const [ok, resp] = await chat.removeParticipant(participantId);
-  //   if (!ok) return buildErrorResponse(resp);
-  //   return (resp);
-  // }
-
-  // @Delete(Targets.DeleteMessage)
-  // @ChatAuth()
-  // async deleteMessage(
-  //   @ChatCtx() chat: Chat,
-  //   @Param('messageId', new ParseIntPipe({ errorHttpStatusCode: 400 }))
-  //   messageId: number,
-  // ): Promise<InternalEndpointResponse<ChatsModel.Endpoints.DeleteMessage>> {
-  //   const [ok, resp] = await chat.deleteMessage(messageId);
-  //   if (!ok) return buildErrorResponse(resp);
-  //   return (resp);
-  // }
+  @Post(Targets.CheckOrCreateDirectChat)
+  async checkOrCreateDirectChat(
+    @HttpCtx() { user }: HTTPContext<true>,
+    @UserCtx('targetId') target: User,
+  ): Promise<
+    InternalEndpointResponse<ChatsModel.Endpoints.CheckOrCreateDirectChat>
+  > {
+    const [exists, chat] = await this.service.checkOrCreateDirectChat(
+      user,
+      target,
+    );
+    if (!chat)
+      throw new InternalServerErrorException(
+        'Failed to create or check a direct chat',
+      );
+    return {
+      exists,
+      chatId: chat.id,
+    };
+  }
 }
+// @Patch(Targets.UpdateMessage)
+// @ChatAuth()
+// async updateMessage(
+//   @ChatCtx() chat: Chat,
+//   @Param('messageId', new ParseIntPipe({ errorHttpStatusCode: 400 }))
+//   messageId: number,
+//   @Body() data: ChatsModel.DTO.DB.UpdateMessage,
+// ): Promise<InternalEndpointResponse<ChatsModel.Endpoints.UpdateMessage>> {
+//   const [ok, resp] = await chat.updateMessage(messageId, data);
+//   if (!ok) return buildErrorResponse(resp);
+//   return (resp);
+// }
+
+// @Delete(Targets.DeleteChat)
+// @ChatAuth(ChatsModel.Models.ChatParticipantRole.Owner)
+// async delete(
+//   @ChatCtx() chat: Chat,
+// ): Promise<InternalEndpointResponse<ChatsModel.Endpoints.DeleteChat>> {
+//   const ok = await chat.delete();
+//   if (!ok) return buildErrorResponse('Failed to delete chat');
+//   return buildEmptyResponse();
+// }
+
+// @Delete(Targets.DeleteParticipant)
+// @ChatOPAuth()
+// async deleteParticipant(
+//   @ChatCtx() chat: Chat,
+//   @Param('participantId', new ParseIntPipe({ errorHttpStatusCode: 400 }))
+//   participantId: number,
+// ): Promise<InternalEndpointResponse<ChatsModel.Endpoints.DeleteParticipant>> {
+//   const [ok, resp] = await chat.removeParticipant(participantId);
+//   if (!ok) return buildErrorResponse(resp);
+//   return (resp);
+// }
+
+// @Delete(Targets.DeleteMessage)
+// @ChatAuth()
+// async deleteMessage(
+//   @ChatCtx() chat: Chat,
+//   @Param('messageId', new ParseIntPipe({ errorHttpStatusCode: 400 }))
+//   messageId: number,
+// ): Promise<InternalEndpointResponse<ChatsModel.Endpoints.DeleteMessage>> {
+//   const [ok, resp] = await chat.deleteMessage(messageId);
+//   if (!ok) return buildErrorResponse(resp);
+//   return (resp);
+// }

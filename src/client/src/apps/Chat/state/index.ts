@@ -28,20 +28,58 @@ const chatsState = new (class MessagesState {
       },
     }),
   });
-  chatIds = selector<number[]>({
+  searchFilter = atom<string>({
+    key: 'chats/searchFilter',
+    default: '',
+  });
+  filteredChatIds = selector<number[]>({
     key: 'chatIds',
-    get: ({ get }) =>
-      [...get(this.chats)]
+    get: ({ get }) => {
+      const search = get(this.searchFilter).toLowerCase();
+      let chats = get(this.chats);
+      if (search.trim().length)
+        chats = chats.filter((c) => {
+          const lastMessage = c.messages[0];
+          if (lastMessage?.message.toLowerCase().includes(search.toLowerCase()))
+            return true;
+          switch (c.type) {
+            case ChatsModel.Models.ChatType.Direct:
+              const self = get(sessionAtom);
+              const otherP = c.participants.find((p) => p.userId !== self?.id);
+              if (!otherP)
+                throw new Error('Direct chat without other participant');
+              const other = get(usersAtom(otherP.userId));
+              if (!other) throw new Error('Direct chat without other user');
+              if (other.nickname.toLowerCase().includes(search.toLowerCase()))
+                return true;
+              break;
+            case ChatsModel.Models.ChatType.Group:
+              if (c.name.toLowerCase().includes(search.toLowerCase()))
+                return true;
+              break;
+            default:
+              break;
+          }
+          return false;
+        });
+      else chats = [...chats];
+      return chats
         .sort((a, b) => {
           const aLast = a.messages[0]?.createdAt ?? 0;
           const bLast = b.messages[0]?.createdAt ?? 0;
           return bLast - aLast;
         })
-        .map((c) => c.id),
+        .map((c) => c.id);
+    },
   });
   selectedChatId = atom<number>({
     key: 'selectedChatId',
-    default: -1
+    default: -1,
+    effects: [
+      (ctx) => {
+        ctx.onSet(console.log);
+      },
+    ],
   });
   selectedChat = selector<ChatsModel.Models.IChat | null>({
     key: 'selectedChat',

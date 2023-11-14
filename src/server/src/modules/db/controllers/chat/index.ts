@@ -279,14 +279,14 @@ export class Chats {
       Prisma.ChatParticipantUpdateManyMutationInput,
       Prisma.ChatParticipantUncheckedUpdateManyInput
     >,
-    filter: number[] = []
+    filter: number[] = [],
   ): Promise<Omit<ChatModel.Models.IChatParticipant, 'user'>[]> {
     return (await this.prisma.chatParticipant.updateMany({
       where: {
         chatId,
         id: {
           notIn: filter,
-        }
+        },
       },
       data,
     })) as unknown as Omit<ChatModel.Models.IChatParticipant, 'user'>[];
@@ -326,5 +326,30 @@ export class Chats {
         id: chatId,
       },
     })) as unknown as ChatModel.Models.IChat;
+  }
+
+  public async checkChatWithParticipants(
+    type: ChatModel.Models.ChatType,
+    ...userIds: number[]
+  ): Promise<number | null> {
+    return (
+      (
+        await this.prisma.chat.findFirst({
+          where: {
+            participants: {
+              every: {
+                userId: {
+                  in: userIds,
+                },
+              },
+            },
+            type,
+          },
+          select: {
+            id: true,
+          },
+        })
+      )?.id ?? null
+    );
   }
 }

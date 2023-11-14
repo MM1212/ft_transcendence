@@ -17,6 +17,7 @@ export class APIInterceptor implements NestInterceptor {
         const resp = context.switchToHttp().getResponse<Response>();
         if (resp.statusCode >= 400 || resp.statusCode < 300)
           return buildOkResponse(data);
+        return data;
       }),
     );
   }

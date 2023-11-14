@@ -43,7 +43,7 @@ function ChatMessagesImpl({ id }: { id: number }) {
 
   React.useEffect(() => {
     setHasMore(true);
-  }, [id, messages]);
+  }, [id]);
 
   const next = useRecoilCallback(
     (ctx) => async () => {
@@ -51,9 +51,10 @@ function ChatMessagesImpl({ id }: { id: number }) {
       const chatIdx = chats.findIndex((chat) => chat.id === id);
       if (chatIdx === -1) return;
       const chat = { ...chats[chatIdx] };
-      const lastMessageId = chat.messages.length
+      let lastMessageId = chat.messages.length
         ? chat.messages[chat.messages.length - 1]?.id ?? -1
         : -1;
+      if (isNaN(parseInt(lastMessageId as unknown as string))) lastMessageId = -1;
       console.log(`Fetching messages from ${lastMessageId}`);
 
       try {

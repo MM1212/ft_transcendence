@@ -170,6 +170,16 @@ namespace ChatsModel {
     export interface NewMessage
       extends Omit<DB.CreateMessage, 'authorId' | 'chatId'> {}
     export interface UpdateParticipant extends DTO.DB.UpdateParticipant {}
+
+    export interface CheckOrCreateDirectChat {
+      exists: boolean;
+      chatId: number;
+    }
+
+    export interface CheckOrCreateDirectChatParams
+      extends Record<string, unknown> {
+      targetId: number;
+    }
   }
   export namespace Endpoints {
     export enum Targets {
@@ -180,6 +190,7 @@ namespace ChatsModel {
       GetUserChats = '/users/:id/chats',
       GetSessionChats = '/chats',
       GetPublicChats = '/chats/public',
+      CheckOrCreateDirectChat = '/chats/direct/:targetId',
       CreateChat = '/chats',
       CreateMessage = '/chats/:chatId/messages',
       UpdateChatInfo = '/chats/:chatId',
@@ -287,6 +298,15 @@ namespace ChatsModel {
         DTO.ChatMessageParams
       > {}
 
+    export interface CheckOrCreateDirectChat
+      extends Endpoint<
+        EndpointMethods.Post,
+        Targets.CheckOrCreateDirectChat,
+        DTO.CheckOrCreateDirectChat,
+        undefined,
+        DTO.CheckOrCreateDirectChatParams
+      > {}
+
     export interface Registry extends EndpointRegistry {
       [EndpointMethods.Get]: {
         [Targets.GetSessionChats]: GetChats;
@@ -296,6 +316,9 @@ namespace ChatsModel {
         [Targets.GetChatMessage]: GetChatMessage;
         [Targets.GetUserChats]: GetUserChats;
         [Targets.GetPublicChats]: GetPublicChats;
+      };
+      [EndpointMethods.Post]: {
+        [Targets.CheckOrCreateDirectChat]: CheckOrCreateDirectChat;
       };
       [EndpointMethods.Put]: {
         [Targets.CreateChat]: CreateChat;

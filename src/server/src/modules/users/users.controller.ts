@@ -145,4 +145,5 @@ export class UsersController {
   ): Promise<InternalEndpointResponse<UsersModel.Endpoints.UnblockUser>> {
     await user.friends.unblock(blockedId);
   }
+
 }

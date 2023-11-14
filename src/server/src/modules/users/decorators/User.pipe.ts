@@ -21,11 +21,7 @@ class ParseUserPipe implements PipeTransform {
   }
 }
 
-const UserCtx = () =>
-  Param(
-    'id',
-    new ParseIntPipe({ errorHttpStatusCode: 400 }),
-    ParseUserPipe,
-  );
+const UserCtx = (param: string = 'id') =>
+  Param(param, new ParseIntPipe({ errorHttpStatusCode: 400 }), ParseUserPipe);
 
 export default UserCtx;
