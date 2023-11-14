@@ -147,4 +147,23 @@ export class AuthService {
       throw new HttpError('Failed to get user data from 42 API');
     }
   }
+
+  public async dummy(ctx: HTTPContext, dummyId: number): Promise<Partial<HttpRedirectResponse>> {
+    let dummyUser = await this.usersService.getByStudentId(dummyId);
+    console.log(dummyId, dummyUser);
+    
+    if (!dummyUser) {
+      dummyUser = await this.usersService.create({
+        studentId: dummyId,
+        avatar:
+          'https://cdn.intra.42.fr/users/429ed382acddf70f5a531af2d3304ef3/chris-pbacon.png',
+        nickname: `Dummy${dummyId}`,
+      });
+    }
+    const uSession = dummyUser.withSession(ctx.session);
+    uSession.session.sync().loggedIn = true;
+    uSession.session.dummy = true;
+    console.log(`[Auth] [42] Logged in as dummy`);
+    return { url: `${this.config.get<string>('FRONTEND_URL')}` };
+  }
 }

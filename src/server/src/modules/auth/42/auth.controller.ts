@@ -1,4 +1,13 @@
-import { Controller, Get, HttpRedirectResponse, Redirect } from '@nestjs/common';
+import {
+  BadRequestException,
+  Controller,
+  DefaultValuePipe,
+  Get,
+  HttpRedirectResponse,
+  Param,
+  ParseIntPipe,
+  Redirect,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import HttpCtx from '@/helpers/decorators/httpCtx';
 import { HTTPContext } from 'typings/http';
@@ -19,9 +28,9 @@ export class AuthController {
     if (
       userData &&
       userData.loggedIn &&
-      user?.useSession(req.session).auth.isTokenValid()
+      (userData.dummy || user?.useSession(req.session).auth.isTokenValid())
     ) {
-      return {url: `${this.config.get<string>('FRONTEND_URL')}`};
+      return { url: `${this.config.get<string>('FRONTEND_URL')}` };
     }
     return this.service.login(ctx);
   }
@@ -34,5 +43,15 @@ export class AuthController {
   @Redirect(undefined, 302)
   callback(@HttpCtx() ctx: HTTPContext) {
     return this.service.callback(ctx);
+  }
+
+  @Get('dummy/:dummyId')
+  @Redirect(undefined, 302)
+  async dummy(
+    @HttpCtx() ctx: HTTPContext,
+    @Param('dummyId', new DefaultValuePipe(-1), ParseIntPipe) dummyId: number,
+  ) {
+    if (dummyId >= 0) throw new BadRequestException();
+    return await this.service.dummy(ctx, dummyId);
   }
 }

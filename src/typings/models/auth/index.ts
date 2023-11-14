@@ -5,12 +5,12 @@ import {
   GetEndpoint,
   GroupEndpointTargets,
 } from '@typings/api/base/endpoint';
-import { IUser } from '@typings/user';
+import UsersModel from '../users';
 
 namespace AuthModel {
   export namespace Models {}
   export namespace DTO {
-    export interface Session extends IUser {}
+    export interface Session extends UsersModel.Models.IUserInfo {}
   }
   export namespace Endpoints {
     export enum Targets {

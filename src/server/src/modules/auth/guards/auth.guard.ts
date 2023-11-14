@@ -25,6 +25,7 @@ export class AuthGuard implements CanActivate {
     try {
       const user = await this.usersService.get(userData.id);
       if (!user) throw new UnauthorizedException();
+      if (userData.dummy) return true;
       const uSession = user.useSession(request.session);
       if (!uSession.auth.isTokenValid()) await this.refreshToken(uSession);
     } catch (e) {
