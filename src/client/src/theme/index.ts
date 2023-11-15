@@ -57,7 +57,8 @@ const testTheme = extendTheme({
   alpha,
   lighten,
   darken,
-  
+  gradients: {},
+
   components: {
     JoyButton: {
       styleOverrides: {
@@ -108,6 +109,16 @@ const testTheme = extendTheme({
     },
   },
 });
+
+testTheme.gradients = {
+  primary: `linear-gradient(45deg, ${testTheme.palette.primary.solidBg}, ${testTheme.palette.primary.softBg})`,
+  success: `linear-gradient(45deg, ${testTheme.palette.success.solidBg}, ${testTheme.palette.success.softBg})`,
+  warning: `linear-gradient(45deg, ${testTheme.palette.warning.solidBg}, ${testTheme.palette.warning.softBg})`,
+  danger: `linear-gradient(45deg, ${testTheme.palette.danger.solidBg}, ${testTheme.palette.danger.softBg})`,
+  neutral: `linear-gradient(45deg, ${testTheme.palette.neutral.solidBg}, ${testTheme.palette.neutral.softBg})`,
+  background: `linear-gradient(45deg, ${testTheme.vars.palette.background.level1} 0%, ${testTheme.vars.palette.background.surface} 100%)`,
+};
+
 
 export { alpha, lighten, darken };
 export default testTheme;

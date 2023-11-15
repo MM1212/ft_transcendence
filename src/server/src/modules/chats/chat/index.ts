@@ -4,6 +4,7 @@ import { ChatDependencies } from './dependencies';
 import { GroupEnumValues } from '@typings/utils';
 import User from '@/modules/users/user';
 import { ForbiddenException } from '@nestjs/common';
+import { HttpError } from '@/helpers/decorators/httpError';
 
 class Participant extends CacheObserver<ChatsModel.Models.IChatParticipant> {
   constructor(
@@ -130,7 +131,7 @@ class Chat extends CacheObserver<IChat> {
   public async refresh(): Promise<void> {
     const data = await this.helpers.db.chats.get(this.id);
     if (!data)
-      throw new Error(
+      throw new HttpError(
         `Chat with id ${this.id} was not found in database while refreshing`,
       );
     const tmp = this.helpers.db.chats.formatChat(data);
@@ -146,7 +147,6 @@ class Chat extends CacheObserver<IChat> {
       name: oldName,
       photo: oldPhoto,
     }: Partial<ChatsModel.Models.IChatInfo> = this.public,
-    propagate: boolean = false,
   ): Promise<boolean> {
     const { name, photo } = await this.helpers.db.chats.updateChatInfo(
       this.id,

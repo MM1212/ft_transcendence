@@ -2,8 +2,24 @@ import Sheet from '@mui/joy/Sheet';
 import MessagesPane from '../components/MessagesPane';
 import ChatsPane from '../components/ChatsPane';
 import NewChatModal from '../components/NewChat';
+import React from 'react';
+import { useRecoilCallback } from 'recoil';
+import { useParams } from 'wouter';
+import chatsState from '../state';
 
-export default function MyProfile() {
+export default function ChatMessagesView() {
+  const { chatId } = useParams();
+
+  const updateSelectedChat = useRecoilCallback(
+    (ctx) => (id: number) => {
+      ctx.set(chatsState.selectedChatId, id);
+    },
+    []
+  );
+
+  React.useEffect(() => {
+    updateSelectedChat((chatId && parseInt(chatId)) || -1);
+  }, [updateSelectedChat, chatId]);
   return (
     <Sheet
       sx={{

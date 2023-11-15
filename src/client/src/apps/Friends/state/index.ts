@@ -11,11 +11,9 @@ const friendsState = new (class FriendsState {
       key: "user/friends/default",
       get: async () => {
         try {
-          const resp = await tunnel.get(
+          return await tunnel.get(
             UsersModel.Endpoints.Targets.GetSessionFriends
           );
-          if (resp.status !== "ok") throw new Error(resp.errorMsg);
-          return resp.data;
         } catch (e) {
           console.error(e);
           notifications.error((e as Error).message);
@@ -30,11 +28,9 @@ const friendsState = new (class FriendsState {
       key: "user/blocked/default",
       get: async () => {
         try {
-          const resp = await tunnel.get(
+          return await tunnel.get(
             UsersModel.Endpoints.Targets.GetSessionBlocked
           );
-          if (resp.status !== "ok") throw new Error(resp.errorMsg);
-          return resp.data;
         } catch (e) {
           console.error(e);
           notifications.error((e as Error).message);

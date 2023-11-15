@@ -6,6 +6,7 @@ import UserExtSession from './ext/Session';
 import { Session } from '@fastify/secure-session';
 import { IAuthSession } from '@typings/auth/session';
 import UserExtFriends from './ext/Friends';
+import { HttpError } from '@/helpers/decorators/httpError';
 
 class User extends CacheObserver<UsersModel.Models.IUser> {
   public readonly friends: UserExtFriends = new UserExtFriends(this);
@@ -66,7 +67,7 @@ class User extends CacheObserver<UsersModel.Models.IUser> {
   public async refresh(): Promise<void> {
     const data = await this.helpers.db.users.get(this.id);
     if (!data)
-      throw new Error(
+      throw new HttpError(
         `User with id ${this.id} was not found in database while refreshing`,
       );
     this.setTo(data);

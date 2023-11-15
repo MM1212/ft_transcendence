@@ -9,12 +9,13 @@ import secureSessionModule from '@fastify/secure-session';
 import cookiesModule from '@fastify/cookie';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import { AppService } from './app.service';
+import setupLogger from './helpers/logger';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter({
-      logger: true/* setupLogger() */,
+      logger: setupLogger(),
     }),
   );
   const configService = app.get<ConfigService>(ConfigServiceClass);

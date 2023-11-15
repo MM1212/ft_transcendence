@@ -31,7 +31,7 @@
     "socket.io-client": "^4.7.2",
     "sonner": "^1.1.0",
     "swr": "^2.2.2",
-    "wouter": "^2.11.0"
+    "wouter": "^2.12.1"
   },
   "devDependencies": {
     "@types/lodash.debounce": "^4.0.8",
