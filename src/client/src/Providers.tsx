@@ -6,12 +6,34 @@ import { SWRConfig } from 'swr';
 import { Router } from 'wouter';
 import StateMounter from '@state/mounter';
 import NotificationsProvider from '@lib/notifications/Provider';
+import moment from 'moment';
+import ErrorBoundary from '@components/ExceptionCatcher';
+
+moment.updateLocale('en', {
+  relativeTime: {
+    future: 'in %s',
+    past: '%s ago',
+    s: '1s',
+    ss: '%ss',
+    m: '1m',
+    mm: '%dm',
+    h: '1h',
+    hh: '%dh',
+    d: '1d',
+    dd: '%dd',
+    M: '1M',
+    MM: '%dM',
+    y: '1Y',
+    yy: '%dY',
+  },
+});
 
 export default function AppProviders({
   children,
 }: React.PropsWithChildren<{}>): JSX.Element {
   return (
     <RecoilRoot>
+      {/* <DebugObserver /> */}
       <Router>
         <SWRConfig
           value={{
@@ -33,7 +55,7 @@ export default function AppProviders({
           >
             <CssBaseline />
             <NotificationsProvider />
-            {children}
+            <ErrorBoundary>{children}</ErrorBoundary>
           </CssVarsProvider>
         </SWRConfig>
       </Router>

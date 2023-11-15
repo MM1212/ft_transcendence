@@ -56,7 +56,7 @@ export class CacheObserver<T extends object> {
     if (typeof value === 'function')
       ret = (value as PathSetter<PathValue<T, K>>)(this.get(key));
     else ret = value;
-    this.setValue(key, value as PathValue<T, K>);
+    this.setValue(key, ret as PathValue<T, K>);
     return this;
   }
   private getSubscribers(key: string): Subscriber<T>[] {

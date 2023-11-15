@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   DefaultValuePipe,
+  Delete,
   ForbiddenException,
   Get,
   Param,
@@ -9,43 +10,41 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Put,
   Query,
   ValidationPipe,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import {
-  EndpointResponse,
-  buildErrorResponse,
-  buildOkResponse,
+  InternalEndpointResponse,
 } from '@typings/api';
 import UsersModel from '@typings/models/users';
 import { Auth } from '../auth/decorators';
 import HttpCtx from '@/helpers/decorators/httpCtx';
 import { HTTPContext } from '@typings/http';
+import UserCtx from './decorators/User.pipe';
+import User from './user';
+import { HttpError } from '@/helpers/decorators/httpError';
 
+@Auth()
 @Controller()
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get(UsersModel.Endpoints.Targets.GetUsers)
-  @Auth()
   async getAll(
     @Query('limit', new DefaultValuePipe(50), ParseIntPipe) limit: number,
     @Query('offset', new DefaultValuePipe(0), ParseIntPipe) offset: number,
-  ): Promise<EndpointResponse<UsersModel.Endpoints.GetUsers>> {
+  ): Promise<InternalEndpointResponse<UsersModel.Endpoints.GetUsers>> {
     const users = await this.usersService.getAll({ limit, offset });
-    return buildOkResponse(users);
+    return users;
   }
 
-  @Auth()
   @Get(UsersModel.Endpoints.Targets.GetUser)
-  async get(@Param('id', ParseIntPipe, ValidationPipe) id: number) {
-    const user = await this.usersService.get(id);
-    if (!user) return buildErrorResponse('User not found');
-    return buildOkResponse(user?.public);
+  async get(@UserCtx() user: User) {
+    return user?.public;
   }
 
-  @Auth()
   @Post(UsersModel.Endpoints.Targets.SearchUsers)
   async search(
     @Body('query', ValidationPipe) query: string,
@@ -56,27 +55,95 @@ export class UsersController {
     @Query('limit', new DefaultValuePipe(50), ParseIntPipe) limit: number,
     @Query('offset', new DefaultValuePipe(0), ParseIntPipe) offset: number,
     @HttpCtx() { user }: HTTPContext<true>,
-  ): Promise<EndpointResponse<UsersModel.Endpoints.GetUsers>> {
+  ): Promise<InternalEndpointResponse<UsersModel.Endpoints.GetUsers>> {
     const users = await this.usersService.search(query, { limit, offset });
-    return buildOkResponse(
-      users.filter((u) => {
-        if (exclude.includes(u.id)) return false;
-        if (excludeSelf && u.id === user.id) return false;
-        return true;
-      }),
-    );
+    return users.filter((u) => {
+      if (exclude.includes(u.id)) return false;
+      if (excludeSelf && u.id === user.id) return false;
+      return true;
+    });
   }
 
-  @Auth()
   @Patch(UsersModel.Endpoints.Targets.PatchUser)
   async patch(
-    @Param('id', ParseIntPipe, ValidationPipe) id: number,
-    @Body() { avatar, nickname }: UsersModel.DTO.PatchUser,
+    @UserCtx() target: User,
+    @Body() { avatar, nickname, status }: UsersModel.DTO.PatchUser,
     @HttpCtx() { user }: HTTPContext<true>,
-  ): Promise<EndpointResponse<UsersModel.Endpoints.PatchUser>> {
-    if (user.id !== id) throw new ForbiddenException();
-    const ok = await user.save({ avatar, nickname }, true);
-    if (!ok) return buildErrorResponse('Failed to update profile');
-    return buildOkResponse(user.public);
+  ): Promise<InternalEndpointResponse<UsersModel.Endpoints.PatchUser>> {
+    if (user.id !== target.id) throw new ForbiddenException();
+    const ok = await user.save({ avatar, nickname, status }, true);
+    if (!ok) throw new HttpError('Failed to update profile');
+    return user.public;
   }
+
+  @Get(UsersModel.Endpoints.Targets.GetFriends)
+  async getFriends(
+    @UserCtx() user: User,
+  ): Promise<InternalEndpointResponse<UsersModel.Endpoints.GetFriends>> {
+    return user.friends.ids;
+  }
+
+  @Get(UsersModel.Endpoints.Targets.GetBlocked)
+  async getBlocked(
+    @UserCtx() user: User,
+  ): Promise<InternalEndpointResponse<UsersModel.Endpoints.GetBlocked>> {
+    return user.friends.blockedIds;
+  }
+
+  @Get(UsersModel.Endpoints.Targets.GetSessionFriends)
+  async getSessionFriends(
+    @HttpCtx() { user }: HTTPContext<true>,
+  ): Promise<InternalEndpointResponse<UsersModel.Endpoints.GetFriends>> {
+    return user.friends.ids;
+  }
+
+  @Get(UsersModel.Endpoints.Targets.GetSessionBlocked)
+  async getSessionBlocked(
+    @HttpCtx() { user }: HTTPContext<true>,
+  ): Promise<InternalEndpointResponse<UsersModel.Endpoints.GetBlocked>> {
+    return user.friends.blockedIds;
+  }
+
+  @Put(UsersModel.Endpoints.Targets.AddFriend)
+  async addFriend(
+    @UserCtx() user: User,
+    @Param('friendId', ParseIntPipe) friendId: number,
+  ): Promise<InternalEndpointResponse<UsersModel.Endpoints.AddFriend>> {
+    await user.friends.add(friendId);
+  }
+
+  @Post(UsersModel.Endpoints.Targets.AddFriendByName)
+  async addFriendByName(
+    @UserCtx() target: User,
+    @Body('nickname') nickname: string,
+    @HttpCtx() { user }: HTTPContext<true>,
+  ): Promise<InternalEndpointResponse<UsersModel.Endpoints.AddFriendByName>> {
+    if (user.id !== target.id) throw new ForbiddenException();
+    await target.friends.addByName(nickname);
+  }
+
+  @Delete(UsersModel.Endpoints.Targets.RemoveFriend)
+  async removeFriend(
+    @UserCtx() user: User,
+    @Param('friendId', ParseIntPipe) friendId: number,
+  ): Promise<InternalEndpointResponse<UsersModel.Endpoints.RemoveFriend>> {
+    await user.friends.remove(friendId);
+  }
+
+  @Put(UsersModel.Endpoints.Targets.BlockUser)
+  async blockUser(
+    @UserCtx() user: User,
+    @Param('blockedId', ParseIntPipe) blockedId: number,
+  ): Promise<InternalEndpointResponse<UsersModel.Endpoints.BlockUser>> {
+    await user.friends.block(blockedId);
+  }
+
+  @Delete(UsersModel.Endpoints.Targets.UnblockUser)
+  async unblockUser(
+    @UserCtx() user: User,
+    @Param('blockedId', ParseIntPipe) blockedId: number,
+  ): Promise<InternalEndpointResponse<UsersModel.Endpoints.UnblockUser>> {
+    await user.friends.unblock(blockedId);
+  }
+
 }

@@ -11,6 +11,8 @@ export const useSocket = (url: string) => {
 
   const useMounter = () => {
     React.useEffect(() => {
+      console.log(sock);
+      
       sock.connect();
       return () => {
         sock.disconnect();
@@ -35,6 +37,7 @@ export const useSocket = (url: string) => {
       return () => {
         sock.off(event, handler as (...args: unknown[]) => void);
       };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [event, handler, ...deps]);
   };
 

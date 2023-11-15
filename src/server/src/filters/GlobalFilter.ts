@@ -1,3 +1,4 @@
+import { HttpError } from '@/helpers/decorators/httpError';
 import {
   ExceptionFilter,
   Catch,
@@ -23,11 +24,10 @@ export class GlobalFilter implements ExceptionFilter {
 
       const responseBody: API.ResponseError = {
         status: 'error',
-        errorMsg: `${httpStatus} ${
+        errorMsg: `${exception instanceof HttpError ? '' : httpStatus} ${
           exception instanceof Error ? exception.message : 'Unknown error'
         }`,
       };
-
       if (httpStatus === HttpStatus.INTERNAL_SERVER_ERROR)
         console.error(exception);
 

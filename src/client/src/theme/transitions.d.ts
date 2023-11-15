@@ -27,7 +27,7 @@ interface TransitionAPIOptions {
 interface TransitionAPI {
   readonly duration: TransitionAPIDurations;
   readonly easing: TransitionAPIEasing;
-  create: (props: string | string[], options: TransitionAPIOptions) => string;
+  create: (props: string | string[], options?: TransitionAPIOptions) => string;
   getAutoHeightDuration: (height: number) => number;
 }
 

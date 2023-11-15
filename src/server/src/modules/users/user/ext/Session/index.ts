@@ -28,6 +28,7 @@ class UserExtSession extends UserExtBase {
       nickname: this.observer.get('nickname'),
       avatar: this.observer.get('avatar'),
       createdAt: this.observer.get('createdAt'),
+      status: this.observer.get('status'),
     };
   }
   get loggedIn(): boolean {
@@ -35,6 +36,12 @@ class UserExtSession extends UserExtBase {
   }
   set loggedIn(value: boolean) {
     this.observer.set('loggedIn', value);
+  }
+  get dummy(): boolean {
+    return this.observer.get('dummy');
+  }
+  set dummy(value: boolean) {
+    this.observer.set('dummy', value);
   }
   private get sData(): IAuthSessionUser | undefined {
     return this.session.data()?.user;

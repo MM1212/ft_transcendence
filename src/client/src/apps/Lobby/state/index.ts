@@ -1,14 +1,17 @@
 import { Pixi } from '@hooks/pixiRenderer';
-import { sessionAtom } from '@hooks/user';
+import { sessionAtom } from '@hooks/user/state';
 import { Lobbies } from '@typings/lobby';
 import { DefaultValue, atom, selector, useRecoilValue } from 'recoil';
 
 export interface Player extends Lobbies.IPlayer {
   sprite: Pixi.Sprite | null;
+  nickNameText: Pixi.Text | null;
+  allowMove: boolean;
 }
 
 export interface InitdPlayer extends Omit<Player, 'sprite'> {
   sprite: Pixi.Sprite;
+  nickNameText: Pixi.Text;
 }
 
 export const lobbyPlayersAtom = atom<Player[]>({
@@ -25,11 +28,8 @@ export const lobbyAppAtom = atom<Pixi.Application | null>({
     ({ getPromise, onSet }) => {
       onSet(async (app) => {
         if (!app || app instanceof DefaultValue) return;
-        let lastTick = Date.now();
         const tick = async (delta: number) => {
           const players = await getPromise(lobbyPlayersAtom);
-          console.log(delta, Date.now() - lastTick);
-          lastTick = Date.now();
 
           for (const player of players) {
             if (!player.sprite) continue;
@@ -60,7 +60,26 @@ export const lobbyCurrentPlayerSelector = selector<Player | null>({
   dangerouslyAllowMutability: true,
 });
 
+// Lets create a context that will keep the state of an element
+
+export const allowPlayerMove = atom<boolean>({
+  key: 'lobby/allowPlayerMove',
+  default: false,
+});
+
+export const allowPlayerFocus = atom<boolean>({
+  key: 'lobby/allowPlayerFocus',
+  default: false,
+});
+
 export const useLobbyPlayers = (): Player[] => useRecoilValue(lobbyPlayersAtom);
 
 export const useCurrentLobbyPlayer = (): Player | null =>
   useRecoilValue(lobbyCurrentPlayerSelector);
+
+// Lets create an arrow function that returns a reference to an Input element
+
+//export const getInputRef = (): React.RefObject<HTMLInputElement> => {
+// const inputRef = React.useRef<HTMLInputElement>(null);
+// return inputRef;
+//}

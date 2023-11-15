@@ -8,12 +8,13 @@ import {
 } from '@nestjs/common';
 import Chat from '../chat';
 import { ChatsService } from '../chats.service';
+import { HttpError } from '@/helpers/decorators/httpError';
 
 @Injectable()
 class ParseChatPipe implements PipeTransform {
   constructor(private readonly service: ChatsService) {}
   async transform(value: number, metadata: ArgumentMetadata): Promise<Chat> {
-    if (metadata.type !== 'param') throw new Error('Invalid metadata type');
+    if (metadata.type !== 'param') throw new HttpError('Invalid metadata type');
     const chat = await this.service.get(value);
     if (!chat) throw new NotFoundException('Chat not found');
     return chat;

@@ -19,13 +19,14 @@ model User {
   avatar             String
   createdAt          DateTime          @default(now()) @map("created_at")
   currentCharacterId Int?              @map("current_character_id")
+  storedStatus       Int               @default(1) @map("stored_status")
   characters         Character[]
   friends            User[]            @relation("friends")
   friendOf           User[]            @relation("friends")
+  blocked            User[]            @relation("blocked")
+  blockedBy          User[]            @relation("blocked")
   chats              ChatParticipant[]
   notifications      Notification[]
-
-  messagesSent ChatMessage[]
 
   gamesPlayed MatchHistory[] @relation("match_players")
 
@@ -53,14 +54,16 @@ enum ChatParticipantRole {
 }
 
 model ChatParticipant {
-  id          Int                 @id @default(autoincrement())
-  chat        Chat                @relation(fields: [chatId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  chatId      Int                 @map("chat_id")
-  user        User                @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId      Int                 @map("user_id")
-  role        ChatParticipantRole @default(MEMBER)
-  toReadPings Int                 @default(0) @map("to_read_pings")
-  createdAt   DateTime            @default(now()) @map("created_at")
+  id           Int                 @id @default(autoincrement())
+  chat         Chat                @relation(fields: [chatId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  chatId       Int                 @map("chat_id")
+  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId       Int                 @map("user_id")
+  role         ChatParticipantRole @default(MEMBER)
+  messagesSent ChatMessage[]
+
+  toReadPings Int      @default(0) @map("to_read_pings")
+  createdAt   DateTime @default(now()) @map("created_at")
 
   @@unique([chatId, userId], name: "chat_participant_unique")
   @@index([chatId, userId])
@@ -95,7 +98,7 @@ model ChatMessage {
   type      ChatMessageType @default(NORMAL)
   message   String          @default("")
   meta      Json            @default("{}")
-  author    User            @relation(fields: [authorId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  author    ChatParticipant @relation(fields: [authorId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   authorId  Int             @map("author_id")
   createdAt DateTime        @default(now()) @map("created_at")
 

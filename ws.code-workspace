@@ -21,7 +21,17 @@
     "editor.formatOnSaveMode": "modifications",
     "files.exclude": {
       "node_modules": true,
-      "src/client/src/components/icons": true,
+      "src/client/src/components/icons": true
     },
+    "materialdesigniconsIntellisense.matchers": [
+      {
+        "match": "[^/]{pascal}Icon",
+        "insert": "mdi:{pascal}",
+        "displayName": "{pascal}Icon",
+        "description": "Material Design Icon"
+      }
+    ],
+    "materialdesigniconsIntellisense.enableLinter": false,
+    "materialdesigniconsIntellisense.selector": []
   }
 }

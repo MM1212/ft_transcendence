@@ -26,6 +26,7 @@ export type Registry =
   & SseModel.Endpoints.Registry
   & AuthModel.Endpoints.Registry
   & UsersModel.Endpoints.Registry
+  & ChatModel.Endpoints.Registry
   & {
     [EndpointMethods.Get]: Record<never, never>;
     [EndpointMethods.Post]: Record<never, never>;
