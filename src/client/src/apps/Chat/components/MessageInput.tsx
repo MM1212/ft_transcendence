@@ -37,7 +37,7 @@ export default function MessageInput({ id }: { id: number }) {
           ...prev,
         ]);
         setInput('');
-        const resp = await tunnel.put(
+        const resp = await tunnel.rawPut(
           ChatsModel.Endpoints.Targets.CreateMessage,
           {
             message: input.trim(),

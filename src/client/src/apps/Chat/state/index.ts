@@ -19,9 +19,8 @@ const chatsState = new (class MessagesState {
     default: selector<ChatsModel.Models.IChat[]>({
       key: 'chats/selector',
       get: async () => {
-        const resp = await tunnel.get(Targets.GetSessionChats);
-        if (resp.status === 'error') throw new Error(resp.errorMsg);
-        return resp.data.map((chat) => ({
+        const data = await tunnel.get(Targets.GetSessionChats);
+        return data.map((chat) => ({
           ...chat,
           authorizationData: null,
         }));

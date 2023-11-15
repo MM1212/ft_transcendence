@@ -54,19 +54,18 @@ function ChatMessagesImpl({ id }: { id: number }) {
       let lastMessageId = chat.messages.length
         ? chat.messages[chat.messages.length - 1]?.id ?? -1
         : -1;
-      if (isNaN(parseInt(lastMessageId as unknown as string))) lastMessageId = -1;
+      if (isNaN(parseInt(lastMessageId as unknown as string)))
+        lastMessageId = -1;
       console.log(`Fetching messages from ${lastMessageId}`);
 
       try {
-        const resp = await tunnel.get(
+        const messages = await tunnel.get(
           ChatsModel.Endpoints.Targets.GetChatMessages,
           {
             chatId: id,
             cursor: lastMessageId,
           }
         );
-        if (resp.status !== 'ok') throw new Error(resp.errorMsg);
-        const messages = resp.data;
         console.log(
           `Loaded ${messages.length} from ${lastMessageId} as cursor to ${
             messages.length ? messages[messages.length - 1]?.id ?? -1 : -1

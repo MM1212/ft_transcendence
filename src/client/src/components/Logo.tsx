@@ -84,7 +84,7 @@ export default function Logo(): JSX.Element {
     const { avatar, nickname, status } = input;
     try {
       setLoading(true);
-      const resp = await tunnel.patch(
+      await tunnel.patch(
         UsersModel.Endpoints.Targets.PatchUser,
         {
           avatar,
@@ -95,7 +95,6 @@ export default function Logo(): JSX.Element {
           id: user.id,
         }
       );
-      if (resp.status === 'ok')
         mutate(
           buildTunnelEndpoint(AuthModel.Endpoints.Targets.Session),
           undefined,
@@ -103,12 +102,9 @@ export default function Logo(): JSX.Element {
             revalidate: true,
           }
         );
-      else throw new Error(resp.errorMsg);
-
       close();
       notifications.success('User updated!');
     } catch (error) {
-      console.error(error);
       notifications.error('Could not update user', (error as Error).message);
     } finally {
       setLoading(false);

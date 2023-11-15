@@ -58,16 +58,16 @@ class APITunnel implements ITunnel {
       return API.buildErrorResponse(err.message);
     }
   }
-  public async get(uri: any, params: any = {}): Promise<any> {
+  public async rawGet(uri: any, params: any = {}): Promise<any> {
     return await this.request(uri, undefined, params, API.EndpointMethods.Get);
   }
-  public async post(uri: any, data: any, params: any = {}): Promise<any> {
+  public async rawPost(uri: any, data: any, params: any = {}): Promise<any> {
     return await this.request(uri, data, params, API.EndpointMethods.Post);
   }
-  public async put(uri: any, data: any, params: any = {}): Promise<any> {
+  public async rawPut(uri: any, data: any, params: any = {}): Promise<any> {
     return await this.request(uri, data, params, API.EndpointMethods.Put);
   }
-  public async del(uri: any, params: any = {}): Promise<any> {
+  public async rawDel(uri: any, params: any = {}): Promise<any> {
     return await this.request(
       uri,
       undefined,
@@ -75,8 +75,61 @@ class APITunnel implements ITunnel {
       API.EndpointMethods.Delete
     );
   }
-  public async patch(uri: any, data: any, params: any = {}): Promise<any> {
+  public async rawPatch(uri: any, data: any, params: any = {}): Promise<any> {
     return await this.request(uri, data, params, API.EndpointMethods.Patch);
+  }
+
+  private async requestOrThrow(
+    uri: any,
+    data: any,
+    params: any,
+    method: API.EndpointMethods
+  ): Promise<any> {
+    const res: API.EndpointResponse<API.Endpoint<any, any>> =
+      await this.request(uri, data, params, method);
+    if (res.status !== 'ok') throw new Error(res.errorMsg);
+    return res.data;
+  }
+
+  public async get(uri: any, params: any = {}): Promise<any> {
+    return await this.requestOrThrow(
+      uri,
+      undefined,
+      params,
+      API.EndpointMethods.Get
+    );
+  }
+  public async post(uri: any, data: any, params: any = {}): Promise<any> {
+    return await this.requestOrThrow(
+      uri,
+      data,
+      params,
+      API.EndpointMethods.Post
+    );
+  }
+  public async put(uri: any, data: any, params: any = {}): Promise<any> {
+    return await this.requestOrThrow(
+      uri,
+      data,
+      params,
+      API.EndpointMethods.Put
+    );
+  }
+  public async del(uri: any, params: any = {}): Promise<any> {
+    return await this.requestOrThrow(
+      uri,
+      undefined,
+      params,
+      API.EndpointMethods.Delete
+    );
+  }
+  public async patch(uri: any, data: any, params: any = {}): Promise<any> {
+    return await this.requestOrThrow(
+      uri,
+      data,
+      params,
+      API.EndpointMethods.Patch
+    );
   }
 }
 

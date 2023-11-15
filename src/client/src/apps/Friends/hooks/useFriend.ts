@@ -13,14 +13,13 @@ const useFriend = (friendId: number) => {
       try {
         const self = await ctx.snapshot.getPromise(sessionAtom);
         if (!self) throw new Error('You are not logged in');
-        const resp = await tunnel.del(
+        await tunnel.del(
           UsersModel.Endpoints.Targets.RemoveFriend,
           {
             id: self.id,
             friendId,
           }
         );
-        if (resp.status !== 'ok') throw new Error(resp.errorMsg);
         notifications.success('Removed friend');
       } catch (e) {
         notifications.error('Failed to remove friend', (e as Error).message);
@@ -33,7 +32,7 @@ const useFriend = (friendId: number) => {
       try {
         const self = await ctx.snapshot.getPromise(sessionAtom);
         if (!self) throw new Error('You are not logged in');
-        const resp = await tunnel.put(
+        await tunnel.put(
           UsersModel.Endpoints.Targets.BlockUser,
           undefined,
           {
@@ -41,7 +40,6 @@ const useFriend = (friendId: number) => {
             blockedId: friendId,
           }
         );
-        if (resp.status !== 'ok') throw new Error(resp.errorMsg);
         notifications.success('Blocked friend');
       } catch (e) {
         notifications.error('Failed to block friend', (e as Error).message);
@@ -55,13 +53,12 @@ const useFriend = (friendId: number) => {
       const self = await ctx.snapshot.getPromise(sessionAtom);
       if (!self) throw new Error('You are not logged in');
       try {
-        const resp = await tunnel.post(
+        const {chatId} = await tunnel.post(
           ChatsModel.Endpoints.Targets.CheckOrCreateDirectChat,
           undefined,
           { targetId: friendId }
         );
-        if (resp.status !== 'ok') throw new Error(resp.errorMsg);
-        navigate(`/lobby/messages/${resp.data.chatId}`);
+        navigate(`/lobby/messages/${chatId}`);
       } catch (e) {
         notifications.error('Failed to go to messages', (e as Error).message);
       }

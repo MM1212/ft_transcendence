@@ -4,6 +4,7 @@ import { useRecoilCallback, useRecoilValue } from 'recoil';
 import chatsState from '../state';
 import React from 'react';
 import tunnel from '@lib/tunnel';
+import notifications from '@lib/notifications/hooks';
 
 const useMessagesService = () => {
   const onNewMessage = useRecoilCallback(
@@ -58,17 +59,25 @@ const useMessagesService = () => {
         chatsState.selfParticipantByChat(chatId)
       );
       if (!self || !self.toReadPings) return;
-      await tunnel.patch(
-        ChatsModel.Endpoints.Targets.UpdateParticipant,
-        {
+      try {
+        await tunnel.patch(
+          ChatsModel.Endpoints.Targets.UpdateParticipant,
+          {
+            toReadPings: 0,
+          },
+          { chatId, participantId: self.id }
+        );
+        ctx.set(chatsState.selfParticipantByChat(chatId), (prev) => ({
+          ...prev,
           toReadPings: 0,
-        },
-        { chatId, participantId: self.id }
-      );
-      ctx.set(chatsState.selfParticipantByChat(chatId), (prev) => ({
-        ...prev,
-        toReadPings: 0,
-      }));
+        }));
+      } catch (e) {
+        console.error(e);
+        notifications.error(
+          'Failed to update read pings',
+          (e as Error).message
+        );
+      }
     },
     []
   );

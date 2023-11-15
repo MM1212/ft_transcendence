@@ -101,23 +101,17 @@ function UsersAutocomplete({
     debounce(async (query: string) => {
       setLoading(true);
       try {
-        const resp = await tunnel.post(
+        const data = await tunnel.post(
           UsersModel.Endpoints.Targets.SearchUsers,
           {
             query,
             excluseSelf: true,
           }
         );
-        setLoading(false);
-        if (resp.status === 'error') {
-          console.error(resp.errorMsg);
-          notifications.error('Failed to search users', resp.errorMsg);
-          return;
-        }
-        setCache(resp.data);
+        setCache(data);
       } catch (e) {
-        console.error(e);
-        notifications.error('Failed to search any users!');
+        notifications.error('Failed to search users', (e as Error).message);
+      } finally {
         setLoading(false);
       }
     }, 1000),
@@ -272,26 +266,23 @@ export default function NewChatModal(): JSX.Element {
         setLoading(true);
         const notif = notifications.default('Creating new chat...');
         try {
-          const resp = await tunnel.put(
+          const data = await tunnel.put(
             ChatsModel.Endpoints.Targets.CreateChat,
             payload
           );
-          if (resp.status === 'error') console.error(resp.errorMsg);
-          else {
-            notif.update({
-              message: 'Chat created successfully!',
-              color: 'success',
-            });
-            ctx.set(chatsState.chats, (prev) => [
-              ...prev,
-              {
-                ...resp.data,
-                messages: [],
-                authorizationData: null,
-              },
-            ]);
-            close();
-          }
+          notif.update({
+            message: 'Chat created successfully!',
+            color: 'success',
+          });
+          ctx.set(chatsState.chats, (prev) => [
+            ...prev,
+            {
+              ...data,
+              messages: [],
+              authorizationData: null,
+            },
+          ]);
+          close();
         } catch (e) {
           console.error(e);
           notif.update({
