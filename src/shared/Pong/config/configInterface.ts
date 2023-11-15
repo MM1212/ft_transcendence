@@ -17,6 +17,7 @@ export interface IPlayerConfig {
 }
 
 export interface IGameConfig {
+  roomId: string;
   teams: [ITeam, ITeam];
   partyOwner: number; // userId
   spectators: number[]; // userIds
@@ -35,7 +36,7 @@ export interface ITeam {
   players: IPlayerConfig[];
   score: number;
 }
-
+//----------------------------
 import _gameConfig from "./game.json";
 export interface GameConfig {
   canvas: {

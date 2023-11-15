@@ -53,6 +53,15 @@ export class Game {
         }
     }
 
+    shutdown() {
+        this.gameObjects.forEach((gameObject: GameObject) => gameObject?.onDestroy?.());
+        this.gameObjects.length = 0;
+        this.collider_gameObjects.length = 0;
+        this.keydown_gameObjects.length = 0;
+        this.keyup_gameObjects.length = 0;
+        this.remove_gameObjects.length = 0;
+    }
+
     public add(gameObject: GameObject) {
         this.gameObjects.push(gameObject);
         if (gameObject?.onCollide != undefined) this.collider_gameObjects.push(gameObject);

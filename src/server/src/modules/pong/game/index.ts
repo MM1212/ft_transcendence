@@ -54,6 +54,55 @@ export class ServerGame extends Game {
     return `game-${this.sessionId}`;
   }
 
+  public join(socket: Socket) {
+    socket.join(this.roomId);
+    this.config.nPlayers++;
+    console.log(`Player: ${socket.id} joined: game-${this.sessionId}`);
+  }
+
+  public leave(socket: Socket) {
+    socket.leave(this.roomId);
+    this.config.nPlayers--;
+    console.log(`Player: ${socket.id} left: game-${this.sessionId}`);
+  }
+
+  public startTick() {
+    let lastTimeStamp = performance.now();
+    let lastFPSTimestamp = performance.now();
+    const fixedDeltaTime: number = 0.01667; // 60 FPS in seconds
+    const tick = () => {
+      const timestamp = performance.now();
+      const deltaTime = (timestamp - lastTimeStamp) / 1000;
+      lastTimeStamp = timestamp;
+      this.delta = deltaTime / fixedDeltaTime;
+      this.update(this.delta);
+      if (timestamp - lastFPSTimestamp > 1000) {
+        lastFPSTimestamp = timestamp;
+      }
+    };
+    this.updateHandle = setInterval(tick, 16);
+  }
+  public stop() {
+    if (this.updateHandle) {
+      clearInterval(this.updateHandle);
+      this.updateHandle = undefined;
+    }
+  }
+  public update(delta: number): void {
+    super.update(delta);
+    // console.log(this.getObjectByTag('Bolinha')?.getVelocity);
+    const ball = this.getObjectByTag('Bolinha');
+    this.room.emit('movements', [
+      {
+        tag: ball?.tag,
+        position: ball?.getCenter.toArray(),
+      },
+    ]);
+  }
+
+  public ready() {
+    //set player ready variable to true
+  }
   // private buildPlayer(player: IPlayerConfig) {
   //   let p;
   //   let startX;
@@ -110,10 +159,7 @@ export class ServerGame extends Game {
   //   this.add(p);
   // }
 
-  public join(socket: Socket, data: { room: string }) {
-    socket.join(this.roomId);
-    console.log(`Player: ${socket.id} joined: game-${this.sessionId}`);
-  }
+  
 
   // public buildObjects() {
     // for (const player of ) {
@@ -141,9 +187,7 @@ export class ServerGame extends Game {
     // this.add(new Ball(this.width / 2, this.height / 2, this));
   // }
 
-  public ready() {
-    //set player ready variable to true
-  }
+  
   
   // public start() {
     //this.buildObjects()
@@ -151,37 +195,5 @@ export class ServerGame extends Game {
   //startTick()
   // }
 
-  public startTick() {
-    let lastTimeStamp = performance.now();
-    let lastFPSTimestamp = performance.now();
-    const fixedDeltaTime: number = 0.01667; // 60 FPS in seconds
-    const tick = () => {
-      const timestamp = performance.now();
-      const deltaTime = (timestamp - lastTimeStamp) / 1000;
-      lastTimeStamp = timestamp;
-      this.delta = deltaTime / fixedDeltaTime;
-      this.update(this.delta);
-      if (timestamp - lastFPSTimestamp > 1000) {
-        lastFPSTimestamp = timestamp;
-      }
-    };
-    this.updateHandle = setInterval(tick, 16);
-  }
-  public stop() {
-    if (this.updateHandle) {
-      clearInterval(this.updateHandle);
-      this.updateHandle = undefined;
-    }
-  }
-  public update(delta: number): void {
-    super.update(delta);
-    // console.log(this.getObjectByTag('Bolinha')?.getVelocity);
-    const ball = this.getObjectByTag('Bolinha');
-    this.room.emit('movements', [
-      {
-        tag: ball?.tag,
-        position: ball?.getCenter.toArray(),
-      },
-    ]);
-  }
+  
 }

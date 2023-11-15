@@ -10,6 +10,8 @@ import {
 import { Server, Socket } from 'socket.io';
 import { ServerGame } from './game';
 import { Player } from '@shared/Pong/Paddles/Player';
+import { PongService } from './pong.service';
+import { IGameConfig } from '@shared/Pong/config/configInterface';
 
 @WebSocketGateway({
   namespace: 'pong',
@@ -26,12 +28,8 @@ export class PongGateway
 {
   @WebSocketServer()
   private readonly server: Server;
-  private readonly testGame: ServerGame;
-  private readonly games = new Map<string, ServerGame>();
   
-  public pongSessionsId = 0;
-  
-  constructor() {}
+  constructor(private service: PongService) {}
   handleConnection(
     @ConnectedSocket()
     client: Socket,
@@ -40,54 +38,91 @@ export class PongGateway
   }
 
   afterInit() {
-    // this.server.on('connection', (socket) => {
-    //   socket.on('server-game-create', (data) => {
-    //     const pongSession = new ServerGame(data, this.server);
-    //     this.rooms.set(pongSession.id.toString(), pongSession);
-    //   });
-    //   socket.on('join-game', (data: { room: string }) => {
-    //     if (!data.room) return;
-    //     console.log('join-game', data);
-    //     const room = this.rooms.get(data.room);
-    //     if (!room) return;
-    //     room.join(socket, data);
-    //   });
-    //   socket.on('game-readyState', (data: { room: string; state: boolean }) => {
-    //     const room = this.rooms.get(data.room);
-    //     if (!room) return;
-    //     room.ready();
-    //   });
-    // });
     console.log('PongGateway initialized');
   }
 
   handleDisconnect(@ConnectedSocket() client: Socket) {
     console.log('PongGateway disconnected');
   }
-
-  @SubscribeMessage('server-game-create')
-  createGame(client: Socket, data: any): void {
-    console.log('server-game-create', data);
-    const pongSession = new ServerGame(data, this.server, this.pongSessionsId++);
-    this.games.set(pongSession.sessionId.toString(), pongSession);
-    pongSession.join(client, data);
+  
+  @SubscribeMessage('create-game')
+  createGame(client: Socket, data: IGameConfig): void {
+    try {
+      const gameConf = this.service.createGame(data, this.server, client);
+      client.emit('join-room', "", gameConf);
+    } catch (error) {
+      this.errorHandler('join-room', client, error.message);
+    }
   }
 
   @SubscribeMessage('join-game')
-  joinGame(client: Socket, data: any): void {
-    console.log('join-game', data);
-    const game = this.games.get(data.room);
-    if (!game) return;
-    game.join(client, data);
+  joinGame(client: Socket, roomId: string): void {
+    try {
+      const gameConf = this.service.joinGame(client, roomId);
+      client.emit('join-room', "", gameConf);
+    } catch (error) {
+      this.errorHandler('join-room', client, error.message);
+    }
   }
 
-  @SubscribeMessage('game-readyState')
-  readyGame(client: Socket, data: any): void {
-    const game = this.games.get(data.room);
-    if (!game) return;
-    game.ready();
+  @SubscribeMessage('ready-player')
+  readyToPlay(client: Socket, roomId: string): void {
+    try {
+      this.service.readyToPlay(client, roomId);
+      client.emit('ready-change', "", roomId);
+    } catch (error) {
+      this.errorHandler('ready-change', client, error.message);
+    }
+  }
+  
+  // TODO
+  @SubscribeMessage('game-start')
+  startGame(client: Socket, data: any): void {
+    try {
+      const game = this.service.startGame(client, data);
+      // game.start for all players in room
+    } 
+    catch (error) {
+      this.errorHandler("", client, error.message);
+    }
+  }
 
-    game.room.emit('movements');
+  @SubscribeMessage('get-rooms')
+  getAvailableRooms(client: Socket): void {
+    try {
+      const gamesKeys = this.service.getAllGames(client);
+      client.emit("all-rooms", "", (gamesKeys));
+    } catch (error) {
+      this.errorHandler("all-rooms", client, error.message);
+    }
+  }
+
+  @SubscribeMessage('game-finished')
+  finishedGame(client: Socket, data: any): void {
+    try {
+      this.service.finishedGame(client, data);
+      // Hmmm i dunno about this one
+    } catch (error) {
+      this.errorHandler("", client, error.message);
+    }
+  }
+
+  @SubscribeMessage('leave-game')
+  leaveGame(client: Socket, roomId: string): void {
+    try {
+    console.log(roomId);
+      const gameConf = this.service.leaveGame(client, roomId);
+      // dont know if i need to send config to client
+      client.emit('leave-room', "", gameConf);
+      // wait for reconnect or something
+    } catch (error) {
+      this.errorHandler('leave-room', client, error.message);
+    }
+  }
+
+  private errorHandler(eventMsg: string, client: Socket, message: string): void {
+    client.emit(eventMsg, message, undefined);
+    console.log(message);
   }
 
   // @SubscribeMessage('keyPress')

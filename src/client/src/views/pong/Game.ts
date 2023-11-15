@@ -242,7 +242,16 @@ export class UIGame extends Game {
     this.app.stage.removeChild(
       ...(this.remove_gameObjects as UIGameObject[]).map((e) => e.displayObject)
     );
-    //(this.remove_gameObjects as UIGameObject[]).forEach(e => e.displayObject.destroy());
+    (this.remove_gameObjects as UIGameObject[]).forEach(e => e.displayObject.destroy());
     super.removeObjects();
+  }
+
+  shutdown() {
+    this.gameObjects.forEach((e) => this.remove_gameObjects.push(e));
+    this.removeObjects();
+    this.app.stage.destroy();
+    this.app.stop();
+    this.app.destroy(true);
+    super.shutdown();
   }
 }

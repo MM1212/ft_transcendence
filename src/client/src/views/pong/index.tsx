@@ -4,7 +4,12 @@ import PongModel from "@typings/models/pong";
 import * as PIXI from "pixi.js";
 import { UIGame, socket } from "./Game";
 import React from "react";
-import { ETeamSide, IGameConfig } from "@shared/Pong/config/configInterface";
+import {
+  ETeamSide,
+  IGameConfig,
+  IPlayerConfig,
+} from "@shared/Pong/config/configInterface";
+import { Input } from "@mui/joy";
 
 // add textures
 const Targets = PongModel.Endpoints.Targets;
@@ -49,68 +54,165 @@ export const DEFAULT_FIELD_COLOR = 0x000000;
 export const P_START_DIST = 40;
 export const hue_value = 0;
 
+export const defaultPlayerConfig: IPlayerConfig = {
+  tag: "",
+  teamId: 0,
+  type: "player",
+  keys: undefined,
+  specialPower: "Spark",
+  paddleTexture: Targets.PaddleTexture1,
+  paddleColor: 0xffffff,
+  positionOrder: "back",
+  userId: undefined,
+  ready: false,
+  connected: false,
+};
+
+export const defaultGameConfig: IGameConfig = {
+  roomId: "",
+  teams: [
+    {
+      id: ETeamSide.Left,
+      players: [],
+      score: 0,
+    },
+    {
+      id: ETeamSide.Right,
+      players: [],
+      score: 0,
+    },
+  ],
+  partyOwner: 0,
+  spectators: [],
+  backgroundColor: 0x000000,
+  lineColor: 0xffffff,
+  nPlayers: 0,
+};
+
+export const defaultTeamConfig = {
+  id: ETeamSide.Left,
+  players: [],
+  score: 0,
+};
+
 export default function Pong() {
   const { connected, socket, status, useMounter, emit, useListener } =
     useSocket(buildTunnelEndpoint(Targets.Connect));
   const [game, setGame] = React.useState<UIGame | null>(null);
 
   useMounter();
-  const newRoom = React.useCallback(() => {
-    const game = new UIGame(socket);
-    setGame(game);
-    // TEMPORARY CONFIG
-    const gameconfig: IGameConfig = {
-      teams: [{
-        id: ETeamSide.Left,
-        players: [],
-        score: 0
-      }, {
-        id: ETeamSide.Right,
-        players: [],
-        score: 0
-      }],
-      partyOwner: 0,
-      spectators: [],
-      backgroundColor: 0x000000,
-      lineColor: 0xffffff,
-      nPlayers: 1,
-    };
 
-    socket.emit("server-game-create", gameconfig);
-  }, [socket]);
-
+  const [input, setInput] = React.useState<string>("1");
   const [names, setNames] = React.useState<string[]>([]);
 
+  const createRoom = React.useCallback(() => {
+    socket.emit("create-game", defaultGameConfig);
+    socket.once("join-room", (error: string, data: IGameConfig | undefined) => {
+      console.log(data);
+      if (data == undefined) {
+        alert(error)
+      } else {
+        const game = new UIGame(socket);
+        const gameconfig = data;
+        // | Game has to be loaded with game config
+        // |  instead of whats below
+        setGame(game);
+        setNames((prev) => [...prev, socket.id]);
+      }
+    })
+  }, [socket]);
+
+  const joinRoom = React.useCallback(() => {
+    socket.emit("join-game", input);
+    socket.once("join-room", (error: string, data: IGameConfig | undefined) => {
+      if (data == undefined) {
+        alert(error)
+      } else {
+        const game = new UIGame(socket);
+        const gameconfig = data;
+        // | Game has to be loaded with data: game config
+        // |  instead of whats below
+        setGame(game);
+        setNames((prev) => [...prev, socket.id]);
+      }
+    });
+  }, [socket, input]);
+
+  const readyPlayer = React.useCallback(() => {
+    socket.emit("ready-player", input);
+    socket.once("ready-change", (error: string, data: IGameConfig | undefined) => {
+      if (data == undefined) {
+        alert(error)
+      } else {
+        // change from ready to not ready icon
+        console.log("READY");
+      }
+    });
+    
+  }, [socket, input])
+
+
+  const getRooms = React.useCallback(() => {
+    socket.emit("get-rooms");
+    socket.once("all-rooms", (error: string, rooms: string[] | undefined) => {
+      if (rooms == undefined) {
+        alert(error)
+      } else {
+        console.log(rooms);
+      }
+    });
+  }, [socket]);
+
+  const leaveRoom = React.useCallback(() => {
+    socket.emit("leave-game", input);
+    socket.once("leave-room", (error: string, data: IGameConfig | undefined) => {
+      if (data == undefined) {
+        alert(error)
+      } else {
+        // | Game has to be unloaded
+        // |  setGame(null);
+        game?.shutdown();
+        setGame(null);
+        setNames([]);
+      }
+    });
+  }, [socket, game, input]);  
+
+  //React.useEffect(() => {
+  //  const handler = (rooms: string[]) => {
+  //    console.log(rooms);
+  //  };
+  //  socket.on("getRooms", handler);
+  //  return () => void socket.off("getRooms", handler);
+  //}, [socket]);
+
+  // TODO: display active room
   return (
     <div>
       <h1>Pong {`${game?.socket.connected}`}</h1>
-      {names.map((name: string, idx: number) => (
-        <h1 key={idx}>{name}</h1>
-      ))}
       <h1>
         team 1: {names[0]} {names[2]}
       </h1>
       <h1>
         team 2: {names[1]} {names[3]}
       </h1>
-      <button onClick={newRoom}>criar sala</button>
+      <Input value={input} onChange={(event) => setInput(event.target.value)} />
 
-      <button
-        onClick={() => {
-          socket.emit("game-readyState", { room: "0", state: true });
+      <div
+        style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          width: '50%',
+          gap: '.2rem',
         }}
       >
-        I am ready
-      </button>
-
-      <button
-        onClick={() => {
-          socket.emit("join-game", { room: "0" });
-          setNames((prev) => [...prev, socket.id]);
-        }}
-      >
-        juntar a jogo
-      </button>
+        <button onClick={createRoom}>Create Room</button>
+        <button onClick={joinRoom}>Join Room</button>
+        <button onClick={readyPlayer}>Ready</button>
+        <button onClick={leaveRoom}>Leave game</button>
+        <button onClick={getRooms}>Get Rooms</button>
+        <button>START</button>
+      </div>
     </div>
   );
 }
