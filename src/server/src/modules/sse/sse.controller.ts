@@ -88,7 +88,6 @@ export class SseController implements OnModuleInit, OnModuleDestroy {
             type: data.event,
           } as SSE.Models.Event),
         });
-        console.log('SSE Event',event, event.data);
         return event;
       }),
     );
