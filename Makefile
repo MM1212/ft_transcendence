@@ -80,6 +80,13 @@ else
 endif
 endif
 
+client_gen_clothing:
+ifndef id
+	$(error id is not set, use `make client_gen_clothing id=<id>`)
+else
+	@cd $(CLIENT_DIR) && node scripts/generate-clothing-item.js $(id)
+endif
+
 db_start:
 	docker compose -f $(DB_COMPOSE_FILE) up -d
 

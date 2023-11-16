@@ -1,5 +1,6 @@
 import AccountGroupIcon from '@components/icons/AccountGroupIcon';
 import AccountIcon from '@components/icons/AccountIcon';
+import AccountSearchIcon from '@components/icons/AccountSearchIcon';
 import ControllerIcon from '@components/icons/ControllerIcon';
 import ForumIcon from '@components/icons/ForumIcon';
 import HangerIcon from '@components/icons/HangerIcon';
@@ -39,18 +40,40 @@ const routes: ISidebarRoute[] = [
     // Component: React.lazy(() => import('@views/home')),
   },
   {
-    label: 'My Profile',
-    path: '/profile',
-    icon: <AccountIcon />,
-    Component: React.lazy(() => import('@apps/Profile/views')),
-    exact: false,
-  },
-  {
     label: 'Lobby (TEMP)',
     path: '/lobby',
     icon: <ImageFilterCenterFocusIcon />,
     Component: React.lazy(() => import('@views/lobby')),
   },
+  {
+    label: 'Social',
+    icon: <AccountGroupIcon />,
+    children: [
+      {
+        label: 'My Profile',
+        path: '/profile',
+        icon: <AccountIcon />,
+        Component: React.lazy(() => import('@apps/Profile/views')),
+        exact: false,
+      },
+      {
+        label: 'Friends',
+        path: '/friends',
+        routePath: '/friends/:rest*',
+        icon: <AccountGroupIcon />,
+        exact: false,
+        Component: React.lazy(() => import('@apps/Friends/views')),
+      },
+      {
+        label: 'Search',
+        path: '/search',
+        icon: <AccountSearchIcon  />,
+        exact: false,
+        // Component: React.lazy(() => import('@apps/Search/views')),
+      }
+    ]
+  },
+
   {
     label: 'Messages',
     path: '/messages/',
@@ -59,14 +82,7 @@ const routes: ISidebarRoute[] = [
     exact: false,
     Component: React.lazy(() => import('@apps/Chat/views')),
   },
-  {
-    label: 'Friends',
-    path: '/friends',
-    routePath: '/friends/:rest*',
-    icon: <AccountGroupIcon />,
-    exact: false,
-    Component: React.lazy(() => import('@apps/Friends/views')),
-  },
+ 
   {
     label: 'Achievements',
     path: '/achievements',

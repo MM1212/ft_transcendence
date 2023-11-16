@@ -3,14 +3,23 @@ import { sessionAtom } from '@hooks/user/state';
 import { Lobbies } from '@typings/lobby';
 import { DefaultValue, atom, selector, useRecoilValue } from 'recoil';
 
+export interface PlayerLayers {
+  container: Pixi.Container;
+  belly: Pixi.AnimatedSprite;
+  fixtures: Pixi.AnimatedSprite;
+  clothing: Record<string, Pixi.AnimatedSprite>;
+  base?: Pixi.Sprite;
+  baseShadow: Pixi.Sprite;
+}
+
 export interface Player extends Lobbies.IPlayer {
-  sprite: Pixi.Sprite | null;
+  layers: PlayerLayers | null;
   nickNameText: Pixi.Text | null;
   allowMove: boolean;
 }
 
-export interface InitdPlayer extends Omit<Player, 'sprite'> {
-  sprite: Pixi.Sprite;
+export interface InitdPlayer extends Omit<Player, 'layers'> {
+  layers: PlayerLayers;
   nickNameText: Pixi.Text;
 }
 
@@ -32,12 +41,12 @@ export const lobbyAppAtom = atom<Pixi.Application | null>({
           const players = await getPromise(lobbyPlayersAtom);
 
           for (const player of players) {
-            if (!player.sprite) continue;
+            if (!player.layers?.container) continue;
             player.transform.position.x += player.transform.velocity.x * delta;
             player.transform.position.y += player.transform.velocity.y * delta;
 
-            player.sprite.x = player.transform.position.x;
-            player.sprite.y = player.transform.position.y;
+            player.layers.container.x = player.transform.position.x;
+            player.layers.container.y = player.transform.position.y;
           }
         };
         app.ticker.add(tick);

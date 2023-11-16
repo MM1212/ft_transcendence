@@ -7,6 +7,7 @@ import { useRecoilCallback } from 'recoil';
 import {
   InitdPlayer,
   Player,
+  PlayerLayers,
   allowPlayerFocus,
   allowPlayerMove,
   lobbyAppAtom,
@@ -17,22 +18,71 @@ import { useKeybindsToggle } from '@hooks/keybinds';
 import ChatBox from '@/apps/Lobby/components/InGameChat';
 import { Sheet } from '@mui/joy';
 import LobbyModel from '@typings/models/lobby';
+import { sessionAtom } from '@hooks/user';
 
 const rendererOptions: Partial<Pixi.IApplicationOptions> = {};
-const mainTex = Pixi.Texture.from('https://pixijs.com/assets/bunny.png');
+
+const buildAnimation = (assetName: string) =>
+  [...new Array(193)].map((_, i) =>
+    Pixi.Texture.from(`${assetName}/26_${i + 1}`)
+  );
+
+const loadPenguin = async (self: boolean) => {
+  const center = (sprite: Pixi.Sprite) => {
+    sprite.anchor.set(0.5);
+    sprite.x = 0;
+    sprite.y = 0;
+  };
+  await Pixi.Assets.load([
+    '/penguin/base/asset.json',
+    '/penguin/body/asset.json',
+    '/penguin/clothing/35130/asset.json',
+  ]);
+  const layers: PlayerLayers = {} as PlayerLayers;
+  layers.container = new Pixi.Container();
+  layers.container.name = 'penguin';
+
+  layers.baseShadow = new Pixi.Sprite(Pixi.Texture.from('base/shadow'));
+  center(layers.baseShadow);
+  if (self) {
+    layers.base = new Pixi.Sprite(Pixi.Texture.from('base/ring'));
+    center(layers.base);
+  }
+  layers.belly = new Pixi.AnimatedSprite(buildAnimation('body'));
+  center(layers.belly);
+  layers.belly.tint = 0xFFAFFF;
+  layers.belly.animationSpeed = 0.3;
+  layers.fixtures = new Pixi.AnimatedSprite(buildAnimation('penguin'));
+  center(layers.fixtures);
+  layers.fixtures.animationSpeed = 0.3;
+  layers.clothing = {
+    jacket: new Pixi.AnimatedSprite(buildAnimation('35130')),
+  };
+  center(layers.clothing.jacket);
+  layers.clothing.jacket.animationSpeed = 0.3;
+  layers.container.addChild(layers.baseShadow);
+  if (layers.base) layers.container.addChild(layers.base);
+  layers.container.addChild(
+    layers.belly,
+    layers.fixtures,
+    layers.clothing.jacket
+  );
+  layers.belly.gotoAndPlay(0);
+  layers.fixtures.gotoAndPlay(0);
+  layers.clothing.jacket.gotoAndPlay(0);
+  return layers;
+};
+
 const backgroundTex = Pixi.Texture.from(
   LobbyModel.Endpoints.Targets.StaticBackground
 );
 
 const initSprite = (app: Pixi.Application, player: InitdPlayer) => {
-  player.sprite.x = player.transform.position.x;
-  player.sprite.y = player.transform.position.y;
-  player.sprite.name = `lobby/${player.user.id}-${player.user.nickname}`;
   player.nickNameText.x = 10;
   player.nickNameText.y = -20;
   player.nickNameText.anchor.set(0.5);
-  player.sprite.addChild(player.nickNameText);
-  app.stage.addChild(player.sprite);
+  // player.layers.container.addChild(player.nickNameText);
+  app.stage.addChild(player.layers.container);
   // Set the name property to identify the text later if needed
 };
 
@@ -43,34 +93,38 @@ export default function Lobby() {
   const loadData = useRecoilCallback(
     (ctx) => async (data: Lobbies.Packets.LoadData) => {
       const app = await ctx.snapshot.getPromise(lobbyAppAtom);
-      if (!app)
+      const self = await ctx.snapshot.getPromise(sessionAtom);
+      if (!app || !self)
         return ctx.set(
           lobbyPlayersAtom,
           data.players.map((player) => ({
             ...player,
-            sprite: null,
+            layers: null,
             nickNameText: null,
             allowMove: true,
           }))
         );
-      const players = data.players.map<InitdPlayer>((player) => ({
-        ...player,
-        sprite: new Pixi.Sprite(mainTex),
-        nickNameText: new Pixi.Text(player.user.nickname, {
-          fontFamily: 'Inter',
-          dropShadow: true,
-          dropShadowDistance: 2,
-          dropShadowAngle: 1,
-          dropShadowAlpha: 1,
-          dropShadowColor: '#000',
-          stroke: '#000',
-          strokeThickness: 1,
-          fontSize: 12,
-          align: 'center',
-          fill: '#fef08a',
-        }),
-        allowMove: true,
-      }));
+
+      const players = await Promise.all(
+        data.players.map<Promise<InitdPlayer>>(async (player) => ({
+          ...player,
+          layers: await loadPenguin(player.user.id === self.id),
+          nickNameText: new Pixi.Text(player.user.nickname, {
+            fontFamily: 'Inter',
+            dropShadow: true,
+            dropShadowDistance: 2,
+            dropShadowAngle: 1,
+            dropShadowAlpha: 1,
+            dropShadowColor: '#000',
+            stroke: '#000',
+            strokeThickness: 1,
+            fontSize: 12,
+            align: 'center',
+            fill: '#fef08a',
+          }),
+          allowMove: true,
+        }))
+      );
       players.forEach((player) => initSprite(app, player));
       ctx.set(lobbyPlayersAtom, players);
     },
@@ -86,7 +140,7 @@ export default function Lobby() {
           ...prev,
           { ...player, sprite: null },
         ]);
-      player.sprite = new Pixi.Sprite(mainTex);
+      player.layers = await loadPenguin(false);
       player.nickNameText = new Pixi.Text(player.user.nickname, {
         fontFamily: 'Inter',
         dropShadow: true,
@@ -114,9 +168,9 @@ export default function Lobby() {
             return { ...player, ...newData };
           })
           .map((player) => {
-            if (!app || !player.sprite) return player;
-            player.sprite.x = player.transform.position.x;
-            player.sprite.y = player.transform.position.y;
+            if (!app || !player.layers) return player;
+            player.layers.container.x = player.transform.position.x;
+            player.layers.container.y = player.transform.position.y;
             return player;
           })
       );
@@ -131,8 +185,8 @@ export default function Lobby() {
         ctx.set(lobbyPlayersAtom, (prev) =>
           prev.filter((p) => {
             if (p.user.id !== id) return true;
-            if (!app || !p.sprite) return false;
-            app.stage.removeChild(p.sprite);
+            if (!app || !p.layers) return false;
+            app.stage.removeChild(p.layers.container);
             return false;
           })
         );
@@ -150,9 +204,9 @@ export default function Lobby() {
             if (!data) return player;
             if (data.position) player.transform.position = data.position;
             if (data.velocity) player.transform.velocity = data.velocity;
-            if (!app || !player.sprite) return player;
-            player.sprite.x = player.transform.position.x;
-            player.sprite.y = player.transform.position.y;
+            if (!app || !player.layers) return player;
+            player.layers.container.x = player.transform.position.x;
+            player.layers.container.y = player.transform.position.y;
             return player;
           })
         );
@@ -184,9 +238,11 @@ export default function Lobby() {
       app.stage.addChild(background);
       ctx.set(lobbyAppAtom, app);
       const players = await ctx.snapshot.getPromise(lobbyPlayersAtom);
+      const self = await ctx.snapshot.getPromise(sessionAtom);
+      if (!players || !self) return () => ctx.set(lobbyAppAtom, null);
       for (const player of players) {
-        if (player.sprite) continue;
-        player.sprite = new Pixi.Sprite(mainTex);
+        if (player.layers) continue;
+        player.layers = await loadPenguin(player.user.id === self.id);
         player.nickNameText = new Pixi.Text(player.user.nickname, {
           fontFamily: 'Inter',
           dropShadow: true,
@@ -216,7 +272,7 @@ export default function Lobby() {
       const allowFocus = await ctx.snapshot.getPromise(allowPlayerFocus);
       if (allowMove === true) return;
       if (allowFocus === true) return;
-      if (!player || !player.sprite) return;
+      if (!player || !player.layers) return;
       if (player.allowMove === false) return;
       emit('update-velocity', { key, pressed });
       switch (key) {
@@ -233,8 +289,8 @@ export default function Lobby() {
           player.transform.velocity.y = pressed ? 1 : 0;
           break;
       }
-      player.sprite.x = player.transform.position.x;
-      player.sprite.y = player.transform.position.y;
+      player.layers.container.x = player.transform.position.x;
+      player.layers.container.y = player.transform.position.y;
     },
     [emit]
   );
