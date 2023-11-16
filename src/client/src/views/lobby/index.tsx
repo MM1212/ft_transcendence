@@ -36,7 +36,13 @@ const loadPenguin = async (self: boolean) => {
   await Pixi.Assets.load([
     '/penguin/base/asset.json',
     '/penguin/body/asset.json',
-    '/penguin/clothing/35130/asset.json',
+    '/penguin/clothing/195/asset.json',
+    '/penguin/clothing/258/asset.json',
+    '/penguin/clothing/231/asset.json',
+    '/penguin/clothing/374/asset.json',
+    '/penguin/clothing/490/asset.json',
+    '/penguin/clothing/1950/asset.json',
+
   ]);
   const layers: PlayerLayers = {} as PlayerLayers;
   layers.container = new Pixi.Container();
@@ -50,26 +56,36 @@ const loadPenguin = async (self: boolean) => {
   }
   layers.belly = new Pixi.AnimatedSprite(buildAnimation('body'));
   center(layers.belly);
-  layers.belly.tint = 0xFFAFFF;
+  layers.belly.tint = 0xffafff;
   layers.belly.animationSpeed = 0.3;
   layers.fixtures = new Pixi.AnimatedSprite(buildAnimation('penguin'));
   center(layers.fixtures);
   layers.fixtures.animationSpeed = 0.3;
   layers.clothing = {
-    jacket: new Pixi.AnimatedSprite(buildAnimation('35130')),
+    bandana: new Pixi.AnimatedSprite(buildAnimation('490')),
+    boots: new Pixi.AnimatedSprite(buildAnimation('374')),
+    shirt: new Pixi.AnimatedSprite(buildAnimation('258')),
+    stick: new Pixi.AnimatedSprite(buildAnimation('231')),
+    camera: new Pixi.AnimatedSprite(buildAnimation('195')),
+    hat: new Pixi.AnimatedSprite(buildAnimation('1950')),
   };
-  center(layers.clothing.jacket);
-  layers.clothing.jacket.animationSpeed = 0.3;
+  Object.values(layers.clothing).forEach(cloth => {
+    center(cloth);
+    cloth.animationSpeed = 0.3;
+  })
   layers.container.addChild(layers.baseShadow);
   if (layers.base) layers.container.addChild(layers.base);
   layers.container.addChild(
     layers.belly,
     layers.fixtures,
-    layers.clothing.jacket
+    ...Object.values(layers.clothing)
   );
-  layers.belly.gotoAndPlay(0);
-  layers.fixtures.gotoAndPlay(0);
-  layers.clothing.jacket.gotoAndPlay(0);
+  const animatedLayers = [
+    layers.belly,
+    layers.fixtures,
+    ...Object.values(layers.clothing),
+  ]
+  animatedLayers.forEach(layer => layer.gotoAndPlay(0));
   return layers;
 };
 

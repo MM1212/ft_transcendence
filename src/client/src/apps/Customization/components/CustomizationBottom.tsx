@@ -4,6 +4,7 @@ import TabList from "@mui/joy/TabList";
 import Tab from "@mui/joy/Tab";
 import { Stack, TabPanel } from "@mui/joy";
 import CustomizationBox from "./CustomizationBox";
+import { getClothIcon } from "./CustomizationTop";
 
 export default function CustomizationBottom() {
   const myCustomizations: string[] = [
@@ -14,11 +15,12 @@ export default function CustomizationBottom() {
     "Skin Color",
   ];
   const myImages: string[] = [
-    "https://images.unsplash.com/photo-1502657877623-f66bf489d236?auto=format&fit=crop&w=800",
-    "https://images.unsplash.com/photo-1502657877623-f66bf489d236?auto=format&fit=crop&w=800",
-    "https://images.unsplash.com/photo-1502657877623-f66bf489d236?auto=format&fit=crop&w=800",
-    "https://images.unsplash.com/photo-1502657877623-f66bf489d236?auto=format&fit=crop&w=800",
-    "https://images.unsplash.com/photo-1502657877623-f66bf489d236?auto=format&fit=crop&w=800",
+    getClothIcon(195),
+    getClothIcon(258),
+    getClothIcon(231),
+    getClothIcon(374),
+    getClothIcon(490),
+    getClothIcon(1950),
   ];
 
   return (

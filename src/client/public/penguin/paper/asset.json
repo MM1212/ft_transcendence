@@ -1,0 +1,56 @@
+{
+  "meta": {
+    "app": "https://www.codeandweb.com/texturepacker",
+    "version": "3.0",
+    "smartupdate": "$TexturePacker:SmartUpdate:ceb9575804d6515fe5650968458603f0:3a4fada0bd5adb002eb76027bf7c9476:e0119f692bf8e6d2982ed2b466d0f657$",
+    "image": "asset.webp",
+    "format": "RGBA8888",
+    "size": {
+      "w": 2037,
+      "h": 2048
+    },
+    "scale": "1"
+  },
+  "frames": {
+    "penguin/paperdoll/fixtures": {
+      "rotated": false,
+      "trimmed": true,
+      "sourceSize": {
+        "w": 440,
+        "h": 440
+      },
+      "spriteSourceSize": {
+        "x": 81,
+        "y": 96,
+        "w": 278,
+        "h": 312
+      },
+      "frame": {
+        "x": 1134,
+        "y": 1220,
+        "w": 278,
+        "h": 312
+      }
+    },
+    "penguin/paperdoll/body": {
+      "rotated": false,
+      "trimmed": true,
+      "sourceSize": {
+        "w": 440,
+        "h": 440
+      },
+      "spriteSourceSize": {
+        "x": 86,
+        "y": 98,
+        "w": 268,
+        "h": 258
+      },
+      "frame": {
+        "x": 1621,
+        "y": 743,
+        "w": 268,
+        "h": 258
+      }
+    }
+  }
+}
