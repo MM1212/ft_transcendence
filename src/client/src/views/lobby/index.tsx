@@ -36,12 +36,13 @@ const loadPenguin = async (self: boolean) => {
   await Pixi.Assets.load([
     '/penguin/base/asset.json',
     '/penguin/body/asset.json',
-    '/penguin/clothing/195/asset.json',
-    '/penguin/clothing/258/asset.json',
-    '/penguin/clothing/231/asset.json',
-    '/penguin/clothing/374/asset.json',
-    '/penguin/clothing/490/asset.json',
-    '/penguin/clothing/1950/asset.json',
+    '/penguin/clothing/316/asset.json',
+    // '/penguin/clothing/195/asset.json',
+    // '/penguin/clothing/258/asset.json',
+    // '/penguin/clothing/231/asset.json',
+    // '/penguin/clothing/374/asset.json',
+    // '/penguin/clothing/490/asset.json',
+    // '/penguin/clothing/1950/asset.json',
 
   ]);
   const layers: PlayerLayers = {} as PlayerLayers;
@@ -62,12 +63,13 @@ const loadPenguin = async (self: boolean) => {
   center(layers.fixtures);
   layers.fixtures.animationSpeed = 0.3;
   layers.clothing = {
-    bandana: new Pixi.AnimatedSprite(buildAnimation('490')),
-    boots: new Pixi.AnimatedSprite(buildAnimation('374')),
-    shirt: new Pixi.AnimatedSprite(buildAnimation('258')),
-    stick: new Pixi.AnimatedSprite(buildAnimation('231')),
-    camera: new Pixi.AnimatedSprite(buildAnimation('195')),
-    hat: new Pixi.AnimatedSprite(buildAnimation('1950')),
+    bag: new Pixi.AnimatedSprite(buildAnimation('316')),
+    // bandana: new Pixi.AnimatedSprite(buildAnimation('490')),
+    // boots: new Pixi.AnimatedSprite(buildAnimation('374')),
+    // shirt: new Pixi.AnimatedSprite(buildAnimation('258')),
+    // stick: new Pixi.AnimatedSprite(buildAnimation('231')),
+    // camera: new Pixi.AnimatedSprite(buildAnimation('195')),
+    // hat: new Pixi.AnimatedSprite(buildAnimation('1950')),
   };
   Object.values(layers.clothing).forEach(cloth => {
     center(cloth);
