@@ -15,16 +15,13 @@ import {
   lobbyPlayersAtom,
 } from '@/apps/Lobby/state';
 import { useKeybindsToggle } from '@hooks/keybinds';
-import ChatBox from '@/apps/Lobby/components/InGameChat';
-import { Sheet } from '@mui/joy';
 import LobbyModel from '@typings/models/lobby';
 import { sessionAtom } from '@hooks/user';
-
-const rendererOptions: Partial<Pixi.IApplicationOptions> = {};
+import ChatBox from '@apps/Lobby/components/InGameChat';
 
 const buildAnimation = (assetName: string) =>
-  [...new Array(193)].map((_, i) =>
-    Pixi.Texture.from(`${assetName}/26_${i + 1}`)
+  [...new Array(8)].map((_, i) =>
+    Pixi.Texture.from(`${assetName}/12_${i + 1}`)
   );
 
 const loadPenguin = async (self: boolean) => {
@@ -36,17 +33,17 @@ const loadPenguin = async (self: boolean) => {
   await Pixi.Assets.load([
     '/penguin/base/asset.json',
     '/penguin/body/asset.json',
-    '/penguin/clothing/195/asset.json',
     '/penguin/clothing/258/asset.json',
     '/penguin/clothing/231/asset.json',
     '/penguin/clothing/374/asset.json',
     '/penguin/clothing/490/asset.json',
-    '/penguin/clothing/1950/asset.json',
+    '/penguin/clothing/497/asset.json',
+    '/penguin/clothing/138/asset.json',
+    '/penguin/clothing/195/asset.json',
   ]);
   const layers: PlayerLayers = {} as PlayerLayers;
   layers.container = new Pixi.Container();
   layers.container.name = 'penguin';
-
   layers.baseShadow = new Pixi.Sprite(Pixi.Texture.from('base/shadow'));
   center(layers.baseShadow);
   if (self) {
@@ -55,23 +52,23 @@ const loadPenguin = async (self: boolean) => {
   }
   layers.belly = new Pixi.AnimatedSprite(buildAnimation('body'));
   center(layers.belly);
-  layers.belly.tint = 0xffafff;
+  layers.belly.tint = 0x00ffff;
   layers.belly.animationSpeed = 0.3;
   layers.fixtures = new Pixi.AnimatedSprite(buildAnimation('penguin'));
   center(layers.fixtures);
   layers.fixtures.animationSpeed = 0.3;
   layers.clothing = {
-    bandana: new Pixi.AnimatedSprite(buildAnimation('490')),
+    glasseds: new Pixi.AnimatedSprite(buildAnimation('138')),
     boots: new Pixi.AnimatedSprite(buildAnimation('374')),
     shirt: new Pixi.AnimatedSprite(buildAnimation('258')),
-    stick: new Pixi.AnimatedSprite(buildAnimation('231')),
+    belt: new Pixi.AnimatedSprite(buildAnimation('231')),
+    hat: new Pixi.AnimatedSprite(buildAnimation('497')),
     camera: new Pixi.AnimatedSprite(buildAnimation('195')),
-    hat: new Pixi.AnimatedSprite(buildAnimation('1950')),
   };
-  Object.values(layers.clothing).forEach(cloth => {
+  Object.values(layers.clothing).forEach((cloth) => {
     center(cloth);
     cloth.animationSpeed = 0.3;
-  })
+  });
   layers.container.addChild(layers.baseShadow);
   if (layers.base) layers.container.addChild(layers.base);
   layers.container.addChild(
@@ -83,14 +80,10 @@ const loadPenguin = async (self: boolean) => {
     layers.belly,
     layers.fixtures,
     ...Object.values(layers.clothing),
-  ]
-  animatedLayers.forEach(layer => layer.gotoAndPlay(0));
+  ];
+  animatedLayers.forEach((layer) => layer.gotoAndPlay(0));
   return layers;
 };
-
-const backgroundTex = Pixi.Texture.from(
-  LobbyModel.Endpoints.Targets.StaticBackground
-);
 
 const initSprite = (app: Pixi.Application, player: InitdPlayer) => {
   player.nickNameText.x = 10;
@@ -247,9 +240,15 @@ export default function Lobby() {
 
   const onAppMount = useRecoilCallback(
     (ctx) => async (app: Pixi.Application) => {
+      const backgroundTex = await Pixi.Texture.fromURL(
+        LobbyModel.Endpoints.Targets.StaticBackground
+      );
       const background = new Pixi.Sprite(backgroundTex);
-      background.width = app.view.width;
-      background.height = app.view.height;
+      background.x = 0;
+      background.y = 0;
+      background.width = app.screen.width;
+      background.height = app.screen.height;
+
       app.stage.addChild(background);
       ctx.set(lobbyAppAtom, app);
       const players = await ctx.snapshot.getPromise(lobbyPlayersAtom);
@@ -279,6 +278,17 @@ export default function Lobby() {
     },
     []
   );
+
+  const rendererOptions: Partial<Pixi.IApplicationOptions> = React.useMemo(
+    () => ({
+      antialias: true,
+      resizeTo: window,
+      width: document.body.clientWidth,
+      height: document.body.clientHeight,
+    }),
+    []
+  );
+
   usePixiRenderer(ref, onAppMount, rendererOptions);
   const onBindToggle = useRecoilCallback(
     (ctx) => async (key, pressed) => {
@@ -313,20 +323,17 @@ export default function Lobby() {
 
   return React.useMemo(
     () => (
-      <Sheet
-        className="Lobby"
-        ref={ref}
-        sx={{
-          width: '100dvw',
+      <div
+        style={{
           height: '100dvh',
-          position: 'relative',
-          zIndex: 1,
+          width: '100dvw',
+          display: 'flex',
         }}
-        onFocus={() => console.log('focus')}
+        ref={ref}
       >
         {/* <Sidebar /> */}
         <ChatBox />
-      </Sheet>
+      </div>
     ),
     []
   );
