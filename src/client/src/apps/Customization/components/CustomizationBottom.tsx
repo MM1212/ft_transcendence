@@ -63,6 +63,7 @@ function CustomizationItems({ category, selected }: { category: InventoryCategor
           clicable={true}
           selected={clothId === selected}
           imageUrl={getClothIcon(clothId)}
+          size={75}
         />
       ))}
     </Stack>

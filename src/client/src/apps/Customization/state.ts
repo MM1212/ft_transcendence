@@ -18,13 +18,13 @@ export const inventoryAtom = atom<IInventory>({
   key: "customization/inventory",
   default: {
     bought: {
-      head: [1397,],
-      face: [110,],
+      head: [1397],
+      face: [110],
       neck: [195, 168],
-      body: [258,],
-      hand: [321,],
-      feet: [374,],
-      color: [1],
+      body: [258],
+      hand: [321],
+      feet: [374],
+      color: [1, 11, 13, 16, 2, 3, 5, 7, 9, 10, 12, 15, 18, 20, 4, 6, 8],
     },
     selected: {
       head: 1397,

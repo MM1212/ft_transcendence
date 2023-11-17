@@ -5,11 +5,13 @@ import { Card } from "@mui/joy";
 export default function CustomizationBox({
   clicable,
   imageUrl,
-  selected
+  selected,
+  size = 150
 }: {
   clicable: boolean;
   imageUrl: string;
   selected?: boolean;
+  size?: number;
 }) {
   return (
     <Box
@@ -17,7 +19,7 @@ export default function CustomizationBox({
       justifyContent="center"
       sx={{ display: "flex", gap: 2, flexWrap: "wrap", p: 1.5, m: 0 }}
     >
-      <Card component="li" sx={{ width: 150, height: 150 }}>
+      <Card component="li" sx={{ width: size, height: size }}>
         <CardCover sx={{
           display: 'flex',
           justifyContent: 'center',
@@ -27,7 +29,7 @@ export default function CustomizationBox({
           <img src={imageUrl} style={{
             width: "auto",
             height: "auto",
-            maxWidth: 150,
+            maxWidth: size,
           }}  />
         </CardCover>
         {clicable && (
