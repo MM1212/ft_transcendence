@@ -20,7 +20,7 @@ export const inventoryAtom = atom<IInventory>({
     bought: {
       head: [],
       face: [],
-      neck: [],
+      neck: [195, 168],
       body: [258],
       hand: [],
       feet: [],
@@ -29,7 +29,7 @@ export const inventoryAtom = atom<IInventory>({
     selected: {
       head: 1397,
       face: 110,
-      neck: 195,
+      neck: 168,
       body: 258,
       hand: 321,
       feet: 374,
