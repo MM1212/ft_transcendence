@@ -1,4 +1,4 @@
-import { atom } from "recoil";
+import { atom, selectorFamily } from "recoil";
 
 export type InventoryCategory =
   | "head"
@@ -15,7 +15,7 @@ export interface IInventory {
 }
 
 export const inventoryAtom = atom<IInventory>({
-  key: "inventory",
+  key: "customization/inventory",
   default: {
     bought: {
       head: [],
@@ -38,6 +38,19 @@ export const inventoryAtom = atom<IInventory>({
   },
 });
 
+export const inventoryBoughtCategoryItems = selectorFamily<
+  number[],
+  InventoryCategory
+>({
+  key: "customization/bought/items",
+  get:
+    (category) =>
+    ({ get }) => {
+      const inventory = get(inventoryAtom);
+      return inventory.bought[category];
+    },
+});
+
 export const penguinClothingPriority = {
   face: 0,
   head: 1,
@@ -45,26 +58,26 @@ export const penguinClothingPriority = {
   body: 3,
   neck: 4,
   hand: 5,
-  color: -1
-}
+  color: -1,
+};
 
 export const penguinColorPalette = {
   "1": 0x003366,
   "11": 0x006600,
-  "13": 0x8AE302,
-  "16": 0xF0F0D8,
+  "13": 0x8ae302,
+  "16": 0xf0f0d8,
   "2": 0x009900,
-  "3": 0xFF3399,
-  "5": 0xCC0000,
-  "7": 0xFFCC00,
+  "3": 0xff3399,
+  "5": 0xcc0000,
+  "7": 0xffcc00,
   "9": 0x996600,
-  "10": 0xFF6666,
-  "12": 0x0099CC,
-  "15": 0x02A797,
-  "18": 0xBB85AB,
-  "20": 0x2E47AA,
+  "10": 0xff6666,
+  "12": 0x0099cc,
+  "15": 0x02a797,
+  "18": 0xbb85ab,
+  "20": 0x2e47aa,
   "4": 0x333333,
-  "6": 0xFF6600,
+  "6": 0xff6600,
   "8": 0x660099,
 };
 

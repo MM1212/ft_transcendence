@@ -4,56 +4,91 @@ import TabList from "@mui/joy/TabList";
 import Tab from "@mui/joy/Tab";
 import { Stack, TabPanel } from "@mui/joy";
 import CustomizationBox from "./CustomizationBox";
-import { getClothIcon } from "../state";
+import {
+  InventoryCategory,
+  getClothIcon,
+  inventoryAtom,
+  inventoryBoughtCategoryItems,
+} from "../state";
+import { useRecoilCallback, useRecoilValue } from "recoil";
+
+const categoryTabNames: {
+  category: InventoryCategory;
+  label: string;
+}[] = [
+  {
+    category: "head",
+    label: "Head",
+  },
+  {
+    category: "face",
+    label: "Face",
+  },
+  {
+    category: "neck",
+    label: "Neck",
+  },
+  {
+    category: "body",
+    label: "Body",
+  },
+  {
+    category: "hand",
+    label: "Hand",
+  },
+  {
+    category: "feet",
+    label: "Feet",
+  },
+  {
+    category: "color",
+    label: "Skin Color",
+  },
+];
+
+function CustomizationItems({ category }: { category: InventoryCategory }) {
+  const items = useRecoilValue(inventoryBoughtCategoryItems(category));
+  return (
+    <Stack
+      direction="row"
+      sx={{
+        display: "flex",
+        width: "100%",
+        flexWrap: "wrap",
+      }}
+    >
+      {items.map((clothId, imageIndex) => (
+        <CustomizationBox
+          key={imageIndex}
+          clicable={true}
+          imageUrl={getClothIcon(clothId)}
+        />
+      ))}
+    </Stack>
+  );
+}
 
 export default function CustomizationBottom() {
-  const myCustomizations: string[] = [
-    "Top Cloth",
-    "Bottom Cloth",
-    "Shoes",
-    "Head",
-    "Skin Color",
-  ];
-  const myImages: string[] = [
-    getClothIcon(195),
-    getClothIcon(258),
-    getClothIcon(231),
-    getClothIcon(374),
-    getClothIcon(490),
-    getClothIcon(1950),
-  ];
-
   return (
     <Tabs aria-label="Scrollable tabs" defaultValue={0} sx={{ width: "100%" }}>
       <TabList>
-        {myCustomizations.map((nameTab, index) => (
-          <Tab key={index} sx={{ flex: "none", scrollSnapAlign: "start" }}>
-            {nameTab}
+        {categoryTabNames.map((catTabName, index) => (
+          <Tab
+            value={catTabName.category}
+            key={index}
+            sx={{ flex: "none", scrollSnapAlign: "start" }}
+          >
+            {catTabName.label}
           </Tab>
         ))}
       </TabList>
-      {myCustomizations.map((_, tabIndex) => (
+      {categoryTabNames.map((cat, tabIndex) => (
         <TabPanel
           key={tabIndex}
-          value={tabIndex}
+          value={cat.category}
           sx={{ height: "16em", overflow: "auto" }}
         >
-          <Stack
-            direction="row"
-            sx={{
-              display: "flex",
-              width: "100%",
-              flexWrap: "wrap",
-            }}
-          >
-            {myImages.map((image, imageIndex) => (
-              <CustomizationBox
-                key={imageIndex}
-                clicable={true}
-                imageUrl={image}
-              />
-            ))}
-          </Stack>
+          <CustomizationItems category={cat.category} />
         </TabPanel>
       ))}
     </Tabs>
