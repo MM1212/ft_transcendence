@@ -46,7 +46,27 @@ const useFriend = (friendId: number) => {
     },
     [friendId]
   );
-  return { remove, block };
+  const unBlock = useRecoilCallback(
+    (ctx) => async () => {
+      try {
+        const self = await ctx.snapshot.getPromise(sessionAtom);
+        if (!self) throw new Error("You are not logged in");
+        const resp = await tunnel.del(
+          UsersModel.Endpoints.Targets.UnblockUser,
+          {
+            id: self.id,
+            blockedId: friendId,
+          }
+        );
+        if (resp.status !== "ok") throw new Error(resp.errorMsg);
+        notifications.success("Unblocked friend");
+      } catch (e) {
+        notifications.error("Failed to unblock friend", (e as Error).message);
+      }
+    },
+    [friendId]
+  );
+  return { remove, block, unBlock };
 };
 
 export default useFriend;

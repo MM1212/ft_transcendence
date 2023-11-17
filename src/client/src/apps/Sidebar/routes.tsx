@@ -81,6 +81,13 @@ const routes: ISidebarRoute[] = [
     Component: React.lazy(() => import("@apps/Customization/views")),
   },
   {
+    label: "tempGameLobby",
+    path: "/game",
+    icon: <ControllerIcon />,
+    exact: false,
+    Component: React.lazy(() => import("@apps/GameLobby/views")),
+  },
+  {
     label: "Games",
     icon: <ControllerIcon />,
     children: [
@@ -91,10 +98,10 @@ const routes: ISidebarRoute[] = [
         children: [
           {
             label: "Play",
-            path: "/",
+            path: "/play",
             icon: <PlayIcon />,
             exact: false,
-            // Component: React.lazy(() => import('@views/pong')),
+            Component: React.lazy(() => import("@apps/GameLobby/views")),
           },
           {
             label: "Match History",

@@ -8,6 +8,9 @@ import { useUser } from "@hooks/user";
 import FriendsOptionsMenu from "./FriendsOptionsMenu";
 
 function FriendDisplay({ id }: { id: number }): JSX.Element | null {
+  const manageMessageClick = () => {
+    console.log("manageMessageClick");
+  };
   const user = useUser(id);
   if (!user) return null;
   return (
@@ -39,6 +42,7 @@ function FriendDisplay({ id }: { id: number }): JSX.Element | null {
       </Stack>
       <Stack direction="row" spacing={1} alignItems="center" ml="auto">
         <IconButton
+          onClick={manageMessageClick}
           color="neutral"
           variant="soft"
           sx={{
