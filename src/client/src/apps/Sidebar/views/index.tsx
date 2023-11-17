@@ -38,7 +38,7 @@ export default function SideBar() {
   return (
     <Drawer
       open={open}
-      //   onClose={handleCloseDrawer}
+        onClose={handleCloseDrawer}
       size="md"
       variant="plain"
       slotProps={{

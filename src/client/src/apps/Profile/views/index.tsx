@@ -1,4 +1,4 @@
-import { useCurrentUser } from '@hooks/user';
+import { useCurrentUser } from "@hooks/user";
 import {
   Button,
   ButtonGroup,
@@ -7,19 +7,26 @@ import {
   Sheet,
   Stack,
   Typography,
-} from '@mui/joy';
-import UserAchievements from '../components/UserAchievements';
-import UserMatchHistory from '../components/UserMatchHistory';
-import AvatarWithStatus from '@components/AvatarWithStatus';
-import DotsVerticalIcon from '@components/icons/DotsVerticalIcon';
+} from "@mui/joy";
+import UserAchievements from "../components/UserAchievements";
+import UserMatchHistory from "../components/UserMatchHistory";
+import AvatarWithStatus from "@components/AvatarWithStatus";
+import DotsVerticalIcon from "@components/icons/DotsVerticalIcon";
+import ProfilePictureModal from "../components/ProfilePictureModal";
+import React from "react";
 
 export default function ProfileView() {
   const user = useCurrentUser();
+  const [open, setOpen] = React.useState<boolean>(false);
+
+  const changeProfilePicture = () => {
+	
+  };
   return (
     <Sheet
       style={{
-        height: '100%',
-        width: '45dvh',
+        height: "100%",
+        width: "45dvh",
       }}
     >
       <Stack
@@ -37,22 +44,25 @@ export default function ProfileView() {
           p={1}
           spacing={0.5}
         >
-          <AvatarWithStatus
-            sx={(theme) => ({
-              width: theme.spacing(17),
-              height: theme.spacing(17),
-            })}
-            src={user?.avatar}
-            status={user?.status}
-            badgeProps={{
-              size: 'lg',
-            }}
-          />
+          <IconButton onClick={() => setOpen(true)}>
+            <AvatarWithStatus
+              sx={(theme) => ({
+                width: theme.spacing(17),
+                height: theme.spacing(17),
+              })}
+              src={user?.avatar}
+              status={user?.status}
+              badgeProps={{
+                size: "lg",
+              }}
+            />
+          </IconButton>
+          <ProfilePictureModal open={open} setOpen={setOpen} />
           <Typography level="h2">{user?.nickname}</Typography>
           <ButtonGroup size="sm" variant="outlined">
             <Button size="sm">Message</Button>
             <Button size="sm">Friend Request</Button>
-            <IconButton>
+            <IconButton onClick={changeProfilePicture}>
               <DotsVerticalIcon />
             </IconButton>
           </ButtonGroup>
