@@ -1,6 +1,6 @@
 import { atom } from "recoil";
 
-export type InventoryCategories =
+export type InventoryCategory =
   | "head"
   | "face"
   | "neck"
@@ -10,8 +10,8 @@ export type InventoryCategories =
   | "color";
 
 export interface IInventory {
-  bought: Record<InventoryCategories, number[]>;
-  selected: Record<InventoryCategories, number>;
+  bought: Record<InventoryCategory, number[]>;
+  selected: Record<InventoryCategory, number>;
 }
 
 export const inventoryAtom = atom<IInventory>({
@@ -67,3 +67,6 @@ export const penguinColorPalette = {
   "6": 0xFF6600,
   "8": 0x660099,
 };
+
+export const getClothIcon = (clothId: number) =>
+  `/penguin/clothing/${clothId}/icon.webp`;

@@ -4,7 +4,7 @@ import TabList from "@mui/joy/TabList";
 import Tab from "@mui/joy/Tab";
 import { Stack, TabPanel } from "@mui/joy";
 import CustomizationBox from "./CustomizationBox";
-import { getClothIcon } from "./CustomizationTop";
+import { getClothIcon } from "../state";
 
 export default function CustomizationBottom() {
   const myCustomizations: string[] = [

@@ -6,80 +6,34 @@ import { Pixi, usePixiRenderer } from "@hooks/pixiRenderer";
 import React from "react";
 import { useRecoilCallback, useRecoilValue } from "recoil";
 import {
-  InventoryCategories,
+  InventoryCategory,
+  getClothIcon,
   inventoryAtom,
   penguinClothingPriority,
   penguinColorPalette,
 } from "../state";
 
-export const getClothIcon = (clothId: number) =>
-  `/penguin/clothing/${clothId}/icon.webp`;
+const inventCatLeft: InventoryCategory[] = ["head", "body", "feet"];
 
-const inventCatLeft: InventoryCategories[] = ["head", "body", "feet"];
+const inventCatRight: InventoryCategory[] = ["face", "neck", "hand"];
 
-const inventCatRight: InventoryCategories[] = ["face", "neck", "hand"];
+interface ICustTop {
+  setPenguinBelly: React.Dispatch<React.SetStateAction<Pixi.Sprite | null>>;
+  loadClothes: () => Record<InventoryCategory, Pixi.Sprite>;
+  setPenguinClothes: React.Dispatch<
+    React.SetStateAction<Record<InventoryCategory, Pixi.Sprite>>
+  >;
+}
 
-export default function CustomizationTop() {
+export default function CustomizationTop({
+  setPenguinBelly,
+  loadClothes,
+  setPenguinClothes
+}: ICustTop) {
   const inventory = useRecoilValue(inventoryAtom);
-  const [penguinBelly, setPenguinBelly] = React.useState<Pixi.Sprite | null>(
-    null
-  );
-  const [penguinClothes, setPenguinClothes] = React.useState<
-    Record<InventoryCategories, Pixi.Sprite>
-  >({} as Record<InventoryCategories, Pixi.Sprite>);
 
   const paperRef = React.useRef<HTMLDivElement>(null);
   const theme = useTheme();
-
-  const loadClothes = React.useCallback(() => {
-    const clothingAssets = (
-      Object.keys(inventory.selected)
-        .map((clothPiece) => {
-          if (clothPiece === "color") return null;
-          const clothId = inventory.selected[clothPiece as InventoryCategories];
-          const sprite = Pixi.Sprite.from(
-            `/penguin/clothing/${clothId}/paper.webp`
-          );
-          sprite.name = clothPiece;
-          sprite.anchor.set(0.5);
-          sprite.position.set(0, 0);
-          sprite.scale.set(0.72);
-          return sprite;
-        })
-        .filter(Boolean) as Pixi.Sprite[]
-    ).reduce(
-      (acc, sprite) => ({ ...acc, [String(sprite.name)]: sprite }),
-      {}
-    ) as Record<InventoryCategories, Pixi.Sprite>;
-    setPenguinClothes(clothingAssets);
-    return clothingAssets;
-  }, []);
-
-  const updateCloth = useRecoilCallback(
-    (ctx) => (piece: InventoryCategories, id: number) => {
-      penguinClothes[piece].texture = Pixi.Texture.from(
-        `/penguin/clothing/${id}/paper.webp`
-      );
-      ctx.set(inventoryAtom, (prev) => ({
-        ...prev,
-        selected: { ...prev.selected, [piece]: [id] },
-      }));
-    },
-    [setPenguinClothes]
-  );
-
-  const updatePenguinColor = useRecoilCallback(
-    (ctx) => (piece: InventoryCategories, id: number) => {
-      if (!penguinBelly) return;
-      penguinBelly.tint =
-        penguinColorPalette[id.toString() as keyof typeof penguinColorPalette];
-      ctx.set(inventoryAtom, (prev) => ({
-        ...prev,
-        selected: { ...prev.selected, [piece]: [id] },
-      }));
-    },
-    []
-  );
 
   const onAppMount = React.useCallback(async (app: Pixi.Application) => {
     await Pixi.Assets.load("/penguin/paper/asset.json");
@@ -93,7 +47,7 @@ export default function CustomizationTop() {
       penguinColorPalette[
         inventory.selected.color.toString() as keyof typeof penguinColorPalette
       ];
-    //setPenguinBelly(paperBelly);
+    setPenguinBelly(paperBelly);
     const paperFixtures = new Pixi.Sprite(
       Pixi.Texture.from("penguin/paperdoll/fixtures")
     );
@@ -106,8 +60,8 @@ export default function CustomizationTop() {
       paperFixtures,
       ...Object.values<Pixi.Sprite>(clothes).sort((a, b) => {
         return (
-          penguinClothingPriority[String(a.name) as InventoryCategories] -
-          penguinClothingPriority[String(b.name) as InventoryCategories]
+          penguinClothingPriority[String(a.name) as InventoryCategory] -
+          penguinClothingPriority[String(b.name) as InventoryCategory]
         );
       })
     );
@@ -118,7 +72,7 @@ export default function CustomizationTop() {
       paperBelly.destroy();
       paperFixtures.destroy();
       Object.values(clothes).forEach((cloth) => cloth.destroy());
-      setPenguinClothes({} as Record<InventoryCategories, Pixi.Sprite>);
+      setPenguinClothes({} as Record<InventoryCategory, Pixi.Sprite>);
       //setPenguinBelly(null);
       app.stage.removeChildren();
       (app.view as HTMLCanvasElement).remove();
@@ -135,6 +89,7 @@ export default function CustomizationTop() {
       []
     )
   );
+
   return (
     <Sheet sx={{ width: "100%", display: "flex", height: "70%" }}>
       <Stack
