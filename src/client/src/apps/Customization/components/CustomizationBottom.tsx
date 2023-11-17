@@ -46,7 +46,7 @@ const categoryTabNames: {
   },
 ];
 
-function CustomizationItems({ category }: { category: InventoryCategory }) {
+function CustomizationItems({ category, selected }: { category: InventoryCategory, selected: number }) {
   const items = useRecoilValue(inventoryBoughtCategoryItems(category));
   return (
     <Stack
@@ -61,6 +61,7 @@ function CustomizationItems({ category }: { category: InventoryCategory }) {
         <CustomizationBox
           key={imageIndex}
           clicable={true}
+          selected={clothId === selected}
           imageUrl={getClothIcon(clothId)}
         />
       ))}
@@ -69,8 +70,9 @@ function CustomizationItems({ category }: { category: InventoryCategory }) {
 }
 
 export default function CustomizationBottom() {
+  const inventory = useRecoilValue(inventoryAtom);
   return (
-    <Tabs aria-label="Scrollable tabs" defaultValue={0} sx={{ width: "100%" }}>
+    <Tabs aria-label="Scrollable tabs" defaultValue={categoryTabNames[0].category} sx={{ width: "100%" }}>
       <TabList>
         {categoryTabNames.map((catTabName, index) => (
           <Tab
@@ -88,7 +90,7 @@ export default function CustomizationBottom() {
           value={cat.category}
           sx={{ height: "16em", overflow: "auto" }}
         >
-          <CustomizationItems category={cat.category} />
+          <CustomizationItems category={cat.category} selected={inventory.selected[cat.category]} />
         </TabPanel>
       ))}
     </Tabs>

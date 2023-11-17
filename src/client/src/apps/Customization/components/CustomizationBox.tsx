@@ -5,9 +5,11 @@ import { Card } from "@mui/joy";
 export default function CustomizationBox({
   clicable,
   imageUrl,
+  selected
 }: {
   clicable: boolean;
   imageUrl: string;
+  selected?: boolean;
 }) {
   return (
     <Box
@@ -20,6 +22,7 @@ export default function CustomizationBox({
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
+          bgcolor: selected ? 'background.level1' : 'unset'
         }}>
           <img src={imageUrl} style={{
             width: "auto",
