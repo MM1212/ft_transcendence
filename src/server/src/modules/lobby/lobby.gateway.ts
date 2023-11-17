@@ -11,7 +11,6 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { Lobbies } from '@typings/lobby';
-import { randomInt } from 'crypto';
 
 @WebSocketGateway({
   namespace: 'api/lobby',
@@ -60,7 +59,7 @@ export class LobbyGateway
       this.players.push({
         user,
         transform: {
-          position: { x: randomInt(0, 100), y: randomInt(0, 100) },
+          position: { x: 1920 / 2, y: 1080 / 2 },
           velocity: { x: 0, y: 0 },
         },
         connections: [client],
