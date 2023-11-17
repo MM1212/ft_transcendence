@@ -6,6 +6,7 @@ import UserExtSession from './ext/Session';
 import { Session } from '@fastify/secure-session';
 import { IAuthSession } from '@typings/auth/session';
 import UserExtFriends from './ext/Friends';
+import { HttpError } from '@/helpers/decorators/httpError';
 
 class User extends CacheObserver<UsersModel.Models.IUser> {
   public readonly friends: UserExtFriends = new UserExtFriends(this);
@@ -18,8 +19,8 @@ class User extends CacheObserver<UsersModel.Models.IUser> {
 
   public get public(): UsersModel.Models.IUserInfo {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { friends, blocked, chats, ...user } = this.get();
-    return user;
+    const { friends, blocked, chats, storedStatus, ...user } = this.get();
+    return user satisfies UsersModel.Models.IUserInfo;
   }
 
   // getters
@@ -66,7 +67,7 @@ class User extends CacheObserver<UsersModel.Models.IUser> {
   public async refresh(): Promise<void> {
     const data = await this.helpers.db.users.get(this.id);
     if (!data)
-      throw new Error(
+      throw new HttpError(
         `User with id ${this.id} was not found in database while refreshing`,
       );
     this.setTo(data);
@@ -82,22 +83,25 @@ class User extends CacheObserver<UsersModel.Models.IUser> {
     const result = await this.helpers.db.users.update(this.id, {
       avatar,
       nickname,
+      storedStatus: status,
     });
     if (!result) return false;
     if (status !== undefined) this.set('status', status);
     for (const [key, value] of Object.entries(result))
       this.set(key as keyof UsersModel.Models.IUser, value as any);
-    if (propagate) this.propagate();
+    if (propagate) this.propagate('avatar', 'nickname', 'status');
     return true;
   }
 
   /**
    * Syncs the user with all connected clients
    */
-  public propagate(): void {
+  public propagate(...keys: (keyof UsersModel.Models.IUserInfo)[]): void {
+    const data = { ...this.public };
+    for (const key of keys) delete data[key];
     this.helpers.sseService.emitToAll<UsersModel.Sse.UserUpdatedEvent>(
       UsersModel.Sse.Events.UserUpdated,
-      this.public,
+      data,
     );
   }
 

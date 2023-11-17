@@ -19,7 +19,6 @@ export default function MessageInput({ id }: { id: number }) {
       try {
         const chat = await ctx.snapshot.getPromise(chatsState.chat(id));
         if (!chat) throw new Error('Could not find chat');
-        const now = performance.now();
         const selfParticipant = await ctx.snapshot.getPromise(
           chatsState.selfParticipantByChat(chat.id)
         );
@@ -38,7 +37,7 @@ export default function MessageInput({ id }: { id: number }) {
           ...prev,
         ]);
         setInput('');
-        const resp = await tunnel.put(
+        const resp = await tunnel.rawPut(
           ChatsModel.Endpoints.Targets.CreateMessage,
           {
             message: input.trim(),
@@ -67,6 +66,12 @@ export default function MessageInput({ id }: { id: number }) {
     },
     [id, input, setInput]
   );
+  const inputRef = React.useRef<HTMLTextAreaElement>(null);
+  React.useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [inputRef, id]);
   return (
     <Stack
       sx={{ px: 2, pb: 3 }}
@@ -89,6 +94,11 @@ export default function MessageInput({ id }: { id: number }) {
           value={input}
           minRows={1}
           maxRows={10}
+          slotProps={{
+            textarea: {
+              ref: inputRef,
+            },
+          }}
           onKeyDown={(event) => {
             if (
               event.code === 'Enter' &&

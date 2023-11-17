@@ -3,7 +3,8 @@ import { UserDependencies } from './user/dependencies';
 import User from './user';
 import { DbService } from '../db';
 import UsersModel from '@typings/models/users';
-import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
+import { OnEvent } from '@nestjs/event-emitter';
+import { HttpError } from '@/helpers/decorators/httpError';
 
 @Injectable()
 export class UsersService {
@@ -20,7 +21,7 @@ export class UsersService {
 
     const user = await this.get(userId);
     if (!user || !user.isOffline) return;
-    user.set('status', UsersModel.Models.Status.Online);
+    user.set('status', user.get('storedStatus'));
     console.log(user.public);
 
     user.propagate();
@@ -105,7 +106,7 @@ export class UsersService {
 
   public async create(data: UsersModel.DTO.DB.IUserCreate): Promise<User> {
     const userData = await this.db.users.create(data);
-    if (!userData) throw new Error('Failed to create user');
+    if (!userData) throw new HttpError('Failed to create user');
     return this.build(userData);
   }
   public async delete(id: number): Promise<boolean> {

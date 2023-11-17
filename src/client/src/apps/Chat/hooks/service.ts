@@ -4,6 +4,7 @@ import { useRecoilCallback, useRecoilValue } from 'recoil';
 import chatsState from '../state';
 import React from 'react';
 import tunnel from '@lib/tunnel';
+import notifications from '@lib/notifications/hooks';
 
 const useMessagesService = () => {
   const onNewMessage = useRecoilCallback(
@@ -36,6 +37,19 @@ const useMessagesService = () => {
     []
   );
 
+  const onNewChat = useRecoilCallback(
+    (ctx) => async (ev: ChatsModel.Sse.NewChatEvent) => {
+      const { data } = ev;
+      const chats = [...(await ctx.snapshot.getPromise(chatsState.chats))];
+      chats.push({
+        ...data,
+        authorizationData: null,
+      } satisfies ChatsModel.Models.IChat);
+      ctx.set(chatsState.chats, chats);
+    },
+    []
+  );
+
   const selectedChatId = useRecoilValue(chatsState.selectedChatId);
 
   const onSelectedChatIdChange = useRecoilCallback(
@@ -45,17 +59,25 @@ const useMessagesService = () => {
         chatsState.selfParticipantByChat(chatId)
       );
       if (!self || !self.toReadPings) return;
-      await tunnel.patch(
-        ChatsModel.Endpoints.Targets.UpdateParticipant,
-        {
+      try {
+        await tunnel.patch(
+          ChatsModel.Endpoints.Targets.UpdateParticipant,
+          {
+            toReadPings: 0,
+          },
+          { chatId, participantId: self.id }
+        );
+        ctx.set(chatsState.selfParticipantByChat(chatId), (prev) => ({
+          ...prev,
           toReadPings: 0,
-        },
-        { chatId, participantId: self.id }
-      );
-      ctx.set(chatsState.selfParticipantByChat(chatId), (prev) => ({
-        ...prev,
-        toReadPings: 0,
-      }));
+        }));
+      } catch (e) {
+        console.error(e);
+        notifications.error(
+          'Failed to update read pings',
+          (e as Error).message
+        );
+      }
     },
     []
   );
@@ -67,6 +89,10 @@ const useMessagesService = () => {
   useSseEvent<ChatsModel.Sse.NewMessageEvent>(
     ChatsModel.Sse.Events.NewMessage,
     onNewMessage
+  );
+  useSseEvent<ChatsModel.Sse.NewChatEvent>(
+    ChatsModel.Sse.Events.NewChat,
+    onNewChat
   );
 };
 

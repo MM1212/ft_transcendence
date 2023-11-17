@@ -40,8 +40,7 @@ export const useSessionActions = (): SessionActions => {
     );
   };
   const logout = async (): Promise<void> => {
-    const res = await tunnel.get(AuthModel.Endpoints.Targets.Logout);
-    if (!res) throw new Error('Failed to logout');
+    await tunnel.rawGet(AuthModel.Endpoints.Targets.Logout);
     await clearAllSwrCache();
   };
 

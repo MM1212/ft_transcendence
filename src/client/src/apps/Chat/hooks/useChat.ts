@@ -1,5 +1,6 @@
-import { useRecoilValue } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import chatsState from '../state';
+import { useLocation } from 'wouter';
 
 const useChat = (chatId: number) => {
   const useMessages = () => useRecoilValue(chatsState.messages(chatId));
@@ -13,6 +14,16 @@ const useChat = (chatId: number) => {
   const useMessage = (messageId: number) =>
     useRecoilValue(chatsState.message({ chatId, messageId }));
   const useSelf = () => useRecoilValue(chatsState.chat(chatId));
+
+  const [isSelected, setSelected] = useRecoilState(
+    chatsState.isChatSelected(chatId)
+  );
+
+  const [, navigate] = useLocation();
+  const goTo = () => {
+    setSelected(true);
+    navigate(`/messages/${chatId}`);
+  };
   return {
     useMessages,
     useMessageIds,
@@ -22,6 +33,8 @@ const useChat = (chatId: number) => {
     useParticipant,
     useMessage,
     useSelf,
+    isSelected,
+    goTo,
   };
 };
 

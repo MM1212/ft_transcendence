@@ -19,6 +19,7 @@ model User {
   avatar             String
   createdAt          DateTime          @default(now()) @map("created_at")
   currentCharacterId Int?              @map("current_character_id")
+  storedStatus       Int               @default(1) @map("stored_status")
   characters         Character[]
   friends            User[]            @relation("friends")
   friendOf           User[]            @relation("friends")

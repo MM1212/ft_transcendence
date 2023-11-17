@@ -37,6 +37,12 @@ class UserExtSession extends UserExtBase {
   set loggedIn(value: boolean) {
     this.observer.set('loggedIn', value);
   }
+  get dummy(): boolean {
+    return this.observer.get('dummy');
+  }
+  set dummy(value: boolean) {
+    this.observer.set('dummy', value);
+  }
   private get sData(): IAuthSessionUser | undefined {
     return this.session.data()?.user;
   }

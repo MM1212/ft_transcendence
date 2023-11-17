@@ -2,19 +2,17 @@ import * as React from 'react';
 import Stack from '@mui/joy/Stack';
 import Sheet from '@mui/joy/Sheet';
 import Typography from '@mui/joy/Typography';
-import { Box, Chip, CircularProgress, IconButton, Input } from '@mui/joy';
+import { Box, Chip, CircularProgress, IconButton, Tooltip } from '@mui/joy';
 import List from '@mui/joy/List';
 import ChatListItem from './ChatListItem';
 import { useRecoilValue } from 'recoil';
 import chatsState from '@/apps/Chat/state';
 import { useModalActions } from '@hooks/useModal';
-import PencilBoxIcon from '@components/icons/PencilBoxIcon';
-import CancelIcon from '@components/icons/CancelIcon';
-import MagnifyIcon from '@components/icons/MagnifyIcon';
 import PlaylistEditIcon from '@components/icons/PlaylistEditIcon';
+import ChatsInput from './ChatsInput';
 
 function ChatEntries() {
-  const chatIds = useRecoilValue(chatsState.chatIds);
+  const chatIds = useRecoilValue(chatsState.filteredChatIds);
   return (
     <>
       {chatIds.map((id) => (
@@ -66,24 +64,21 @@ export default function ChatsPane() {
           Messages
         </Typography>
 
-        <IconButton
-          variant="plain"
-          aria-label="edit"
-          color="neutral"
-          size="sm"
-          sx={{ display: { xs: 'none', sm: 'unset' } }}
-          onClick={open}
-        >
-          <PlaylistEditIcon />
-        </IconButton>
+        <Tooltip title="New Group Chat" placement="left">
+          <IconButton
+            variant="plain"
+            aria-label="edit"
+            color="neutral"
+            size="sm"
+            sx={{ display: { xs: 'none', sm: 'unset' } }}
+            onClick={open}
+          >
+            <PlaylistEditIcon />
+          </IconButton>
+        </Tooltip>
       </Stack>
       <Box sx={{ px: 2, pb: 1.5 }}>
-        <Input
-          size="sm"
-          startDecorator={<MagnifyIcon />}
-          placeholder="Search"
-          aria-label="Search"
-        />
+        <ChatsInput />
       </Box>
       <List
         sx={{

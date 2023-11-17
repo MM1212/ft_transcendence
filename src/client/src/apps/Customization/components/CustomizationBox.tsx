@@ -16,8 +16,16 @@ export default function CustomizationBox({
       sx={{ display: "flex", gap: 2, flexWrap: "wrap", p: 1.5, m: 0 }}
     >
       <Card component="li" sx={{ width: 150, height: 150 }}>
-        <CardCover>
-          <img src={imageUrl} />
+        <CardCover sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}>
+          <img src={imageUrl} style={{
+            width: "auto",
+            height: "auto",
+            maxWidth: 150,
+          }}  />
         </CardCover>
         {clicable && (
           <Button

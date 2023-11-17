@@ -12,11 +12,9 @@ export const usersAtom = atomFamily<UsersModel.Models.IUserInfo, number>({
   default: selectorFamily<UsersModel.Models.IUserInfo, number>({
     key: 'user/selector',
     get: (id) => async () => {
-      const resp = await tunnel.get(UsersModel.Endpoints.Targets.GetUser, {
+      return await tunnel.get(UsersModel.Endpoints.Targets.GetUser, {
         id,
       });
-      if (resp.status === 'error') throw new Error(resp.errorMsg);
-      return resp.data;
     },
   }),
 });

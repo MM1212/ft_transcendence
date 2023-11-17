@@ -69,8 +69,8 @@ dependencies:
     specifier: ^2.2.2
     version: 2.2.2(react@18.2.0)
   wouter:
-    specifier: ^2.11.0
-    version: 2.11.0(react@18.2.0)
+    specifier: ^2.12.1
+    version: 2.12.1(react@18.2.0)
 
 devDependencies:
   '@types/lodash.debounce':
@@ -3743,8 +3743,8 @@ packages:
       isexe: 2.0.0
     dev: true
 
-  /wouter@2.11.0(react@18.2.0):
-    resolution: {integrity: sha512-Y2CzNCwIN8kHjR2Q10D+UAgQND6TvBNmwXxgYw5ltXjjTlL7cLDUDpCip3a927Svxrmxr6vJMcPUysFxSvriCw==}
+  /wouter@2.12.1(react@18.2.0):
+    resolution: {integrity: sha512-G7a6JMSLSNcu6o8gdOfIzqxuo8Qx1qs+9rpVnlurH69angsSFPZP5gESNuVNeJct/MGpQg191pDo4HUjTx7IIQ==}
     peerDependencies:
       react: '>=16.8.0'
     dependencies:

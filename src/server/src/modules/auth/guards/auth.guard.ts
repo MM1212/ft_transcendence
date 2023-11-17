@@ -9,6 +9,7 @@ import { Request } from '@typings/http';
 import { AuthService } from '../42/auth.service';
 import { UsersService } from '@/modules/users/users.service';
 import UserExtSession from '@/modules/users/user/ext/Session';
+import { HttpError } from '@/helpers/decorators/httpError';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -24,6 +25,7 @@ export class AuthGuard implements CanActivate {
     try {
       const user = await this.usersService.get(userData.id);
       if (!user) throw new UnauthorizedException();
+      if (userData.dummy) return true;
       const uSession = user.useSession(request.session);
       if (!uSession.auth.isTokenValid()) await this.refreshToken(uSession);
     } catch (e) {
@@ -38,7 +40,7 @@ export class AuthGuard implements CanActivate {
     );
     if (resp.status !== 'ok') {
       user.logout();
-      throw new Error('Failed to refresh token');
+      throw new HttpError('Failed to refresh token');
     }
     user.auth.updateNewToken(resp.data);
   }

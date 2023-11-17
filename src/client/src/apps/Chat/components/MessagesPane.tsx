@@ -13,7 +13,7 @@ import notifications from '@lib/notifications/hooks';
 import InfiniteScroll from '@components/InfiniteScroll';
 import { CircularProgress, Typography } from '@mui/joy';
 
-function ChatMessages({ id }: { id: number }) {
+function ChatMessagesImpl({ id }: { id: number }) {
   const messages = useRecoilValue(chatsState.messages(id));
 
   const [hasMore, setHasMore] = React.useState(true);
@@ -43,7 +43,7 @@ function ChatMessages({ id }: { id: number }) {
 
   React.useEffect(() => {
     setHasMore(true);
-  }, [id, messages]);
+  }, [id]);
 
   const next = useRecoilCallback(
     (ctx) => async () => {
@@ -51,21 +51,21 @@ function ChatMessages({ id }: { id: number }) {
       const chatIdx = chats.findIndex((chat) => chat.id === id);
       if (chatIdx === -1) return;
       const chat = { ...chats[chatIdx] };
-      const lastMessageId = chat.messages.length
+      let lastMessageId = chat.messages.length
         ? chat.messages[chat.messages.length - 1]?.id ?? -1
         : -1;
+      if (isNaN(parseInt(lastMessageId as unknown as string)))
+        lastMessageId = -1;
       console.log(`Fetching messages from ${lastMessageId}`);
 
       try {
-        const resp = await tunnel.get(
+        const messages = await tunnel.get(
           ChatsModel.Endpoints.Targets.GetChatMessages,
           {
             chatId: id,
             cursor: lastMessageId,
           }
         );
-        if (resp.status !== 'ok') throw new Error(resp.errorMsg);
-        const messages = resp.data;
         console.log(
           `Loaded ${messages.length} from ${lastMessageId} as cursor to ${
             messages.length ? messages[messages.length - 1]?.id ?? -1 : -1
@@ -170,6 +170,7 @@ function ChatMessages({ id }: { id: number }) {
     [computeMessageFeatures, hasMore, id, messages, next]
   );
 }
+const ChatMessages = React.memo(ChatMessagesImpl);
 
 export default function MessagesPane() {
   const selectedChatId = useRecoilValue(chatsState.selectedChatId);
