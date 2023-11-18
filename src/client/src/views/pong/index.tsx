@@ -249,6 +249,20 @@ export default function Pong() {
     );
   }, [socket, game, input]);
 
+  const switchPosition = React.useCallback(() => {
+    socket.emit("switch-position", input);
+    socket.once(
+      "switch-position",
+      (error: string, data: IGameConfig | undefined) => {
+        if (data == undefined) {
+          alert(error);
+        } else {
+          setGameConfig(data);
+        }
+      }
+    );
+  }, [socket, input]);
+
   const startGame = React.useCallback(() => {
     socket.emit("start-game");
     socket.once(
@@ -320,10 +334,11 @@ export default function Pong() {
         <button onClick={getRooms}>Get Rooms</button>
         <button onClick={startGame}>START</button>
         <button onClick={refreshRoom}>REFRESH</button>
+        <button onClick={switchPosition}>Switch Position</button>
 
+        <button>Switch Party Owner</button>
         <button>Switch Team</button>
         <button>Change Paddle Color</button>
-        <button>Switch Position</button>
         <button>STOP</button>
       </div>
     </div>

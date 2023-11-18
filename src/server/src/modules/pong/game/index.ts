@@ -118,13 +118,13 @@ export class ServerGame extends Game {
     return 0;
   }
 
-  private get biggestTeam(): ETeamSide {
+  public  get biggestTeam(): ETeamSide {
     return this.nPlayersTeamLeft > this.nPlayersTeamRight
       ? ETeamSide.Left
       : ETeamSide.Right;
   }
 
-  private get smallestTeam(): ETeamSide {
+  public  get smallestTeam(): ETeamSide {
     return this.nPlayersTeamLeft < this.nPlayersTeamRight
       ? ETeamSide.Left
       : ETeamSide.Right;

@@ -205,6 +205,28 @@ export class PongService {
         return game.config;
     }
 
+    public swapElementsInArray(array: Array<any>, indexA: number, indexB: number): void {
+        const temp = array[indexA];
+        array[indexA] = array[indexB];
+        array[indexB] = temp;
+    }
+
+    public switchPosition(client: Socket): IGameConfig {
+        if (!client) throw new Error('No client provided');
+        if (this.isUserInGames(client) === false) throw new Error('Client is not in this game');
+        const game = this.getGameByPlayerId(client.id);
+        if (!game) throw new Error('Game does not exist');
+        if (game.config.nPlayers < 2) throw new Error('Not enough players to switch positions');
+        const playerTeam = game.getPlayer(client.id)?.teamId;
+        if (playerTeam === undefined) throw new Error('Player does not have a team');
+        if (game.config.teams[playerTeam].players.length === 2) {
+            this.swapElementsInArray(game.config.teams[playerTeam].players, 0, 1);
+            game.setBackOrFront(playerTeam);
+        }
+        else throw new Error('Player does not have a teammate');
+        return game.config;
+    }
+
     public getGameByPlayerId(playerId: string): ServerGame | undefined {
         if (!playerId) return undefined;
         const game = Array.from(this.games.values()).find((game) => game.getPlayer(playerId));

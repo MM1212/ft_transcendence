@@ -164,6 +164,16 @@ export class PongGateway
     }
   }
 
+  @SubscribeMessage('switch-position')
+  switchPosition(client: Socket, data: string): void {
+    try {
+      const gameConf = this.service.switchPosition(client);
+      client.emit('switch-position', "", gameConf);
+    } catch (error) {
+      this.errorHandler('switch-position', client, error.message);
+    }
+  }
+
   private errorHandler(eventMsg: string, client: Socket, message: string): void {
     client.emit(eventMsg, message, undefined);
     console.log(message);
