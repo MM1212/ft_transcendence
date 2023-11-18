@@ -62,7 +62,8 @@ export class LobbyGateway
         userId: user.id,
         transform: {
           position: { x: LobbyModel.Models.STAGE_WIDTH / 2, y: LobbyModel.Models.STAGE_HEIGHT / 2 },
-          velocity: { x: 0, y: 0 },
+          direction: { x: 0, y: 0 },
+          speed: 4
         },
         currentAnimation: 'idle/down',
         connections: [client],
@@ -139,16 +140,16 @@ export class LobbyGateway
     if (!playerRef) return client.disconnect(true), void 0;
     switch (key) {
       case 'KeyA':
-        playerRef.transform.velocity.x = pressed ? -1 : 0;
+        playerRef.transform.direction.x = pressed ? -1 : 0;
         break;
       case 'KeyD':
-        playerRef.transform.velocity.x = pressed ? 1 : 0;
+        playerRef.transform.direction.x = pressed ? 1 : 0;
         break;
       case 'KeyW':
-        playerRef.transform.velocity.y = pressed ? -1 : 0;
+        playerRef.transform.direction.y = pressed ? -1 : 0;
         break;
       case 'KeyS':
-        playerRef.transform.velocity.y = pressed ? 1 : 0;
+        playerRef.transform.direction.y = pressed ? 1 : 0;
         break;
     }
     playerRef.currentAnimation = anim;
@@ -158,7 +159,7 @@ export class LobbyGateway
           players: [
             {
               id: playerRef.userId,
-              velocity: playerRef.transform.velocity,
+              direction: playerRef.transform.direction,
               newAnim: playerRef.currentAnimation,
             },
           ],
@@ -169,8 +170,8 @@ export class LobbyGateway
   private lastTick = Date.now();
   onTick() {
     this.players.forEach((player) => {
-      player.transform.position.x += player.transform.velocity.x;
-      player.transform.position.y += player.transform.velocity.y;
+      player.transform.position.x += player.transform.direction.x * player.transform.speed;
+      player.transform.position.y += player.transform.direction.y * player.transform.speed;
     });
     if (Date.now() - this.lastTick > 1000 / 30) {
       const payload: Lobbies.Packets.UpdatePlayersTransform = {

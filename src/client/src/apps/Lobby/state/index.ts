@@ -1,4 +1,8 @@
-import { IInventory, inventoryAtom } from '@apps/Customization/state';
+import {
+  IInventory,
+  inventoryAtom,
+  penguinClothingPriority,
+} from '@apps/Customization/state';
 import penguinState, {
   AnimationConfigSet,
   IPenguinBaseAnimations,
@@ -78,12 +82,40 @@ export const switchToAnimation = async (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { color, ...selected } = inventory.selected;
   await Promise.all(
-    Object.keys(player.layers.clothing).map(async (clothPiece) => {
-      if (!player.layers) return;
-      player.layers.clothing[clothPiece].textures = await getSequence(
-        selected[clothPiece as keyof typeof selected].toString()
-      );
-    })
+    (Object.keys(selected) as (keyof typeof selected)[]).map(
+      async (clothPiece) => {
+        if (!player.layers) return;
+        console.log(
+          clothPiece,
+          selected[clothPiece],
+          !!player.layers.clothing[clothPiece]
+        );
+
+        if (selected[clothPiece] === -1) {
+          if (player.layers.clothing[clothPiece]) {
+            player.layers.container.removeChild(
+              player.layers.clothing[clothPiece]
+            );
+            delete player.layers.clothing[clothPiece];
+          }
+        } else if (!player.layers.clothing[clothPiece]) {
+          const textures = await getSequence(selected[clothPiece].toString());
+          const sprite = new Pixi.AnimatedSprite(textures);
+          sprite.name = clothPiece;
+          sprite.zIndex = penguinClothingPriority[clothPiece];
+          sprite.anchor.set(0.5);
+          sprite.x = 0;
+          sprite.y = 0;
+          player.layers.clothing[clothPiece] = sprite;
+          player.layers.container.addChild(sprite);
+        } else {
+          const newTextures = await getSequence(
+            selected[clothPiece].toString()
+          );
+          player.layers.clothing[clothPiece].textures = newTextures;
+        }
+      }
+    )
   );
   setupAnimation(player.layers.belly, animation);
   setupAnimation(player.layers.fixtures, animation);
@@ -105,8 +137,8 @@ export const lobbyAppAtom = atom<Pixi.Application | null>({
 
           for (const player of players) {
             if (!player.layers?.container) continue;
-            player.transform.position.x += player.transform.velocity.x * delta;
-            player.transform.position.y += player.transform.velocity.y * delta;
+            player.transform.position.x += player.transform.direction.x * player.transform.speed * delta;
+            player.transform.position.y += player.transform.direction.y * player.transform.speed * delta;
 
             player.layers.container.x = player.transform.position.x;
             player.layers.container.y = player.transform.position.y;
@@ -130,7 +162,7 @@ export const lobbyAppAtom = atom<Pixi.Application | null>({
           const {
             transform: { position },
           } = selfPlayer;
-          const {x, y} = app.stage.toLocal(event.client);
+          const { x, y } = app.stage.toLocal(event.client);
           const angle = Math.atan2(y - position.y, x - position.x) + Math.PI;
 
           const slice = (Math.PI * 2) / 8;

@@ -55,7 +55,9 @@ const buildAnimationSet = (
 const penguinState = new (class PenguinState {
   baseAnimations = atomFamily<IPenguinBaseAnimations, string>({
     key: 'penguin/base-animations',
-    default: (id) => {
+    default: async (id) => {
+      if (!isNaN(parseInt(id)))
+        await Pixi.Assets.load(`/penguin/clothing/${id}/asset.json`);
       return Object.keys(animationConfig).reduce((acc, key) => {
         const [animationSet, direction] = key.split('/');
         const setKey = !direction

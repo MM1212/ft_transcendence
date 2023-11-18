@@ -7,7 +7,8 @@ import { vector2 } from '@typings/vector';
 export namespace Lobbies {
   export interface IPlayerTransform {
     position: vector2;
-    velocity: vector2;
+    direction: vector2;
+    speed: number;
   }
   export interface IPlayer {
     userId: number;

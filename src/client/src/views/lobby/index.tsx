@@ -45,6 +45,7 @@ export default function Lobby() {
       player.nickNameText.x = 0;
       player.nickNameText.y = 10;
       player.nickNameText.anchor.set(0.5, -0.5);
+      player.nickNameText.zIndex = 999;
       player.layers.container.addChild(player.nickNameText);
       // player.layers.container.scale.set(2);
       app.stage.addChild(player.layers.container);
@@ -72,14 +73,12 @@ export default function Lobby() {
       await Pixi.Assets.load([
         '/penguin/base/asset.json',
         '/penguin/body/asset.json',
-        ...Object.values(selected).map(
-          (item) => `/penguin/clothing/${item}/asset.json`
-        ),
       ]);
 
       const layers: PlayerLayers = {} as PlayerLayers;
       layers.container = new Pixi.Container();
       layers.container.name = 'penguin';
+      layers.container.sortableChildren = true;
       layers.container.scale.set(1.5);
       layers.baseShadow = new Pixi.Sprite(Pixi.Texture.from('base/shadow'));
       center(layers.baseShadow);
@@ -108,17 +107,7 @@ export default function Lobby() {
 
       const clothingTextures = await Promise.all(
         (Object.keys(selected) as (keyof typeof selected)[])
-          .sort((a, b) => {
-            const aWeight =
-              penguinClothingPriority[
-                a as keyof typeof penguinClothingPriority
-              ];
-            const bWeight =
-              penguinClothingPriority[
-                b as keyof typeof penguinClothingPriority
-              ];
-            return aWeight - bWeight;
-          })
+          .filter((piece) => inventory.selected[piece] !== -1)
           .map(async (piece) => {
             const sprite = new Pixi.AnimatedSprite(
               (
@@ -128,6 +117,7 @@ export default function Lobby() {
               )['idle/down']
             );
             sprite.name = piece;
+            sprite.zIndex = penguinClothingPriority[piece];
             return sprite;
           })
       );
@@ -282,7 +272,7 @@ export default function Lobby() {
             const data = players.find((p) => player.userId === p.id);
             if (!data) return player;
             if (data.position) player.transform.position = data.position;
-            if (data.velocity) player.transform.velocity = data.velocity;
+            if (data.direction) player.transform.direction = data.direction;
             if (!app || !player.layers) return player;
             if (data.newAnim)
               switchToAnimation(player, data.newAnim, inventory, ctx.snapshot);
@@ -444,16 +434,16 @@ export default function Lobby() {
       };
       switch (key) {
         case 'KeyA':
-          player.transform.velocity.x = pressed ? -1 : 0;
+          player.transform.direction.x = pressed ? -1 : 0;
           break;
         case 'KeyD':
-          player.transform.velocity.x = pressed ? 1 : 0;
+          player.transform.direction.x = pressed ? 1 : 0;
           break;
         case 'KeyW':
-          player.transform.velocity.y = pressed ? -1 : 0;
+          player.transform.direction.y = pressed ? -1 : 0;
           break;
         case 'KeyS':
-          player.transform.velocity.y = pressed ? 1 : 0;
+          player.transform.direction.y = pressed ? 1 : 0;
           break;
         case 'KeyJ':
           if (!pressed) await toggleDance();
@@ -465,27 +455,27 @@ export default function Lobby() {
       let type: 'walk' | 'idle' = 'idle',
         dir: TPenguinAnimationDirection = 'down';
       if (
-        player.transform.velocity.x === 0 &&
-        player.transform.velocity.y === 0
+        player.transform.direction.x === 0 &&
+        player.transform.direction.y === 0
       ) {
         type = 'idle';
         dir = player.currentAnimation.split(
           '/'
         )[1] as TPenguinAnimationDirection;
       } else if (
-        player.transform.velocity.x !== 0 &&
-        player.transform.velocity.y !== 0
+        player.transform.direction.x !== 0 &&
+        player.transform.direction.y !== 0
       ) {
         type = 'walk';
-        if (player.transform.velocity.x > 0)
-          dir = player.transform.velocity.y > 0 ? 'down-right' : 'top-right';
-        else dir = player.transform.velocity.y > 0 ? 'down-left' : 'top-left';
-      } else if (player.transform.velocity.x !== 0) {
+        if (player.transform.direction.x > 0)
+          dir = player.transform.direction.y > 0 ? 'down-right' : 'top-right';
+        else dir = player.transform.direction.y > 0 ? 'down-left' : 'top-left';
+      } else if (player.transform.direction.x !== 0) {
         type = 'walk';
-        dir = player.transform.velocity.x > 0 ? 'right' : 'left';
-      } else if (player.transform.velocity.y !== 0) {
+        dir = player.transform.direction.x > 0 ? 'right' : 'left';
+      } else if (player.transform.direction.y !== 0) {
         type = 'walk';
-        dir = player.transform.velocity.y > 0 ? 'down' : 'top';
+        dir = player.transform.direction.y > 0 ? 'down' : 'top';
       }
 
       emit('update-velocity', { key, pressed, anim: `${type}/${dir}` });
