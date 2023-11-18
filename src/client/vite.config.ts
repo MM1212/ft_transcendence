@@ -22,7 +22,6 @@ export default defineConfig((ctx) => {
       },
     },
     
-    base: './',
     plugins: [
       tsconfigPaths(),
       react()

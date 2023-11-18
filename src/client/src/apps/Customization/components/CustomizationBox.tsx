@@ -14,11 +14,13 @@ import * as React from "react";
 export default function CustomizationBox({
   clicable,
   imageUrl,
-  getPiece,
+  selected,
+  size = 150
 }: {
   clicable: boolean;
   imageUrl: string;
-  getPiece: boolean;
+  selected?: boolean;
+  size?: number;
 }) {
   const user = useCurrentUser();
   const [loading, setLoading] = React.useState(false);
@@ -59,22 +61,18 @@ export default function CustomizationBox({
       justifyContent="center"
       sx={{ display: "flex", gap: 2, flexWrap: "wrap", p: 1.5, m: 0 }}
     >
-      <Card component="li" sx={{ width: 150, height: 150 }}>
-        <CardCover
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <img
-            src={imageUrl}
-            style={{
-              width: "auto",
-              height: "auto",
-              maxWidth: 150,
-            }}
-          />
+      <Card component="li" sx={{ width: size, height: size }}>
+        <CardCover sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          bgcolor: selected ? 'background.level1' : 'unset'
+        }}>
+          <img src={imageUrl} style={{
+            width: "auto",
+            height: "auto",
+            maxWidth: size,
+          }}  />
         </CardCover>
         {clicable && (
           <Button
