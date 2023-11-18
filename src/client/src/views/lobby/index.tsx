@@ -13,95 +13,156 @@ import {
   lobbyAppAtom,
   lobbyCurrentPlayerSelector,
   lobbyPlayersAtom,
+  setupAnimation,
+  switchToAnimation,
 } from '@/apps/Lobby/state';
 import { useKeybindsToggle } from '@hooks/keybinds';
 import LobbyModel from '@typings/models/lobby';
-import { sessionAtom } from '@hooks/user';
+import { sessionAtom, usersAtom } from '@hooks/user';
 import ChatBox from '@apps/Lobby/components/InGameChat';
-
-const buildAnimation = (assetName: string) =>
-  [...new Array(8)].map((_, i) =>
-    Pixi.Texture.from(`${assetName}/12_${i + 1}`)
-  );
-
-const loadPenguin = async (self: boolean) => {
-  const center = (sprite: Pixi.Sprite) => {
-    sprite.anchor.set(0.5);
-    sprite.x = 0;
-    sprite.y = 0;
-  };
-  await Pixi.Assets.load([
-    '/penguin/base/asset.json',
-    '/penguin/body/asset.json',
-    '/penguin/clothing/258/asset.json',
-    '/penguin/clothing/231/asset.json',
-    '/penguin/clothing/374/asset.json',
-    '/penguin/clothing/490/asset.json',
-    '/penguin/clothing/497/asset.json',
-    '/penguin/clothing/138/asset.json',
-    '/penguin/clothing/195/asset.json',
-  ]);
-  const layers: PlayerLayers = {} as PlayerLayers;
-  layers.container = new Pixi.Container();
-  layers.container.name = 'penguin';
-  layers.baseShadow = new Pixi.Sprite(Pixi.Texture.from('base/shadow'));
-  center(layers.baseShadow);
-  if (self) {
-    layers.base = new Pixi.Sprite(Pixi.Texture.from('base/ring'));
-    center(layers.base);
-  }
-  layers.belly = new Pixi.AnimatedSprite(buildAnimation('body'));
-  center(layers.belly);
-  layers.belly.tint = 0x00ffff;
-  layers.belly.animationSpeed = 0.3;
-  layers.fixtures = new Pixi.AnimatedSprite(buildAnimation('penguin'));
-  center(layers.fixtures);
-  layers.fixtures.animationSpeed = 0.3;
-  layers.clothing = {
-    glasseds: new Pixi.AnimatedSprite(buildAnimation('138')),
-    boots: new Pixi.AnimatedSprite(buildAnimation('374')),
-    shirt: new Pixi.AnimatedSprite(buildAnimation('258')),
-    belt: new Pixi.AnimatedSprite(buildAnimation('231')),
-    hat: new Pixi.AnimatedSprite(buildAnimation('497')),
-    camera: new Pixi.AnimatedSprite(buildAnimation('195')),
-  };
-  Object.values(layers.clothing).forEach((cloth) => {
-    center(cloth);
-    cloth.animationSpeed = 0.3;
-  });
-  layers.container.addChild(layers.baseShadow);
-  if (layers.base) layers.container.addChild(layers.base);
-  layers.container.addChild(
-    layers.belly,
-    layers.fixtures,
-    ...Object.values(layers.clothing)
-  );
-  const animatedLayers = [
-    layers.belly,
-    layers.fixtures,
-    ...Object.values(layers.clothing),
-  ];
-  animatedLayers.forEach((layer) => layer.gotoAndPlay(0));
-  return layers;
-};
-
-const initSprite = (app: Pixi.Application, player: InitdPlayer) => {
-  player.nickNameText.x = 10;
-  player.nickNameText.y = -20;
-  player.nickNameText.anchor.set(0.5);
-  // player.layers.container.addChild(player.nickNameText);
-  app.stage.addChild(player.layers.container);
-  // Set the name property to identify the text later if needed
-};
+import {
+  inventoryAtom,
+  penguinClothingPriority,
+  penguinColorPalette,
+} from '@apps/Customization/state';
+import penguinState, {
+  AnimationConfigSet,
+  animationConfig,
+} from '@apps/penguin/state';
+import {
+  IPenguinBaseAnimationsTypes,
+  TPenguinAnimationDirection,
+} from '@typings/penguin';
 
 export default function Lobby() {
   const { useMounter, emit, useListener } = useSocket(
     buildTunnelEndpoint(LobbyModel.Endpoints.Targets.Connect)
   );
+
+  const initSprite = useRecoilCallback(
+    (ctx) => async (app: Pixi.Application, player: InitdPlayer) => {
+      player.nickNameText.x = 10;
+      player.nickNameText.y = -20;
+      player.nickNameText.anchor.set(0.5);
+      // player.layers.container.addChild(player.nickNameText);
+      app.stage.addChild(player.layers.container);
+
+      await switchToAnimation(
+        player,
+        player.currentAnimation,
+        await ctx.snapshot.getPromise(inventoryAtom),
+        ctx.snapshot
+      );
+      // Set the name property to identify the text later if needed
+    },
+    []
+  );
+  const loadPenguin = useRecoilCallback(
+    (ctx) => async (player: Lobbies.IPlayer, self: boolean) => {
+      const center = (sprite: Pixi.Sprite) => {
+        sprite.anchor.set(0.5);
+        sprite.x = 0;
+        sprite.y = 0;
+      };
+      const inventory = await ctx.snapshot.getPromise(inventoryAtom);
+      const { color, ...selected } = inventory.selected;
+
+      await Pixi.Assets.load([
+        '/penguin/base/asset.json',
+        '/penguin/body/asset.json',
+        ...Object.values(selected).map(
+          (item) => `/penguin/clothing/${item}/asset.json`
+        ),
+      ]);
+
+      const layers: PlayerLayers = {} as PlayerLayers;
+      layers.container = new Pixi.Container();
+      layers.container.name = 'penguin';
+      layers.baseShadow = new Pixi.Sprite(Pixi.Texture.from('base/shadow'));
+      center(layers.baseShadow);
+      if (self) {
+        layers.base = new Pixi.Sprite(Pixi.Texture.from('base/ring'));
+        center(layers.base);
+      }
+      layers.belly = new Pixi.AnimatedSprite(
+        (await ctx.snapshot.getPromise(penguinState.baseAnimations('body')))[
+          'idle/down'
+        ]
+      );
+      center(layers.belly);
+      layers.belly.tint =
+        penguinColorPalette[
+          color.toString() as keyof typeof penguinColorPalette
+        ];
+      layers.belly.animationSpeed = 0.3;
+      layers.fixtures = new Pixi.AnimatedSprite(
+        (await ctx.snapshot.getPromise(penguinState.baseAnimations('penguin')))[
+          'idle/down'
+        ]
+      );
+      center(layers.fixtures);
+      layers.fixtures.animationSpeed = 0.3;
+
+      const clothingTextures = await Promise.all(
+        (Object.keys(selected) as (keyof typeof selected)[])
+          .sort((a, b) => {
+            const aWeight =
+              penguinClothingPriority[
+                a as keyof typeof penguinClothingPriority
+              ];
+            const bWeight =
+              penguinClothingPriority[
+                b as keyof typeof penguinClothingPriority
+              ];
+            return aWeight - bWeight;
+          })
+          .map(async (piece) => {
+            const sprite = new Pixi.AnimatedSprite(
+              (
+                await ctx.snapshot.getPromise(
+                  penguinState.baseAnimations(selected[piece].toString())
+                )
+              )['idle/down']
+            );
+            sprite.name = piece;
+            return sprite;
+          })
+      );
+      layers.clothing = clothingTextures.reduce(
+        (acc, clothPiece) => {
+          acc[clothPiece.name!] = clothPiece;
+          return acc;
+        },
+        {} as Record<string, Pixi.AnimatedSprite>
+      );
+      Object.values(layers.clothing).forEach((cloth) => {
+        center(cloth);
+        cloth.animationSpeed = 0.3;
+      });
+      layers.container.addChild(layers.baseShadow);
+      if (layers.base) layers.container.addChild(layers.base);
+      layers.container.addChild(
+        layers.belly,
+        layers.fixtures,
+        ...Object.values(layers.clothing)
+      );
+      const animatedLayers = [
+        layers.belly,
+        layers.fixtures,
+        ...Object.values(layers.clothing),
+      ];
+      animatedLayers.forEach((layer) =>
+        setupAnimation(layer, player.currentAnimation)
+      );
+      return layers;
+    },
+    []
+  );
   const loadData = useRecoilCallback(
     (ctx) => async (data: Lobbies.Packets.LoadData) => {
       const app = await ctx.snapshot.getPromise(lobbyAppAtom);
       const self = await ctx.snapshot.getPromise(sessionAtom);
+
       if (!app || !self)
         return ctx.set(
           lobbyPlayersAtom,
@@ -112,31 +173,36 @@ export default function Lobby() {
             allowMove: true,
           }))
         );
-
       const players = await Promise.all(
-        data.players.map<Promise<InitdPlayer>>(async (player) => ({
-          ...player,
-          layers: await loadPenguin(player.user.id === self.id),
-          nickNameText: new Pixi.Text(player.user.nickname, {
-            fontFamily: 'Inter',
-            dropShadow: true,
-            dropShadowDistance: 2,
-            dropShadowAngle: 1,
-            dropShadowAlpha: 1,
-            dropShadowColor: '#000',
-            stroke: '#000',
-            strokeThickness: 1,
-            fontSize: 12,
-            align: 'center',
-            fill: '#fef08a',
-          }),
-          allowMove: true,
-        }))
+        data.players.map<Promise<InitdPlayer>>(async (player) => {
+          const user =
+            player.userId === self.id
+              ? self
+              : await ctx.snapshot.getPromise(usersAtom(player.userId));
+          return {
+            ...player,
+            layers: await loadPenguin(player, player.userId === self.id),
+            nickNameText: new Pixi.Text(user.nickname, {
+              fontFamily: 'Inter',
+              dropShadow: true,
+              dropShadowDistance: 2,
+              dropShadowAngle: 1,
+              dropShadowAlpha: 1,
+              dropShadowColor: '#000',
+              stroke: '#000',
+              strokeThickness: 1,
+              fontSize: 12,
+              align: 'center',
+              fill: '#fef08a',
+            }),
+            allowMove: true,
+          };
+        })
       );
       players.forEach((player) => initSprite(app, player));
       ctx.set(lobbyPlayersAtom, players);
     },
-    []
+    [initSprite, loadPenguin]
   );
 
   const newPlayer = useRecoilCallback(
@@ -148,8 +214,9 @@ export default function Lobby() {
           ...prev,
           { ...player, sprite: null },
         ]);
-      player.layers = await loadPenguin(false);
-      player.nickNameText = new Pixi.Text(player.user.nickname, {
+      const user = await ctx.snapshot.getPromise(usersAtom(player.userId));
+      player.layers = await loadPenguin(player, false);
+      player.nickNameText = new Pixi.Text(user.nickname, {
         fontFamily: 'Inter',
         dropShadow: true,
         fontSize: 16,
@@ -160,7 +227,7 @@ export default function Lobby() {
       initSprite(app, player as InitdPlayer);
       ctx.set(lobbyPlayersAtom, (prev) => [...prev, player]);
     },
-    []
+    [initSprite, loadPenguin]
   );
 
   const setPlayers = useRecoilCallback(
@@ -170,7 +237,7 @@ export default function Lobby() {
         prev
           .map((player) => {
             const newData = data.players.find(
-              (p) => p.user.id === player.user.id
+              (p) => p.userId === player.userId
             );
             if (!newData) return player;
             return { ...player, ...newData };
@@ -192,7 +259,7 @@ export default function Lobby() {
         const app = await ctx.snapshot.getPromise(lobbyAppAtom);
         ctx.set(lobbyPlayersAtom, (prev) =>
           prev.filter((p) => {
-            if (p.user.id !== id) return true;
+            if (p.userId !== id) return true;
             if (!app || !p.layers) return false;
             app.stage.removeChild(p.layers.container);
             return false;
@@ -206,13 +273,16 @@ export default function Lobby() {
     (ctx) =>
       async ({ players }: Lobbies.Packets.UpdatePlayersTransform) => {
         const app = await ctx.snapshot.getPromise(lobbyAppAtom);
+        const inventory = await ctx.snapshot.getPromise(inventoryAtom);
         ctx.set(lobbyPlayersAtom, (prev) =>
           prev.map((player) => {
-            const data = players.find((p) => player.user.id === p.id);
+            const data = players.find((p) => player.userId === p.id);
             if (!data) return player;
             if (data.position) player.transform.position = data.position;
             if (data.velocity) player.transform.velocity = data.velocity;
             if (!app || !player.layers) return player;
+            if (data.newAnim)
+              switchToAnimation(player, data.newAnim, inventory, ctx.snapshot);
             player.layers.container.x = player.transform.position.x;
             player.layers.container.y = player.transform.position.y;
             return player;
@@ -237,7 +307,6 @@ export default function Lobby() {
   useListener('disconnect', () => console.log('disconnected'));
 
   const ref = React.useRef<HTMLDivElement>(null);
-
   const onAppMount = useRecoilCallback(
     (ctx) => async (app: Pixi.Application) => {
       const backgroundTex = await Pixi.Texture.fromURL(
@@ -256,8 +325,12 @@ export default function Lobby() {
       if (!players || !self) return () => ctx.set(lobbyAppAtom, null);
       for (const player of players) {
         if (player.layers) continue;
-        player.layers = await loadPenguin(player.user.id === self.id);
-        player.nickNameText = new Pixi.Text(player.user.nickname, {
+        const user =
+          player.userId === self.id
+            ? self
+            : await ctx.snapshot.getPromise(usersAtom(player.userId));
+        player.layers = await loadPenguin(player, player.userId === self.id);
+        player.nickNameText = new Pixi.Text(user.nickname, {
           fontFamily: 'Inter',
           dropShadow: true,
           dropShadowDistance: 2,
@@ -276,7 +349,7 @@ export default function Lobby() {
         ctx.set(lobbyAppAtom, null);
       };
     },
-    []
+    [initSprite, loadPenguin]
   );
 
   const rendererOptions: Partial<Pixi.IApplicationOptions> = React.useMemo(
@@ -290,6 +363,20 @@ export default function Lobby() {
   );
 
   usePixiRenderer(ref, onAppMount, rendererOptions);
+
+  const resetToNextAnimation = useRecoilCallback(
+    (ctx) => async (player: Player) => {
+      if (!player.layers) return;
+      const { next } = animationConfig[
+        player.currentAnimation
+      ] as AnimationConfigSet;
+      if (!next) return;
+      const inventory = await ctx.snapshot.getPromise(inventoryAtom);
+      await switchToAnimation(player, next, inventory, ctx.snapshot);
+    },
+    []
+  );
+
   const onBindToggle = useRecoilCallback(
     (ctx) => async (key, pressed) => {
       const player = await ctx.snapshot.getPromise(lobbyCurrentPlayerSelector);
@@ -299,7 +386,61 @@ export default function Lobby() {
       if (allowFocus === true) return;
       if (!player || !player.layers) return;
       if (player.allowMove === false) return;
-      emit('update-velocity', { key, pressed });
+      const onMoveChange = async (
+        type: 'idle' | 'walk',
+        dir: TPenguinAnimationDirection
+      ) => {
+        if (!player || !player.layers) return;
+        switchToAnimation(
+          player,
+          `${type}/${dir}`,
+          await ctx.snapshot.getPromise(inventoryAtom),
+          ctx.snapshot
+        );
+      };
+      const toggleDance = async () => {
+        if (!player || !player.layers) return;
+        emit('lobby:toggle-dance');
+        switchToAnimation(
+          player,
+          player.currentAnimation === 'dance' ? 'idle/down' : 'dance',
+          await ctx.snapshot.getPromise(inventoryAtom),
+          ctx.snapshot
+        );
+      };
+      const throwSnowball = async () => {
+        if (
+          !player ||
+          !player.layers ||
+          player.currentAnimation.split('/')[0] !== 'idle'
+        )
+          return;
+        let dir = player.currentAnimation.split('/')[1];
+        if (!dir.includes('-')) {
+          switch (dir as 'down' | 'left' | 'top' | 'right') {
+            case 'down':
+              dir = 'down-right';
+              break;
+            case 'left':
+              dir = 'top-left';
+              break;
+            case 'top':
+              dir = 'top-right';
+              break;
+            case 'right':
+              dir = 'down-right';
+              break;
+          }
+        }
+        emit('lobby:update-animation', { anim: `snowball/${dir}` });
+        await switchToAnimation(
+          player,
+          `snowball/${dir}` as IPenguinBaseAnimationsTypes,
+          await ctx.snapshot.getPromise(inventoryAtom),
+          ctx.snapshot
+        );
+        player.layers.fixtures.onComplete = () => resetToNextAnimation(player);
+      };
       switch (key) {
         case 'KeyA':
           player.transform.velocity.x = pressed ? -1 : 0;
@@ -313,13 +454,51 @@ export default function Lobby() {
         case 'KeyS':
           player.transform.velocity.y = pressed ? 1 : 0;
           break;
+        case 'KeyJ':
+          if (!pressed) await toggleDance();
+          return;
+        case 'KeyT':
+          if (!pressed) await throwSnowball();
+          return;
       }
+      let type: 'walk' | 'idle' = 'idle',
+        dir: TPenguinAnimationDirection = 'down';
+      if (
+        player.transform.velocity.x === 0 &&
+        player.transform.velocity.y === 0
+      ) {
+        type = 'idle';
+        dir = player.currentAnimation.split(
+          '/'
+        )[1] as TPenguinAnimationDirection;
+      } else if (
+        player.transform.velocity.x !== 0 &&
+        player.transform.velocity.y !== 0
+      ) {
+        type = 'walk';
+        if (player.transform.velocity.x > 0)
+          dir = player.transform.velocity.y > 0 ? 'down-right' : 'top-right';
+        else dir = player.transform.velocity.y > 0 ? 'down-left' : 'top-left';
+      } else if (player.transform.velocity.x !== 0) {
+        type = 'walk';
+        dir = player.transform.velocity.x > 0 ? 'right' : 'left';
+      } else if (player.transform.velocity.y !== 0) {
+        type = 'walk';
+        dir = player.transform.velocity.y > 0 ? 'down' : 'top';
+      }
+
+      emit('update-velocity', { key, pressed, anim: `${type}/${dir}` });
+      await onMoveChange(type, dir);
       player.layers.container.x = player.transform.position.x;
       player.layers.container.y = player.transform.position.y;
     },
-    [emit]
+    [emit, resetToNextAnimation]
   );
-  useKeybindsToggle(['KeyW', 'KeyA', 'KeyS', 'KeyD'], onBindToggle, []);
+  useKeybindsToggle(
+    ['KeyW', 'KeyA', 'KeyS', 'KeyD', 'KeyJ', 'KeyT'],
+    onBindToggle,
+    []
+  );
 
   return React.useMemo(
     () => (

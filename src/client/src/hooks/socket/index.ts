@@ -11,8 +11,6 @@ export const useSocket = (url: string) => {
 
   const useMounter = () => {
     React.useEffect(() => {
-      console.log(sock);
-      
       sock.connect();
       return () => {
         sock.disconnect();

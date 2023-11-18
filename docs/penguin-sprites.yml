@@ -114,14 +114,12 @@ sprites:
   - id: 25
     type: "anim"
     action: "wave"
-    direction: "front"
     frames: 8
     speed: 0.3
     loop: false
   - id: 26
     type: "anim"
-    action: "wave"
-    direction: "front-left"
-    frames: 8
+    action: "dance"
+    frames: 193
     speed: 0.3
     loop: false
