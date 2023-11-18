@@ -19,10 +19,6 @@ export const usePixiRenderer = (
       backgroundColor: 0x000000,
       ...options,
     });
-    app.stage.width = ref.current.clientWidth;
-    app.stage.height = ref.current.clientHeight;
-    app.view.width = ref.current.clientWidth;
-    app.view.height = ref.current.clientHeight;
     ref.current.appendChild(app.view as HTMLCanvasElement);
     let cleanup = onMount(app);
 

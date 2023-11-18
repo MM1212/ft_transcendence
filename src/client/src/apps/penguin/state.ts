@@ -47,7 +47,7 @@ const buildAnimationSet = (
     textures[i] = Pixi.Assets.get(`${assetId}/${id}_${i + 1}`);
   }
   return textures.map((texture) => {
-    texture.baseTexture.scaleMode = Pixi.SCALE_MODES.NEAREST;
+    texture.baseTexture.scaleMode = Pixi.SCALE_MODES.LINEAR;
     return texture;
   });
 };

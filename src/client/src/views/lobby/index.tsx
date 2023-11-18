@@ -33,6 +33,7 @@ import {
   IPenguinBaseAnimationsTypes,
   TPenguinAnimationDirection,
 } from '@typings/penguin';
+import { AspectRatio } from '@mui/joy';
 
 export default function Lobby() {
   const { useMounter, emit, useListener } = useSocket(
@@ -41,19 +42,20 @@ export default function Lobby() {
 
   const initSprite = useRecoilCallback(
     (ctx) => async (app: Pixi.Application, player: InitdPlayer) => {
-      player.nickNameText.x = 10;
-      player.nickNameText.y = -20;
-      player.nickNameText.anchor.set(0.5);
-      // player.layers.container.addChild(player.nickNameText);
+      player.nickNameText.x = 0;
+      player.nickNameText.y = 10;
+      player.nickNameText.anchor.set(0.5, -0.5);
+      player.layers.container.addChild(player.nickNameText);
+      // player.layers.container.scale.set(2);
       app.stage.addChild(player.layers.container);
 
       await switchToAnimation(
         player,
         player.currentAnimation,
         await ctx.snapshot.getPromise(inventoryAtom),
-        ctx.snapshot
+        ctx.snapshot,
+        true
       );
-      // Set the name property to identify the text later if needed
     },
     []
   );
@@ -78,6 +80,7 @@ export default function Lobby() {
       const layers: PlayerLayers = {} as PlayerLayers;
       layers.container = new Pixi.Container();
       layers.container.name = 'penguin';
+      layers.container.scale.set(1.5);
       layers.baseShadow = new Pixi.Sprite(Pixi.Texture.from('base/shadow'));
       center(layers.baseShadow);
       if (self) {
@@ -183,7 +186,7 @@ export default function Lobby() {
             ...player,
             layers: await loadPenguin(player, player.userId === self.id),
             nickNameText: new Pixi.Text(user.nickname, {
-              fontFamily: 'Inter',
+              fontFamily: 'monospace',
               dropShadow: true,
               dropShadowDistance: 2,
               dropShadowAngle: 1,
@@ -191,9 +194,9 @@ export default function Lobby() {
               dropShadowColor: '#000',
               stroke: '#000',
               strokeThickness: 1,
-              fontSize: 12,
+              fontSize: 14,
               align: 'center',
-              fill: '#fef08a',
+              fill: '#ffffff',
             }),
             allowMove: true,
           };
@@ -309,14 +312,14 @@ export default function Lobby() {
   const ref = React.useRef<HTMLDivElement>(null);
   const onAppMount = useRecoilCallback(
     (ctx) => async (app: Pixi.Application) => {
+      app.stage.sortableChildren = true;
       const backgroundTex = await Pixi.Texture.fromURL(
         LobbyModel.Endpoints.Targets.StaticBackground
       );
       const background = new Pixi.Sprite(backgroundTex);
+      background.name = 'background';
       background.x = 0;
       background.y = 0;
-      background.width = app.screen.width;
-      background.height = app.screen.height;
 
       app.stage.addChild(background);
       ctx.set(lobbyAppAtom, app);
@@ -355,9 +358,7 @@ export default function Lobby() {
   const rendererOptions: Partial<Pixi.IApplicationOptions> = React.useMemo(
     () => ({
       antialias: true,
-      resizeTo: window,
-      width: document.body.clientWidth,
-      height: document.body.clientHeight,
+      backgroundColor: 0xffafff,
     }),
     []
   );
@@ -507,6 +508,8 @@ export default function Lobby() {
           height: '100dvh',
           width: '100dvw',
           display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
         }}
         ref={ref}
       >

@@ -61,9 +61,13 @@ export const switchToAnimation = async (
   player: Player,
   animation: keyof IPenguinBaseAnimations,
   inventory: IInventory,
-  { getPromise }: { getPromise: <S>(recoilValue: RecoilValue<S>) => Promise<S> }
+  {
+    getPromise,
+  }: { getPromise: <S>(recoilValue: RecoilValue<S>) => Promise<S> },
+  force = false
 ) => {
   if (!player.layers) return;
+  if (player.currentAnimation === animation && !force) return;
   player.currentAnimation = animation;
 
   const getSequence = async (asset: string) =>
@@ -71,6 +75,7 @@ export const switchToAnimation = async (
 
   player.layers.belly.textures = await getSequence('body');
   player.layers.fixtures.textures = await getSequence('penguin');
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { color, ...selected } = inventory.selected;
   await Promise.all(
     Object.keys(player.layers.clothing).map(async (clothPiece) => {
@@ -110,7 +115,9 @@ export const lobbyAppAtom = atom<Pixi.Application | null>({
 
         const onMouseMove = async (event: Pixi.FederatedMouseEvent) => {
           const sock = await getPromise(
-            socketStorageAtom(buildTunnelEndpoint(LobbyModel.Endpoints.Targets.Connect))
+            socketStorageAtom(
+              buildTunnelEndpoint(LobbyModel.Endpoints.Targets.Connect)
+            )
           );
           const selfPlayer = await getPromise(lobbyCurrentPlayerSelector);
           if (
@@ -123,7 +130,7 @@ export const lobbyAppAtom = atom<Pixi.Application | null>({
           const {
             transform: { position },
           } = selfPlayer;
-          const { x, y } = event.client;
+          const {x, y} = app.stage.toLocal(event.client);
           const angle = Math.atan2(y - position.y, x - position.x) + Math.PI;
 
           const slice = (Math.PI * 2) / 8;
@@ -155,7 +162,6 @@ export const lobbyAppAtom = atom<Pixi.Application | null>({
 
           if (!animation) return;
           if (selfPlayer.currentAnimation === animation.anim) return;
-          selfPlayer.currentAnimation = animation.anim;
           sock.emit('lobby:update-animation', { anim: animation.anim });
           switchToAnimation(selfPlayer, animation.anim, inventory, {
             getPromise,
@@ -164,9 +170,34 @@ export const lobbyAppAtom = atom<Pixi.Application | null>({
         app.ticker.add(tick);
         app.stage.interactive = true;
         app.stage.onmousemove = onMouseMove;
+        const onResize = () => {
+          console.log('resize');
+          if (!app.stage) return;
+          if (
+            window.innerWidth / window.innerHeight >=
+            LobbyModel.Models.STAGE_ASPECT_RATIO
+          ) {
+            app.renderer.resize(
+              window.innerHeight * LobbyModel.Models.STAGE_ASPECT_RATIO,
+              window.innerHeight
+            );
+          } else {
+            app.renderer.resize(
+              window.innerWidth,
+              window.innerWidth / LobbyModel.Models.STAGE_ASPECT_RATIO
+            );
+          }
+          app.stage.scale.x =
+            app.renderer.width / LobbyModel.Models.STAGE_WIDTH;
+          app.stage.scale.y =
+            app.renderer.height / LobbyModel.Models.STAGE_HEIGHT;
+        };
+        onResize();
+        window.addEventListener('resize', onResize);
         return () => {
           app.ticker.remove(tick);
           app.stage.onmousemove = null;
+          window.removeEventListener('resize', onResize);
         };
       });
     },

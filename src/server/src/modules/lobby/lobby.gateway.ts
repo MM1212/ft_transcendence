@@ -12,6 +12,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { Lobbies } from '@typings/lobby';
 import { IPenguinBaseAnimationsTypes } from '@typings/penguin';
+import LobbyModel from '@typings/models/lobby';
 
 @WebSocketGateway({
   namespace: 'api/lobby',
@@ -60,7 +61,7 @@ export class LobbyGateway
       this.players.push({
         userId: user.id,
         transform: {
-          position: { x: 1920 / 2, y: 1080 / 2 },
+          position: { x: LobbyModel.Models.STAGE_WIDTH / 2, y: LobbyModel.Models.STAGE_HEIGHT / 2 },
           velocity: { x: 0, y: 0 },
         },
         currentAnimation: 'idle/down',
