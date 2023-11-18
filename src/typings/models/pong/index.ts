@@ -6,18 +6,18 @@ namespace PongModel {
 
         export enum Targets {
             Connect = "/pong",
-            BallTexture1 = "/static/pong/Ball.png",
+            BallTexture1 = "/pong/Ball.png",
             // BallTexture2 = "",
-            MarioBoxTexture = "/static/pong/MarioBox.png",
-            PaddleTexture1 = "/static/pong/PaddleRed.png",
+            MarioBoxTexture = "/pong/MarioBox.png",
+            PaddleTexture1 = "/pong/PaddleRed.png",
             // PaddleTexture2 = "",
-            PowerWaterTexture = "/static/pong/PowerWater.png",
-            PowerCannonTexture = "/static/pong/PowerCannon.png",
-            PowerIceTexture = "/static/pong/PowerIce.png",
-            PowerSparkTexture = "/static/pong/PowerSpark.png",
-            PowerGhostTexture = "/static/pong/PowerGhost.png",
-            FireballJSON = "/static/pong/Fireball.json",
-            FireballAnimDict = "/static/pong/Fireball",
+            PowerWaterTexture = "/pong/PowerWater.png",
+            PowerCannonTexture = "/pong/PowerCannon.png",
+            PowerIceTexture = "/pong/PowerIce.png",
+            PowerSparkTexture = "/pong/PowerSpark.png",
+            PowerGhostTexture = "/pong/PowerGhost.png",
+            FireballJSON = "/pong/Fireball.json",
+            FireballAnimDict = "/pong/Fireball",
         }
         export type All = GroupEndpointTargets<Targets>;
     }

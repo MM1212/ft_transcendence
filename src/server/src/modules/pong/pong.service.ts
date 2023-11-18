@@ -1,8 +1,29 @@
 import { Injectable } from '@nestjs/common';
 import { ServerGame } from './game';
 import { Server, Socket } from 'socket.io';
-import { throwError } from 'rxjs';
-import { IGameConfig } from '@shared/Pong/config/configInterface';
+import { ETeamSide, IGameConfig, IPlayerConfig } from '@shared/Pong/config/configInterface';
+
+// temporary
+const defaultLeftTeamConfig = {
+  id: ETeamSide.Left,
+  players: [],
+  score: 0,
+};
+const defaultRightTeamConfig = {
+  id: ETeamSide.Right,
+  players: [],
+  score: 0,
+};
+
+const defaultGameConfig: IGameConfig = {
+  roomId: "",
+  teams: [defaultLeftTeamConfig, defaultRightTeamConfig],
+  partyOwnerId: "",
+  spectators: [],
+  backgroundColor: 0x000000,
+  lineColor: 0xffffff,
+  nPlayers: 0,
+};
 
 @Injectable()
 export class PongService {
@@ -12,28 +33,44 @@ export class PongService {
     // add sse event dependency
     constructor() {}
 
-    public createGame(data: IGameConfig, server: Server, client: Socket): IGameConfig {
-        if (!client) throw new Error('No client provided');
-        if (!data) throw new Error('No data provided');
-        if (this.canCreateGame(client) === false) throw new Error('Client is already in a game');
-        if (this.isUserInGames(client) === true) throw new Error('Client is already in a game');
-        const game = new ServerGame(data, server, this.pongSessionsId++);
-        this.games.set(game.sessionId.toString(), game);
-        console.log(`${client.id} created ${game.roomId}`);
-        game.config.roomId = game.roomId;
-        // update data (defaultGameConfig)
-        game.join(client);
-        console.log(`${client.id} joined ${game.roomId}`);
-        return data;
+    private changeGameConfigOptions(socket: Socket, data: {game: IGameConfig, player: IPlayerConfig}, game: ServerGame)
+    {        
+        data.game.roomId = game.roomId;
+        
+        game.config.backgroundColor = data.game.backgroundColor;
+        game.config.lineColor = data.game.lineColor;
+        
+        game.config.partyOwnerId = data.player.userId;
     }
 
-    public joinGame(client: Socket, roomId: string): IGameConfig {
+    private setPlayerConnectValues(socket: Socket, player: IPlayerConfig) {
+        player.userId = socket.id;
+        player.connected = true;
+        player.ready = false;
+    }
+
+    public createGame(data: {game: IGameConfig, player: IPlayerConfig}, server: Server, client: Socket): IGameConfig {
         if (!client) throw new Error('No client provided');
-        if (!roomId) throw new Error('No data provided');
-        if (this.canJoinGame(client, roomId) === false) throw new Error('Client cannot join this game');
-        const game = this.games.get(roomId);
+        if (!data.game || !data.player) throw new Error('No data provided');
+        if (this.canCreateGame(client) === false) throw new Error('Client is already in a game');
+        if (this.isUserInGames(client) === true) throw new Error('Client is already in a game');
+        const game = new ServerGame(data.game, server, this.pongSessionsId++);
+        this.games.set(game.sessionId.toString(), game);
+        this.setPlayerConnectValues(client, data.player);
+        this.changeGameConfigOptions(client, data, game);
+        game.createGameSettings(client, {game: data.game, player: data.player});
+        console.log(`${client.id} created and joined ${game.roomId}`);
+        return game.config;
+    }
+
+    public joinGame(client: Socket, data: {roomId: string, player: IPlayerConfig}): IGameConfig {
+        if (!client) throw new Error('No client provided');
+        if (!data.roomId || !data.player) throw new Error('No data provided');
+        if (this.canJoinGame(client, data.roomId) === false) throw new Error('Client cannot join this game');
+        const game = this.games.get(data.roomId);
         if (!game) throw new Error('Game does not exist');
-        game.join(client);
+        this.setPlayerConnectValues(client, data.player);
+        game.addPlayerToGame(client, data.player, undefined);
         console.log(`${client.id} joined ${game.roomId}`);
         return (game.config);
     }
@@ -43,10 +80,9 @@ export class PongService {
         if (!roomId) throw new Error('No data provided');
         if (this.isUserInGames(client) === false) throw new Error('Client is not in this game');
         const game = this.games.get(roomId);
-        // get the player through the userId
-        // update player ready status to (!data.teams.players[0|1].ready)
         if (!game) throw new Error('Game does not exist');
-        console.log(`socket ${client.id} is ready to play`);
+        game.playerReady(client.id);
+        console.log(`socket ${client.id} clicked ready`);
         return game.config
     }
 
@@ -75,6 +111,18 @@ export class PongService {
         // dunno about this one, might need add something here 
         this.leaveGame(client, data);
     }
+
+    getAnotherRandomPlayer(game: ServerGame, player: IPlayerConfig): IPlayerConfig | undefined {
+        let otherPlayer = game.config.teams[0].players.find(
+            (newPlayer: IPlayerConfig) => newPlayer.userId !== player.userId,
+        );
+        if (!otherPlayer) {
+            otherPlayer = game.config.teams[1].players.find(
+                (newPlayer: IPlayerConfig) => newPlayer.userId !== player.userId,
+            );
+        }
+        return otherPlayer;
+    }
     
     public leaveGame(client: Socket, roomId: string): IGameConfig {
         if (!client) throw new Error('No client provided');
@@ -82,13 +130,41 @@ export class PongService {
         if (this.isUserInGames(client) === false) throw new Error('Client is not in this game');
         const game = this.games.get(roomId);
         if (!game) throw new Error('Game does not exist');
-        console.log(`${client.id} left ${game.roomId}`);
-        // i dunno if what's below can be here
-        game.leave(client);
-        if (game.config.nPlayers === 0) {
-            this.games.delete(roomId);
-            console.log(`Game ${game.roomId} deleted`);
+        if (game.config.nPlayers === 0) throw new Error('Game is empty');
+        const player = game.getPlayer(client.id);
+        if (!player) throw new Error('Player does not exist');
+        
+        // this can't be like this. needs to receive the conf file from the new party owner
+        if (player.userId === game.config.partyOwnerId) {
+            if (game.config.nPlayers === 1) {
+                game.removePlayerFromGame(client);
+                game.config = defaultGameConfig;
+                return game.config;
+            } else {
+                const otherPlayer = this.getAnotherRandomPlayer(game, player);
+                if (otherPlayer) {
+
+                    this.changeGameConfigOptions(client, {game: game.config, player: otherPlayer}, game);
+                }
+            }
         }
+        
+        const teamSide = player.teamId;
+
+        // is this correct?
+        //delete game.config.teams[player.teamId].players[player.positionOrder === 'front' ? 1 : 0];
+        const teamPlayers = game.config.teams[player.teamId].players;
+        const index = game.getPlayerIndex(client.id);
+        if (index > -1) {
+            teamPlayers.splice(index, 1);
+        } else {
+            console.log("error deleting " + client.id + " from team")
+            throw new Error('Error deleting player from team');
+        }
+        game.removePlayerFromGame(client);
+         // should this be done in server or in client? 
+        game.setBackOrFront(teamSide);
+        console.log(`${client.id} left ${game.roomId}`);
         return game.config;
     }
 
@@ -120,4 +196,32 @@ export class PongService {
         if (this.isGameFull(game)) throw new Error('Game is full');
         return true;
     }
+
+    public refreshRoom(client: Socket): IGameConfig {
+        if (!client) throw new Error('No client provided');
+        if (this.isUserInGames(client) === false) throw new Error('Client is not in this game');
+        const game = this.getGameByPlayerId(client.id);
+        if (!game) throw new Error('Game does not exist');
+        return game.config;
+    }
+
+    public getGameByPlayerId(playerId: string): ServerGame | undefined {
+        if (!playerId) return undefined;
+        const game = Array.from(this.games.values()).find((game) => game.getPlayer(playerId));
+        return game;
+    }
+
+    public getGameByRoomId(roomId: string): ServerGame | undefined {
+        if (!roomId) return undefined;
+        const game = this.games.get(roomId);
+        return game;
+    }
+
+    public deleteGame(game: ServerGame): void {
+        if (!game) throw new Error('No game provided');
+        this.games.delete(game.roomId);
+    }
+
 }
+
+

@@ -1,6 +1,6 @@
 import { UIGameObject } from "../GameObject";
 import { Vector2D } from "../utils/Vector";
-import { CannonTex, FireAnim } from "../index";
+import { CannonTex } from "../index";
 import { Bar } from "@shared/Pong/Paddles/Bar";
 import { UIShooter } from "./Shooter";
 import * as PIXI from "pixi.js";
@@ -20,14 +20,14 @@ export class UIFire extends Fire {
     super(center, velocity, shooter);
 
     this.displayObject = new PIXI.Sprite(CannonTex) as PIXI.AnimatedSprite;
-    FireAnim.then((textures) => {
-      this.displayObject.destroy();
-      this.displayObject = new PIXI.AnimatedSprite(textures);
-      (this.game as UIGame).app.stage.addChild(this.displayObject);
-      this.setupAsset(this.center);
-      this.displayObject.animationSpeed = 0.1;
-      this.displayObject.play();
-    });
+    //FireAnim.then((textures) => {
+    //  this.displayObject.destroy();
+    //  this.displayObject = new PIXI.AnimatedSprite(textures);
+    //  (this.game as UIGame).app.stage.addChild(this.displayObject);
+    //  this.setupAsset(this.center);
+    //  this.displayObject.animationSpeed = 0.1;
+    //  this.displayObject.play();
+    //});
     this.setupAsset(center);
   }
   setupAsset(center: Vector2D) {

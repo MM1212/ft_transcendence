@@ -11,7 +11,7 @@ export interface IPlayerConfig {
   paddleTexture: string;
   paddleColor: number;
   positionOrder: "back" | "front";
-  userId?: number;
+  userId: string;
   ready: boolean;
   connected: boolean;
 }
@@ -19,7 +19,7 @@ export interface IPlayerConfig {
 export interface IGameConfig {
   roomId: string;
   teams: [ITeam, ITeam];
-  partyOwner: number; // userId
+  partyOwnerId: string; // userId
   spectators: number[]; // userIds
   backgroundColor: number;
   lineColor: number;

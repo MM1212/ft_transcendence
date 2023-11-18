@@ -1,5 +1,6 @@
 import { GameObject } from './GameObject';
 import { Collider } from './Collisions/Collider';
+import { IGameConfig } from './config/configInterface';
 
 export class Game {
     public run = true;
@@ -8,6 +9,7 @@ export class Game {
     protected collider_gameObjects: GameObject[] = [];
     protected keydown_gameObjects: GameObject[] = [];
     protected keyup_gameObjects: GameObject[] = [];
+    protected gameconfig: IGameConfig;
 
     public delta: number = 0;
 

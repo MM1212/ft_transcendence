@@ -17,7 +17,7 @@ import {
   DEFAULT_LINE_COLOR,
   DEFAULT_FIELD_COLOR,
 } from "./index";
-import { gameConfig } from "@shared/Pong/config/configInterface";
+import { IGameConfig, gameConfig } from "@shared/Pong/config/configInterface";
 import { SpecialPowerType } from "@shared/Pong/SpecialPowers/SpecialPower";
 import { MULTIPLAYER_START_POS, WINDOWSIZE_X, WINDOWSIZE_Y, score } from "@shared/Pong/main";
 
@@ -57,16 +57,18 @@ export class UIGame extends Game {
 
   
 
-  constructor(public readonly socket: Socket) {
+  constructor(public readonly socket: Socket, container: HTMLDivElement, gameconfig: IGameConfig) {
     super(WINDOWSIZE_X, WINDOWSIZE_Y);
+    this.gameconfig = gameconfig;
+    
     this.app = new PIXI.Application({
-      background: DEFAULT_FIELD_COLOR,
+      background: gameconfig.backgroundColor,
       antialias: true, // smooth edge rendering
       width: WINDOWSIZE_X, // 80% of the window width
       height: WINDOWSIZE_Y, // 80% of the window height
     });
-    this.app.renderer.background.color = DEFAULT_FIELD_COLOR;
-    drawLines(DEFAULT_LINE_COLOR, this.app);
+    this.app.renderer.background.color = gameconfig.backgroundColor;
+    drawLines(gameconfig.lineColor, this.app);
     const p1 = new UIPlayer(
       P1Tex,
       P_START_DIST,
@@ -120,7 +122,7 @@ export class UIGame extends Game {
     // this.app.stage.filters = [this.backgroundHue];
 
     //this.add(new UIMarioBox(this));
-    document.body.appendChild(this.app.view as HTMLCanvasElement);
+    container.appendChild(this.app.view as HTMLCanvasElement);
 
     this.scoreStyle = new PIXI.TextStyle({
       fontFamily: "arial",

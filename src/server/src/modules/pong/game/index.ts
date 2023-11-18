@@ -4,7 +4,11 @@ import { Game } from '@shared/Pong/Game';
 import { Bot } from '@shared/Pong/Paddles/Bot';
 import { KeyControls, Player } from '@shared/Pong/Paddles/Player';
 import { SpecialPowerType } from '@shared/Pong/SpecialPowers/SpecialPower';
-import { IGameConfig, IPlayerConfig } from '@shared/Pong/config/configInterface';
+import {
+  ETeamSide,
+  IGameConfig,
+  IPlayerConfig,
+} from '@shared/Pong/config/configInterface';
 
 import {
   ARENA_SIZE,
@@ -22,8 +26,6 @@ import {
 import { BroadcastOperator, Server, Socket } from 'socket.io';
 import { PongGateway } from '../pong.gateway';
 
-
-
 const defaultKeyControls = {
   up: 'w',
   down: 's',
@@ -34,9 +36,8 @@ const defaultKeyControls = {
 type Room = BroadcastOperator<DefaultEventsMap, any>;
 
 export class ServerGame extends Game {
-  
   public sessionId: number;
-  
+
   //private nConnectedPlayers = 0;
   private updateHandle: NodeJS.Timeout | undefined;
   public readonly room: Room;
@@ -47,6 +48,7 @@ export class ServerGame extends Game {
   ) {
     super(WINDOWSIZE_X, WINDOWSIZE_Y);
     this.sessionId = id;
+    this.config.roomId = this.roomId;
     this.room = server.to(`game-${this.sessionId}`);
     console.log(`game-${this.sessionId}: created`);
   }
@@ -54,16 +56,14 @@ export class ServerGame extends Game {
     return `game-${this.sessionId}`;
   }
 
-  public join(socket: Socket) {
+  public joinGame(socket: Socket) {
     socket.join(this.roomId);
     this.config.nPlayers++;
-    console.log(`Player: ${socket.id} joined: game-${this.sessionId}`);
   }
 
-  public leave(socket: Socket) {
+  public leaveGame(socket: Socket) {
     socket.leave(this.roomId);
     this.config.nPlayers--;
-    console.log(`Player: ${socket.id} left: game-${this.sessionId}`);
   }
 
   public startTick() {
@@ -100,9 +100,113 @@ export class ServerGame extends Game {
     ]);
   }
 
-  public ready() {
-    //set player ready variable to true
+  changePartyOwner(userId: string) {
+    this.config.partyOwnerId = userId;
   }
+
+  public get nPlayersTeamLeft(): number {
+    if (this.config.teams[0].players) {
+      return this.config.teams[0].players.length;
+    } 
+    return 0;
+  }
+
+  public get nPlayersTeamRight(): number {
+    if (this.config.teams[1].players) {
+      return this.config.teams[1].players.length;
+    } 
+    return 0;
+  }
+
+  private get biggestTeam(): ETeamSide {
+    return this.nPlayersTeamLeft > this.nPlayersTeamRight
+      ? ETeamSide.Left
+      : ETeamSide.Right;
+  }
+
+  private get smallestTeam(): ETeamSide {
+    return this.nPlayersTeamLeft < this.nPlayersTeamRight
+      ? ETeamSide.Left
+      : ETeamSide.Right;
+  }
+
+  public setBackOrFront(side: ETeamSide) {
+    if (this.config.teams[side]?.players.length === 2) {
+      this.config.teams[side].players[1].positionOrder = 'front';
+    } else if (this.config.teams[side]?.players.length === 1) {
+      this.config.teams[side].players[0].positionOrder = 'back';
+    }
+  }
+
+  addPlayerToTeam(player: IPlayerConfig, side: ETeamSide | undefined) {
+    if (side === undefined) {
+      side = this.smallestTeam;
+    }
+    player.teamId = side;
+    this.config.teams[side].players.push(player);
+    this.setBackOrFront(side);
+  }
+
+  public addPlayerToGame(socket: Socket,player: IPlayerConfig,side: ETeamSide | undefined) {
+    this.addPlayerToTeam(player, side);
+    this.joinGame(socket);
+  }
+
+  public createGameSettings(socket: Socket, data: {game: IGameConfig, player: IPlayerConfig}): IGameConfig {
+    this.changePartyOwner(data.player.userId);
+    this.config = data.game;
+    this.addPlayerToTeam(data.player, ETeamSide.Left);
+    this.joinGame(socket);
+    return this.config;
+  }
+
+  public removePlayerFromGame(socket: Socket): void {
+    this.leaveGame(socket);
+  }
+
+  public getPlayerIndex(socketId: string): number {
+    for (const team of this.config.teams) {
+      const playerIndex = team.players.findIndex(
+        (player: IPlayerConfig) => player.userId === socketId,
+      );
+      if (playerIndex !== -1) {
+        return playerIndex;
+      }
+    }
+    return -1;
+  }
+
+  public getPlayer(socketId: string): IPlayerConfig | undefined {
+    for (const team of this.config.teams) {
+      const player = team.players.find(
+        (player: IPlayerConfig) => player.userId === socketId,
+      );
+      if (player) {
+        return player;
+      }
+    }
+    return undefined;
+  }
+
+  private updatePlayerInGameConfig(socketId: string, player: IPlayerConfig):void {
+    for (const team of this.config.teams) {
+      const playerIndex = team.players.findIndex(
+        (player: IPlayerConfig) => player.userId === socketId,
+      );
+      if (playerIndex !== -1) {
+        team.players[playerIndex] = player;
+      }
+    }
+  }
+
+  public playerReady(socketId: string):void {
+    const playerConf = this.getPlayer(socketId);
+    if (playerConf) {
+      playerConf.ready = !playerConf.ready;
+      this.updatePlayerInGameConfig(socketId, playerConf);
+    }
+  }
+
   // private buildPlayer(player: IPlayerConfig) {
   //   let p;
   //   let startX;
@@ -159,41 +263,35 @@ export class ServerGame extends Game {
   //   this.add(p);
   // }
 
-  
-
   // public buildObjects() {
-    // for (const player of ) {
-      // if (player !== undefined) {
-        // this.buildPlayer(player);
-      // }
-    // }
-// 
-    // this.add(
-      // new ArenaWall(
-        // new Vector2D(0, 0),
-        // new Vector2D(this.width, ARENA_SIZE),
-        // 0x00abff,
-        // this,
-      // ),
-    // );
-    // this.add(
-      // new ArenaWall(
-        // new Vector2D(0, this.height - ARENA_SIZE),
-        // new Vector2D(this.width, ARENA_SIZE),
-        // 0x00abff,
-        // this,
-      // ),
-    // );
-    // this.add(new Ball(this.width / 2, this.height / 2, this));
+  // for (const player of ) {
+  // if (player !== undefined) {
+  // this.buildPlayer(player);
+  // }
+  // }
+  //
+  // this.add(
+  // new ArenaWall(
+  // new Vector2D(0, 0),
+  // new Vector2D(this.width, ARENA_SIZE),
+  // 0x00abff,
+  // this,
+  // ),
+  // );
+  // this.add(
+  // new ArenaWall(
+  // new Vector2D(0, this.height - ARENA_SIZE),
+  // new Vector2D(this.width, ARENA_SIZE),
+  // 0x00abff,
+  // this,
+  // ),
+  // );
+  // this.add(new Ball(this.width / 2, this.height / 2, this));
   // }
 
-  
-  
   // public start() {
-    //this.buildObjects()
+  //this.buildObjects()
   //   console.log(`Game-${this.id}: created`);
   //startTick()
   // }
-
-  
 }
