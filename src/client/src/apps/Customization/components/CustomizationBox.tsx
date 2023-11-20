@@ -4,23 +4,24 @@ import { Card } from "@mui/joy";
 import UsersModel from "@typings/models/users";
 import { buildTunnelEndpoint } from "@hooks/tunnel";
 import { AuthModel } from "@typings/models";
-import { State, mutate } from "swr";
+import { mutate } from "swr";
 import notifications from "@lib/notifications/hooks";
 import { useCurrentUser } from "@hooks/user";
 import tunnel from "@lib/tunnel";
-import { IUser } from "@typings/user";
 import * as React from "react";
 
 export default function CustomizationBox({
   clicable,
   imageUrl,
   selected,
-  size = 150
+  size = 150,
+  getPiece,
 }: {
   clicable: boolean;
   imageUrl: string;
   selected?: boolean;
   size?: number;
+  getPiece?: boolean;
 }) {
   const user = useCurrentUser();
   const [loading, setLoading] = React.useState(false);
@@ -62,17 +63,22 @@ export default function CustomizationBox({
       sx={{ display: "flex", gap: 2, flexWrap: "wrap", p: 1.5, m: 0 }}
     >
       <Card component="li" sx={{ width: size, height: size }}>
-        <CardCover sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          bgcolor: selected ? 'background.level1' : 'unset'
-        }}>
-          <img src={imageUrl} style={{
-            width: "auto",
-            height: "auto",
-            maxWidth: size,
-          }}  />
+        <CardCover
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            bgcolor: selected ? "background.level1" : "unset",
+          }}
+        >
+          <img
+            src={imageUrl}
+            style={{
+              width: "auto",
+              height: "auto",
+              maxWidth: size,
+            }}
+          />
         </CardCover>
         {clicable && (
           <Button
