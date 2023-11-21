@@ -1,12 +1,11 @@
 import Avatar from '@mui/joy/Avatar';
-import IconButton from '@mui/joy/IconButton';
 import Stack from '@mui/joy/Stack';
 import Typography from '@mui/joy/Typography';
 import { useRecoilValue } from 'recoil';
 import chatsState from '@/apps/Chat/state';
-import DotsVerticalIcon from '@components/icons/DotsVerticalIcon';
 import AvatarWithStatus from '@components/AvatarWithStatus';
 import ChatsModel from '@typings/models/chat';
+import ChatManageMenu from './ChatManage';
 
 export default function MessagesPaneHeader() {
   const { name, photo, status, participantNames, type } = useRecoilValue(
@@ -56,9 +55,7 @@ export default function MessagesPaneHeader() {
           )}
         </Stack>
       </Stack>
-      <IconButton size="sm" variant="plain" color="neutral">
-        <DotsVerticalIcon />
-      </IconButton>
+      <ChatManageMenu />
     </Stack>
   );
 }

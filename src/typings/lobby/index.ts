@@ -1,14 +1,19 @@
-import { IUser } from '@typings/user';
+import {
+  IPenguinAnimationSetTypes,
+  IPenguinBaseAnimationsTypes,
+} from '@typings/penguin';
 import { vector2 } from '@typings/vector';
 
 export namespace Lobbies {
   export interface IPlayerTransform {
     position: vector2;
-    velocity: vector2;
+    direction: vector2;
+    speed: number;
   }
   export interface IPlayer {
-    user: IUser;
+    userId: number;
     transform: IPlayerTransform;
+    currentAnimation: IPenguinBaseAnimationsTypes;
     connections: unknown[];
   }
 
@@ -37,7 +42,7 @@ export namespace Lobbies {
       id: number;
     }
     export interface UpdatePlayersTransform {
-      players: (Partial<IPlayerTransform> & { id: number })[];
+      players: (Partial<IPlayerTransform> & { id: number, newAnim?: IPenguinBaseAnimationsTypes })[];
     }
   }
 }

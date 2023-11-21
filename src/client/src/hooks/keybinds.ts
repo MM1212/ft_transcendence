@@ -12,8 +12,6 @@ export const useKeybindsToggle = <T extends string[]>(
   React.useEffect(() => {
     const keyHandler = (down: boolean) => (ev: KeyboardEvent) => {
       if (ev.repeat) return;
-      console.log(ev.code, down, ev.repeat);
-
       keys.includes(ev.code) && handler(ev.code, down, ev);
     };
     const keydownHandler = keyHandler(true);

@@ -65,7 +65,7 @@ export class ChatsService {
         p.role === undefined &&
         (p.role = ChatsModel.Models.ChatParticipantRole.Member),
     );
-    if (author && data.participants.some((p) => p.userId === author.id))
+    if (author && !data.participants.some((p) => p.userId === author.id))
       data.participants.push({
         role: ChatsModel.Models.ChatParticipantRole.Owner,
         userId: author.id,

@@ -1,27 +1,27 @@
-import { Box, Button } from "@mui/joy";
-import { CardCover } from "@mui/joy";
-import { Card } from "@mui/joy";
-import UsersModel from "@typings/models/users";
-import { buildTunnelEndpoint } from "@hooks/tunnel";
-import { AuthModel } from "@typings/models";
-import { mutate } from "swr";
-import notifications from "@lib/notifications/hooks";
-import { useCurrentUser } from "@hooks/user";
-import tunnel from "@lib/tunnel";
-import * as React from "react";
+import { buildTunnelEndpoint } from '@hooks/tunnel';
+import { useCurrentUser } from '@hooks/user';
+import notifications from '@lib/notifications/hooks';
+import tunnel from '@lib/tunnel';
+import { Sheet } from '@mui/joy';
+import { AuthModel } from '@typings/models';
+import UsersModel from '@typings/models/users';
+import React from 'react';
+import { mutate } from 'swr';
 
 export default function CustomizationBox({
-  clicable,
+  flex = 1,
+  onClick,
   imageUrl,
   selected,
-  size = 150,
-  getPiece,
+  children,
+  disabled = false,
 }: {
-  clicable: boolean;
-  imageUrl: string;
+  disabled?: boolean;
+  imageUrl?: string;
   selected?: boolean;
-  size?: number;
-  getPiece?: boolean;
+  flex?: number;
+  onClick?: () => void;
+  children?: React.ReactNode;
 }) {
   const user = useCurrentUser();
   const [loading, setLoading] = React.useState(false);
@@ -57,47 +57,40 @@ export default function CustomizationBox({
   );
 
   return (
-    <Box
-      component="ul"
-      justifyContent="center"
-      sx={{ display: "flex", gap: 2, flexWrap: "wrap", p: 1.5, m: 0 }}
+    <Sheet
+      variant="outlined"
+      sx={{
+        p: 1,
+        aspectRatio: '1/1',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        cursor: !disabled ? 'pointer' : undefined,
+        bgcolor: selected && !disabled ? 'background.level2' : undefined,
+        borderRadius: (theme) => theme.radius.sm,
+        transition: (theme) => theme.transitions.create('background-color'),
+        '&:hover': !disabled
+          ? {
+              bgcolor: 'background.level1',
+            }
+          : undefined,
+      }}
+      onClick={onClick}
     >
-      <Card component="li" sx={{ width: size, height: size }}>
-        <CardCover
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            bgcolor: selected ? "background.level1" : "unset",
+      {imageUrl ? (
+        <img
+          src={imageUrl}
+          style={{
+            flex,
+            width: 'auto',
+            height: 'auto',
+            maxHeight: '100%',
+            maxWidth: '100%',
           }}
-        >
-          <img
-            src={imageUrl}
-            style={{
-              width: "auto",
-              height: "auto",
-              maxWidth: size,
-            }}
-          />
-        </CardCover>
-        {clicable && (
-          <Button
-            onClick={() => {
-              if (getPiece) {
-                submitProperties(imageUrl);
-              }
-            }}
-            sx={{
-              height: "100%",
-              width: "100%",
-              backgroundColor: "unset",
-              "&:hover": {
-                backgroundColor: "unset",
-              },
-            }}
-          ></Button>
-        )}
-      </Card>
-    </Box>
+        />
+      ) : (
+        children
+      )}
+    </Sheet>
   );
 }

@@ -353,6 +353,21 @@ const chatsState = new (class MessagesState {
       return get(this.chatInfo(chatId));
     },
   });
+  chatType = selectorFamily<ChatsModel.Models.ChatType, number>({
+    key: 'chatType',
+    cachePolicy_UNSTABLE: {
+      eviction: 'most-recent',
+    },
+    get:
+      (id) =>
+      ({ get }) => {
+        const chat = get(this.chat(id));
+        return (
+          (chat?.type as ChatsModel.Models.ChatType) ??
+          ChatsModel.Models.ChatType.Direct
+        );
+      },
+  });
 
   chatsInput = atomFamily<string, number>({
     key: 'chatsInput',

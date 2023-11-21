@@ -13,6 +13,11 @@ DB_FILE = $(SERVER_DIR)/prisma/schema.prisma
 DB_MIGRATE_FILE = $(SERVER_DIR)/prisma/migrations/.schema.prisma
 DB_COMPOSE_FILE = $(PROD_DIR)/docker-compose.yml
 
+IS_LINUX = 1
+ifeq ($(OS), Windows_NT)
+IS_LINUX = 0
+endif
+
 setup:
 ifeq ($(shell test envs/.tokens.env), 1)
 	$(error Setup the tokens file before setting up everything!)
@@ -53,6 +58,9 @@ endif
 env: envs/.active.env
 
 envs/.active.env: envs/.env.$(MODE) envs/.tokens.env
+ifneq ($(IS_LINUX), 1)
+	$(error This Makefile is only for Linux atm)
+endif
 	cp envs/.env.$(MODE) envs/.env.tmp
 	make generate_session_key
 	make setup_tokens
@@ -63,7 +71,7 @@ envs/.active.env: envs/.env.$(MODE) envs/.tokens.env
 	rm envs/.env.tmp
 
 
-server_dev: db_start
+server_dev:
 	cd $(SERVER_DIR) && pnpm start:dev
 
 client_dev:
@@ -88,9 +96,15 @@ else
 endif
 
 db_start:
+ifneq ($(IS_LINUX), 1)
+	$(error This Makefile is only for Linux atm)
+endif
 	docker compose -f $(DB_COMPOSE_FILE) up -d
 
 db_stop:
+ifneq ($(IS_LINUX), 1)
+	$(error This Makefile is only for Linux atm)
+endif
 	docker compose -f $(DB_COMPOSE_FILE) down
 
 db_studio:
