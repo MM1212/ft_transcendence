@@ -18,6 +18,7 @@ export interface ISidebarSingleRoute {
   icon: React.ReactNode;
   label: string;
   Component?: React.ComponentType;
+  FallBackComponent?: React.ComponentType;
   exact?: boolean;
   children?: never;
   endDecoration?: React.ReactNode;
@@ -67,13 +68,12 @@ const routes: ISidebarRoute[] = [
       {
         label: 'Search',
         path: '/search',
-        icon: <AccountSearchIcon  />,
+        icon: <AccountSearchIcon />,
         exact: false,
         // Component: React.lazy(() => import('@apps/Search/views')),
-      }
-    ]
+      },
+    ],
   },
-
   {
     label: 'Messages',
     path: '/messages/',
@@ -82,7 +82,6 @@ const routes: ISidebarRoute[] = [
     exact: false,
     Component: React.lazy(() => import('@apps/Chat/views')),
   },
- 
   {
     label: 'Achievements',
     path: '/achievements',
