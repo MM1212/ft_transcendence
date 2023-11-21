@@ -1,9 +1,9 @@
-import { useSocket } from '@hooks/socket';
-import { buildTunnelEndpoint } from '@hooks/tunnel';
-import React from 'react';
-import { Pixi, usePixiRenderer } from '@hooks/pixiRenderer';
-import { Lobbies } from '@typings/lobby';
-import { useRecoilCallback } from 'recoil';
+import { useSocket } from "@hooks/socket";
+import { buildTunnelEndpoint } from "@hooks/tunnel";
+import React from "react";
+import { Pixi, usePixiRenderer } from "@hooks/pixiRenderer";
+import { Lobbies } from "@typings/lobby";
+import { useRecoilCallback } from "recoil";
 import {
   InitdPlayer,
   Player,
@@ -15,25 +15,25 @@ import {
   lobbyPlayersAtom,
   setupAnimation,
   switchToAnimation,
-} from '@/apps/Lobby/state';
-import { useKeybindsToggle } from '@hooks/keybinds';
-import LobbyModel from '@typings/models/lobby';
-import { sessionAtom, usersAtom } from '@hooks/user';
-import ChatBox from '@apps/Lobby/components/InGameChat';
+} from "@/apps/Lobby/state";
+import { useKeybindsToggle } from "@hooks/keybinds";
+import LobbyModel from "@typings/models/lobby";
+import { sessionAtom, usersAtom } from "@hooks/user";
+import ChatBox from "@apps/Lobby/components/InGameChat";
 import {
   inventoryAtom,
   penguinClothingPriority,
   penguinColorPalette,
-} from '@apps/Customization/state';
+} from "@apps/Customization/state";
 import penguinState, {
   AnimationConfigSet,
   animationConfig,
-} from '@apps/penguin/state';
+} from "@apps/penguin/state";
 import {
   IPenguinBaseAnimationsTypes,
   TPenguinAnimationDirection,
-} from '@typings/penguin';
-import { AspectRatio } from '@mui/joy';
+} from "@typings/penguin";
+import { AspectRatio } from "@mui/joy";
 
 export default function Lobby() {
   const { useMounter, emit, useListener } = useSocket(
@@ -71,24 +71,24 @@ export default function Lobby() {
       const { color, ...selected } = inventory.selected;
 
       await Pixi.Assets.load([
-        '/penguin/base/asset.json',
-        '/penguin/body/asset.json',
+        "/penguin/base/asset.json",
+        "/penguin/body/asset.json",
       ]);
 
       const layers: PlayerLayers = {} as PlayerLayers;
       layers.container = new Pixi.Container();
-      layers.container.name = 'penguin';
+      layers.container.name = "penguin";
       layers.container.sortableChildren = true;
       layers.container.scale.set(1.5);
-      layers.baseShadow = new Pixi.Sprite(Pixi.Texture.from('base/shadow'));
+      layers.baseShadow = new Pixi.Sprite(Pixi.Texture.from("base/shadow"));
       center(layers.baseShadow);
       if (self) {
-        layers.base = new Pixi.Sprite(Pixi.Texture.from('base/ring'));
+        layers.base = new Pixi.Sprite(Pixi.Texture.from("base/ring"));
         center(layers.base);
       }
       layers.belly = new Pixi.AnimatedSprite(
-        (await ctx.snapshot.getPromise(penguinState.baseAnimations('body')))[
-          'idle/down'
+        (await ctx.snapshot.getPromise(penguinState.baseAnimations("body")))[
+          "idle/down"
         ]
       );
       center(layers.belly);
@@ -98,8 +98,8 @@ export default function Lobby() {
         ];
       layers.belly.animationSpeed = 0.3;
       layers.fixtures = new Pixi.AnimatedSprite(
-        (await ctx.snapshot.getPromise(penguinState.baseAnimations('penguin')))[
-          'idle/down'
+        (await ctx.snapshot.getPromise(penguinState.baseAnimations("penguin")))[
+          "idle/down"
         ]
       );
       center(layers.fixtures);
@@ -114,7 +114,7 @@ export default function Lobby() {
                 await ctx.snapshot.getPromise(
                   penguinState.baseAnimations(selected[piece].toString())
                 )
-              )['idle/down']
+              )["idle/down"]
             );
             sprite.name = piece;
             sprite.zIndex = penguinClothingPriority[piece];
@@ -176,17 +176,17 @@ export default function Lobby() {
             ...player,
             layers: await loadPenguin(player, player.userId === self.id),
             nickNameText: new Pixi.Text(user.nickname, {
-              fontFamily: 'monospace',
+              fontFamily: "monospace",
               dropShadow: true,
               dropShadowDistance: 2,
               dropShadowAngle: 1,
               dropShadowAlpha: 1,
-              dropShadowColor: '#000',
-              stroke: '#000',
+              dropShadowColor: "#000",
+              stroke: "#000",
               strokeThickness: 1,
               fontSize: 14,
-              align: 'center',
-              fill: '#ffffff',
+              align: "center",
+              fill: "#ffffff",
             }),
             allowMove: true,
           };
@@ -210,12 +210,12 @@ export default function Lobby() {
       const user = await ctx.snapshot.getPromise(usersAtom(player.userId));
       player.layers = await loadPenguin(player, false);
       player.nickNameText = new Pixi.Text(user.nickname, {
-        fontFamily: 'Inter',
+        fontFamily: "Inter",
         dropShadow: true,
         fontSize: 16,
-        align: 'center',
-        fill: '#fef08a',
-        fontWeight: 'bold',
+        align: "center",
+        fill: "#fef08a",
+        fontWeight: "bold",
       });
       initSprite(app, player as InitdPlayer);
       ctx.set(lobbyPlayersAtom, (prev) => [...prev, player]);
@@ -296,8 +296,8 @@ export default function Lobby() {
 
   useMounter();
 
-  useListener('connect', () => console.log('connected'));
-  useListener('disconnect', () => console.log('disconnected'));
+  useListener("connect", () => console.log("connected"));
+  useListener("disconnect", () => console.log("disconnected"));
 
   const ref = React.useRef<HTMLDivElement>(null);
   const onAppMount = useRecoilCallback(
@@ -307,7 +307,7 @@ export default function Lobby() {
         LobbyModel.Endpoints.Targets.StaticBackground
       );
       const background = new Pixi.Sprite(backgroundTex);
-      background.name = 'background';
+      background.name = "background";
       background.x = 0;
       background.y = 0;
 
@@ -324,15 +324,15 @@ export default function Lobby() {
             : await ctx.snapshot.getPromise(usersAtom(player.userId));
         player.layers = await loadPenguin(player, player.userId === self.id);
         player.nickNameText = new Pixi.Text(user.nickname, {
-          fontFamily: 'Inter',
+          fontFamily: "Inter",
           dropShadow: true,
           dropShadowDistance: 2,
           dropShadowAngle: 1,
           dropShadowAlpha: 1,
-          dropShadowColor: '#000',
+          dropShadowColor: "#000",
           fontSize: 12,
-          align: 'center',
-          fill: '#fef08a',
+          align: "center",
+          fill: "#fef08a",
         });
         initSprite(app, player as InitdPlayer);
       }
@@ -378,7 +378,7 @@ export default function Lobby() {
       if (!player || !player.layers) return;
       if (player.allowMove === false) return;
       const onMoveChange = async (
-        type: 'idle' | 'walk',
+        type: "idle" | "walk",
         dir: TPenguinAnimationDirection
       ) => {
         if (!player || !player.layers) return;
@@ -391,10 +391,10 @@ export default function Lobby() {
       };
       const toggleDance = async () => {
         if (!player || !player.layers) return;
-        emit('lobby:toggle-dance');
+        emit("lobby:toggle-dance");
         switchToAnimation(
           player,
-          player.currentAnimation === 'dance' ? 'idle/down' : 'dance',
+          player.currentAnimation === "dance" ? "idle/down" : "dance",
           await ctx.snapshot.getPromise(inventoryAtom),
           ctx.snapshot
         );
@@ -403,27 +403,27 @@ export default function Lobby() {
         if (
           !player ||
           !player.layers ||
-          player.currentAnimation.split('/')[0] !== 'idle'
+          player.currentAnimation.split("/")[0] !== "idle"
         )
           return;
-        let dir = player.currentAnimation.split('/')[1];
-        if (!dir.includes('-')) {
-          switch (dir as 'down' | 'left' | 'top' | 'right') {
-            case 'down':
-              dir = 'down-right';
+        let dir = player.currentAnimation.split("/")[1];
+        if (!dir.includes("-")) {
+          switch (dir as "down" | "left" | "top" | "right") {
+            case "down":
+              dir = "down-right";
               break;
-            case 'left':
-              dir = 'top-left';
+            case "left":
+              dir = "top-left";
               break;
-            case 'top':
-              dir = 'top-right';
+            case "top":
+              dir = "top-right";
               break;
-            case 'right':
-              dir = 'down-right';
+            case "right":
+              dir = "down-right";
               break;
           }
         }
-        emit('lobby:update-animation', { anim: `snowball/${dir}` });
+        emit("lobby:update-animation", { anim: `snowball/${dir}` });
         await switchToAnimation(
           player,
           `snowball/${dir}` as IPenguinBaseAnimationsTypes,
@@ -433,52 +433,52 @@ export default function Lobby() {
         player.layers.fixtures.onComplete = () => resetToNextAnimation(player);
       };
       switch (key) {
-        case 'KeyA':
+        case "KeyA":
           player.transform.direction.x = pressed ? -1 : 0;
           break;
-        case 'KeyD':
+        case "KeyD":
           player.transform.direction.x = pressed ? 1 : 0;
           break;
-        case 'KeyW':
+        case "KeyW":
           player.transform.direction.y = pressed ? -1 : 0;
           break;
-        case 'KeyS':
+        case "KeyS":
           player.transform.direction.y = pressed ? 1 : 0;
           break;
-        case 'KeyJ':
+        case "KeyJ":
           if (!pressed) await toggleDance();
           return;
-        case 'KeyT':
+        case "KeyT":
           if (!pressed) await throwSnowball();
           return;
       }
-      let type: 'walk' | 'idle' = 'idle',
-        dir: TPenguinAnimationDirection = 'down';
+      let type: "walk" | "idle" = "idle",
+        dir: TPenguinAnimationDirection = "down";
       if (
         player.transform.direction.x === 0 &&
         player.transform.direction.y === 0
       ) {
-        type = 'idle';
+        type = "idle";
         dir = player.currentAnimation.split(
-          '/'
+          "/"
         )[1] as TPenguinAnimationDirection;
       } else if (
         player.transform.direction.x !== 0 &&
         player.transform.direction.y !== 0
       ) {
-        type = 'walk';
+        type = "walk";
         if (player.transform.direction.x > 0)
-          dir = player.transform.direction.y > 0 ? 'down-right' : 'top-right';
-        else dir = player.transform.direction.y > 0 ? 'down-left' : 'top-left';
+          dir = player.transform.direction.y > 0 ? "down-right" : "top-right";
+        else dir = player.transform.direction.y > 0 ? "down-left" : "top-left";
       } else if (player.transform.direction.x !== 0) {
-        type = 'walk';
-        dir = player.transform.direction.x > 0 ? 'right' : 'left';
+        type = "walk";
+        dir = player.transform.direction.x > 0 ? "right" : "left";
       } else if (player.transform.direction.y !== 0) {
-        type = 'walk';
-        dir = player.transform.direction.y > 0 ? 'down' : 'top';
+        type = "walk";
+        dir = player.transform.direction.y > 0 ? "down" : "top";
       }
 
-      emit('update-velocity', { key, pressed, anim: `${type}/${dir}` });
+      emit("update-velocity", { key, pressed, anim: `${type}/${dir}` });
       await onMoveChange(type, dir);
       player.layers.container.x = player.transform.position.x;
       player.layers.container.y = player.transform.position.y;
@@ -486,7 +486,7 @@ export default function Lobby() {
     [emit, resetToNextAnimation]
   );
   useKeybindsToggle(
-    ['KeyW', 'KeyA', 'KeyS', 'KeyD', 'KeyJ', 'KeyT'],
+    ["KeyW", "KeyA", "KeyS", "KeyD", "KeyJ", "KeyT"],
     onBindToggle,
     []
   );
@@ -495,11 +495,11 @@ export default function Lobby() {
     () => (
       <div
         style={{
-          height: '100dvh',
-          width: '100dvw',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
+          height: "100dvh",
+          width: "100dvw",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
         }}
         ref={ref}
       >

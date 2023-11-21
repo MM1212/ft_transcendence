@@ -22,6 +22,13 @@ import { NotificationProps } from '@lib/notifications/hooks';
 import notifications from '@lib/notifications/hooks';
 import Logo from '@components/Logo';
 
+
+
+
+function LoginSquare() {
+
+}
+
 export default function MainRoute() {
   const [count, setCount] = useState(0);
   if (count === 51) setCount(0);
@@ -58,9 +65,9 @@ export default function MainRoute() {
         <Button variant="soft" onClick={() => setCount((count) => count + 1)}>
           count is {count}
         </Button>
-        <p>
+        <Typography>
           Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
+        </Typography>
         {loading ? (
           <Button loading />
         ) : !loggedIn ? (
