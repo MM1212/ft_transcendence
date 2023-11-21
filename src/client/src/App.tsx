@@ -1,7 +1,7 @@
 import SideBar from '@apps/Sidebar/views';
 import SidebarWithRouter from '@apps/Sidebar/views/WithRouter';
 import SseTester from '@components/SseTester';
-import MainRoute from '@views';
+import LoginPage from '@apps/LoginPage/views';
 import ClothingShowcase from '@views/ClothingShowcase';
 import Lobby from '@views/lobby';
 import { useRouter, Route } from 'wouter';
@@ -23,8 +23,10 @@ function App() {
       <SidebarWithRouter base="/lobby" parent={router}>
         <Lobby />
       </SidebarWithRouter>
+      <Route path="/login">
+        <LoginPage />
+      </Route>
       <Route path="/">
-        <MainRoute />
         <SideBar />
       </Route>
       <Route path="/clothing-showcase">
