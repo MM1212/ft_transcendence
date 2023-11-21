@@ -28,10 +28,9 @@ import LinearProgress from '@mui/joy/LinearProgress';
 import Typography from '@mui/joy/Typography';
 import UsersModel from '@typings/models/users';
 import { Autocomplete } from '@mui/joy';
-import debounce from 'lodash.debounce';
 import tunnel from '@lib/tunnel';
 import Collapse from '@components/transitions/Collapse';
-import { useRecoilCallback } from 'recoil';
+import { useRecoilCallback, useRecoilValue } from 'recoil';
 import chatsState from '@/apps/Chat/state';
 import notifications from '@lib/notifications/hooks';
 import FormTextboxPasswordIcon from '@components/icons/FormTextboxPasswordIcon';
@@ -40,6 +39,8 @@ import LabelIcon from '@components/icons/LabelIcon';
 import ImageIcon from '@components/icons/ImageIcon';
 import LinkIcon from '@components/icons/LinkIcon';
 import LockIcon from '@components/icons/LockIcon';
+import friendsState from '@apps/Friends/state';
+import { useDebounce } from '@hooks/lodash';
 
 function PasswordMeterInput({ value, onChange, disabled }: any) {
   const minLength = 12;
@@ -80,6 +81,11 @@ function PasswordMeterInput({ value, onChange, disabled }: any) {
   );
 }
 
+interface Cache {
+  type: 'search' | 'friends' | 'selected';
+  data: UsersModel.Models.IUserInfo;
+}
+
 function UsersAutocomplete({
   selected,
   setSelected,
@@ -94,11 +100,12 @@ function UsersAutocomplete({
   disabled: boolean;
 }) {
   const [search, setSearch] = React.useState('');
-  const [cache, setCache] = React.useState<UsersModel.Models.IUserInfo[]>([]);
+  const friends = useRecoilValue(friendsState.friendsExtended);
+  const [searchCache, setSearchCache] = React.useState<Cache[]>([]);
   const [loading, setLoading] = React.useState(false);
 
-  const onQueryChange = React.useCallback(
-    debounce(async (query: string) => {
+  const onQueryChange = useDebounce(
+    async (query: string) => {
       setLoading(true);
       try {
         const data = await tunnel.post(
@@ -106,17 +113,40 @@ function UsersAutocomplete({
           {
             query,
             excluseSelf: true,
+            exclude: friends.map((friend) => friend.id),
           }
         );
-        setCache(data);
+        setSearchCache(data.map((user) => ({ type: 'search', data: user })));
       } catch (e) {
         notifications.error('Failed to search users', (e as Error).message);
       } finally {
         setLoading(false);
       }
-    }, 1000),
+    },
+    1000,
+    [selected, friends]
+  );
+
+  const selectedCache = React.useMemo(
+    () => selected.map<Cache>((s) => ({ type: 'selected', data: s })),
     [selected]
   );
+
+  const options = React.useMemo(() => {
+    const data = new Map<number, Cache>();
+    for (const option of selectedCache) data.set(option.data.id, option);
+    for (const option of searchCache)
+      !data.has(option.data.id) && data.set(option.data.id, option);
+    for (const option of friends)
+      !data.has(option.id) &&
+        data.set(option.id, {
+          type: 'friends',
+          data: option,
+        });
+    console.log(data);
+
+    return [...data.values()];
+  }, [searchCache, selectedCache, friends]);
 
   return (
     <FormControl error={!!error}>
@@ -124,11 +154,20 @@ function UsersAutocomplete({
       <Autocomplete
         disabled={disabled}
         placeholder="search users.."
-        options={cache}
-        getOptionLabel={(option) => option.nickname}
-        isOptionEqualToValue={(option, value) => option.id === value.id}
-        value={selected}
-        onChange={(_, value) => setSelected(value)}
+        options={loading ? [] : options}
+        getOptionLabel={(option) => option.data.nickname}
+        groupBy={(option) =>
+          option.type === 'search'
+            ? 'Search results'
+            : option.type === 'friends'
+            ? 'Friends'
+            : 'Selected'
+        }
+        isOptionEqualToValue={(option, value) =>
+          option.data.id === value.data.id
+        }
+        value={selectedCache}
+        onChange={(_, value) => setSelected(value.map((v) => v.data))}
         multiple={true}
         inputValue={search}
         limitTags={3}
@@ -145,10 +184,15 @@ function UsersAutocomplete({
           if (value.trim().length > 0) {
             setLoading(true);
             onQueryChange(value);
+          } else {
+            setLoading(false);
+            setSearchCache(
+              friends.map((friend) => ({ type: 'friends', data: friend }))
+            );
           }
         }}
         startDecorator={<AccountGroupIcon />}
-        renderOption={(props: Record<string, unknown>, option) => (
+        renderOption={(props: Record<string, unknown>, { data: option }) => (
           <AutocompleteOption
             {...props}
             key={`${option.id}-${option.nickname}`}
@@ -388,7 +432,7 @@ export default function NewChatModal(): JSX.Element {
                     form.values.authorization ===
                     ChatsModel.Models.ChatAccess.Private
                   }
-                  checkedIcon={<LockIcon size="sm" />}
+                  checkedIcon={<LockIcon size="xs" />}
                   onChange={(ev) =>
                     form.setFieldValue(
                       'authorization',
@@ -417,12 +461,16 @@ export default function NewChatModal(): JSX.Element {
                 />
               </Collapse>
             </div>
-            <UsersAutocomplete
-              selected={form.values.participants}
-              setSelected={form.setFieldValue.bind(null, 'participants') as any}
-              error={form.errors.participants}
-              disabled={loading}
-            />
+            <React.Suspense fallback={<CircularProgress />}>
+              <UsersAutocomplete
+                selected={form.values.participants}
+                setSelected={
+                  form.setFieldValue.bind(null, 'participants') as any
+                }
+                error={form.errors.participants}
+                disabled={loading}
+              />
+            </React.Suspense>
           </Stack>
           <DialogActions>
             <Stack direction="row" spacing={2} ml="auto">

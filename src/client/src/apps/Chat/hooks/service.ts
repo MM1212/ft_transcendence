@@ -51,41 +51,46 @@ const useMessagesService = () => {
   );
 
   const selectedChatId = useRecoilValue(chatsState.selectedChatId);
+  const lastSelectedChatId = React.useRef(-1);
 
   const onSelectedChatIdChange = useRecoilCallback(
-    (ctx) => async (chatId: number) => {
-      if (chatId === -1) return;
-      const self = await ctx.snapshot.getPromise(
-        chatsState.selfParticipantByChat(chatId)
-      );
-      if (!self || !self.toReadPings) return;
-      try {
-        await tunnel.patch(
-          ChatsModel.Endpoints.Targets.UpdateParticipant,
-          {
+    (ctx) =>
+      async (chatId: number, force: boolean = false, last: boolean = false) => {
+        if (!last)
+          onSelectedChatIdChange(lastSelectedChatId.current, true, true);
+        if (chatId === -1) return;
+        const self = await ctx.snapshot.getPromise(
+          chatsState.selfParticipantByChat(chatId)
+        );
+        if (!self || (!force && !self.toReadPings)) return;
+        try {
+          await tunnel.patch(
+            ChatsModel.Endpoints.Targets.UpdateParticipant,
+            {
+              toReadPings: 0,
+            },
+            { chatId, participantId: self.id }
+          );
+          ctx.set(chatsState.selfParticipantByChat(chatId), (prev) => ({
+            ...prev,
             toReadPings: 0,
-          },
-          { chatId, participantId: self.id }
-        );
-        ctx.set(chatsState.selfParticipantByChat(chatId), (prev) => ({
-          ...prev,
-          toReadPings: 0,
-        }));
-      } catch (e) {
-        console.error(e);
-        notifications.error(
-          'Failed to update read pings',
-          (e as Error).message
-        );
-      }
-    },
+          }));
+        } catch (e) {
+          console.error(e);
+          notifications.error(
+            'Failed to update read pings',
+            (e as Error).message
+          );
+        }
+      },
     []
   );
 
-  React.useEffect(
-    () => void onSelectedChatIdChange(selectedChatId),
-    [onSelectedChatIdChange, selectedChatId]
-  );
+  React.useEffect(() => {
+    if (selectedChatId === lastSelectedChatId.current) return;
+    onSelectedChatIdChange(selectedChatId);
+    lastSelectedChatId.current = selectedChatId;
+  }, [onSelectedChatIdChange, selectedChatId]);
   useSseEvent<ChatsModel.Sse.NewMessageEvent>(
     ChatsModel.Sse.Events.NewMessage,
     onNewMessage
