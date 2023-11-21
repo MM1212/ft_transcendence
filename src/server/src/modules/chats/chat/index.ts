@@ -248,6 +248,7 @@ class Chat extends CacheObserver<IChat> {
       [participant.id],
     );
     this.participants.forEach((p) => {
+      if (p.id === participant.id) return;
       p.toReadPings++;
     });
     console.log(this.get('messages'));

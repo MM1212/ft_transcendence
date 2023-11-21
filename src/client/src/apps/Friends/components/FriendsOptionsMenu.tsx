@@ -45,9 +45,6 @@ export default function FriendsOptionsMenu({ id }: { id: number }) {
         <MenuItem
           onClick={remove}
           color="danger"
-          sx={{
-            color: "danger.400",
-          }}
         >
           <ListItemDecorator>
             <AccountRemoveIcon />
@@ -57,9 +54,6 @@ export default function FriendsOptionsMenu({ id }: { id: number }) {
         <MenuItem
           onClick={block}
           color="danger"
-          sx={{
-            color: "danger.400",
-          }}
         >
           <ListItemDecorator>
             <AccountRemoveIcon />

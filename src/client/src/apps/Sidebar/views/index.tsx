@@ -1,7 +1,7 @@
 import React from 'react';
 import Drawer from '@mui/joy/Drawer';
 import { Sheet, Divider } from '@mui/joy';
-import { useLocation, useRouter } from 'wouter';
+import { useLocation } from 'wouter';
 import { useKeybindsToggle } from '@hooks/keybinds';
 import SidebarRoutes from '../components/RoutesComposer';
 import SidebarUserCard from '../components/UserCard';
@@ -13,11 +13,8 @@ export default function SideBar() {
   const [open, setOpen] = React.useState(false);
   const [lastRoute, setLastRoute] = React.useState<string>('/');
   const [location, navigate] = useLocation();
-  const router = useRouter();
   const handleCloseDrawer = () => {
     setLastRoute(location);
-    console.log(router);
-
     navigate('/');
     setOpen(false);
   };
@@ -80,19 +77,7 @@ export default function SideBar() {
           <Divider />
           <SidebarUserCard />
         </Sheet>
-        <React.Suspense fallback={<></>}>
-          <SidebarSwitchComposer />
-        </React.Suspense>
-        {/*  <Switch>
-           {mainTargets.map(
-            (target, i) =>
-              target.node && (
-                <Route path={target.route ?? target.target} key={i}>
-                  {target.node}
-                </Route>
-              )
-          )}
-        </Switch> */}
+        <SidebarSwitchComposer />
       </Sheet>
     </Drawer>
   );

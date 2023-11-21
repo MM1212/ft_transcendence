@@ -1,3 +1,4 @@
+import ChatMessagesLoadingView from '@apps/Chat/views/loading';
 import AccountGroupIcon from '@components/icons/AccountGroupIcon';
 import AccountIcon from '@components/icons/AccountIcon';
 import AccountSearchIcon from '@components/icons/AccountSearchIcon';
@@ -18,6 +19,7 @@ export interface ISidebarSingleRoute {
   icon: React.ReactNode;
   label: string;
   Component?: React.ComponentType;
+  FallBackComponent?: React.ComponentType;
   exact?: boolean;
   children?: never;
   endDecoration?: React.ReactNode;
@@ -67,13 +69,12 @@ const routes: ISidebarRoute[] = [
       {
         label: 'Search',
         path: '/search',
-        icon: <AccountSearchIcon  />,
+        icon: <AccountSearchIcon />,
         exact: false,
         // Component: React.lazy(() => import('@apps/Search/views')),
-      }
-    ]
+      },
+    ],
   },
-
   {
     label: 'Messages',
     path: '/messages/',
@@ -81,8 +82,8 @@ const routes: ISidebarRoute[] = [
     icon: <ForumIcon />,
     exact: false,
     Component: React.lazy(() => import('@apps/Chat/views')),
+    FallBackComponent: ChatMessagesLoadingView,
   },
- 
   {
     label: 'Achievements',
     path: '/achievements',

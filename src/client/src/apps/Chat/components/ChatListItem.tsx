@@ -6,8 +6,6 @@ import ListItemButton from '@mui/joy/ListItemButton';
 import Stack from '@mui/joy/Stack';
 import Typography from '@mui/joy/Typography';
 import AvatarWithStatus from '@components/AvatarWithStatus';
-import { useRecoilValue } from 'recoil';
-import chatsState from '@/apps/Chat/state';
 import CircleIcon from '@components/icons/CircleIcon';
 import { Avatar } from '@mui/joy';
 import ChatsModel from '@typings/models/chat';
@@ -19,7 +17,7 @@ type ChatListItemProps = {
 };
 
 export default function ChatListItem({ id }: ChatListItemProps) {
-  const { isSelected, goTo } = useChat(id);
+  const { goTo, useIsSelected, useSelfParticipant, useInfo } = useChat(id);
   const {
     lastMessage,
     lastMessageAuthorName,
@@ -28,9 +26,10 @@ export default function ChatListItem({ id }: ChatListItemProps) {
     createdAt,
     status,
     type,
-  } = useRecoilValue(chatsState.chatInfo(id));
+  } = useInfo();
+  const isSelected = useIsSelected();
 
-  const participant = useRecoilValue(chatsState.selfParticipantByChat(id));
+  const participant = useSelfParticipant();
   const timestamp = lastMessage?.createdAt ?? createdAt;
   return React.useMemo(
     () => (

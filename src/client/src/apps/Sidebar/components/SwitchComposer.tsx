@@ -5,6 +5,7 @@ import routes, {
   ISidebarSingleRoute,
 } from '../routes';
 import React from 'react';
+import SidebarRouteFallbackSkeleton from './Skeleton';
 
 export default function SidebarSwitchComposer() {
   const possibleRoutes = React.useMemo(() => {
@@ -15,6 +16,7 @@ export default function SidebarSwitchComposer() {
       ): {
         path: string;
         Component: ISidebarSingleRoute['Component'];
+        FallBackComponent?: ISidebarSingleRoute['FallBackComponent'];
       }[] => {
         if (!elem.children)
           return [
@@ -24,6 +26,7 @@ export default function SidebarSwitchComposer() {
                 .join('/')
                 .replace(/\/\//g, '/'),
               Component: elem.Component,
+              FallBackComponent: elem.FallBackComponent,
             },
           ];
         return elem.children.flatMap(getPossibleRoutes(elem));
@@ -33,11 +36,18 @@ export default function SidebarSwitchComposer() {
 
   return (
     <Switch>
-      {possibleRoutes.map(({ path, Component }, i) => (
-        <Route path={path} key={i}>
-          {Component ? <Component /> : null}
-        </Route>
-      ))}
+      {possibleRoutes.map(
+        (
+          { path, Component, FallBackComponent = SidebarRouteFallbackSkeleton },
+          i
+        ) => (
+          <Route path={path} key={i}>
+            <React.Suspense fallback={<FallBackComponent />}>
+              {Component ? <Component /> : <></>}
+            </React.Suspense>
+          </Route>
+        )
+      )}
     </Switch>
   );
 }
