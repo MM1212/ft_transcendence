@@ -107,6 +107,15 @@ const testTheme = extendTheme({
         },
       },
     },
+    JoyMenuItem: {
+      styleOverrides: {
+        root: ({ theme, ownerState }) => ({
+          ...(ownerState.color === 'danger' && {
+            color: theme.palette.danger[400],
+          }),
+        }),
+      },
+    },
   },
 });
 
@@ -118,7 +127,6 @@ testTheme.gradients = {
   neutral: `linear-gradient(45deg, ${testTheme.palette.neutral.solidBg}, ${testTheme.palette.neutral.softBg})`,
   background: `linear-gradient(45deg, ${testTheme.vars.palette.background.level1} 0%, ${testTheme.vars.palette.background.surface} 100%)`,
 };
-
 
 export { alpha, lighten, darken };
 export default testTheme;

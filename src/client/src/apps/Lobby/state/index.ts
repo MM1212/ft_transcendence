@@ -85,11 +85,6 @@ export const switchToAnimation = async (
     (Object.keys(selected) as (keyof typeof selected)[]).map(
       async (clothPiece) => {
         if (!player.layers) return;
-        console.log(
-          clothPiece,
-          selected[clothPiece],
-          !!player.layers.clothing[clothPiece]
-        );
 
         if (selected[clothPiece] === -1) {
           if (player.layers.clothing[clothPiece]) {
@@ -203,7 +198,6 @@ export const lobbyAppAtom = atom<Pixi.Application | null>({
         app.stage.interactive = true;
         app.stage.onmousemove = onMouseMove;
         const onResize = () => {
-          console.log('resize');
           if (!app.stage) return;
           if (
             window.innerWidth / window.innerHeight >=
