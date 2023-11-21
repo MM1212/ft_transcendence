@@ -1,3 +1,4 @@
+import ChatMessagesLoadingView from '@apps/Chat/views/loading';
 import AccountGroupIcon from '@components/icons/AccountGroupIcon';
 import AccountIcon from '@components/icons/AccountIcon';
 import AccountSearchIcon from '@components/icons/AccountSearchIcon';
@@ -81,6 +82,7 @@ const routes: ISidebarRoute[] = [
     icon: <ForumIcon />,
     exact: false,
     Component: React.lazy(() => import('@apps/Chat/views')),
+    FallBackComponent: ChatMessagesLoadingView,
   },
   {
     label: 'Achievements',

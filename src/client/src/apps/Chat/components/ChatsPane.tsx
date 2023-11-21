@@ -2,7 +2,7 @@ import * as React from 'react';
 import Stack from '@mui/joy/Stack';
 import Sheet from '@mui/joy/Sheet';
 import Typography from '@mui/joy/Typography';
-import { Box, Chip, CircularProgress, IconButton, Tooltip } from '@mui/joy';
+import { Box, Chip, IconButton, Tooltip } from '@mui/joy';
 import List from '@mui/joy/List';
 import ChatListItem from './ChatListItem';
 import { useRecoilValue } from 'recoil';
@@ -87,9 +87,7 @@ export default function ChatsPane() {
           '--ListItem-paddingX': '1rem',
         }}
       >
-        <React.Suspense fallback={<CircularProgress />}>
-          <ChatEntries />
-        </React.Suspense>
+        <ChatEntries />
       </List>
     </Sheet>
   );
