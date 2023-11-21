@@ -19,9 +19,7 @@ export default function ProfileView() {
   const user = useCurrentUser();
   const [open, setOpen] = React.useState<boolean>(false);
 
-  const changeProfilePicture = () => {
-	
-  };
+  const changeProfilePicture = () => {};
   return (
     <Sheet
       style={{
@@ -44,7 +42,7 @@ export default function ProfileView() {
           p={1}
           spacing={0.5}
         >
-          <IconButton onClick={() => setOpen(true)}>
+          <IconButton style={{borderRadius: "50%"}} onClick={() => setOpen(true)}>
             <AvatarWithStatus
               sx={(theme) => ({
                 width: theme.spacing(17),

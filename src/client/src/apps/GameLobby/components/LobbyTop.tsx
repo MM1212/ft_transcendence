@@ -1,6 +1,7 @@
 import { TabPanel } from "@mui/joy";
 import { Tab, TabList, Tabs } from "@mui/joy";
-import LobbyMatchmaking from "./LobbyMatchmaking";
+import LobbyCreateCustom from "./LobbyCreateCustom";
+import { LobbyMatchMaking } from "./LobbyMatchMaking";
 
 export default function LobbyTop() {
   const myCustomizations: string[] = [
@@ -10,7 +11,13 @@ export default function LobbyTop() {
     "Create Custom",
     "Join Custom",
   ];
-  const components: JSX.Element[] = [<LobbyMatchmaking key={0} />];
+  const components: JSX.Element[] = [
+    <LobbyMatchMaking key={0} />,
+    <LobbyCreateCustom key={2} />,
+    <LobbyCreateCustom key={3} />,
+    <LobbyCreateCustom key={4} />,
+    <LobbyCreateCustom key={5} />,
+  ];
 
   return (
     <Tabs

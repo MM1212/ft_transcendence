@@ -7,7 +7,7 @@ export default function GameLobby() {
   return (
     <Card
       sx={{
-        width: "150dvh",
+        width: "80dvh",
         display: "flex",
         flexDirection: "column",
         height: "100%",

@@ -2,7 +2,7 @@ import { Box, Sheet } from "@mui/joy";
 import LobbyPlayerPlaceholder from "./LobbyPlayerPlacehoder";
 import { Stack } from "@mui/joy";
 
-export default function LobbyMatchmaking({ key }: { key: number }) {
+export default function LobbyCreateCustom({ key }: { key: number }) {
   console.log("LobbyMatchmaking");
   const findMatch = `/matchMaking/CustomPick.png`;
 
