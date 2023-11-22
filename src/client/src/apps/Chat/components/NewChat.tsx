@@ -224,7 +224,6 @@ type FormValues = Pick<
 
 export default function NewChatModal(): JSX.Element {
   const { isOpened, close } = useModal('chat:new-chat');
-  console.log('BOAS');
 
   const form = useForm<FormValues>({
     initialValues: {

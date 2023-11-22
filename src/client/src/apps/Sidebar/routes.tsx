@@ -121,7 +121,7 @@ const routes: ISidebarRoute[] = [
             path: '/',
             icon: <PlayIcon />,
             exact: false,
-            // Component: React.lazy(() => import('@views/pong')),
+            Component: React.lazy(() => import("@apps/GameLobby/views")),
           },
           {
             label: 'Match History',

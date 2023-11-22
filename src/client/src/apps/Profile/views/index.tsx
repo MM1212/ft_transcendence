@@ -30,8 +30,8 @@ function UserProfile({
   return (
     <Sheet
       style={{
-        height: '100%',
-        width: '45dvh',
+        height: "100%",
+        width: "45dvh",
       }}
     >
       <Stack

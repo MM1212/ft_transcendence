@@ -10,8 +10,8 @@ import { useRecoilCallback } from 'recoil';
 import SidebarSwitchComposer from '../components/SwitchComposer';
 
 export default function SideBar() {
-  const [open, setOpen] = React.useState(false);
-  const [lastRoute, setLastRoute] = React.useState<string>('/');
+  const [open, setOpen] = React.useState(true);
+  const [lastRoute, setLastRoute] = React.useState<string>("/");
   const [location, navigate] = useLocation();
   const handleCloseDrawer = () => {
     setLastRoute(location);
@@ -21,7 +21,7 @@ export default function SideBar() {
   const handleOpenDrawer = useRecoilCallback(
     (ctx) => async (key: string, pressed: boolean) => {
       if (!pressed) return;
-      if (key !== 'Escape') return;
+      if (key !== "Escape") return;
       const loggedIn = !!(await ctx.snapshot.getPromise(sessionAtom));
       if (!loggedIn) return;
       navigate(lastRoute);
@@ -30,47 +30,47 @@ export default function SideBar() {
     [setOpen, navigate, lastRoute]
   );
 
-  useKeybindsToggle(['Escape'], handleOpenDrawer, []);
+  useKeybindsToggle(["Escape"], handleOpenDrawer, []);
 
   return (
     <Drawer
       open={open}
-      onClose={handleCloseDrawer}
+        onClose={handleCloseDrawer}
       size="md"
       variant="plain"
       slotProps={{
         content: {
           sx: {
-            bgcolor: 'transparent',
+            bgcolor: "transparent",
             p: { md: 3, sm: 0 },
-            boxShadow: 'none',
-            display: 'inline-block',
-            width: 'fit-content',
+            boxShadow: "none",
+            display: "inline-block",
+            width: "fit-content",
           },
         },
       }}
     >
       <Sheet
         sx={{
-          borderRadius: 'md',
-          display: 'flex',
-          height: '100%',
-          overflow: 'auto',
-          width: 'fit-content',
-          transition: (theme) => theme.transitions.create('width'),
+          borderRadius: "md",
+          display: "flex",
+          height: "100%",
+          overflow: "auto",
+          width: "fit-content",
+          transition: (theme) => theme.transitions.create("width"),
         }}
       >
         <Sheet
           sx={{
-            height: '100%',
-            width: '25dvh',
+            height: "100%",
+            width: "25dvh",
             p: 2,
             flexShrink: 0,
-            display: 'flex',
-            flexDirection: 'column',
+            display: "flex",
+            flexDirection: "column",
             gap: 2,
-            borderRight: '1px solid',
-            borderColor: 'divider',
+            borderRight: "1px solid",
+            borderColor: "divider",
           }}
         >
           <SidebarRoutes />
