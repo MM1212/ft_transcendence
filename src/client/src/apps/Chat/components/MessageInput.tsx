@@ -8,6 +8,9 @@ import chatsState from '@/apps/Chat/state';
 import tunnel from '@lib/tunnel';
 import ChatsModel from '@typings/models/chat';
 import notifications from '@lib/notifications/hooks';
+import useChat from '../hooks/useChat';
+import moment from 'moment';
+import TimelapseIcon from '@components/icons/TimelapseIcon';
 
 export default function MessageInput({ id }: { id: number }) {
   const [input, setInput] = useRecoilState(chatsState.chatsInput(id));
@@ -72,6 +75,10 @@ export default function MessageInput({ id }: { id: number }) {
       inputRef.current.focus();
     }
   }, [inputRef, id]);
+
+  const self = useChat(id).useSelfParticipant();
+
+  const mutedData = useChat(id).useIsSelfMutedComputed();
   return (
     <Stack
       sx={{ px: 2, pb: 3 }}
@@ -89,7 +96,16 @@ export default function MessageInput({ id }: { id: number }) {
         }}
       >
         <Textarea
-          placeholder="Type something here…"
+          placeholder={
+            !mutedData.is
+              ? 'Type something here…'
+              : `You've been muted until ${
+                  mutedData.type === 'permanent'
+                    ? 'forever'
+                    : moment(self.mutedUntil).format('lll')
+                }`
+          }
+          disabled={mutedData.is}
           onChange={(e) => setInput(e.target.value)}
           value={input}
           minRows={1}
@@ -124,9 +140,13 @@ export default function MessageInput({ id }: { id: number }) {
         sx={{
           borderRadius: (theme) => theme.radius.xl,
         }}
-        disabled={input.trim().length === 0}
+        disabled={input.trim().length === 0 || mutedData.is}
       >
-        <SendIcon size="sm" />
+        {!mutedData.is ? (
+          <SendIcon size="sm" />
+        ) : (
+          <TimelapseIcon color="neutral" />
+        )}
       </IconButton>
     </Stack>
   );

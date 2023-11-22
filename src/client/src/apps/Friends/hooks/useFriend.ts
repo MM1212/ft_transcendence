@@ -17,6 +17,10 @@ const useFriend = (friendId: number) => {
           id: self.id,
           friendId,
         });
+        await tunnel.del(UsersModel.Endpoints.Targets.RemoveFriend, {
+          id: self.id,
+          friendId,
+        });
         notifications.success('Removed friend');
       } catch (e) {
         notifications.error('Failed to remove friend', (e as Error).message);
@@ -33,9 +37,25 @@ const useFriend = (friendId: number) => {
           id: self.id,
           blockedId: friendId,
         });
-        notifications.success('Blocked friend');
+        notifications.success('Blocked user');
       } catch (e) {
-        notifications.error('Failed to block friend', (e as Error).message);
+        notifications.error('Failed to block user', (e as Error).message);
+      }
+    },
+    [friendId]
+  );
+  const unblock = useRecoilCallback(
+    (ctx) => async () => {
+      try {
+        const self = await ctx.snapshot.getPromise(sessionAtom);
+        if (!self) throw new Error('You are not logged in');
+        await tunnel.del(UsersModel.Endpoints.Targets.UnblockUser, {
+          id: self.id,
+          blockedId: friendId,
+        });
+        notifications.success('Unblocked user');
+      } catch (e) {
+        notifications.error('Failed to unblock user', (e as Error).message);
       }
     },
     [friendId]
@@ -62,7 +82,7 @@ const useFriend = (friendId: number) => {
   const goToProfile = () => {
     navigate(`/lobby/profile/${friendId}`);
   };
-  return { remove, block, goToMessages, goToProfile };
+  return { remove, block, unblock, goToMessages, goToProfile };
 };
 
 export default useFriend;

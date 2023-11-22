@@ -33,7 +33,6 @@ import {
   IPenguinBaseAnimationsTypes,
   TPenguinAnimationDirection,
 } from '@typings/penguin';
-import { AspectRatio } from '@mui/joy';
 
 export default function Lobby() {
   const { useMounter, emit, useListener } = useSocket(
@@ -348,7 +347,7 @@ export default function Lobby() {
   const rendererOptions: Partial<Pixi.IApplicationOptions> = React.useMemo(
     () => ({
       antialias: true,
-      backgroundColor: 0xffafff,
+      backgroundColor: 0x000,
     }),
     []
   );

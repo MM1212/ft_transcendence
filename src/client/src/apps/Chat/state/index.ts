@@ -1,3 +1,4 @@
+import friendsState from '@apps/Friends/state';
 import { sessionAtom, usersAtom } from '@hooks/user/state';
 import tunnel from '@lib/tunnel';
 import ChatsModel from '@typings/models/chat';
@@ -64,8 +65,8 @@ const chatsState = new (class MessagesState {
       else chats = [...chats];
       return chats
         .sort((a, b) => {
-          const aLast = a.messages[0]?.createdAt ?? 0;
-          const bLast = b.messages[0]?.createdAt ?? 0;
+          const aLast = a.messages[0]?.createdAt ?? a.createdAt;
+          const bLast = b.messages[0]?.createdAt ?? b.createdAt;
           return bLast - aLast;
         })
         .map((c) => c.id);
@@ -213,6 +214,33 @@ const chatsState = new (class MessagesState {
           ...newValue,
           toReadPings: 0,
         });
+      },
+  });
+  isParticipantBlocked = selectorFamily<
+    {
+      blocked: boolean;
+      muted: boolean;
+    },
+    {
+      chatId: number;
+      participantId: number;
+    }
+  >({
+    key: 'chatIsParticipantBlocked',
+    get:
+      ({ chatId, participantId }) =>
+      ({ get }) => {
+        const self = get(chatsState.selfParticipantByChat(chatId));
+        if (self.id === participantId) return { blocked: false, muted: false };
+        const participant = get(
+          chatsState.participant({ chatId, participantId })
+        );
+        const blocked = get(friendsState.blocked);
+        return {
+          blocked: blocked.includes(participant.userId),
+          muted:
+            participant.muted !== ChatsModel.Models.ChatParticipantMuteType.No,
+        };
       },
   });
   unreadPings = selector<number>({

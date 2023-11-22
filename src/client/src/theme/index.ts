@@ -110,12 +110,30 @@ const testTheme = extendTheme({
     JoyMenuItem: {
       styleOverrides: {
         root: ({ theme, ownerState }) => ({
-          ...(ownerState.color === 'danger' && {
+          ...(ownerState.color === 'danger' && ownerState.variant === 'plain' && {
             color: theme.palette.danger[400],
           }),
+          transition: theme.transitions.create(
+            ['background-color', 'transform', 'box-shadow', 'border'],
+            {
+              duration: theme.transitions.duration.shortest,
+            }
+          ),
         }),
       },
     },
+    JoyChip: {
+      styleOverrides: {
+        label: {
+          display: 'inline-flex'
+        }        
+      }
+    },
+    MuiSvgIcon: {
+      defaultProps: {
+        viewBox: '0 0 23 23',
+      }
+    }
   },
 });
 

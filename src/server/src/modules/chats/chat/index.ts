@@ -47,6 +47,13 @@ class Participant extends CacheObserver<ChatsModel.Models.IChatParticipant> {
   public isBanned(): boolean {
     return this.role === ChatsModel.Models.ChatParticipantRole.Banned;
   }
+  public get isMuted(): boolean {
+    const muted = this.get('muted');
+    if (muted === ChatsModel.Models.ChatParticipantMuteType.No) return false;
+    if (muted === ChatsModel.Models.ChatParticipantMuteType.Forever)
+      return true;
+    return Date.now() < this.get('mutedUntil')!;
+  }
   public get toReadPings(): number {
     return this.get('toReadPings');
   }
@@ -77,6 +84,7 @@ class Chat extends CacheObserver<IChat> {
     );
   }
   public get public(): ChatsModel.Models.IChatInfo {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { messages, authorizationData, ...chat } = this.get();
     return {
       ...chat,
@@ -84,6 +92,7 @@ class Chat extends CacheObserver<IChat> {
     } satisfies ChatsModel.Models.IChatInfo;
   }
   public get display(): ChatsModel.Models.IChatDisplay {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { messages, authorizationData, participants, ...chat } = this.get();
     return {
       ...chat,
@@ -193,6 +202,44 @@ class Chat extends CacheObserver<IChat> {
   }
   public hasParticipant(id: number, member: boolean = true): boolean {
     return this.getParticipant(id, member) !== null;
+  }
+  public async removeParticipant(participantId: number): Promise<boolean>;
+  public async removeParticipant(
+    op: User,
+    participantId: number,
+  ): Promise<boolean>;
+  public async removeParticipant(
+    op: number | User,
+    participantId?: number,
+  ): Promise<boolean> {
+    if (!participantId) participantId = op as number;
+    const participant = this.getParticipant(participantId, true);
+    if (!participant) return false;
+    if (op instanceof User) {
+      const participantOp = this.getParticipantByUserId(op.id);
+      if (!participantOp) throw new ForbiddenException();
+      if (!participantOp.isAdmin())
+        throw new ForbiddenException('Insufficient permissions');
+      if (participant.isAdmin() && !participantOp.isOwner())
+        throw new ForbiddenException('Insufficient permissions');
+    }
+    const ok = !!(await this.helpers.db.chats.updateChatParticipant(
+      participantId,
+      {
+        role: ChatsModel.Models.ChatParticipantRole.Left,
+      },
+    ));
+    if (!ok) return false;
+    participant.set('role', ChatsModel.Models.ChatParticipantRole.Left);
+    this.helpers.sseService.emitToTargets<ChatsModel.Sse.UpdateParticipantEvent>(
+      ChatsModel.Sse.Events.UpdateParticipant,
+      this.sseTargets,
+      {
+        type: 'remove',
+        participantId,
+      },
+    );
+    return true;
   }
   public get lastMessages(): ChatsModel.Models.IChatMessage[] {
     return this.get('messages');
