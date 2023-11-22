@@ -20,6 +20,7 @@ export class Chats {
       participants: chat.participants.map((p) => ({
         ...p,
         createdAt: p.createdAt.getTime(),
+        mutedUntil: p.mutedUntil?.getTime() ?? null,
       })),
       messages: chat.messages.map(this.formatChatMessage.bind(this)),
     };
@@ -264,13 +265,18 @@ export class Chats {
   }
   public async updateChatParticipant(
     participantId: number,
-    data: ChatModel.DTO.DB.UpdateParticipant,
+    { mutedUntil, ...data }: ChatModel.DTO.DB.UpdateParticipant,
   ): Promise<Omit<ChatModel.Models.IChatParticipant, 'user'>> {
     return (await this.prisma.chatParticipant.update({
       where: {
         id: participantId,
       },
-      data,
+      data: {
+        ...data,
+        ...(mutedUntil && {
+          mutedUntil: new Date(mutedUntil),
+        }),
+      },
     })) as unknown as Omit<ChatModel.Models.IChatParticipant, 'user'>;
   }
   public async updateChatParticipants(

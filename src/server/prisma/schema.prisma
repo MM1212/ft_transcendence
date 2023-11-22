@@ -53,6 +53,12 @@ enum ChatParticipantRole {
   LEFT
 }
 
+enum ChatParticipantMuteType {
+  NO
+  FOREVER
+  UNTIL
+}
+
 model ChatParticipant {
   id           Int                 @id @default(autoincrement())
   chat         Chat                @relation(fields: [chatId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -64,6 +70,9 @@ model ChatParticipant {
 
   toReadPings Int      @default(0) @map("to_read_pings")
   createdAt   DateTime @default(now()) @map("created_at")
+
+  muted      ChatParticipantMuteType @default(NO) @map("muted")
+  mutedUntil DateTime?               @map("muted_until")
 
   @@unique([chatId, userId], name: "chat_participant_unique")
   @@index([chatId, userId])

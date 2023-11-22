@@ -18,6 +18,11 @@ ifeq ($(OS), Windows_NT)
 IS_LINUX = 0
 endif
 
+CP = cp
+ifeq ($(IS_LINUX), 0)
+CP = copy
+endif
+
 setup:
 ifeq ($(shell test envs/.tokens.env), 1)
 	$(error Setup the tokens file before setting up everything!)
@@ -121,8 +126,7 @@ ifndef name
 else
 	cd $(SERVER_DIR) && pnpx prisma migrate dev --name $(name)
 endif
-	cp $(DB_FILE) $(DB_MIGRATE_FILE)
-
+	$(CP) $(DB_FILE) $(DB_MIGRATE_FILE)
 $(DB_FILE):
 
 db_rebuild:

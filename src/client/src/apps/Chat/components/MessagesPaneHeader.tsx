@@ -6,11 +6,11 @@ import chatsState from '@/apps/Chat/state';
 import AvatarWithStatus from '@components/AvatarWithStatus';
 import ChatsModel from '@typings/models/chat';
 import ChatManageMenu from './ChatManage';
+import { Tooltip } from '@mui/joy';
 
 export default function MessagesPaneHeader() {
-  const { name, photo, status, participantNames, type } = useRecoilValue(
-    chatsState.selectedChatInfo
-  );
+  const { name, photo, status, participantNames, type, id, topic } =
+    useRecoilValue(chatsState.selectedChatInfo);
 
   return (
     <Stack
@@ -41,6 +41,13 @@ export default function MessagesPaneHeader() {
             <Typography fontWeight="lg" fontSize="lg" component="h2" noWrap>
               {name}
             </Typography>
+            {topic && (
+              <Tooltip placement="bottom" title={topic} enterDelay={1000}>
+                <Typography level="body-xs">
+                  {topic.length > 20 ? topic.slice(0, 20) + '...' : topic}
+                </Typography>
+              </Tooltip>
+            )}
           </Stack>
           {participantNames && (
             <Typography
@@ -55,7 +62,7 @@ export default function MessagesPaneHeader() {
           )}
         </Stack>
       </Stack>
-      <ChatManageMenu />
+      <ChatManageMenu key={id} />
     </Stack>
   );
 }
