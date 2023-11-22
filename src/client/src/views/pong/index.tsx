@@ -147,6 +147,8 @@ export default function Pong() {
           with the config file sent from the server using React's useState ]
   */
 
+  
+
   useMounter();
 
   const [game, setGame] = React.useState<UIGame | null>(null);
@@ -164,6 +166,7 @@ export default function Pong() {
     return undefined;
   };
 
+
   // this one will be used when changing anything colorwise
   const [myPlayerConfig, setMyPlayerConfig] =
     React.useState<IPlayerConfig>(defaultPlayerConfig);
@@ -171,6 +174,10 @@ export default function Pong() {
   const [input, setInput] = React.useState<string>("1");
 
   const parentRef = React.useRef<HTMLDivElement>(null);
+
+  socket.on("update-config-changes", (data: IGameConfig) => {
+    setGameConfig(data);
+  });
 
   const createRoom = React.useCallback(() => {
     socket.emit("create-room", {game: gameConfig, player: myPlayerConfig});
@@ -281,10 +288,10 @@ export default function Pong() {
     );
   }, [socket, parentRef]);
 
-  const refreshRoom = React.useCallback(() => {
-    socket.emit("refresh-room", input);
+  const switchTeam = React.useCallback(() => {
+    socket.emit("switch-team", input);
     socket.once(
-      "refresh-room",
+      "switch-team",
       (error: string, data: IGameConfig | undefined) => {
         if (data == undefined) {
           alert(error);
@@ -295,15 +302,6 @@ export default function Pong() {
     );
   }, [socket, input]);
 
-  //React.useEffect(() => {
-  //  const handler = (rooms: string[]) => {
-  //    console.log(rooms);
-  //  };
-  //  socket.on("getRooms", handler);
-  //  return () => void socket.off("getRooms", handler);
-  //}, [socket]);
-
-  // TODO: display active room
   return (
     <div ref={parentRef}>
       <h1>Pong {`${game?.socket.connected}`}</h1>
@@ -316,7 +314,8 @@ export default function Pong() {
       <h1>Team 2</h1>
       <h3>P1: {`${gameConfig?.teams[1]?.players[0]?.userId}`} || Ready:{`${gameConfig?.teams[1]?.players[0]?.ready}`}</h3>
       <h3>P2: {`${gameConfig?.teams[1]?.players[1]?.userId}`} || Ready:{`${gameConfig?.teams[1]?.players[1]?.ready}`}</h3>
-
+      <h2>Spectators: {`${gameConfig?.spectators[0]?.userId}`}</h2>
+      
       <Input value={input} onChange={(event) => setInput(event.target.value)} />
 
       <div
@@ -333,11 +332,11 @@ export default function Pong() {
         <button onClick={leaveRoom}>Leave room</button>
         <button onClick={getRooms}>Get Rooms</button>
         <button onClick={startGame}>START</button>
-        <button onClick={refreshRoom}>REFRESH</button>
-        <button onClick={switchPosition}>Switch Position</button>
+        <button onClick={switchPosition}>Switch FrontBack</button>
+        <button onClick={switchTeam}>Switch Team</button>
 
         <button>Switch Party Owner</button>
-        <button>Switch Team</button>
+        <button>Enter Spectator</button>
         <button>Change Paddle Color</button>
         <button>STOP</button>
       </div>

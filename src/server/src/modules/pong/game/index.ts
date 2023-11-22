@@ -152,6 +152,11 @@ export class ServerGame extends Game {
     this.joinGame(socket);
   }
 
+  public addSpectatorToGame(socket: Socket, player: IPlayerConfig) {
+    this.config.spectators.push(player);
+    socket.join(this.roomId);
+  }
+
   public createGameSettings(socket: Socket, data: {game: IGameConfig, player: IPlayerConfig}): IGameConfig {
     this.changePartyOwner(data.player.userId);
     this.config = data.game;

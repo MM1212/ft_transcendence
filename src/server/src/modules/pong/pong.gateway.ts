@@ -71,12 +71,18 @@ export class PongGateway
   handleDisconnect(@ConnectedSocket() client: Socket) {
     console.log('PongGateway disconnected');
   }
+
+  // Add checks for isSpectating a game or not
+  // Add leave spectators
+  // Spectator can be the party owner
+  
   
   @SubscribeMessage('create-room')
   createGame(client: Socket, data: {game: IGameConfig, player: IPlayerConfig}): void {
     try {
       const gameConf = this.service.createGame(data, this.server, client);
       client.emit('create-room', "", gameConf);
+      this.server.to(gameConf.roomId).emit('update-config-changes', gameConf);
     } catch (error) {
       this.errorHandler('create-room', client, error.message);
     }
@@ -87,6 +93,7 @@ export class PongGateway
     try {
       const gameConf = this.service.joinGame(client, data);
       client.emit('join-room', "", gameConf);
+      this.server.to(gameConf.roomId).emit('update-config-changes', gameConf);
     } catch (error) {
       this.errorHandler('join-room', client, error.message);
     }
@@ -97,6 +104,7 @@ export class PongGateway
     try {
       const gameConf = this.service.readyToPlay(client, roomId);
       client.emit('ready-player', "", gameConf);
+      this.server.to(gameConf.roomId).emit('update-config-changes',  gameConf);
     } catch (error) {
       this.errorHandler('ready-player', client, error.message);
     }
@@ -140,6 +148,7 @@ export class PongGateway
       const gameConf = this.service.leaveGame(client, roomId);
       // dont know if i need to send config to client
       // wait for reconnect or something
+      this.server.to(gameConf.roomId).emit('update-config-changes',  gameConf);
       if (gameConf.nPlayers === 0) {
         const room = this.service.getGameByRoomId(roomId);
         if (room)
@@ -154,23 +163,26 @@ export class PongGateway
     }
   }
 
-  @SubscribeMessage('refresh-room')
-  refreshRoom(client: Socket): void {
-    try {
-      const gameConf = this.service.refreshRoom(client);
-      client.emit('refresh-room', "", gameConf);
-    } catch (error) {
-      this.errorHandler('refresh-room', client, error.message);
-    }
-  }
-
   @SubscribeMessage('switch-position')
   switchPosition(client: Socket, data: string): void {
     try {
       const gameConf = this.service.switchPosition(client);
       client.emit('switch-position', "", gameConf);
+      this.server.to(gameConf.roomId).emit('update-config-changes',  gameConf);
     } catch (error) {
       this.errorHandler('switch-position', client, error.message);
+    }
+  }
+
+  @SubscribeMessage('switch-team')
+  switchTeam(client: Socket, data: string): void {
+    try {
+      //data should be the team id, because we can switch to the other team normally, but if we are spectator we can switch to both
+      const gameConf = this.service.switchTeam(client);
+      client.emit('switch-team', "", gameConf);
+      this.server.to(gameConf.roomId).emit('update-config-changes',  gameConf);
+    } catch (error) {
+      this.errorHandler('switch-team', client, error.message);
     }
   }
 

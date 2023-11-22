@@ -20,7 +20,7 @@ export interface IGameConfig {
   roomId: string;
   teams: [ITeam, ITeam];
   partyOwnerId: string; // userId
-  spectators: number[]; // userIds
+  spectators: IPlayerConfig[]; // userIds
   backgroundColor: number;
   lineColor: number;
   nPlayers: number;
