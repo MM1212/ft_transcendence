@@ -12,13 +12,21 @@ import UserAchievements from '../components/UserAchievements';
 import UserMatchHistory from '../components/UserMatchHistory';
 import AvatarWithStatus from '@components/AvatarWithStatus';
 import DotsVerticalIcon from '@components/icons/DotsVerticalIcon';
-import { Redirect, Route, Switch, useParams } from 'wouter';
+import { Route, Switch, useParams } from 'wouter';
 import UsersModel from '@typings/models/users';
 import { useRecoilValue } from 'recoil';
 import { navigate } from 'wouter/use-location';
 import { useLayoutEffect } from 'react';
+import { useFriends } from '@apps/Friends/hooks';
 
-function UserProfile({ user }: { user: UsersModel.Models.IUserInfo }) {
+function UserProfile({
+  user,
+  affiliation,
+}: {
+  user: UsersModel.Models.IUserInfo;
+  affiliation: 'me' | 'friend' | 'unknown';
+}) {
+  console.log(affiliation);
   return (
     <Sheet
       style={{
@@ -53,13 +61,17 @@ function UserProfile({ user }: { user: UsersModel.Models.IUserInfo }) {
             }}
           />
           <Typography level="h2">{user.nickname}</Typography>
-          <ButtonGroup size="sm" variant="outlined">
-            <Button size="sm">Message</Button>
-            <Button size="sm">Friend Request</Button>
-            <IconButton>
-              <DotsVerticalIcon />
-            </IconButton>
-          </ButtonGroup>
+          {affiliation !== 'me' && (
+            <ButtonGroup size="sm" variant="outlined">
+              <Button size="sm">Message</Button>
+              {affiliation === 'unknown' && (
+                <Button size="sm">Friend Request</Button>
+              )}
+              <IconButton>
+                <DotsVerticalIcon />
+              </IconButton>
+            </ButtonGroup>
+          )}
         </Stack>
         <Divider />
         <UserAchievements />
@@ -69,9 +81,11 @@ function UserProfile({ user }: { user: UsersModel.Models.IUserInfo }) {
     </Sheet>
   );
 }
+
 function UserProfileById() {
   const { userId } = useParams();
   const user = useRecoilValue(usersAtom(parseInt(userId!)));
+  const friends = useFriends();
 
   useLayoutEffect(() => {
     if (user) return;
@@ -79,15 +93,21 @@ function UserProfileById() {
     searchParams.append('t', 'Profile Not Found');
     navigate(`/error?${searchParams.toString()}`);
   }, [user]);
+
   if (!user) {
     return null;
   }
-  return <UserProfile user={user!} />;
+  return (
+    <UserProfile
+      user={user!}
+      affiliation={friends.includes(parseInt(userId!)) ? 'friend' : 'unknown'}
+    />
+  );
 }
 
 function UserProfileByMe() {
   const user = useCurrentUser();
-  return <UserProfile user={user!} />;
+  return <UserProfile user={user!} affiliation={'me'} />;
 }
 
 export default function ProfileView() {

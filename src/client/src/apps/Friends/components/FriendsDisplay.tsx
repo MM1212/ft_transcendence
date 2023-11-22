@@ -47,7 +47,10 @@ function FriendDisplay({ id }: { id: number }): JSX.Element | null {
           sx={{
             borderRadius: (theme) => theme.radius.xl,
           }}
-          onClick={goToMessages}
+          onClick={e => {
+            e.stopPropagation();
+            goToMessages();
+          }}
         >
           <MessageIcon size="sm" />
         </IconButton>
