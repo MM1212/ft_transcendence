@@ -9,9 +9,7 @@ import FriendsOptionsMenu from "./FriendsOptionsMenu";
 import useFriend from "../hooks/useFriend";
 
 function FriendDisplay({ id }: { id: number }): JSX.Element | null {
-  const manageMessageClick = () => {
-    console.log("manageMessageClick");
-  };
+
   const user = useUser(id);
   const { goToMessages } = useFriend(id);
   if (!user) return null;

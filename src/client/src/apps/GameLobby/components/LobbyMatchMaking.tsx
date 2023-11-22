@@ -1,6 +1,10 @@
+import AvatarWithStatus from "@components/AvatarWithStatus";
 import { useCurrentUser, useSession } from "@hooks/user";
+import { Card, CardContent, CardCover } from "@mui/joy";
+import { Typography } from "@mui/joy";
 import { Button } from "@mui/joy";
 import { Avatar, Box, Sheet } from "@mui/joy";
+import { Polygon } from "pixi.js";
 
 export function LobbyMatchMaking() {
   const user = useCurrentUser();
@@ -12,25 +16,23 @@ export function LobbyMatchMaking() {
         flexDirection: "column",
         height: "100%",
         backgroundColor: "unset",
+        alignItems: "center",
+        img: {
+          width: "24dvh",
+          height: "45dvh",
+        },
       }}
     >
-      <Box sx={{ display: "flex", justifyContent: "center" }}>
+      <Box>
         <Avatar
           sx={(theme) => ({
             width: theme.spacing(17),
             height: theme.spacing(17),
           })}
           src={user?.avatar}
-        ></Avatar>
+        />
+        <img src="/matchMaking/matchMakingFrame.png"></img>
       </Box>
-      <Button
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          width: "20dvh",
-          radiusBorder: "50%",
-        }}
-      ></Button>
     </Sheet>
   );
 }
