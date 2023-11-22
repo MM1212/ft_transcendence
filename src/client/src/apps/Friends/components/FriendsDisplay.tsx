@@ -10,7 +10,7 @@ import useFriend from '../hooks/useFriend';
 
 function FriendDisplay({ id }: { id: number }): JSX.Element | null {
   const user = useUser(id);
-  const { goToMessages } = useFriend(id);
+  const { goToMessages, goToProfile } = useFriend(id);
   if (!user) return null;
   return (
     <Stack
@@ -29,6 +29,7 @@ function FriendDisplay({ id }: { id: number }): JSX.Element | null {
           cursor: 'pointer',
         },
       }}
+      onClick={goToProfile}
     >
       <Stack direction="row" spacing={1.5}>
         <AvatarWithStatus status={user.status} src={user.avatar} size="lg" />

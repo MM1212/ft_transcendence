@@ -26,7 +26,7 @@ const friendsState = new (class FriendsState {
     key: 'user/friends/extended',
     get: async ({ get }) => {
       const friends = get(this.friends);
-      return get(waitForAll(friends.map((id) => usersAtom(id))));
+      return get(waitForAll(friends.map((id) => usersAtom(id)))).filter(Boolean) as UsersModel.Models.IUserInfo[];
     },
   });
   blocked = atom<number[]>({
@@ -86,13 +86,13 @@ const friendsState = new (class FriendsState {
       const friends = get(this.friends);
       const users = get(waitForAll(friends.map(usersAtom)));
       [...users].sort((a, b) => {
-        const aOnline = a.status !== UsersModel.Models.Status.Offline;
-        const bOnline = b.status !== UsersModel.Models.Status.Offline;
+        const aOnline = a?.status !== UsersModel.Models.Status.Offline;
+        const bOnline = b?.status !== UsersModel.Models.Status.Offline;
         if (aOnline && !bOnline) return -1;
         if (!aOnline && bOnline) return 1;
         return 0;
       });
-      return users.map((user) => user.id);
+      return users.map((user) => user?.id);
     },
   });
 })();

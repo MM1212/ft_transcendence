@@ -54,7 +54,8 @@ const routes: ISidebarRoute[] = [
     children: [
       {
         label: 'My Profile',
-        path: '/profile',
+        path: '/profile/me',
+        routePath: '/profile/:rest*',
         icon: <AccountIcon />,
         Component: React.lazy(() => import('@apps/Profile/views')),
         exact: false,

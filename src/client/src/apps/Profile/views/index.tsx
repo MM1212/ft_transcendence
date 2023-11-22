@@ -1,4 +1,4 @@
-import { useCurrentUser } from '@hooks/user';
+import { useCurrentUser, usersAtom } from '@hooks/user';
 import {
   Button,
   ButtonGroup,
@@ -12,9 +12,13 @@ import UserAchievements from '../components/UserAchievements';
 import UserMatchHistory from '../components/UserMatchHistory';
 import AvatarWithStatus from '@components/AvatarWithStatus';
 import DotsVerticalIcon from '@components/icons/DotsVerticalIcon';
+import { Redirect, Route, Switch, useParams } from 'wouter';
+import UsersModel from '@typings/models/users';
+import { useRecoilValue } from 'recoil';
+import { navigate } from 'wouter/use-location';
+import { useLayoutEffect } from 'react';
 
-export default function ProfileView() {
-  const user = useCurrentUser();
+function UserProfile({ user }: { user: UsersModel.Models.IUserInfo }) {
   return (
     <Sheet
       style={{
@@ -48,7 +52,7 @@ export default function ProfileView() {
               size: 'lg',
             }}
           />
-          <Typography level="h2">{user?.nickname}</Typography>
+          <Typography level="h2">{user.nickname}</Typography>
           <ButtonGroup size="sm" variant="outlined">
             <Button size="sm">Message</Button>
             <Button size="sm">Friend Request</Button>
@@ -63,5 +67,38 @@ export default function ProfileView() {
         <UserMatchHistory />
       </Stack>
     </Sheet>
+  );
+}
+function UserProfileById() {
+  const { userId } = useParams();
+  const user = useRecoilValue(usersAtom(parseInt(userId!)));
+
+  useLayoutEffect(() => {
+    if (user) return;
+    const searchParams = new URLSearchParams();
+    searchParams.append('t', 'Profile Not Found');
+    navigate(`/error?${searchParams.toString()}`);
+  }, [user]);
+  if (!user) {
+    return null;
+  }
+  return <UserProfile user={user!} />;
+}
+
+function UserProfileByMe() {
+  const user = useCurrentUser();
+  return <UserProfile user={user!} />;
+}
+
+export default function ProfileView() {
+  return (
+    <Switch>
+      <Route path="/profile/me">
+        <UserProfileByMe />
+      </Route>
+      <Route path="/profile/:userId">
+        <UserProfileById />
+      </Route>
+    </Switch>
   );
 }

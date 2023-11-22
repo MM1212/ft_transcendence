@@ -318,7 +318,7 @@ const chatsState = new (class MessagesState {
           waitForAll(participants.map((p) => usersAtom(p.userId)))
         ).filter(Boolean);
         if (info.type === ChatsModel.Models.ChatType.Direct) {
-          const other = users.find((u) => u.id !== self?.id);
+          const other = users.find((u) => u?.id !== self?.id);
 
           info.name = other?.nickname ?? 'Unknown';
           info.photo = other?.avatar ?? null;
@@ -327,14 +327,14 @@ const chatsState = new (class MessagesState {
         } else {
           (info as ISelectedChatInfo).participantNames = users
             .filter((u) => u?.id !== self?.id)
-            .map((p) => p.nickname)
+            .map((p) => p?.nickname)
             .join(', ');
           const lastMessageParticipant = participants.find(
             (p) => p.id === chat.messages[0]?.authorId
           );
 
           const lastMessageUser = users.find(
-            (u) => u.id === lastMessageParticipant?.userId
+            (u) => u?.id === lastMessageParticipant?.userId
           );
 
           (info as ISelectedChatInfo).lastMessageAuthorName =

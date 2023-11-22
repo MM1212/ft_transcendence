@@ -5,6 +5,7 @@ import LoginPage from '@apps/LoginPage/views';
 import ClothingShowcase from '@views/ClothingShowcase';
 import Lobby from '@views/lobby';
 import { useRouter, Route } from 'wouter';
+import ErrorPage from '@views/error';
 
 function App() {
   const router = useRouter();
@@ -32,10 +33,10 @@ function App() {
       <Route path="/clothing-showcase">
         <ClothingShowcase />
       </Route>
-      {/* <Route path="/error">
-          <ErrorPage />
-        </Route>
-        <Route>
+      <Route path="/error">
+        <ErrorPage />
+      </Route>
+      {/* <Route>
           <Redirect to="/error?t=404" />
         </Route> */}
       {/* <SandboxRouter /> */}
