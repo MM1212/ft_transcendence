@@ -13,16 +13,11 @@ import {
   ColorPaletteProp,
   Divider,
   IconButton,
-  List,
-  ListItem,
-  ListItemContent,
-  ListItemDecorator,
   Modal,
   ModalClose,
   ModalDialog,
   Sheet,
   Stack,
-  Switch,
   Tab,
   TabList,
   TabPanel,
@@ -142,21 +137,27 @@ function Member({ participant, user }: MemberProps): JSX.Element {
           </Typography>
         </Stack>
       </Stack>
-      <Stack direction="row" alignItems="center" spacing={0.2}>
+      <Stack direction="row" alignItems="center" spacing={1}>
+        <Tooltip title="View Profile">
+          <IconButton
+            size="sm"
+            sx={{
+              borderRadius: 'md',
+            }}
+            variant={isBanned || left ? 'soft' : undefined}
+            color={isBanned ? 'danger' : left ? 'neutral' : undefined}
+            onClick={closeAndRun(goToProfile)}
+          >
+            <AccountIcon />
+          </IconButton>
+        </Tooltip>
         <IconButton
           size="sm"
           sx={{
-            borderRadius: 'lg',
+            borderRadius: 'md',
           }}
-          onClick={closeAndRun(goToProfile)}
-        >
-          <AccountIcon />
-        </IconButton>
-        <IconButton
-          size="sm"
-          sx={{
-            borderRadius: 'lg',
-          }}
+          variant={isBanned || left ? 'soft' : undefined}
+          color={isBanned ? 'danger' : left ? 'neutral' : undefined}
         >
           <DotsVerticalIcon />
         </IconButton>
@@ -176,7 +177,7 @@ function MembersList({
       spacing={0.1}
       sx={{
         width: '50dvh',
-        height: '26dvh',
+        height: '30dvh',
         overflow: 'auto',
         gap: (theme) => theme.spacing(0.5),
       }}
