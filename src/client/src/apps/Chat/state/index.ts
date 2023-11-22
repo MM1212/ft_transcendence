@@ -1,3 +1,4 @@
+import friendsState from '@apps/Friends/state';
 import { sessionAtom, usersAtom } from '@hooks/user/state';
 import tunnel from '@lib/tunnel';
 import ChatsModel from '@typings/models/chat';
@@ -64,8 +65,8 @@ const chatsState = new (class MessagesState {
       else chats = [...chats];
       return chats
         .sort((a, b) => {
-          const aLast = a.messages[0]?.createdAt ?? 0;
-          const bLast = b.messages[0]?.createdAt ?? 0;
+          const aLast = a.messages[0]?.createdAt ?? a.createdAt;
+          const bLast = b.messages[0]?.createdAt ?? b.createdAt;
           return bLast - aLast;
         })
         .map((c) => c.id);
@@ -215,6 +216,33 @@ const chatsState = new (class MessagesState {
         });
       },
   });
+  isParticipantBlocked = selectorFamily<
+    {
+      blocked: boolean;
+      muted: boolean;
+    },
+    {
+      chatId: number;
+      participantId: number;
+    }
+  >({
+    key: 'chatIsParticipantBlocked',
+    get:
+      ({ chatId, participantId }) =>
+      ({ get }) => {
+        const self = get(chatsState.selfParticipantByChat(chatId));
+        if (self.id === participantId) return { blocked: false, muted: false };
+        const participant = get(
+          chatsState.participant({ chatId, participantId })
+        );
+        const blocked = get(friendsState.blocked);
+        return {
+          blocked: blocked.includes(participant.userId),
+          muted:
+            participant.muted !== ChatsModel.Models.ChatParticipantMuteType.No,
+        };
+      },
+  });
   unreadPings = selector<number>({
     key: 'chatUnreadPings',
     get: ({ get }) => {
@@ -318,7 +346,7 @@ const chatsState = new (class MessagesState {
           waitForAll(participants.map((p) => usersAtom(p.userId)))
         ).filter(Boolean);
         if (info.type === ChatsModel.Models.ChatType.Direct) {
-          const other = users.find((u) => u.id !== self?.id);
+          const other = users.find((u) => u?.id !== self?.id);
 
           info.name = other?.nickname ?? 'Unknown';
           info.photo = other?.avatar ?? null;
@@ -327,14 +355,14 @@ const chatsState = new (class MessagesState {
         } else {
           (info as ISelectedChatInfo).participantNames = users
             .filter((u) => u?.id !== self?.id)
-            .map((p) => p.nickname)
+            .map((p) => p?.nickname)
             .join(', ');
           const lastMessageParticipant = participants.find(
             (p) => p.id === chat.messages[0]?.authorId
           );
 
           const lastMessageUser = users.find(
-            (u) => u.id === lastMessageParticipant?.userId
+            (u) => u?.id === lastMessageParticipant?.userId
           );
 
           (info as ISelectedChatInfo).lastMessageAuthorName =

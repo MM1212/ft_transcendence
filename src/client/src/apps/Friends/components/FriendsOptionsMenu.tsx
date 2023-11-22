@@ -20,6 +20,7 @@ export default function FriendsOptionsMenu({ id }: { id: number }) {
       <MenuButton
         slots={{ root: IconButtonRounded }}
         slotProps={{ root: { variant: "plain", color: "neutral" } }}
+        onClick={e => e.stopPropagation()}
       >
         <DotsVerticalIcon />
       </MenuButton>

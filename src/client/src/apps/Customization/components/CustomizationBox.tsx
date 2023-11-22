@@ -74,6 +74,7 @@ export default function CustomizationBox({
               bgcolor: 'background.level1',
             }
           : undefined,
+          flex
       }}
       onClick={onClick}
     >
@@ -81,7 +82,6 @@ export default function CustomizationBox({
         <img
           src={imageUrl}
           style={{
-            flex,
             width: 'auto',
             height: 'auto',
             maxHeight: '100%',

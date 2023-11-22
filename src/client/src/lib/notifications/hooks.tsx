@@ -5,7 +5,7 @@ import CloseIcon from '@components/icons/CloseIcon';
 import InformationIcon from '@components/icons/InformationIcon';
 import { Alert, AlertProps, Button, IconButton, Typography } from '@mui/joy';
 import React from 'react';
-import { ExternalToast, ToastT, toast } from 'sonner';
+import { ExternalToast, toast } from 'sonner';
 
 type NotificationComponentProps = Pick<
   AlertProps,
@@ -43,6 +43,7 @@ type NotificationComponentProps = Pick<
 
 export type NotificationProps = ExternalToast & NotificationComponentProps;
 
+// eslint-disable-next-line react-refresh/only-export-components
 function NotificationWrapper({
   icon,
   children,
@@ -94,12 +95,15 @@ function NotificationWrapper({
         </>
       }
     >
-      {children ?? message ?? (
-        <div>
-          <Typography level="title-lg">{title}</Typography>
-          <Typography level="body-sm">{description}</Typography>
-        </div>
-      )}
+      {children ??
+        (message ? (
+          <Typography level="body-sm">{message}</Typography>
+        ) : (
+          <div>
+            <Typography level="title-lg">{title}</Typography>
+            <Typography level="body-sm">{description}</Typography>
+          </div>
+        ))}
     </Alert>
   );
 }
@@ -152,14 +156,14 @@ class NotificationsAPI {
     props?: unknown
   ): Notification {
     let message: React.ReactNode | undefined;
-    if (description === undefined) props = title;
-    else if (props === undefined) {
+    if (props === undefined) {
       if (typeof description !== 'string') {
         props = description;
         message = title as string;
         title = undefined;
+        description = undefined;
       }
-    }
+    } else if (description === undefined) props = title;
     return new Notification({
       icon: <InformationIcon />,
       ...(props as NotificationProps),
@@ -181,14 +185,15 @@ class NotificationsAPI {
   info(props: Omit<NotificationProps, 'color'>): Notification;
   info(title: unknown, description?: unknown, props?: unknown): Notification {
     let message: React.ReactNode | undefined;
-    if (description === undefined) props = title;
-    else if (props === undefined) {
+    if (props === undefined) {
       if (typeof description !== 'string') {
         props = description;
         message = title as string;
         title = undefined;
+        description = undefined;
       }
     }
+    else if (description === undefined) props = title;
     return new Notification({
       icon: <InformationIcon />,
       ...(props as NotificationProps),
@@ -214,14 +219,15 @@ class NotificationsAPI {
     props?: unknown
   ): Notification {
     let message: React.ReactNode | undefined;
-    if (description === undefined) props = title;
-    else if (props === undefined) {
+    if (props === undefined) {
       if (typeof description !== 'string') {
         props = description;
         message = title as string;
         title = undefined;
+        description = undefined;
       }
     }
+    else if (description === undefined) props = title;
     return new Notification({
       icon: <CheckIcon />,
       ...(props as NotificationProps),
@@ -247,14 +253,15 @@ class NotificationsAPI {
     props?: unknown
   ): Notification {
     let message: React.ReactNode | undefined;
-    if (description === undefined) props = title;
-    else if (props === undefined) {
+    if (props === undefined) {
       if (typeof description !== 'string') {
         props = description;
         message = title as string;
         title = undefined;
+        description = undefined;
       }
     }
+    else if (description === undefined) props = title;
     return new Notification({
       icon: <AlertIcon />,
       ...(props as NotificationProps),
@@ -276,14 +283,15 @@ class NotificationsAPI {
   error(props: Omit<NotificationProps, 'color'>): Notification;
   error(title: unknown, description?: unknown, props?: unknown): Notification {
     let message: React.ReactNode | undefined;
-    if (description === undefined) props = title;
-    else if (props === undefined) {
+    if (props === undefined) {
       if (typeof description !== 'string') {
         props = description;
         message = title as string;
         title = undefined;
+        description = undefined;
       }
     }
+    else if (description === undefined) props = title;
     return new Notification({
       icon: <AlertOctagonOutlineIcon />,
       ...(props as NotificationProps),

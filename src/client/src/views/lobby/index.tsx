@@ -32,8 +32,7 @@ import penguinState, {
 import {
   IPenguinBaseAnimationsTypes,
   TPenguinAnimationDirection,
-} from "@typings/penguin";
-import { AspectRatio } from "@mui/joy";
+} from '@typings/penguin';
 
 export default function Lobby() {
   const { useMounter, emit, useListener } = useSocket(
@@ -171,7 +170,7 @@ export default function Lobby() {
           const user =
             player.userId === self.id
               ? self
-              : await ctx.snapshot.getPromise(usersAtom(player.userId));
+              : (await ctx.snapshot.getPromise(usersAtom(player.userId)))!;
           return {
             ...player,
             layers: await loadPenguin(player, player.userId === self.id),
@@ -207,7 +206,7 @@ export default function Lobby() {
           ...prev,
           { ...player, sprite: null },
         ]);
-      const user = await ctx.snapshot.getPromise(usersAtom(player.userId));
+      const user = (await ctx.snapshot.getPromise(usersAtom(player.userId)))!;
       player.layers = await loadPenguin(player, false);
       player.nickNameText = new Pixi.Text(user.nickname, {
         fontFamily: "Inter",
@@ -321,7 +320,7 @@ export default function Lobby() {
         const user =
           player.userId === self.id
             ? self
-            : await ctx.snapshot.getPromise(usersAtom(player.userId));
+            : (await ctx.snapshot.getPromise(usersAtom(player.userId)))!;
         player.layers = await loadPenguin(player, player.userId === self.id);
         player.nickNameText = new Pixi.Text(user.nickname, {
           fontFamily: "Inter",
@@ -348,7 +347,7 @@ export default function Lobby() {
   const rendererOptions: Partial<Pixi.IApplicationOptions> = React.useMemo(
     () => ({
       antialias: true,
-      backgroundColor: 0xffafff,
+      backgroundColor: 0x000,
     }),
     []
   );

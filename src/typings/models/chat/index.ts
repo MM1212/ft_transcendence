@@ -33,6 +33,12 @@ namespace ChatsModel {
       Embed = 'EMBED',
     }
 
+    export enum ChatParticipantMuteType {
+      No = 'NO',
+      Forever = 'FOREVER',
+      Until = 'UNTIL',
+    }
+
     export interface IChatParticipant {
       id: number;
       chatId: number;
@@ -40,6 +46,8 @@ namespace ChatsModel {
       role: GroupEnumValues<ChatParticipantRole>;
       toReadPings: number;
       createdAt: number;
+      muted: GroupEnumValues<ChatParticipantMuteType>;
+      mutedUntil: number | null;
     }
 
     export interface IChatAuthorizationData {
@@ -108,8 +116,9 @@ namespace ChatsModel {
         meta: any;
       }
       export interface ChatParticipant
-        extends Omit<Models.IChatParticipant, 'createdAt'> {
+        extends Omit<Models.IChatParticipant, 'createdAt' | 'mutedUntil'> {
         createdAt: Date;
+        mutedUntil: Date | null;
       }
       export interface Chat
         extends Omit<Models.IChat, 'participants' | 'createdAt' | 'messages'> {
@@ -146,7 +155,7 @@ namespace ChatsModel {
       export interface UpdateParticipant
         extends Pick<
           Partial<Models.IChatParticipant>,
-          'role' | 'toReadPings'
+          'role' | 'toReadPings' | 'muted' | 'mutedUntil'
         > {}
       export interface UpdateMessage
         extends Pick<
@@ -198,6 +207,7 @@ namespace ChatsModel {
       UpdateMessage = '/chats/:chatId/messages/:messageId',
       DeleteChat = '/chats/:chatId',
       DeleteParticipant = '/chats/:chatId/participants/:participantId',
+      LeaveChat = '/chats/:chatId/leave',
       DeleteMessage = '/chats/:chatId/messages/:messageId',
     }
     export type All = GroupEndpointTargets<Targets>;
@@ -307,6 +317,15 @@ namespace ChatsModel {
         DTO.CheckOrCreateDirectChatParams
       > {}
 
+    export interface LeaveChat
+      extends Endpoint<
+        EndpointMethods.Post,
+        Targets.LeaveChat,
+        undefined,
+        undefined,
+        DTO.ChatParams
+      > {}
+
     export interface Registry extends EndpointRegistry {
       [EndpointMethods.Get]: {
         [Targets.GetSessionChats]: GetChats;
@@ -340,11 +359,29 @@ namespace ChatsModel {
     export enum Events {
       NewMessage = 'chat.new-message',
       NewChat = 'chat.new-chat',
+      UpdateParticipant = 'chat.update-participant',
+    }
+    export interface AddParticipant {
+      type: 'add';
+      participant: Models.IChatParticipant;
+    }
+    export interface UpdateParticipant {
+      type: 'update';
+      participant: Partial<DTO.UpdateParticipant>;
+    }
+    export interface RemoveParticipant {
+      type: 'remove';
+      participantId: number;
     }
     export interface NewMessageEvent
       extends SseModel.Models.Event<Models.IChatMessage, Events.NewMessage> {}
     export interface NewChatEvent
       extends SseModel.Models.Event<Models.IChatDisplay, Events.NewChat> {}
+    export interface UpdateParticipantEvent
+      extends SseModel.Models.Event<
+        AddParticipant | UpdateParticipant | RemoveParticipant,
+        Events.UpdateParticipant
+      > {}
   }
 }
 

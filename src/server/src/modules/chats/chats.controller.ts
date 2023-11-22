@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   InternalServerErrorException,
   NotFoundException,
@@ -19,7 +20,7 @@ import { HTTPContext } from '@typings/http';
 import ChatCtx from './decorators/Chat.pipe';
 import Chat from './chat';
 import { InternalEndpointResponse } from '@typings/api';
-import { ChatAuth } from './decorators/Role.guard';
+import { ChatAuth, ChatOPAuth } from './decorators/Role.guard';
 import UserCtx from '../users/decorators/User.pipe';
 import User from '../users/user';
 
@@ -35,7 +36,6 @@ export class ChatsController {
     @HttpCtx() { user }: HTTPContext<true>,
   ): Promise<InternalEndpointResponse<ChatsModel.Endpoints.GetChats>> {
     const chats = await this.service.getAllByUserId(user.id);
-    console.log(chats.map((chat) => chat.display));
 
     return chats.map((chat) => chat.display);
   }
@@ -156,6 +156,30 @@ export class ChatsController {
       chatId: chat.id,
     };
   }
+
+  @Post(Targets.LeaveChat)
+  @ChatAuth()
+  async leaveChat(
+    @ChatCtx() chat: Chat,
+    @HttpCtx() { user }: HTTPContext<true>,
+  ): Promise<InternalEndpointResponse<ChatsModel.Endpoints.LeaveChat>> {
+    const participant = chat.getParticipantByUserId(user.id);
+    if (!participant)
+      throw new InternalServerErrorException(
+        'Participant validated but not found',
+      );
+    await chat.removeParticipant(participant.id);
+  }
+  @Delete(Targets.DeleteParticipant)
+  @ChatOPAuth()
+  async deleteParticipant(
+    @ChatCtx() chat: Chat,
+    @Param('participantId', new ParseIntPipe({ errorHttpStatusCode: 400 }))
+    participantId: number,
+    @HttpCtx() { user: op }: HTTPContext<true>,
+  ): Promise<InternalEndpointResponse<ChatsModel.Endpoints.DeleteParticipant>> {
+    await chat.removeParticipant(op, participantId);
+  }
 }
 // @Patch(Targets.UpdateMessage)
 // @ChatAuth()
@@ -178,18 +202,6 @@ export class ChatsController {
 //   const ok = await chat.delete();
 //   if (!ok) return buildErrorResponse('Failed to delete chat');
 //   return buildEmptyResponse();
-// }
-
-// @Delete(Targets.DeleteParticipant)
-// @ChatOPAuth()
-// async deleteParticipant(
-//   @ChatCtx() chat: Chat,
-//   @Param('participantId', new ParseIntPipe({ errorHttpStatusCode: 400 }))
-//   participantId: number,
-// ): Promise<InternalEndpointResponse<ChatsModel.Endpoints.DeleteParticipant>> {
-//   const [ok, resp] = await chat.removeParticipant(participantId);
-//   if (!ok) return buildErrorResponse(resp);
-//   return (resp);
 // }
 
 // @Delete(Targets.DeleteMessage)

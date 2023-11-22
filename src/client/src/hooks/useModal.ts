@@ -28,9 +28,9 @@ const isAnyModalOpenedSelector = selector({
   },
 });
 
-export const useModalActions = (id: string) => {
+export const useModalActions = <T>(id: string) => {
   const open = useRecoilCallback(
-    (ctx) => (data?: unknown) => {
+    (ctx) => (data?: T) => {
       if (data) ctx.set(modalsDataAtom(id), data);
       ctx.set(modalsAtom(id), true);
       ctx.set(modalsRegistryAtom, (ids) => [...ids, id]);
@@ -45,7 +45,7 @@ export const useModalActions = (id: string) => {
     [id]
   );
   const toggle = useRecoilCallback(
-    (ctx) => async (data?: unknown) => {
+    (ctx) => async (data?: T) => {
       const isOpened = await ctx.snapshot.getPromise(modalsAtom(id));
       ctx.set(modalsAtom(id), !isOpened);
       if (data) ctx.set(modalsDataAtom(id), data);
@@ -61,6 +61,9 @@ export const useModalActions = (id: string) => {
 export const useModal = <T>(id: string) => {
   const isOpened = useRecoilValue(modalsAtom(id));
   const data = useRecoilValue<T>(modalsDataAtom(id));
-  const { open, close, toggle } = useModalActions(id);
+  const { open, close, toggle } = useModalActions<T>(id);
   return { isOpened, data, open, close, toggle };
 };
+
+export const useIsAnyModalOpened = () =>
+  useRecoilValue(isAnyModalOpenedSelector);

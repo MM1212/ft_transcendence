@@ -6,6 +6,7 @@ import React from 'react';
 import { useRecoilCallback } from 'recoil';
 import { useParams } from 'wouter';
 import chatsState from '../state';
+import ChatMembersModal from '../components/management/ChatMembers';
 
 export default function ChatMessagesView() {
   const { chatId } = useParams();
@@ -53,6 +54,7 @@ export default function ChatMessagesView() {
       </Sheet>
       <MessagesPane />
       <NewChatModal />
+      <ChatMembersModal />
     </Sheet>
   );
 }

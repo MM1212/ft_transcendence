@@ -39,7 +39,7 @@ const InfiniteScroll = React.forwardRef<HTMLDivElement, InfiniteScrollProps>(
           return;
         }
         const target = entries[0];
-        // console.log(target);
+        console.log(target);
 
         if (target.isIntersecting) {
           next();
@@ -87,6 +87,10 @@ const InfiniteScroll = React.forwardRef<HTMLDivElement, InfiniteScrollProps>(
 
     React.useEffect(() => {
       setShowLoader(false);
+      if (observableRef.current) {
+        observer.unobserve(observableRef.current);
+        observer.observe(observableRef.current);
+      }
       // if (!hasMore) {
       //   if (ref.current) {
       //     if (inverse) ref.current.scrollTop = ref.current.scrollHeight;
@@ -99,7 +103,7 @@ const InfiniteScroll = React.forwardRef<HTMLDivElement, InfiniteScrollProps>(
       props.hasChildren ||
       !!(children && Array.isArray(children) && children.length);
 
-    /* console.log(
+    console.log(
       !showLoader && !hasChildren && hasMore,
       showLoader && hasMore,
       !hasMore,
@@ -108,7 +112,7 @@ const InfiniteScroll = React.forwardRef<HTMLDivElement, InfiniteScrollProps>(
         hasChildren,
         hasMore,
       }
-    ); */
+    );
 
     return (
       <Box
@@ -136,9 +140,13 @@ const InfiniteScroll = React.forwardRef<HTMLDivElement, InfiniteScrollProps>(
           }}
           {...boxProps}
         >
-          {!inverse && <div ref={observableRef} style={{ height: 1 }} />}
-          {children}
-          {inverse && <div ref={observableRef} style={{ height: 1 }} />}
+          {!inverse && (
+            <div ref={observableRef} style={{ height: 1, margin: 0 }} />
+          )}
+          <React.Suspense fallback={loader}>{children}</React.Suspense>
+          {inverse && (
+            <div ref={observableRef} style={{ height: 1, margin: 0 }} />
+          )}
         </Box>
         {inverse && (
           <>

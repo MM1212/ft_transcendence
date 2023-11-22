@@ -7,14 +7,18 @@ export const sessionAtom = atom<UsersModel.Models.IUserInfo | null>({
   default: null,
 });
 
-export const usersAtom = atomFamily<UsersModel.Models.IUserInfo, number>({
+export const usersAtom = atomFamily<UsersModel.Models.IUserInfo | null, number>({
   key: 'user',
-  default: selectorFamily<UsersModel.Models.IUserInfo, number>({
+  default: selectorFamily<UsersModel.Models.IUserInfo | null, number>({
     key: 'user/selector',
     get: (id) => async () => {
-      return await tunnel.get(UsersModel.Endpoints.Targets.GetUser, {
-        id,
-      });
+      try {
+        return await tunnel.get(UsersModel.Endpoints.Targets.GetUser, {
+          id,
+        });
+      } catch(e) {
+        return null;
+      }
     },
   }),
 });

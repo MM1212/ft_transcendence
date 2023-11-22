@@ -8,6 +8,7 @@ import HangerIcon from '@components/icons/HangerIcon';
 import HistoryIcon from '@components/icons/HistoryIcon';
 import HomeIcon from '@components/icons/HomeIcon';
 import ImageFilterCenterFocusIcon from '@components/icons/ImageFilterCenterFocusIcon';
+import LoginVariantIcon from '@components/icons/LoginVariantIcon';
 import PlayIcon from '@components/icons/PlayIcon';
 import TableTennisIcon from '@components/icons/TableTennisIcon';
 import TrophyIcon from '@components/icons/TrophyIcon';
@@ -53,7 +54,8 @@ const routes: ISidebarRoute[] = [
     children: [
       {
         label: 'My Profile',
-        path: '/profile',
+        path: '/profile/me',
+        routePath: '/profile/:rest*',
         icon: <AccountIcon />,
         Component: React.lazy(() => import('@apps/Profile/views')),
         exact: false,
@@ -97,6 +99,13 @@ const routes: ISidebarRoute[] = [
     icon: <HangerIcon />,
     exact: false,
     Component: React.lazy(() => import('@apps/Customization/views')),
+  },
+  {
+    label: 'LoginPage',
+    path: '/loginPage',
+    icon: <LoginVariantIcon />,
+    exact : false,
+    Component: React.lazy(() => import('@apps/LoginPage/views'))
   },
   {
     label: 'Games',

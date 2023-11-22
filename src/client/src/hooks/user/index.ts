@@ -122,10 +122,14 @@ export const useUsersService = () => {
         console.warn('User not found in cache, skipping update');
         return;
       }
-      ctx.set(usersAtom(id), (prev) => ({
-        ...prev,
-        ...userUpdate,
-      }));
+      ctx.set(usersAtom(id), (prev) =>
+        !prev
+          ? prev
+          : {
+              ...prev,
+              ...userUpdate,
+            }
+      );
     },
     []
   );
