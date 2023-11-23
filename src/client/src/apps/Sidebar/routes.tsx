@@ -8,6 +8,7 @@ import ForumIcon from '@components/icons/ForumIcon';
 import HangerIcon from '@components/icons/HangerIcon';
 import HistoryIcon from '@components/icons/HistoryIcon';
 import HomeIcon from '@components/icons/HomeIcon';
+import HumanQueueIcon from '@components/icons/HumanQueueIcon';
 import PlayIcon from '@components/icons/PlayIcon';
 import TableTennisIcon from '@components/icons/TableTennisIcon';
 import TrophyIcon from '@components/icons/TrophyIcon';
@@ -115,6 +116,13 @@ const routes: ISidebarRoute[] = [
             icon: <HistoryIcon />,
             exact: false,
             // Component: React.lazy(() => import('@views/pong')),
+          },
+          {
+            label: 'Leaderboard',
+            path: '/leaderboard',
+            icon: <HumanQueueIcon />,
+            exact: false,
+            Component: React.lazy(() => import('@apps/Leaderboard/views'))
           },
         ],
       },
