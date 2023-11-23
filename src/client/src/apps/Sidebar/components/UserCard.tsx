@@ -1,4 +1,4 @@
-import Logo from '@components/Logo';
+import Logo from '@apps/Profile/components/Logo';
 import CircleIcon from '@components/icons/CircleIcon';
 import LogoutIcon from '@components/icons/LogoutIcon';
 import { useCurrentUser, useSessionActions } from '@hooks/user';

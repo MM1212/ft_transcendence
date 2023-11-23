@@ -1,16 +1,16 @@
-import { Divider, useTheme } from '@mui/joy';
+import { Divider } from '@mui/joy';
 import { Sheet } from '@mui/joy';
 import CustomizationTop from '../components/CustomizationTop';
 import CustomizationBottom from '../components/CustomizationBottom';
 import {
   InventoryCategory,
   inventoryAtom,
-  penguinClothingPriority,
   penguinColorPalette,
 } from '../state';
-import { useRecoilCallback, useRecoilValue } from 'recoil';
+import { useRecoilCallback } from 'recoil';
 import React from 'react';
-import { Pixi, usePixiRenderer } from '@hooks/pixiRenderer';
+import { Pixi } from '@hooks/pixiRenderer';
+import publicPath from '@utils/public';
 
 export default function CustomizationPanel() {
   const [penguinBelly, setPenguinBelly] = React.useState<Pixi.Sprite | null>(
@@ -23,6 +23,7 @@ export default function CustomizationPanel() {
   const loadClothes = useRecoilCallback(
     (ctx) => async () => {
       const inventory = await ctx.snapshot.getPromise(inventoryAtom);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { color, ...selected } = inventory.selected;
       const clothingAssets = (
         Object.keys(selected) as (keyof typeof selected)[]
@@ -32,7 +33,7 @@ export default function CustomizationPanel() {
           const sprite = Pixi.Sprite.from(
             clothId === -1
               ? Pixi.Texture.EMPTY
-              : `/penguin/clothing/${clothId}/paper.webp`
+              : publicPath(`/penguin/clothing/${clothId}/paper.webp`)
           );
           sprite.name = clothPiece;
           sprite.anchor.set(0.5);
@@ -69,7 +70,7 @@ export default function CustomizationPanel() {
         penguinClothes[piece].texture = Pixi.Texture.EMPTY;
       } else
         penguinClothes[piece].texture = Pixi.Texture.from(
-          `/penguin/clothing/${id}/paper.webp`
+          publicPath(`/penguin/clothing/${id}/paper.webp`)
         );
       ctx.set(inventoryAtom, (prev) => ({
         ...prev,

@@ -5,6 +5,7 @@ import UsersModel from '@typings/models/users';
 import { userStatusToColor } from '@utils/userStatus';
 import TimelapseIcon from './icons/TimelapseIcon';
 import { Tooltip } from '@mui/joy';
+import { computeUserAvatar } from '@utils/computeAvatar';
 
 type AvatarWithStatusProps = AvatarProps & {
   status?: UsersModel.Models.Status;
@@ -14,11 +15,22 @@ type AvatarWithStatusProps = AvatarProps & {
   muted?: boolean;
 };
 
+export function UserAvatar({ src, ...rest }: AvatarProps) {
+  return (
+    <Avatar
+      size="sm"
+      src={src ? computeUserAvatar(src) : undefined}
+      {...rest}
+    />
+  );
+}
+
 export default function AvatarWithStatus({
   status = UsersModel.Models.Status.Offline,
   inset = '14%',
   hide = false,
   muted = false,
+  src,
   badgeProps,
   ...rest
 }: AvatarWithStatusProps) {
@@ -53,7 +65,11 @@ export default function AvatarWithStatus({
         }
         {...badgeProps}
       >
-        <Avatar size="sm" {...rest} />
+        <Avatar
+          size="sm"
+          {...rest}
+          src={src ? computeUserAvatar(src) : undefined}
+        />
       </Badge>
     </div>
   );

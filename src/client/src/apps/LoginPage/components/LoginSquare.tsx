@@ -1,5 +1,5 @@
 import Link from '@components/Link';
-import Logo from '@components/Logo';
+import Logo from '@apps/Profile/components/Logo';
 import Logo42Icon from '@components/customIcons/Logo42';
 import { buildTunnelEndpoint } from '@hooks/tunnel';
 import { useSession, useSessionActions } from '@hooks/user';

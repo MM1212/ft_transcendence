@@ -13,6 +13,7 @@ import {
   penguinColorPalette,
 } from '../state';
 import TshirtVIcon from '@components/icons/TshirtVIcon';
+import publicPath from '@utils/public';
 
 const inventCatLeft: InventoryCategory[] = ['head', 'body', 'feet'];
 
@@ -42,7 +43,7 @@ function CustomizationRender({
     async (app: Pixi.Application) => {
       console.log('onAppMount');
 
-      await Pixi.Assets.load('/penguin/paper/asset.json');
+      await Pixi.Assets.load(publicPath('/penguin/paper/asset.json'));
       const paperContainer = new Pixi.Container();
       const paperBelly = new Pixi.Sprite(
         Pixi.Texture.from('penguin/paperdoll/body')

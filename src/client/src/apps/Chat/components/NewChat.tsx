@@ -267,7 +267,9 @@ export default function NewChatModal(): JSX.Element {
               !value.endsWith('.png') &&
               !value.endsWith('.jpg') &&
               !value.endsWith('.jpeg') &&
-              !value.endsWith('.gif')
+              !value.endsWith('.gif') &&
+              !value.endsWith('.webp') &&
+              isNaN(parseInt(value))
             )
               return 'Photo should be a valid image url';
             break;

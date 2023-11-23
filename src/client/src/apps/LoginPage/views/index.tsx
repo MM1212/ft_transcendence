@@ -1,22 +1,7 @@
-import Button from '@mui/joy/Button';
-import { useSession } from '@hooks/user';
-import {
-  Box,
-  ButtonGroup,
-  Container,
-  List,
-  ListItem,
-  ListItemContent,
-  ListItemDecorator,
-  Typography,
-} from '@mui/joy';
-import Link from '@components/Link';
+import { Box } from '@mui/joy';
 
-import { NotificationProps } from '@lib/notifications/hooks';
-import notifications from '@lib/notifications/hooks';
-import Logo from '@components/Logo';
 import LoginModal from '../components/LoginModal';
-
+import publicPath from '@utils/public';
 
 export default function LoginPage() {
   return (
@@ -24,7 +9,7 @@ export default function LoginPage() {
       style={{
         width: '100dvw',
         height: '100dvh',
-        backgroundImage: 'url(/loginPage.jpg)',
+        backgroundImage: `url(${publicPath('/loginPage.webp')})`,
         backgroundRepeat: 'no-repeat',
         backgroundSize: 'cover',
         backgroundPosition: 'center',

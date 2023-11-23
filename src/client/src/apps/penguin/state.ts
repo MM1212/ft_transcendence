@@ -7,6 +7,7 @@ import {
   IPenguinAnimationSetTypes,
   IPenguinBaseAnimationsTypes,
 } from '@typings/penguin';
+import publicPath from '@utils/public';
 
 export { animationConfig };
 
@@ -57,7 +58,7 @@ const penguinState = new (class PenguinState {
     key: 'penguin/base-animations',
     default: async (id) => {
       if (!isNaN(parseInt(id)))
-        await Pixi.Assets.load(`/penguin/clothing/${id}/asset.json`);
+        await Pixi.Assets.load(publicPath(`/penguin/clothing/${id}/asset.json`));
       return Object.keys(animationConfig).reduce((acc, key) => {
         const [animationSet, direction] = key.split('/');
         const setKey = !direction

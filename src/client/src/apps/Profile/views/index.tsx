@@ -10,14 +10,16 @@ import {
 } from '@mui/joy';
 import UserAchievements from '../components/UserAchievements';
 import UserMatchHistory from '../components/UserMatchHistory';
-import AvatarWithStatus from '@components/AvatarWithStatus';
+import AvatarWithStatus, { UserAvatar } from '@components/AvatarWithStatus';
 import DotsVerticalIcon from '@components/icons/DotsVerticalIcon';
 import { Route, Switch, useParams } from 'wouter';
 import UsersModel from '@typings/models/users';
 import { useRecoilValue } from 'recoil';
 import { navigate } from 'wouter/use-location';
-import { useLayoutEffect } from 'react';
+import React, { useLayoutEffect } from 'react';
 import { useFriends } from '@apps/Friends/hooks';
+import { useModalActions } from '@hooks/useModal';
+import PencilIcon from '@components/icons/PencilIcon';
 
 function UserProfile({
   user,
@@ -27,11 +29,12 @@ function UserProfile({
   affiliation: 'me' | 'friend' | 'unknown';
 }) {
   console.log(affiliation);
+  const { open: openUpdateModal } = useModalActions('profile:change-user');
   return (
     <Sheet
       style={{
-        height: "100%",
-        width: "45dvh",
+        height: '100%',
+        width: '45dvh',
       }}
     >
       <Stack
@@ -49,17 +52,33 @@ function UserProfile({
           p={1}
           spacing={0.5}
         >
-          <AvatarWithStatus
-            sx={(theme) => ({
-              width: theme.spacing(17),
-              height: theme.spacing(17),
-            })}
-            src={user?.avatar}
-            status={user?.status}
-            badgeProps={{
-              size: 'lg',
-            }}
-          />
+          {affiliation === 'me' ? (
+            <UserAvatar
+              sx={(theme) => ({
+                width: theme.spacing(17),
+                height: theme.spacing(17),
+                transition: theme.transitions.create('opacity'),
+                '&:hover': {
+                  cursor: 'pointer',
+                  opacity: 0.8,
+                },
+              })}
+              src={user?.avatar}
+              onClick={() => openUpdateModal()}
+            />
+          ) : (
+            <AvatarWithStatus
+              sx={(theme) => ({
+                width: theme.spacing(17),
+                height: theme.spacing(17),
+              })}
+              src={user?.avatar}
+              status={user?.status}
+              badgeProps={{
+                size: 'lg'
+              }}
+            />
+          )}
           <Typography level="h2">{user.nickname}</Typography>
           {affiliation !== 'me' && (
             <ButtonGroup size="sm" variant="outlined">
