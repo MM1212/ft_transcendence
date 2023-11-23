@@ -3,6 +3,7 @@ import { useCurrentUser } from '@hooks/user';
 import notifications from '@lib/notifications/hooks';
 import tunnel from '@lib/tunnel';
 import { Sheet } from '@mui/joy';
+import { SxProps } from '@mui/joy/styles/types';
 import { AuthModel } from '@typings/models';
 import UsersModel from '@typings/models/users';
 import React from 'react';
@@ -15,13 +16,15 @@ export default function CustomizationBox({
   selected,
   children,
   disabled = false,
+  imgProps,
 }: {
   disabled?: boolean;
   imageUrl?: string;
   selected?: boolean;
-  flex?: number;
+  flex?: React.CSSProperties['flex'];
   onClick?: () => void;
   children?: React.ReactNode;
+  imgProps?: SxProps;
 }) {
   const user = useCurrentUser();
   const [loading, setLoading] = React.useState(false);
@@ -46,9 +49,9 @@ export default function CustomizationBox({
             revalidate: true,
           }
         );
-        notifications.success("User updated!");
+        notifications.success('User updated!');
       } catch (error) {
-        notifications.error("Could not update user", (error as Error).message);
+        notifications.error('Could not update user', (error as Error).message);
       } finally {
         setLoading(false);
       }
@@ -74,7 +77,9 @@ export default function CustomizationBox({
               bgcolor: 'background.level1',
             }
           : undefined,
-          flex
+        flex,
+        overflow: 'hidden',
+        ...imgProps,
       }}
       onClick={onClick}
     >
@@ -82,10 +87,9 @@ export default function CustomizationBox({
         <img
           src={imageUrl}
           style={{
-            width: 'auto',
-            height: 'auto',
-            maxHeight: '100%',
-            maxWidth: '100%',
+            width: '100%',
+            height: '100%',
+            objectFit: 'scale-down',
           }}
         />
       ) : (

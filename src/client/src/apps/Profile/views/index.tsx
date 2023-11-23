@@ -16,8 +16,10 @@ import { Route, Switch, useParams } from 'wouter';
 import UsersModel from '@typings/models/users';
 import { useRecoilValue } from 'recoil';
 import { navigate } from 'wouter/use-location';
-import { useLayoutEffect } from 'react';
+import React, { useLayoutEffect } from 'react';
 import { useFriends } from '@apps/Friends/hooks';
+import ProfilePictureModal from '../components/ProfilePictureModal';
+import { useModalActions } from '@hooks/useModal';
 
 function UserProfile({
   user,
@@ -27,11 +29,12 @@ function UserProfile({
   affiliation: 'me' | 'friend' | 'unknown';
 }) {
   console.log(affiliation);
+  const { open: openAvatarModal } = useModalActions('profile:change-avatar');
   return (
     <Sheet
       style={{
-        height: "100%",
-        width: "45dvh",
+        height: '100%',
+        width: '45dvh',
       }}
     >
       <Stack
@@ -53,13 +56,20 @@ function UserProfile({
             sx={(theme) => ({
               width: theme.spacing(17),
               height: theme.spacing(17),
+              transition: theme.transitions.create('opacity'),
+              '&:hover': {
+                cursor: 'pointer',
+                opacity: 0.8,
+              },
             })}
             src={user?.avatar}
             status={user?.status}
+            onClick={() => openAvatarModal()}
             badgeProps={{
               size: 'lg',
             }}
           />
+          <ProfilePictureModal />
           <Typography level="h2">{user.nickname}</Typography>
           {affiliation !== 'me' && (
             <ButtonGroup size="sm" variant="outlined">
