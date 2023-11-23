@@ -110,9 +110,10 @@ const testTheme = extendTheme({
     JoyMenuItem: {
       styleOverrides: {
         root: ({ theme, ownerState }) => ({
-          ...(ownerState.color === 'danger' && ownerState.variant === 'plain' && {
-            color: theme.palette.danger[400],
-          }),
+          ...(ownerState.color === 'danger' &&
+            ownerState.variant === 'plain' && {
+              color: theme.palette.danger[400],
+            }),
           transition: theme.transitions.create(
             ['background-color', 'transform', 'box-shadow', 'border'],
             {
@@ -125,15 +126,35 @@ const testTheme = extendTheme({
     JoyChip: {
       styleOverrides: {
         label: {
-          display: 'inline-flex'
-        }        
-      }
+          display: 'inline-flex',
+        },
+      },
     },
     MuiSvgIcon: {
       defaultProps: {
         viewBox: '0 0 23 23',
-      }
-    }
+      },
+    },
+    JoyModal: {
+      styleOverrides: {
+        backdrop: ({theme}) => ({
+          ...(import.meta.env.DEV && {
+            backdropFilter: 'none !important',
+            backgroundColor: alpha(theme.resolveVar('palette-background-level1'), 0.5),
+          }),
+        }),
+      },
+    },
+    JoyDrawer: {
+      styleOverrides: {
+        backdrop: ({theme}) => ({
+          ...(import.meta.env.DEV && {
+            backdropFilter: 'none !important',
+            backgroundColor: alpha(theme.resolveVar('palette-background-level1'), 0.5),
+          }),
+        }),
+      },
+    },
   },
 });
 
