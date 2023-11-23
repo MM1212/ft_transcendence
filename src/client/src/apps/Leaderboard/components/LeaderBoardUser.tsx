@@ -1,7 +1,9 @@
 import useFriend from '@apps/Friends/hooks/useFriend';
 import { useUser } from '@hooks/user';
-import { Divider, Typography } from '@mui/joy';
+import { Box, Divider, Tooltip, Typography } from '@mui/joy';
 import { fourth } from '../styles';
+import { UserAvatar } from '@components/AvatarWithStatus';
+import UsersModel from '@typings/models/users';
 
 const ordinals = new Intl.PluralRules('en', { type: 'ordinal' });
 
@@ -19,14 +21,15 @@ const formatToOrdinal = (n: number): string => {
 };
 
 export default function LeaderBoardUser({
-  name,
+  user,
   points,
   position,
 }: {
   position: number;
-  name: string;
+  user: UsersModel.Models.IUserInfo;
   points: number;
 }) {
+  const { goToProfile } = useFriend(user.id);
   return (
     <>
       <Typography
@@ -38,15 +41,32 @@ export default function LeaderBoardUser({
       >
         {formatToOrdinal(position)}
       </Typography>
-      <Typography
-        level="title-md"
+      <Box
         sx={{
           gridColumnStart: '2',
-          py: 1,
+          padding: '1 0 1 0',
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 1,
         }}
       >
-        {name}
-      </Typography>
+        <Tooltip title="Profile">
+          <UserAvatar
+            src={user.avatar}
+            size="sm"
+            onClick={goToProfile}
+            sx={{
+              '&:hover': {
+                cursor: 'pointer',
+              },
+            }}
+          />
+        </Tooltip>
+        <Typography level="title-md" sx={{}}>
+          {user.nickname}
+        </Typography>
+      </Box>
       <Typography
         style={fourth}
         sx={{

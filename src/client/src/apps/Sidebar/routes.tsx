@@ -10,6 +10,7 @@ import HistoryIcon from '@components/icons/HistoryIcon';
 import HomeIcon from '@components/icons/HomeIcon';
 import HumanQueueIcon from '@components/icons/HumanQueueIcon';
 import PlayIcon from '@components/icons/PlayIcon';
+import PodiumIcon from '@components/icons/PodiumIcon';
 import TableTennisIcon from '@components/icons/TableTennisIcon';
 import TrophyIcon from '@components/icons/TrophyIcon';
 import React from 'react';
@@ -120,7 +121,7 @@ const routes: ISidebarRoute[] = [
           {
             label: 'Leaderboard',
             path: '/leaderboard',
-            icon: <HumanQueueIcon />,
+            icon: <PodiumIcon />,
             exact: false,
             Component: React.lazy(() => import('@apps/Leaderboard/views'))
           },

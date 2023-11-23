@@ -52,7 +52,7 @@ export default function LeaderBoard() {
           Points
         </Typography>
         {[...new Array(10)].map((_, i) => (
-          <LeaderBoardUser key={i} position={i + 1} name={user.nickname} points={randomInt(50, 500) * (Math.pow(10, 10 - i))} />
+          <LeaderBoardUser key={i} position={i + 1} user={user} points={randomInt(50, 500) * (Math.pow(10, 10 - i))} />
         ))}
       </div>
     </Sheet>
