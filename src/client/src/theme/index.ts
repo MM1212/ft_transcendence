@@ -57,7 +57,15 @@ const testTheme = extendTheme({
   alpha,
   lighten,
   darken,
-  gradients: {},
+  breakpoints: {
+    values: {
+      xs: 300,
+      sm: 600,
+      md: 960,
+      lg: 1280,
+      xl: 1920,
+    }
+  },
 
   components: {
     JoyButton: {
@@ -137,20 +145,43 @@ const testTheme = extendTheme({
     },
     JoyModal: {
       styleOverrides: {
-        backdrop: ({theme}) => ({
+        backdrop: ({ theme }) => ({
           ...(import.meta.env.DEV && {
             backdropFilter: 'none !important',
-            backgroundColor: alpha(theme.resolveVar('palette-background-level1'), 0.5),
+            backgroundColor: alpha(
+              theme.resolveVar('palette-background-level1'),
+              0.5
+            ),
           }),
         }),
       },
     },
     JoyDrawer: {
       styleOverrides: {
-        backdrop: ({theme}) => ({
+        backdrop: ({ theme }) => ({
           ...(import.meta.env.DEV && {
             backdropFilter: 'none !important',
-            backgroundColor: alpha(theme.resolveVar('palette-background-level1'), 0.5),
+            backgroundColor: alpha(
+              theme.resolveVar('palette-background-level1'),
+              0.5
+            ),
+          }),
+        }),
+      },
+    },
+    JoyCircularProgress: {
+      defaultProps: {
+        variant: 'plain',
+      },
+    },
+    JoyModalDialog: {
+      styleOverrides: {
+        root: ({ theme, ownerState }) => ({
+          ...(ownerState.maxWidth === 'xs' && {
+            maxWidth: theme.breakpoints.values.xs,
+          }),
+          ...(ownerState.minWidth === 'xs' && {
+            minWidth: theme.breakpoints.values.xs,
           }),
         }),
       },

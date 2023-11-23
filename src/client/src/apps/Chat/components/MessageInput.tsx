@@ -11,8 +11,9 @@ import notifications from '@lib/notifications/hooks';
 import useChat from '../hooks/useChat';
 import moment from 'moment';
 import TimelapseIcon from '@components/icons/TimelapseIcon';
+import MessageInputBlocked from './MessageInputBlocked';
 
-export default function MessageInput({ id }: { id: number }) {
+function MessageInput({ id }: { id: number }) {
   const [input, setInput] = useRecoilState(chatsState.chatsInput(id));
   const formRef = React.useRef<HTMLFormElement>(null);
   const submit = useRecoilCallback(
@@ -150,4 +151,10 @@ export default function MessageInput({ id }: { id: number }) {
       </IconButton>
     </Stack>
   );
+}
+
+export default function MessageInputSelector({id}: {id: number}): JSX.Element {
+  const isTargetRecipientBlocked = useChat(id).useIsTargetRecipientBlocked();
+  if (isTargetRecipientBlocked) return <MessageInputBlocked id={id} />;
+  return <MessageInput id={id} />;
 }

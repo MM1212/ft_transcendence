@@ -40,7 +40,6 @@ namespace UsersModel {
         friendOf: { id: number }[];
         chats: { id: number }[];
         blocked: { id: number }[];
-        blockedBy: { id: number }[];
         storedStatus: Models.Status;
       }
       export interface IUserInfo

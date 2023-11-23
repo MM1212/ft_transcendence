@@ -5,6 +5,8 @@ import ChatsModel from '@typings/models/chat';
 import UsersModel from '@typings/models/users';
 import { useRecoilCallback } from 'recoil';
 import useLocation from 'wouter/use-location';
+import { useBlocked, useFriends } from '.';
+import React from 'react';
 
 const useFriend = (friendId: number) => {
   const [, navigate] = useLocation();
@@ -79,10 +81,33 @@ const useFriend = (friendId: number) => {
     [friendId, navigate]
   );
 
-  const goToProfile = () => {
-    navigate(`/lobby/profile/${friendId}`);
+  const goToProfile = useRecoilCallback(
+    (ctx) => async () => {
+      const self = await ctx.snapshot.getPromise(sessionAtom);
+      if (!self) throw new Error('You are not logged in');
+      if (self.id === friendId) return navigate('/lobby/profile/me');
+      navigate(`/lobby/profile/${friendId}`);
+    },
+    [friendId, navigate]
+  );
+
+  const useIsBlocked = () => {
+    const blocked = useBlocked();
+    return React.useMemo(() => blocked.includes(friendId), [blocked]);
   };
-  return { remove, block, unblock, goToMessages, goToProfile };
+  const useIsFriend = () => {
+    const friends = useFriends();
+    return React.useMemo(() => friends.includes(friendId), [friends]);
+  };
+  return {
+    remove,
+    block,
+    unblock,
+    goToMessages,
+    goToProfile,
+    useIsBlocked,
+    useIsFriend,
+  };
 };
 
 export default useFriend;

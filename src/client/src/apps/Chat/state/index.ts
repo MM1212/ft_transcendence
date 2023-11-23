@@ -243,6 +243,20 @@ const chatsState = new (class MessagesState {
         };
       },
   });
+  isTargetRecipientBlocked = selectorFamily<boolean, number>({
+    key: 'chatIsTargetRecipientBlocked',
+    get:
+      (id) =>
+      ({ get }) => {
+        const chat = get(this.chat(id));
+        if (chat.type !== ChatsModel.Models.ChatType.Direct) return false;
+        const self = get(sessionAtom);
+        const other = chat.participants.find((p) => p.userId !== self?.id);
+        if (!other) throw new Error('Direct chat without other participant');
+        const blocked = get(friendsState.blocked);
+        return blocked.includes(other.userId);
+      },
+  });
   unreadPings = selector<number>({
     key: 'chatUnreadPings',
     get: ({ get }) => {

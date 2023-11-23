@@ -180,6 +180,61 @@ export class ChatsController {
   ): Promise<InternalEndpointResponse<ChatsModel.Endpoints.DeleteParticipant>> {
     await chat.removeParticipant(op, participantId);
   }
+
+  @Post(Targets.BanParticipant)
+  @ChatOPAuth()
+  async banParticipant(
+    @ChatCtx() chat: Chat,
+    @Param('participantId', new ParseIntPipe({ errorHttpStatusCode: 400 }))
+    participantId: number,
+    @HttpCtx() { user: op }: HTTPContext<true>,
+  ): Promise<InternalEndpointResponse<ChatsModel.Endpoints.BanParticipant>> {
+    await chat.setParticipantBanState(op, participantId, true);
+  }
+
+  @Delete(Targets.BanParticipant)
+  @ChatOPAuth()
+  async unbanParticipant(
+    @ChatCtx() chat: Chat,
+    @Param('participantId', new ParseIntPipe({ errorHttpStatusCode: 400 }))
+    participantId: number,
+    @HttpCtx() { user: op }: HTTPContext<true>,
+  ): Promise<InternalEndpointResponse<ChatsModel.Endpoints.UnbanParticipant>> {
+    await chat.setParticipantBanState(op, participantId, false);
+  }
+
+  @Post(Targets.TransferOwnership)
+  @ChatAuth(ChatsModel.Models.ChatParticipantRole.Owner)
+  async transferOwnership(
+    @ChatCtx() chat: Chat,
+    @Body('targetParticipantId', new ParseIntPipe({ errorHttpStatusCode: 400 }))
+    participantId: number,
+    @HttpCtx()
+    { user: op }: HTTPContext<true>,
+  ): Promise<InternalEndpointResponse<ChatsModel.Endpoints.TransferOwnership>> {
+    await chat.transferOwnership(op, participantId);
+  }
+
+  @Post(Targets.MuteParticipant)
+  @ChatOPAuth()
+  async muteParticipant(
+    @ChatCtx() chat: Chat,
+    @Param('participantId', new ParseIntPipe({ errorHttpStatusCode: 400 }))
+    participantId: number,
+    @HttpCtx() { user: op }: HTTPContext<true>,
+    @Body('until') until?: number,
+  ): Promise<InternalEndpointResponse<ChatsModel.Endpoints.MuteParticipant>> {
+    await chat.muteParticipant(op, participantId, until);
+  }
+
+  @Delete(Targets.DeleteChat)
+  @ChatAuth(ChatsModel.Models.ChatParticipantRole.Owner)
+  async delete(
+    @ChatCtx() chat: Chat,
+    @HttpCtx() { user: op }: HTTPContext<true>,
+  ): Promise<InternalEndpointResponse<ChatsModel.Endpoints.DeleteChat>> {
+    await this.service.nukeChat(chat.id, op);
+  }
 }
 // @Patch(Targets.UpdateMessage)
 // @ChatAuth()

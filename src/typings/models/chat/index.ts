@@ -189,6 +189,13 @@ namespace ChatsModel {
       extends Record<string, unknown> {
       targetId: number;
     }
+
+    export interface TransferOwnership {
+      targetParticipantId: number;
+    }
+    export interface MuteParticipant {
+      until?: number;
+    }
   }
   export namespace Endpoints {
     export enum Targets {
@@ -207,8 +214,12 @@ namespace ChatsModel {
       UpdateMessage = '/chats/:chatId/messages/:messageId',
       DeleteChat = '/chats/:chatId',
       DeleteParticipant = '/chats/:chatId/participants/:participantId',
+      BanParticipant = '/chats/:chatId/participants/:participantId/ban',
+      UnbanParticipant = '/chats/:chatId/participants/:participantId/ban',
+      MuteParticipant = '/chats/:chatId/participants/:participantId/mute',
       LeaveChat = '/chats/:chatId/leave',
       DeleteMessage = '/chats/:chatId/messages/:messageId',
+      TransferOwnership = '/chats/:chatId/transfer',
     }
     export type All = GroupEndpointTargets<Targets>;
 
@@ -300,6 +311,30 @@ namespace ChatsModel {
         undefined,
         DTO.ChatParticipantParams
       > {}
+    export interface BanParticipant
+      extends Endpoint<
+        EndpointMethods.Post,
+        Targets.BanParticipant,
+        undefined,
+        undefined,
+        DTO.ChatParticipantParams
+      > {}
+    export interface UnbanParticipant
+      extends Endpoint<
+        EndpointMethods.Delete,
+        Targets.UnbanParticipant,
+        undefined,
+        undefined,
+        DTO.ChatParticipantParams
+      > {}
+    export interface MuteParticipant
+      extends Endpoint<
+        EndpointMethods.Post,
+        Targets.MuteParticipant,
+        undefined,
+        DTO.MuteParticipant,
+        DTO.ChatParticipantParams
+      > {}
     export interface DeleteMessage
       extends Endpoint<
         EndpointMethods.Delete,
@@ -326,6 +361,15 @@ namespace ChatsModel {
         DTO.ChatParams
       > {}
 
+    export interface TransferOwnership
+      extends Endpoint<
+        EndpointMethods.Post,
+        Targets.TransferOwnership,
+        undefined,
+        DTO.TransferOwnership,
+        DTO.ChatParams
+      > {}
+
     export interface Registry extends EndpointRegistry {
       [EndpointMethods.Get]: {
         [Targets.GetSessionChats]: GetChats;
@@ -338,6 +382,10 @@ namespace ChatsModel {
       };
       [EndpointMethods.Post]: {
         [Targets.CheckOrCreateDirectChat]: CheckOrCreateDirectChat;
+        [Targets.BanParticipant]: BanParticipant;
+        [Targets.LeaveChat]: LeaveChat;
+        [Targets.TransferOwnership]: TransferOwnership;
+        [Targets.MuteParticipant]: MuteParticipant;
       };
       [EndpointMethods.Put]: {
         [Targets.CreateChat]: CreateChat;
@@ -352,6 +400,7 @@ namespace ChatsModel {
         [Targets.DeleteChat]: DeleteChat;
         [Targets.DeleteParticipant]: DeleteParticipant;
         [Targets.DeleteMessage]: DeleteMessage;
+        [Targets.UnbanParticipant]: UnbanParticipant;
       };
     }
   }
@@ -372,6 +421,7 @@ namespace ChatsModel {
     export interface RemoveParticipant {
       type: 'remove';
       participantId: number;
+      banned: boolean;
     }
     export interface NewMessageEvent
       extends SseModel.Models.Event<Models.IChatMessage, Events.NewMessage> {}
@@ -379,7 +429,10 @@ namespace ChatsModel {
       extends SseModel.Models.Event<Models.IChatDisplay, Events.NewChat> {}
     export interface UpdateParticipantEvent
       extends SseModel.Models.Event<
-        AddParticipant | UpdateParticipant | RemoveParticipant,
+        (AddParticipant | UpdateParticipant | RemoveParticipant) & {
+          chatId: number;
+          participantId: number;
+        },
         Events.UpdateParticipant
       > {}
   }

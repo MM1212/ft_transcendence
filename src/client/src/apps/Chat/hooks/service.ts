@@ -59,6 +59,8 @@ const useMessagesService = () => {
         if (!last)
           onSelectedChatIdChange(lastSelectedChatId.current, true, true);
         if (chatId === -1) return;
+        const chats = await ctx.snapshot.getPromise(chatsState.chats);
+        if (!chats || !chats.some((c) => c.id === chatId)) return;
         const self = await ctx.snapshot.getPromise(
           chatsState.selfParticipantByChat(chatId)
         );
@@ -91,6 +93,63 @@ const useMessagesService = () => {
     onSelectedChatIdChange(selectedChatId);
     lastSelectedChatId.current = selectedChatId;
   }, [onSelectedChatIdChange, selectedChatId]);
+
+  const updateParticipants = useRecoilCallback(
+    (ctx) => async (ev: ChatsModel.Sse.UpdateParticipantEvent) => {
+      const { type, chatId, participantId } = ev.data;
+      const chats = await ctx.snapshot.getPromise(chatsState.chats);
+      if (!chats || !chats.some((c) => c.id === chatId)) return;
+      if (type === 'add') {
+        const { participant } = ev.data;
+        ctx.set(chatsState.participants(chatId), (prev) => {
+          return [...prev, participant];
+        });
+        return;
+      }
+      const participants = await ctx.snapshot.getPromise(
+        chatsState.participants(chatId)
+      );
+      if (!participants) return;
+      const participantIdx = participants.findIndex(
+        (p) => p.id === participantId
+      );
+      if (participantIdx === -1) return;
+      ctx.set(
+        chatsState.participant({
+          chatId,
+          participantId,
+        }),
+        (prev) => {
+          if (type === 'remove') {
+            const { banned } = ev.data;
+            return {
+              ...prev,
+              role: banned
+                ? ChatsModel.Models.ChatParticipantRole.Banned
+                : ChatsModel.Models.ChatParticipantRole.Left,
+            };
+          }
+          const { participant } = ev.data;
+          return { ...prev, ...participant };
+        }
+      );
+      if (type === 'remove') {
+        const self = await ctx.snapshot.getPromise(
+          chatsState.selfParticipantByChat(chatId)
+        );
+        if (!self || self.id !== participantId) return;
+        const selectedChatId = await ctx.snapshot.getPromise(
+          chatsState.selectedChatId
+        );
+        if (chatId === selectedChatId) ctx.set(chatsState.selectedChatId, -1);
+        ctx.set(chatsState.chats, (prev) =>
+          prev.filter((c) => c.id !== chatId)
+        );
+      }
+    },
+    []
+  );
+
   useSseEvent<ChatsModel.Sse.NewMessageEvent>(
     ChatsModel.Sse.Events.NewMessage,
     onNewMessage
@@ -98,6 +157,10 @@ const useMessagesService = () => {
   useSseEvent<ChatsModel.Sse.NewChatEvent>(
     ChatsModel.Sse.Events.NewChat,
     onNewChat
+  );
+  useSseEvent<ChatsModel.Sse.UpdateParticipantEvent>(
+    ChatsModel.Sse.Events.UpdateParticipant,
+    updateParticipants
   );
 };
 

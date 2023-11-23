@@ -120,4 +120,10 @@ export class ChatsService {
     ];
   }
 
+  public async nukeChat(id: number, op: User): Promise<void> {
+    const chat = await this.get(id);
+    if (!chat) return;
+    await chat.nuke(op);
+    this.chats.delete(id);
+  }
 }

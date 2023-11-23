@@ -55,6 +55,10 @@ class APITunnel implements ITunnel {
           return await rest.get<any>(url);
       }
     } catch (err: any) {
+      if (err instanceof Response) {
+        const data = await err.json();
+        return data;
+      }
       return API.buildErrorResponse(err.message);
     }
   }

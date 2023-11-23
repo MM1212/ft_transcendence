@@ -32,7 +32,8 @@ const useChat = (chatId: number) => {
 
   const useIsParticipantBlocked = (participantId: number) =>
     useRecoilValue(chatsState.isParticipantBlocked({ chatId, participantId }));
-
+  const useIsTargetRecipientBlocked = () =>
+    useRecoilValue(chatsState.isTargetRecipientBlocked(chatId));
   const useIsParticipantMutedComputed = (
     pId: number
   ):
@@ -43,6 +44,8 @@ const useChat = (chatId: number) => {
       return { is: false };
     if (participant.muted === ChatsModel.Models.ChatParticipantMuteType.Forever)
       return { is: true, type: 'permanent' };
+    console.log(pId, participant.userId, Date.now(), participant.mutedUntil);
+    
     if (Date.now() >= participant.mutedUntil!) return { is: false };
     return { is: true, type: 'temporary', until: participant.mutedUntil! };
   };
@@ -66,6 +69,7 @@ const useChat = (chatId: number) => {
     useType,
     useIsSelected,
     useIsParticipantBlocked,
+    useIsTargetRecipientBlocked,
     useIsParticipantMutedComputed,
     useIsSelfMutedComputed,
     goTo,

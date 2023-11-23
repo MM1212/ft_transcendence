@@ -19,7 +19,6 @@ import { navigate } from 'wouter/use-location';
 import React, { useLayoutEffect } from 'react';
 import { useFriends } from '@apps/Friends/hooks';
 import { useModalActions } from '@hooks/useModal';
-import PencilIcon from '@components/icons/PencilIcon';
 
 function UserProfile({
   user,
