@@ -97,11 +97,13 @@ class User extends CacheObserver<UsersModel.Models.IUser> {
    * Syncs the user with all connected clients
    */
   public propagate(...keys: (keyof UsersModel.Models.IUserInfo)[]): void {
-    const data = { ...this.public };
-    for (const key of keys) delete data[key];
+    const data = keys.reduce(
+      (acc, key) => ({ ...acc, [key]: this.get(key) }),
+      {} as Partial<UsersModel.Models.IUserInfo>,
+    );
     this.helpers.sseService.emitToAll<UsersModel.Sse.UserUpdatedEvent>(
       UsersModel.Sse.Events.UserUpdated,
-      data,
+      { id: this.id, ...data },
     );
   }
 
