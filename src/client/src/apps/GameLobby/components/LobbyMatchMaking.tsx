@@ -1,17 +1,12 @@
 import { useCurrentUser } from "@hooks/user";
 import {
-  Avatar,
-  Box,
-  Button,
-  IconButton,
-  Sheet,
   Typography,
   styled,
 } from "@mui/joy";
 import { useState } from "react";
 import MatchMakingCounter from "./MatchMakingCounter";
-import CloseCircleIcon from "@components/icons/CloseCircleIcon";
-import CloseThickIcon from "@components/icons/CloseThickIcon";
+import publicPath from "@utils/public";
+import { UserAvatar } from "@components/AvatarWithStatus";
 
 const FindMatchWrapper = styled("div")(({ theme }) => ({
   "& > img": {
@@ -59,7 +54,7 @@ export function LobbyMatchMaking() {
           position: "relative",
         }}
       >
-        <Avatar
+        <UserAvatar
           sx={(theme) => ({
             width: theme.spacing(17),
             height: theme.spacing(17),
@@ -72,7 +67,7 @@ export function LobbyMatchMaking() {
         />
           <Typography textAlign='center' sx={{position:'absolute', bottom: '50%'}} >{user.nickname}</Typography>
         <img
-          src="/matchMaking/matchMakingFrame.png"
+          src={publicPath("/matchMaking/matchMakingFrame.webp")}
           alt="Matchmaking Frame"
           width="300"
           height="500"
@@ -87,13 +82,13 @@ export function LobbyMatchMaking() {
           }}
           >
           <img
-            src="/matchMaking/paddleFrame.png"
+            src={publicPath("/matchMaking/paddleFrame.webp")}
             alt="Matchmaking Frame"
             width="200"
             height="50"
           ></img>
           <img
-            src="/matchMaking/powerFrame.png"
+            src={publicPath("/matchMaking/powerFrame.webp")}
             alt="Matchmaking Frame"
             width="70"
             height="70"
@@ -119,7 +114,7 @@ export function LobbyMatchMaking() {
             onClick={handleStartMatchmaking}
           >
             <img
-              src="/matchMaking/button1.png"
+              src={publicPath("/matchMaking/button1.webp")}
               alt="Matchmaking Frame"
               width="200" // Specify the desired width
               height="70" // Specify the desired height

@@ -3,6 +3,7 @@ import {
   atomFamily,
   selector,
   useRecoilCallback,
+  useRecoilState,
   useRecoilValue,
 } from 'recoil';
 
@@ -60,9 +61,9 @@ export const useModalActions = <T>(id: string) => {
 
 export const useModal = <T>(id: string) => {
   const isOpened = useRecoilValue(modalsAtom(id));
-  const data = useRecoilValue<T>(modalsDataAtom(id));
+  const [data, setData] = useRecoilState<T>(modalsDataAtom(id));
   const { open, close, toggle } = useModalActions<T>(id);
-  return { isOpened, data, open, close, toggle };
+  return { isOpened, data, setData, open, close, toggle };
 };
 
 export const useIsAnyModalOpened = () =>

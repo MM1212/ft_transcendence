@@ -6,6 +6,7 @@ import ClothingShowcase from '@views/ClothingShowcase';
 import Lobby from '@views/lobby';
 import { useRouter, Route } from 'wouter';
 import ErrorPage from '@views/error';
+import UpdateUserModal from '@apps/Profile/components/UpdateUserModal';
 
 function App() {
   const router = useRouter();
@@ -40,6 +41,7 @@ function App() {
           <Redirect to="/error?t=404" />
         </Route> */}
       {/* <SandboxRouter /> */}
+      <UpdateUserModal />
     </div>
   );
 }

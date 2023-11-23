@@ -1,9 +1,10 @@
 import CheckIcon from '@components/icons/CheckIcon';
 import CloseIcon from '@components/icons/CloseIcon';
-import { Avatar, IconButton, Sheet, Typography } from '@mui/joy';
+import { IconButton, Sheet, Typography } from '@mui/joy';
 import { Divider } from '@mui/joy';
 import { Stack } from '@mui/joy';
 import { samplePendingFriends } from '@apps/Lobby/state/mockup';
+import { UserAvatar } from '@components/AvatarWithStatus';
 
 export default function PendingFriendsGetter() {
   const getPendingRequests = () => {
@@ -40,7 +41,7 @@ export default function PendingFriendsGetter() {
             }}
           >
             <Stack direction="row" spacing={1.5}>
-              <Avatar src={user.avatar} size="lg"></Avatar>
+              <UserAvatar src={user.avatar} size="lg" />
               <Stack>
                 <Typography level="title-md">{user.nickname}</Typography>
                 <Typography fontWeight="light" level="body-sm">

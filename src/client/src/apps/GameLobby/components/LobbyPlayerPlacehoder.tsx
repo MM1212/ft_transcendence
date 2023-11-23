@@ -1,7 +1,8 @@
+import { UserAvatar } from "@components/AvatarWithStatus";
 import AccountPlusIcon from "@components/icons/AccountPlusIcon";
 import { useUser } from "@hooks/user";
 import { Box, Divider, IconButton } from "@mui/joy";
-import { Avatar, Typography } from "@mui/joy";
+import { Typography } from "@mui/joy";
 import { Stack } from "@mui/joy";
 
 export default function LobbyPlayerPlaceholder({ id }: { id: number }) {
@@ -28,7 +29,7 @@ export default function LobbyPlayerPlaceholder({ id }: { id: number }) {
     <>
       <Divider />
       <Stack display="flex" flexDirection="row" sx={{ pt: "5px", pb: "5px" }}>
-        <Avatar src={user?.avatar} sx={{ width: "80px", height: "80px" }} />
+        <UserAvatar src={user?.avatar} sx={{ width: "80px", height: "80px" }} />
         <Box
           display="flex"
           flexDirection="column"

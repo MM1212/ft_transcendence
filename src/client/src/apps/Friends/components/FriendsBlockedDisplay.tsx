@@ -1,7 +1,8 @@
 import CancelIcon from "@components/icons/CancelIcon";
 import { useUser } from "@hooks/user";
-import { Stack, Typography, IconButton, Avatar } from "@mui/joy";
+import { Stack, Typography, IconButton } from "@mui/joy";
 import useFriend from "../hooks/useFriend";
+import { UserAvatar } from "@components/AvatarWithStatus";
 
 export default function FriendBlockedDisplay({
   id,
@@ -9,7 +10,7 @@ export default function FriendBlockedDisplay({
   id: number;
 }): JSX.Element | null {
   const user = useUser(id);
-  const { unBlock } = useFriend(id);
+  const { unblock } = useFriend(id);
   if (!user) return null;
   return (
     <Stack
@@ -30,7 +31,7 @@ export default function FriendBlockedDisplay({
       }}
     >
       <Stack direction="row" spacing={1.5}>
-        <Avatar src={user.avatar} size="lg" />
+        <UserAvatar src={user.avatar} size="lg" />
         <Stack>
           <Typography level="title-md">{user.nickname}</Typography>
           <Typography level="body-sm">Blocked</Typography>
@@ -38,7 +39,7 @@ export default function FriendBlockedDisplay({
       </Stack>
       <Stack direction="row" spacing={1} alignItems="center" ml="auto">
         <IconButton
-          onClick={unBlock}
+          onClick={unblock}
           color="danger"
           variant="plain"
           sx={{ borderRadius: (theme) => theme.radius.xl }}

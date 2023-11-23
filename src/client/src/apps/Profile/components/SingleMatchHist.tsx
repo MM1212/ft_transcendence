@@ -1,6 +1,6 @@
+import { UserAvatar } from '@components/AvatarWithStatus';
 import { useSession } from '@hooks/user';
 import { AvatarGroup, Sheet, Stack, Typography } from '@mui/joy';
-import { Avatar } from '@mui/joy';
 
 export default function SingleMatchHist() {
   const { user } = useSession();
@@ -64,8 +64,8 @@ export default function SingleMatchHist() {
                 transform: 'scaleX(-1)',
               }}
             >
-              <Avatar size="sm" src={user?.avatar} />
-              <Avatar
+              <UserAvatar size="sm" src={user?.avatar} />
+              <UserAvatar
                 size="sm"
                 src={'https://mui.com/static/images/avatar/1.jpg'}
               />
@@ -83,8 +83,8 @@ export default function SingleMatchHist() {
                 '--Avatar-size': (theme) => theme.spacing(3),
               }}
             >
-              <Avatar size="sm" src={user?.avatar} />
-              <Avatar size="sm" src={user?.avatar} />
+              <UserAvatar size="sm" src={user?.avatar} />
+              <UserAvatar size="sm" src={user?.avatar} />
             </AvatarGroup>
           </Stack>
           <Stack direction="column" spacing={0.2} alignItems="flex-end">

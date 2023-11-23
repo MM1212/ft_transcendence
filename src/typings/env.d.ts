@@ -17,6 +17,7 @@ interface ImportMetaEnv {
   readonly FRONTEND_HOST: string;
   readonly FRONTEND_URL: string;
   readonly FRONTEND_API_ENDPOINT: string;
+  readonly FRONTEND_PUBLIC_PATH: string;
 }
 
 interface ImportMeta {

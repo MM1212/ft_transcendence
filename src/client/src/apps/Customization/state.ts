@@ -1,3 +1,4 @@
+import publicPath from '@utils/public';
 import { atom, selectorFamily } from 'recoil';
 
 export type InventoryCategory =
@@ -82,4 +83,4 @@ export const penguinColorPalette = {
 };
 
 export const getClothIcon = (clothId: number) =>
-  `/penguin/clothing/${clothId}/icon.webp`;
+  publicPath(`/penguin/clothing/${clothId}/icon.webp`);

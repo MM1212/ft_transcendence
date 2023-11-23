@@ -3,63 +3,27 @@ import Modal from '@mui/joy/Modal';
 import ModalDialog from '@mui/joy/ModalDialog';
 import ModalClose from '@mui/joy/ModalClose';
 import DialogTitle from '@mui/joy/DialogTitle';
-import Stack from '@mui/joy/Stack';
-import CustomizationBox from '@apps/Customization/components/CustomizationBox';
-import { Box } from '@mui/joy';
+import { Box, Sheet } from '@mui/joy';
 import { useModal } from '@hooks/useModal';
-import { useRecoilCallback } from 'recoil';
-import tunnel from '@lib/tunnel';
-import UsersModel from '@typings/models/users';
-import { sessionAtom } from '@hooks/user';
-import { mutate } from 'swr';
-import { buildTunnelEndpoint } from '@hooks/tunnel';
-import { AuthModel } from '@typings/models';
-import notifications from '@lib/notifications/hooks';
+import publicPath from '@utils/public';
 
 export default function ProfilePictureModal() {
-  const { isOpened, close } = useModal('profile:change-avatar');
+  const { isOpened, close, data, setData } = useModal<{ avatar: string }>(
+    'profile:change-avatar'
+  );
   const assetArray = React.useMemo(
-    () =>
-      Array.from({ length: 42 }).map(
-        (_, i) => `/profile/tile${(i + 1).toString().padStart(4, '0')}.png`
-      ),
+    () => Array.from({ length: 43 }).map((_, i) => i),
     []
   );
-
-  const updateAvatar = useRecoilCallback(
-    (ctx) => async (avatarSrc: string) => {
-      const user = await ctx.snapshot.getPromise(sessionAtom);
-      if (!user) return;
-      try {
-        await tunnel.patch(
-          UsersModel.Endpoints.Targets.PatchUser,
-          {
-            avatar: avatarSrc,
-          },
-          {
-            id: user.id,
-          }
-        );
-        mutate(
-          buildTunnelEndpoint(AuthModel.Endpoints.Targets.Session),
-          undefined,
-          {
-            revalidate: true,
-          }
-        );
-        close();
-        notifications.success('User updated!');
-      } catch (error) {
-        notifications.error('Could not update user', (error as Error).message);
-      }
-    },
-    [close]
-  );
+  const selectAsset = (assetId: number) => {
+    setData({ avatar: assetId.toString() });
+    close();
+  };
 
   return (
     <React.Fragment>
       <Modal open={isOpened} onClose={close}>
-        <ModalDialog>
+        <ModalDialog minWidth="md">
           <ModalClose />
           <DialogTitle>Avatar Picker</DialogTitle>
           <Box
@@ -68,21 +32,34 @@ export default function ProfilePictureModal() {
               width: '100%',
               flexWrap: 'wrap',
               overflowY: 'auto',
-              flexGrow: 1,
               gap: 1,
             }}
           >
             {assetArray.map((asset, index) => (
-              <CustomizationBox
+              <Sheet
+                variant="outlined"
+                color="neutral"
                 key={index}
-                onClick={() => updateAvatar(asset)}
-                imageUrl={asset}
-                flex="1 0 15.7%"
-                imgProps={{
-                  padding: 0,
+                onClick={() => selectAsset(asset)}
+                sx={{
+                  flex: '1 0 15.7%',
+                  aspectRatio: '1/1',
+                  p: 0,
                   borderRadius: 'xl',
                   overflow: 'hidden',
                   flexGrow: 0,
+                  backgroundImage: `url(${publicPath(
+                    `/profile/tile${asset.toString().padStart(4, '0')}.webp`
+                  )})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  backgroundRepeat: 'no-repeat',
+                  opacity: data.avatar === asset.toString() ? 0.5 : 1,
+                  transition: (theme) => theme.transitions.create('opacity'),
+                  '&:hover': {
+                    opacity: 0.8,
+                    cursor: 'pointer',
+                  },
                 }}
               />
             ))}
