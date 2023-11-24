@@ -70,7 +70,10 @@ export class UsersController {
   ): Promise<InternalEndpointResponse<UsersModel.Endpoints.PatchUser>> {
     if (user.id !== target.id) throw new ForbiddenException();
     const ok = await user.save({ avatar, nickname, status, firstLogin }, true);
-    if (!ok) throw new HttpError('Failed to update profile');
+    if (!ok)
+      throw new ForbiddenException(
+        'Failed to update profile: nickname is already taken',
+      );
     return user.public;
   }
 
