@@ -1,26 +1,24 @@
 import { Card, CardContent, CardCover, Divider } from "@mui/joy";
-import backgroundQueue from "../assets/backgroundQueue.jpg";
-import backgroundLobby from "../assets/backgroundLobby.jpg";
 import LobbyTop from "../components/LobbyTop";
+import { Sheet } from "@mui/joy";
+import publicPath from "@utils/public";
 
 export default function GameLobby() {
   return (
-    <Card
+    <Sheet
       sx={{
         width: "80dvh",
         display: "flex",
         flexDirection: "column",
         height: "100%",
+        backgroundImage: `url(${publicPath('/matchMaking/backgroundLobby.jpg')})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
       }}
     >
-      <CardContent>
-        <LobbyTop></LobbyTop>
-      </CardContent>
+      <LobbyTop/>
       <Divider orientation="horizontal" />
-      {/* <LobbyBottom></LobbyBottom> */}
-      <CardCover>
-        <img src={backgroundLobby} />
-      </CardCover>
-    </Card>
+    </Sheet>
   );
 }

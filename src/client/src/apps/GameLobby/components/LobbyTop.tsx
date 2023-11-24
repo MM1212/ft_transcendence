@@ -6,17 +6,11 @@ import { LobbyMatchMaking } from "./LobbyMatchMaking";
 export default function LobbyTop() {
   const myCustomizations: string[] = [
     "Matchmaking",
-    "Game Modes",
-    "PVP",
-    "Create Custom",
-    "Join Custom",
+    "Create Costum",
   ];
   const components: JSX.Element[] = [
     <LobbyMatchMaking key={0} />,
     <LobbyCreateCustom key={2} />,
-    <LobbyCreateCustom key={3} />,
-    <LobbyCreateCustom key={4} />,
-    <LobbyCreateCustom key={5} />,
   ];
 
   return (
