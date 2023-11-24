@@ -63,7 +63,7 @@ namespace ChatsModel {
       }
       export interface Media {
         type: GroupEnumValues<Type.Media>;
-        url: string;
+        urls: string[];
       }
       export interface UserProfile {
         type: GroupEnumValues<Type.UserProfile>;

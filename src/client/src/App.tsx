@@ -6,6 +6,7 @@ import ErrorPage from '@views/error';
 import AuthRoute from '@components/AuthRoute';
 import UpdateUserModal from '@apps/Profile/components/UpdateUserModal';
 import React, { memo } from 'react';
+import ImagePreviewView from '@apps/ImagePreview/views';
 
 const MainRoute = memo(() => {
   return React.useMemo(
@@ -38,9 +39,10 @@ function App() {
         </Route>
         <AuthRoute redirect="/login">
           <MainRoute />
+          <UpdateUserModal />
+          <ImagePreviewView />
         </AuthRoute>
       </Switch>
-      <UpdateUserModal />
     </div>
   );
 }

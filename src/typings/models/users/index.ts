@@ -10,6 +10,7 @@ import { GroupEnumValues } from '@typings/utils';
 
 namespace UsersModel {
   export namespace Models {
+    export const DEFAULT_AVATAR = "13";
     export enum Status {
       Offline,
       Online,

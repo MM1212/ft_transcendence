@@ -22,7 +22,6 @@ import HttpCtx from '@/helpers/decorators/httpCtx';
 import { HTTPContext } from '@typings/http';
 import UserCtx from './decorators/User.pipe';
 import User from './user';
-import { HttpError } from '@/helpers/decorators/httpError';
 
 @Auth()
 @Controller()

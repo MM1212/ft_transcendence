@@ -12,6 +12,7 @@ import useChat from '../hooks/useChat';
 import moment from 'moment';
 import TimelapseIcon from '@components/icons/TimelapseIcon';
 import MessageInputBlocked from './MessageInputBlocked';
+import { urlRegex } from './NewChat';
 
 function MessageInput({ id }: { id: number }) {
   const [input, setInput] = useRecoilState(chatsState.chatsInput(id));
@@ -27,13 +28,32 @@ function MessageInput({ id }: { id: number }) {
           chatsState.selfParticipantByChat(chat.id)
         );
         const nonce = Math.random().toString(36).slice(2);
+        const messagePayload: ChatsModel.DTO.NewMessage = {
+          message: input.trim(),
+          type: ChatsModel.Models.ChatMessageType.Normal,
+          meta: {},
+        };
+        // Attachments embed
+        if (messagePayload.message.match(urlRegex)) {
+          messagePayload.type = ChatsModel.Models.ChatMessageType.Embed;
+          const message = messagePayload.message;
+          messagePayload.meta = {
+            type: ChatsModel.Models.Embeds.Type.Media,
+            urls: [],
+          };
+          messagePayload.meta.urls!.push(
+            ...message
+              .match(new RegExp(urlRegex, 'g'))!
+              .map((url) => url.trim())
+              .filter((url, i, arr) => arr.indexOf(url) === i)
+          );
+          urlRegex.lastIndex = 0;
+        }
         ctx.set(chatsState.messages(chat.id), (prev) => [
           {
+            ...messagePayload,
             id: nonce as any,
             chatId: chat.id,
-            type: ChatsModel.Models.ChatMessageType.Normal,
-            message: input.trim(),
-            meta: {},
             createdAt: Date.now(),
             authorId: selfParticipant.id,
             pending: true,
@@ -43,11 +63,7 @@ function MessageInput({ id }: { id: number }) {
         setInput('');
         const resp = await tunnel.rawPut(
           ChatsModel.Endpoints.Targets.CreateMessage,
-          {
-            message: input.trim(),
-            type: ChatsModel.Models.ChatMessageType.Normal,
-            meta: {},
-          },
+          messagePayload,
           { chatId: id }
         );
         if (resp.status !== 'ok') {
@@ -153,7 +169,11 @@ function MessageInput({ id }: { id: number }) {
   );
 }
 
-export default function MessageInputSelector({id}: {id: number}): JSX.Element {
+export default function MessageInputSelector({
+  id,
+}: {
+  id: number;
+}): JSX.Element {
   const isTargetRecipientBlocked = useChat(id).useIsTargetRecipientBlocked();
   if (isTargetRecipientBlocked) return <MessageInputBlocked id={id} />;
   return <MessageInput id={id} />;

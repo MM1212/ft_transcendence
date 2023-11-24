@@ -39,14 +39,10 @@ export const useModalActions = <T>(id: string) => {
         }
       ) => {
         if (data) {
-          ctx.set(
-            modalsDataAtom(id),
-            (prev: ModalState<T>) =>
-              ({
-                dismissable: prev.dismissable,
-                ...data,
-              }) as ModalState<T>
-          );
+          ctx.set(modalsDataAtom(id), {
+            dismissable: data.dismissable ?? true,
+            ...data,
+          } as ModalState<T>);
         }
         ctx.set(modalsAtom(id), true);
         ctx.set(modalsRegistryAtom, (ids) => [...ids, id]);

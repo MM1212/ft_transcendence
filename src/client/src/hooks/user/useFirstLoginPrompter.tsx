@@ -19,15 +19,16 @@ const useFirstLoginPrompter = () => {
           style={{
             wordBreak: 'break-all',
           }}
+          mb={2}
         >
           <Typography level="body-sm">
             Please take a moment to update your profile.
           </Typography>
           <Typography level="body-sm">
-            We&apos;ve picked your intra username and avatar for you.
+            We&apos;ve picked your intra username and an avatar for you.
           </Typography>
           <Typography level="body-sm">
-            You can also come back to this modal at any time by clicking on your
+            You can always change your profile by clicking on your
             avatar on the sidebar or on your profile page.
           </Typography>
         </Stack>

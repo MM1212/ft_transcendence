@@ -72,6 +72,7 @@ export default function ProfilePictureModal() {
                       opacity: 0.8,
                     },
                   }}
+                  title="Selecting closes the dialog"
                 />
               );
             })}

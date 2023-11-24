@@ -143,21 +143,20 @@ export default function UpdateUserModal(): JSX.Element {
                 submitProperties();
               }}
             >
-              <Stack spacing={2} direction="row" alignItems="center">
-                <UserAvatar src={input.avatar} />
-                <Stack spacing={1}>
-                  <FormControl>
-                    <FormLabel>Nickname</FormLabel>
-                    <Input
-                      autoFocus
-                      required
-                      value={input.nickname}
-                      onChange={updateInputProperty('nickname')}
-                      error={!input.nickname}
-                    />
-                  </FormControl>
-                  <FormControl>
-                    <FormLabel>Avatar</FormLabel>
+              <Stack spacing={1} >
+                <FormControl>
+                  <FormLabel>Nickname</FormLabel>
+                  <Input
+                    autoFocus
+                    required
+                    value={input.nickname}
+                    onChange={updateInputProperty('nickname')}
+                    error={!input.nickname}
+                  />
+                </FormControl>
+                <FormControl>
+                  <FormLabel>Avatar</FormLabel>
+                  <Stack direction="row" spacing={1} alignItems="center">
                     <Button
                       variant="outlined"
                       onClick={() =>
@@ -167,45 +166,51 @@ export default function UpdateUserModal(): JSX.Element {
                         })
                       }
                       color="neutral"
-                      style={{
-                        alignSelf: 'flex-start',
+                      sx={{
+                        px: 1
                       }}
-                    >
-                      Open Avatar Picker
-                    </Button>
-                  </FormControl>
-                  <FormControl>
-                    <FormLabel>Status</FormLabel>
-                    <Select
-                      value={input.status}
-                      onChange={(_, value) =>
-                        updateProperty('status')(
-                          value ?? UsersModel.Models.Status.Offline
-                        )
+                      startDecorator={
+                        <UserAvatar src={input.avatar} size="sm" variant="outlined" />
                       }
                     >
-                      {statusOptions.map(({ color, label, value }) => (
-                        <Option
-                          value={value}
-                          label={
-                            <StatusIndicator
-                              color={color}
-                              label={label}
-                              value={value}
-                            />
-                          }
-                          key={value}
-                        >
+                      Select Avatar
+                    </Button>
+                  </Stack>
+                </FormControl>
+                <FormControl>
+                  <FormLabel>Status</FormLabel>
+                  <Select
+                    value={input.status}
+                    onChange={(_, value) =>
+                      updateProperty('status')(
+                        value ?? UsersModel.Models.Status.Offline
+                      )
+                    }
+                    sx={{
+                      width: '50%',
+                    }}
+                  >
+                    {statusOptions.map(({ color, label, value }) => (
+                      <Option
+                        value={value}
+                        label={
                           <StatusIndicator
                             color={color}
                             label={label}
                             value={value}
                           />
-                        </Option>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Stack>
+                        }
+                        key={value}
+                      >
+                        <StatusIndicator
+                          color={color}
+                          label={label}
+                          value={value}
+                        />
+                      </Option>
+                    ))}
+                  </Select>
+                </FormControl>
               </Stack>
             </form>
           </DialogContent>
