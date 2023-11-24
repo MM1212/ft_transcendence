@@ -1,4 +1,4 @@
-import { AuthModel } from '@typings/api';
+import { AuthModel, EndpointResponse } from '@typings/api';
 import {
   FetchError,
   buildTunnelEndpoint,
@@ -6,15 +6,16 @@ import {
 } from '@/hooks/tunnel';
 import React from 'react';
 import {} from 'wouter';
-import useLocation from 'wouter/use-location';
+import useLocation, { navigate } from 'wouter/use-location';
 import tunnel from '@lib/tunnel';
 import { useRecoilCallback, useRecoilValue, useSetRecoilState } from 'recoil';
 import { clearAllSwrCache } from '../swrUtils';
 import UsersModel from '@typings/models/users';
-import { sessionAtom, usersAtom } from './state';
+import { isLoggedInSelector, sessionAtom, usersAtom } from './state';
 import { useSseEvent } from '@hooks/sse';
 import isEqual from 'lodash.isequal';
 import { useFriendsService } from '@apps/Friends/state/service';
+import { SWRConfiguration } from 'swr';
 export * from './state';
 type LoadingSession = { readonly loading: boolean };
 type IUser = UsersModel.Models.IUserInfo;
@@ -42,20 +43,25 @@ export const useSessionActions = (): SessionActions => {
   const logout = async (): Promise<void> => {
     await tunnel.rawGet(AuthModel.Endpoints.Targets.Logout);
     await clearAllSwrCache();
+    navigate('/login');
   };
 
   return { login, logout };
 };
 
-export const useSession = (): Session => {
+export const useSession = (
+  options: SWRConfiguration<EndpointResponse<AuthModel.Endpoints.Session>> = {}
+): Session => {
   const { data, isLoading, isValidating, error } =
     useTunnelEndpoint<AuthModel.Endpoints.Session>(
-      AuthModel.Endpoints.Targets.Session
+      AuthModel.Endpoints.Targets.Session,
+      undefined,
+      options
     );
   const actions = useSessionActions();
   if (isLoading || isValidating)
     return { ...actions, loading: true, loggedIn: false, user: null };
-  if (error || !data || data.status === 'error') {
+  if (error || (!data && !isLoading) || (data && data.status === 'error')) {
     if (!(error instanceof FetchError) || error.response.status !== 401)
       console.error(error);
     else if (data && data.status === 'error') console.error(data.errorMsg);
@@ -65,7 +71,7 @@ export const useSession = (): Session => {
     ...actions,
     loggedIn: true,
     loading: false,
-    user: data.data,
+    user: data!.data,
   };
 };
 
@@ -99,6 +105,7 @@ export const useSessionRecoilService = () => {
 export const useCurrentUser = (): IUser | null => useRecoilValue(sessionAtom);
 export const useUser = (id: number): IUser | null =>
   useRecoilValue(usersAtom(id));
+export const useIsLoggedIn = (): boolean => useRecoilValue(isLoggedInSelector);
 
 export const useUsersService = () => {
   const onUserUpdate = useRecoilCallback(

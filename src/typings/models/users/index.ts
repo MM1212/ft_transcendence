@@ -24,6 +24,7 @@ namespace UsersModel {
       createdAt: number;
       status: Status;
       storedStatus: Status;
+      firstLogin: boolean;
       friends: number[];
       blocked: number[];
       chats: number[];
@@ -69,7 +70,7 @@ namespace UsersModel {
       excluseSelf?: boolean;
     }
     export type PatchUser = Partial<
-      Pick<Models.IUserInfo, 'nickname' | 'avatar' | 'status'>
+      Pick<Models.IUserInfo, 'nickname' | 'avatar' | 'status' | 'firstLogin'>
     >;
 
     export interface SseUserUpdate

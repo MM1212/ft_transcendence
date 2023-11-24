@@ -301,6 +301,8 @@ export default function Lobby() {
   const ref = React.useRef<HTMLDivElement>(null);
   const onAppMount = useRecoilCallback(
     (ctx) => async (app: Pixi.Application) => {
+      console.log('lobby mounted');
+      
       app.stage.sortableChildren = true;
       const backgroundTex = await Pixi.Texture.fromURL(
         LobbyModel.Endpoints.Targets.StaticBackground

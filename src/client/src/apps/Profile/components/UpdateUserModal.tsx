@@ -23,11 +23,12 @@ import tunnel from '@lib/tunnel';
 import UsersModel from '@typings/models/users';
 import { AuthModel } from '@typings/models';
 import CircleIcon from '../../../components/icons/CircleIcon';
-import { useModal, useModalActions } from '@hooks/useModal';
 import notifications from '@lib/notifications/hooks';
 import { useCurrentUser } from '@hooks/user';
 import { UserAvatar } from '../../../components/AvatarWithStatus';
 import ProfilePictureModal from './ProfilePictureModal';
+import { useUpdateUserModal } from '../hooks/useUpdateUserModal';
+import { useSelectUserAvatarActions } from '../hooks/useUpdateAvatarModal';
 
 type IUser = UsersModel.Models.IUserInfo;
 type State = Pick<IUser, 'avatar' | 'nickname' | 'status'>;
@@ -63,7 +64,11 @@ export default function UpdateUserModal(): JSX.Element {
   const user = useCurrentUser();
   const [input, setInput] = React.useState<State>(user ?? ({} as State));
   const [loading, setLoading] = React.useState(false);
-  const { close, isOpened } = useModal('profile:change-user');
+  const {
+    close,
+    isOpened,
+    data: { map, header, body, dismissable, submitAnyway },
+  } = useUpdateUserModal();
 
   const updateProperty = React.useCallback(
     <T extends keyof State>(key: T) =>
@@ -82,20 +87,19 @@ export default function UpdateUserModal(): JSX.Element {
 
   const submitProperties = React.useCallback(async () => {
     if (!user) return;
-    const { avatar, nickname, status } = input;
+    const data = await Promise.resolve(
+      map?.({
+        avatar: input.avatar,
+        nickname: input.nickname,
+        status: input.status,
+        id: user.id,
+      }) ?? input
+    );
     try {
       setLoading(true);
-      await tunnel.patch(
-        UsersModel.Endpoints.Targets.PatchUser,
-        {
-          avatar,
-          nickname,
-          status,
-        },
-        {
-          id: user.id,
-        }
-      );
+      await tunnel.patch(UsersModel.Endpoints.Targets.PatchUser, data, {
+        id: user.id,
+      });
       mutate(
         buildTunnelEndpoint(AuthModel.Endpoints.Targets.Session),
         undefined,
@@ -110,7 +114,7 @@ export default function UpdateUserModal(): JSX.Element {
     } finally {
       setLoading(false);
     }
-  }, [user, input, close]);
+  }, [user, map, input, close]);
 
   React.useEffect(() => {
     setInput(user ?? ({} as State));
@@ -124,22 +128,15 @@ export default function UpdateUserModal(): JSX.Element {
     return false;
   }, [input, user]);
 
-  const { open: openAvatarModal, data } = useModal<{ avatar: string }>(
-    'profile:change-avatar'
-  );
-
-  React.useEffect(() => {
-    if (!data.avatar) return;
-
-    updateProperty('avatar')(data.avatar);
-  }, [data.avatar, updateProperty]);
+  const { open: openAvatarModal } = useSelectUserAvatarActions();
 
   return (
     <>
       <Modal open={isOpened} onClose={close}>
         <ModalDialog>
-          <DialogTitle></DialogTitle>
+          <DialogTitle>{header}</DialogTitle>
           <DialogContent>
+            {body}
             <form
               onSubmit={(event: React.FormEvent<HTMLFormElement>) => {
                 event.preventDefault();
@@ -163,7 +160,12 @@ export default function UpdateUserModal(): JSX.Element {
                     <FormLabel>Avatar</FormLabel>
                     <Button
                       variant="outlined"
-                      onClick={() => openAvatarModal({ avatar: input.avatar })}
+                      onClick={() =>
+                        openAvatarModal({
+                          avatar: input.avatar,
+                          onSubmit: updateProperty('avatar'),
+                        })
+                      }
                       color="neutral"
                       style={{
                         alignSelf: 'flex-start',
@@ -210,14 +212,16 @@ export default function UpdateUserModal(): JSX.Element {
           <DialogActions>
             <Button
               onClick={submitProperties}
-              disabled={!propertiesUpdated}
+              disabled={!propertiesUpdated && !submitAnyway}
               loading={loading}
             >
               Submit
             </Button>
-            <Button variant="plain" color="neutral" onClick={close}>
-              Cancel
-            </Button>
+            {dismissable && (
+              <Button variant="plain" color="neutral" onClick={close}>
+                Cancel
+              </Button>
+            )}
           </DialogActions>
         </ModalDialog>
       </Modal>

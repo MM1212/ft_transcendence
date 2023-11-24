@@ -77,6 +77,7 @@ class User extends CacheObserver<UsersModel.Models.IUser> {
       avatar,
       nickname,
       status,
+      firstLogin,
     }: NestedPartial<UsersModel.Models.IUserInfo> = this.public,
     propagate: boolean = false,
   ): Promise<boolean> {
@@ -84,6 +85,7 @@ class User extends CacheObserver<UsersModel.Models.IUser> {
       avatar,
       nickname,
       storedStatus: status,
+      firstLogin,
     });
     if (!result) return false;
     if (status !== undefined) this.set('status', status);
@@ -96,7 +98,11 @@ class User extends CacheObserver<UsersModel.Models.IUser> {
   /**
    * Syncs the user with all connected clients
    */
-  public propagate(...keys: (keyof UsersModel.Models.IUserInfo)[]): void {
+  public propagate(
+    firstKey: keyof UsersModel.Models.IUserInfo,
+    ...keys: (keyof UsersModel.Models.IUserInfo)[]
+  ): void {
+    keys.unshift(firstKey);
     const data = keys.reduce(
       (acc, key) => ({ ...acc, [key]: this.get(key) }),
       {} as Partial<UsersModel.Models.IUserInfo>,
