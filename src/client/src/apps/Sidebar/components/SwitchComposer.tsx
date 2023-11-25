@@ -1,4 +1,4 @@
-import { Route, Switch } from 'wouter';
+import { Redirect, Route, Switch } from 'wouter';
 import routes, {
   ISidebarNestedRoute,
   ISidebarRoute,
@@ -33,7 +33,8 @@ export default function SidebarSwitchComposer() {
       };
     return routes.flatMap(getPossibleRoutes(null));
   }, []);
-
+  console.log(possibleRoutes);
+  
   return (
     <Switch>
       {possibleRoutes.map(
@@ -48,6 +49,9 @@ export default function SidebarSwitchComposer() {
           </Route>
         )
       )}
+      <Route>
+        <Redirect to="/error?t=404" replace={true} />
+      </Route>
     </Switch>
   );
 }

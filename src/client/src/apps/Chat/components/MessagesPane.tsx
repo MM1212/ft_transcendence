@@ -21,25 +21,19 @@ function ChatMessagesImpl({ id }: { id: number }) {
   const resetMessages = useRecoilCallback(
     (ctx) => async () => {
       const chats = await ctx.snapshot.getPromise(chatsState.chats);
-      const chatIdx = chats.findIndex((chat) => chat.id === id);
-      if (chatIdx === -1) return;
-      const chat = { ...chats[chatIdx] };
-      chat.messages = chat.messages.slice(
-        0,
-        ChatsModel.Models.MAX_MESSAGES_PER_CHAT
+      if (!chats.includes(id)) return;
+      ctx.set(chatsState.messages(id), (prev) =>
+        prev.length > ChatsModel.Models.MAX_MESSAGES_PER_CHAT
+          ? prev.slice(0, ChatsModel.Models.MAX_MESSAGES_PER_CHAT)
+          : prev
       );
-      ctx.set(chatsState.chats, (prev) => {
-        const next = [...prev];
-        next[chatIdx] = chat;
-        return next;
-      });
     },
     [id]
   );
 
   React.useEffect(() => {
     resetMessages();
-  }, [resetMessages]);
+  }, [resetMessages, id]);
 
   React.useEffect(() => {
     setHasMore(true);
@@ -47,16 +41,22 @@ function ChatMessagesImpl({ id }: { id: number }) {
 
   const next = useRecoilCallback(
     (ctx) => async () => {
+      const timestamp = Date.now();
+      console.log(`[${timestamp}] Fetching messages for ${id}`);
+
       const chats = await ctx.snapshot.getPromise(chatsState.chats);
-      const chatIdx = chats.findIndex((chat) => chat.id === id);
-      if (chatIdx === -1) return;
-      const chat = { ...chats[chatIdx] };
-      let lastMessageId = chat.messages.length
-        ? chat.messages[chat.messages.length - 1]?.id ?? -1
+      if (!chats.includes(id)) return;
+      const lastMessages = await ctx.snapshot.getPromise(
+        chatsState.messages(id)
+      );
+      let lastMessageId = lastMessages.length
+        ? lastMessages[lastMessages.length - 1]?.id ?? -1
         : -1;
       if (isNaN(parseInt(lastMessageId as unknown as string)))
         lastMessageId = -1;
-      console.log(`Fetching messages from ${lastMessageId}`);
+      console.log(
+        `[${timestamp}] Fetching messages from ${lastMessageId} for ${id}`
+      );
 
       try {
         const messages = await tunnel.get(
@@ -67,19 +67,15 @@ function ChatMessagesImpl({ id }: { id: number }) {
           }
         );
         console.log(
-          `Loaded ${messages.length} from ${lastMessageId} as cursor to ${
+          `[${timestamp}] Loaded ${
+            messages.length
+          } from ${lastMessageId} as cursor to ${
             messages.length ? messages[messages.length - 1]?.id ?? -1 : -1
           }`
         );
-        if (messages.length === 0) return setHasMore(false);
-        ctx.set(chatsState.chats, (prev) => {
-          const next = [...prev];
-          next[chatIdx] = {
-            ...chat,
-            messages: [...chat.messages, ...messages],
-          };
-          return next;
-        });
+        ctx.set(chatsState.messages(id), (prev) => [...prev, ...messages]);
+        if (messages.length < ChatsModel.Models.MAX_MESSAGES_PER_CHAT)
+          return setHasMore(false);
       } catch (e) {
         console.error(e);
         notifications.error('Failed to fetch messages', (e as Error).message);
@@ -93,20 +89,52 @@ function ChatMessagesImpl({ id }: { id: number }) {
       const message = messages[messageIdx];
       const prev = messages[messageIdx + 1];
       const next = messages[messageIdx - 1];
-      const hasPrev =
+      let hasPrev =
         prev &&
         prev.authorId === message.authorId &&
         Math.abs(prev.createdAt - message.createdAt) < 60000;
-      const hasNext =
+      if (
+        message.type === ChatsModel.Models.ChatMessageType.Embed ||
+        prev?.type === ChatsModel.Models.ChatMessageType.Embed
+      ) {
+        hasPrev = false;
+      }
+      let hasNext =
         next &&
         next.authorId === message.authorId &&
         Math.abs(message.createdAt - next.createdAt) < 60000;
+      if (
+        message.type === ChatsModel.Models.ChatMessageType.Embed ||
+        next?.type === ChatsModel.Models.ChatMessageType.Embed
+      ) {
+        hasNext = false;
+      }
       return {
         prev: !!hasPrev,
         next: !!hasNext,
       };
     },
     []
+  );
+
+  const messagesComputed = React.useMemo(
+    () =>
+      messages.map((message, index: number) => {
+        const features = computeMessageFeatures(messages, index);
+        return (
+          <React.Suspense fallback={<></>} key={`${id}-${message.id}`}>
+            <ChatBubble
+              chatId={id}
+              messageId={message.id}
+              message={message}
+              key={`${id}-${message.id}`}
+              featuresNext={features.next}
+              featuresPrev={features.prev}
+            />
+          </React.Suspense>
+        );
+      }),
+    [computeMessageFeatures, id, messages]
   );
 
   return React.useMemo(
@@ -124,7 +152,7 @@ function ChatMessagesImpl({ id }: { id: number }) {
         hasMore={hasMore}
         loader={
           <CircularProgress
-            color="primary"
+            color="warning"
             sx={{
               position: 'absolute',
               my: 2,
@@ -150,24 +178,10 @@ function ChatMessagesImpl({ id }: { id: number }) {
         }
         inverse
       >
-        {messages.map((message, index: number) => {
-          const features = computeMessageFeatures(messages, index);
-          return (
-            <React.Suspense fallback={<></>} key={`${id}-${message.id}`}>
-              <ChatBubble
-                chatId={id}
-                messageId={message.id}
-                message={message}
-                key={`${id}-${message.id}`}
-                featuresNext={features.next}
-                featuresPrev={features.prev}
-              />
-            </React.Suspense>
-          );
-        })}
+        {messagesComputed}
       </InfiniteScroll>
     ),
-    [computeMessageFeatures, hasMore, id, messages, next]
+    [hasMore, messagesComputed, next]
   );
 }
 const ChatMessages = React.memo(ChatMessagesImpl);
@@ -190,19 +204,19 @@ export default function MessagesPane() {
         <MessagesPaneHeader />
       </React.Suspense>
 
-      <React.Suspense fallback={<></>}>
-        <Box
-          sx={{
-            flex: 1,
-            minHeight: 0,
-            height: '100%',
-            position: 'relative',
-            overflowY: 'auto',
-          }}
-        >
-          <ChatMessages id={selectedChatId} />
-        </Box>
-      </React.Suspense>
+      <Box
+        sx={{
+          flex: 1,
+          minHeight: 0,
+          height: '100%',
+          position: 'relative',
+          overflowY: 'auto',
+        }}
+      >
+        <React.Suspense fallback={<></>}>
+          <ChatMessages id={selectedChatId} key={selectedChatId} />
+        </React.Suspense>
+      </Box>
 
       <MessageInput id={selectedChatId} />
     </Sheet>

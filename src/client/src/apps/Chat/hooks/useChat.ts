@@ -1,10 +1,12 @@
-import { useRecoilCallback, useRecoilValue } from 'recoil';
+import { useRecoilTransaction_UNSTABLE, useRecoilValue } from 'recoil';
 import chatsState from '../state';
-import { useLocation } from 'wouter';
 import ChatsModel from '@typings/models/chat';
+import { navigate } from 'wouter/use-location';
 
 const useChat = (chatId: number) => {
   const useInfo = () => useRecoilValue(chatsState.chatInfo(chatId));
+  const useHeaderNames = () =>
+    useRecoilValue(chatsState.participantNames(chatId));
   const useMessages = () => useRecoilValue(chatsState.messages(chatId));
   const useMessageIds = () => useRecoilValue(chatsState.messageIds(chatId));
   const useLastMessage = () => useRecoilValue(chatsState.lastMessage(chatId));
@@ -21,18 +23,18 @@ const useChat = (chatId: number) => {
   const useType = () => useRecoilValue(chatsState.chatType(chatId));
   const useIsSelected = () => useRecoilValue(chatsState.isChatSelected(chatId));
 
-  const [, navigate] = useLocation();
-  const goTo = useRecoilCallback(
+  const goTo = useRecoilTransaction_UNSTABLE(
     (ctx) => () => {
-      ctx.set(chatsState.isChatSelected(chatId), true);
+      ctx.set(chatsState.selectedChatId, chatId);
       navigate(`/messages/${chatId}`);
     },
-    [chatId, navigate]
+    [chatId]
   );
 
   const useIsParticipantBlocked = (participantId: number) =>
     useRecoilValue(chatsState.isParticipantBlocked({ chatId, participantId }));
-
+  const useIsTargetRecipientBlocked = () =>
+    useRecoilValue(chatsState.isTargetRecipientBlocked(chatId));
   const useIsParticipantMutedComputed = (
     pId: number
   ):
@@ -43,6 +45,8 @@ const useChat = (chatId: number) => {
       return { is: false };
     if (participant.muted === ChatsModel.Models.ChatParticipantMuteType.Forever)
       return { is: true, type: 'permanent' };
+    console.log(pId, participant.userId, Date.now(), participant.mutedUntil);
+
     if (Date.now() >= participant.mutedUntil!) return { is: false };
     return { is: true, type: 'temporary', until: participant.mutedUntil! };
   };
@@ -54,6 +58,7 @@ const useChat = (chatId: number) => {
   return {
     id: chatId,
     useInfo,
+    useHeaderNames,
     useMessages,
     useMessageIds,
     useLastMessage,
@@ -66,6 +71,7 @@ const useChat = (chatId: number) => {
     useType,
     useIsSelected,
     useIsParticipantBlocked,
+    useIsTargetRecipientBlocked,
     useIsParticipantMutedComputed,
     useIsSelfMutedComputed,
     goTo,

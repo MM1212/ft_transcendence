@@ -8,8 +8,7 @@ import {
   InitdPlayer,
   Player,
   PlayerLayers,
-  allowPlayerFocus,
-  allowPlayerMove,
+  enablePlayerInput,
   lobbyAppAtom,
   lobbyCurrentPlayerSelector,
   lobbyPlayersAtom,
@@ -301,6 +300,8 @@ export default function Lobby() {
   const ref = React.useRef<HTMLDivElement>(null);
   const onAppMount = useRecoilCallback(
     (ctx) => async (app: Pixi.Application) => {
+      console.log('lobby mounted');
+
       app.stage.sortableChildren = true;
       const backgroundTex = await Pixi.Texture.fromURL(
         LobbyModel.Endpoints.Targets.StaticBackground
@@ -311,6 +312,16 @@ export default function Lobby() {
       background.y = 0;
 
       app.stage.addChild(background);
+
+      // const walkableMaskTex = await Pixi.Texture.fromURL(
+      //   LobbyModel.Endpoints.Targets.WalkableMask
+      // );
+      // const walkableMask = new Pixi.Sprite(walkableMaskTex);
+      // walkableMask.name = 'walkableMask';
+      // walkableMask.x = 0;
+      // walkableMask.y = 0;
+      // walkableMask.alpha = 0.5;
+      // app.stage.addChild(walkableMask);
       ctx.set(lobbyAppAtom, app);
       const players = await ctx.snapshot.getPromise(lobbyPlayersAtom);
       const self = await ctx.snapshot.getPromise(sessionAtom);
@@ -370,10 +381,8 @@ export default function Lobby() {
   const onBindToggle = useRecoilCallback(
     (ctx) => async (key, pressed) => {
       const player = await ctx.snapshot.getPromise(lobbyCurrentPlayerSelector);
-      const allowMove = await ctx.snapshot.getPromise(allowPlayerMove);
-      const allowFocus = await ctx.snapshot.getPromise(allowPlayerFocus);
-      if (allowMove === true) return;
-      if (allowFocus === true) return;
+      const hasInput = await ctx.snapshot.getPromise(enablePlayerInput);
+      if (!hasInput) return;
       if (!player || !player.layers) return;
       if (player.allowMove === false) return;
       const onMoveChange = async (
@@ -479,8 +488,6 @@ export default function Lobby() {
 
       emit('update-velocity', { key, pressed, anim: `${type}/${dir}` });
       await onMoveChange(type, dir);
-      player.layers.container.x = player.transform.position.x;
-      player.layers.container.y = player.transform.position.y;
     },
     [emit, resetToNextAnimation]
   );

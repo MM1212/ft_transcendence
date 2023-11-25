@@ -21,7 +21,7 @@ import {
   textareaClasses,
 } from '@mui/joy';
 
-const urlRegex =
+export const urlRegex =
   /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/;
 
 import LinearProgress from '@mui/joy/LinearProgress';
@@ -41,6 +41,7 @@ import LinkIcon from '@components/icons/LinkIcon';
 import LockIcon from '@components/icons/LockIcon';
 import friendsState from '@apps/Friends/state';
 import { useDebounce } from '@hooks/lodash';
+import { UserAvatar } from '@components/AvatarWithStatus';
 
 function PasswordMeterInput({ value, onChange, disabled }: any) {
   const minLength = 12;
@@ -160,8 +161,8 @@ function UsersAutocomplete({
           option.type === 'search'
             ? 'Search results'
             : option.type === 'friends'
-            ? 'Friends'
-            : 'Selected'
+              ? 'Friends'
+              : 'Selected'
         }
         isOptionEqualToValue={(option, value) =>
           option.data.id === value.data.id
@@ -201,7 +202,7 @@ function UsersAutocomplete({
             alignItems="center"
             spacing={1}
           >
-            <Avatar src={option.avatar} size="sm" />
+            <UserAvatar src={option.avatar} size="sm" />
             <Typography level="body-sm" component="span">
               {option.nickname}
             </Typography>
@@ -222,7 +223,7 @@ type FormValues = Pick<
   participants: UsersModel.Models.IUserInfo[];
 };
 
-export default function NewChatModal(): JSX.Element {
+function _NewChatModal(): JSX.Element {
   const { isOpened, close } = useModal('chat:new-chat');
 
   const form = useForm<FormValues>({
@@ -311,7 +312,7 @@ export default function NewChatModal(): JSX.Element {
         setLoading(true);
         const notif = notifications.default('Creating new chat...');
         try {
-          const data = await tunnel.put(
+          const chatId = await tunnel.put(
             ChatsModel.Endpoints.Targets.CreateChat,
             payload
           );
@@ -319,14 +320,7 @@ export default function NewChatModal(): JSX.Element {
             message: 'Chat created successfully!',
             color: 'success',
           });
-          ctx.set(chatsState.chats, (prev) => [
-            ...prev,
-            {
-              ...data,
-              messages: [],
-              authorizationData: null,
-            },
-          ]);
+          ctx.set(chatsState.chats, (prev) => [...prev, chatId]);
           close();
         } catch (e) {
           console.error(e);
@@ -493,3 +487,7 @@ export default function NewChatModal(): JSX.Element {
     </Modal>
   );
 }
+
+const NewChatModal = React.memo(_NewChatModal);
+
+export default NewChatModal;

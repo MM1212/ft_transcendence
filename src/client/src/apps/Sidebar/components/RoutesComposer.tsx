@@ -16,6 +16,7 @@ import routes, {
 } from '../routes';
 import Link from '@components/Link';
 import { Router, useRoute } from 'wouter';
+import React from 'react';
 
 function SidebarSingleRoute({
   icon,
@@ -26,7 +27,7 @@ function SidebarSingleRoute({
 }: ISidebarSingleRoute): JSX.Element {
   const [matches] = useRoute(routePath ?? path);
 
-  return (
+  return React.useMemo(() => (
     <ListItem>
       <ListItemButton component={Link} href={path} selected={matches}>
         {icon}
@@ -36,7 +37,7 @@ function SidebarSingleRoute({
         {endDecoration}
       </ListItemButton>
     </ListItem>
-  );
+  ), [endDecoration, icon, label, matches, path]);
 }
 
 function SidebarNestedRoute({

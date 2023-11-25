@@ -1,7 +1,6 @@
 import * as React from 'react';
 import Box from '@mui/joy/Box';
 import Stack from '@mui/joy/Stack';
-import Sheet from '@mui/joy/Sheet';
 import Typography from '@mui/joy/Typography';
 import ChatsModel from '@typings/models/chat';
 import { useRecoilValue } from 'recoil';
@@ -12,6 +11,8 @@ import moment from 'moment';
 import { Tooltip } from '@mui/joy';
 import useChat from '../hooks/useChat';
 import BlockedBubble from './BlockedBubble';
+import ChatDefaultMessageBubble from './bubbles/Default';
+import ChatEmbedMessage from './bubbles';
 
 type ChatBubbleProps = {
   message: ChatsModel.Models.IChatMessage;
@@ -20,6 +21,7 @@ type ChatBubbleProps = {
   featuresPrev: boolean;
   featuresNext: boolean;
 };
+
 export default function ChatBubble({
   chatId,
   message: messageData,
@@ -32,6 +34,7 @@ export default function ChatBubble({
     message,
     type,
     pending,
+    meta,
   }: ChatsModel.Models.IChatMessage & { pending?: boolean } =
     messageData; /* useRecoilValue(chatsState.message({ chatId, messageId }))! */
 
@@ -101,86 +104,31 @@ export default function ChatBubble({
                 </Tooltip>
               )}
             </Stack>
-            {type === ChatsModel.Models.ChatMessageType.Embed ? (
-              <Sheet
-                variant="outlined"
-                sx={(theme) => ({
-                  px: 1.75,
-                  py: 1.25,
-                  borderRadius: 'lg',
-                  borderTopRightRadius:
-                    isSent && features.prev ? theme.radius.xs : undefined,
-                  borderBottomRightRadius:
-                    isSent && features.next ? theme.radius.xs : undefined,
-                  borderTopLeftRadius:
-                    isSent || !features.prev ? undefined : theme.radius.xs,
-                  borderBottomLeftRadius:
-                    isSent || !features.next ? undefined : theme.radius.xs,
-                })}
-              >
-                {/* <Stack direction="row" spacing={1.5} alignItems="center">
-          <Avatar color="primary" size="lg">
-            <FileImportIcon />
-          </Avatar>
-          <div>
-            <Typography fontSize="sm">{attachment.fileName}</Typography>
-            <Typography level="body-sm">{attachment.size}</Typography>
-          </div>
-        </Stack> */}
-              </Sheet>
-            ) : (
-              <Box
-                sx={{
-                  position: 'relative',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: isSent ? 'flex-end' : 'flex-start',
-                }}
-              >
-                <Sheet
+            <Box
+              sx={{
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: isSent ? 'flex-end' : 'flex-start',
+              }}
+            >
+              {type === ChatsModel.Models.ChatMessageType.Normal ? (
+                <ChatDefaultMessageBubble
+                  isSent={isSent}
+                  features={features}
+                  message={message}
                   variant={isSent && !pending ? 'solid' : 'soft'}
-                  sx={(theme) => ({
-                    p: 1.25,
-                    borderRadius: 'lg',
-                    borderTopRightRadius:
-                      isSent && features.prev ? theme.radius.xs : undefined,
-                    borderBottomRightRadius:
-                      isSent && features.next ? theme.radius.xs : undefined,
-                    borderTopLeftRadius:
-                      isSent || !features.prev ? undefined : theme.radius.xs,
-                    borderBottomLeftRadius:
-                      isSent || !features.next ? undefined : theme.radius.xs,
-                    backgroundColor: isSent
-                      ? theme.getCssVar(
-                          !pending
-                            ? 'palette-primary-solidBg'
-                            : 'palette-primary-softBg'
-                        )
-                      : 'background.body',
-                    display: 'flex',
-                    alignItems: 'center',
-                    // justifyContent: isSent ? 'flex-end' : 'flex-start',
-                    maxWidth: 'fit-content',
-                    minWidth: '8dvh',
-                  })}
-                >
-                  <Typography
-                    level="body-sm"
-                    component="span"
-                    sx={{
-                      color: isSent
-                        ? 'var(--joy-palette-common-white)'
-                        : 'var(--joy-palette-text-primary)',
-                      width: 'fit-content',
-                      whiteSpace: 'pre-wrap',
-                      wordBreak: 'break-word',
-                    }}
-                  >
-                    {message}
-                  </Typography>
-                </Sheet>
-              </Box>
-            )}
+                />
+              ) : (
+                <ChatEmbedMessage
+                  isSent={isSent}
+                  features={features}
+                  message={message}
+                  variant={isSent && !pending ? 'solid' : 'soft'}
+                  embed={meta as ChatsModel.Models.Embeds.All}
+                />
+              )}
+            </Box>
           </Box>
         </Stack>
       ),
@@ -188,16 +136,16 @@ export default function ChatBubble({
       isBlocked,
       showAnyway,
       isSent,
-      features.next,
-      features.prev,
+      features,
       user.status,
       user.avatar,
       user.nickname,
       isMuted,
       createdAt,
       type,
-      pending,
       message,
+      pending,
+      meta,
     ]
   );
 }

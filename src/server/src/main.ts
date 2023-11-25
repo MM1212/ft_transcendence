@@ -10,6 +10,8 @@ import cookiesModule from '@fastify/cookie';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import { AppService } from './app.service';
 import setupLogger from './helpers/logger';
+const fastifyPrintRoutes = import('fastify-print-routes');
+
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -59,7 +61,7 @@ async function bootstrap() {
   app.get(AppService).setApp(app);
 
   app.setGlobalPrefix('/api');
-
+  await app.register((await fastifyPrintRoutes) as any)
   await app.listen(host.port, host.ip);
 }
 bootstrap();

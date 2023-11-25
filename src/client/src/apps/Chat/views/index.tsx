@@ -7,20 +7,9 @@ import { useRecoilCallback } from 'recoil';
 import { useParams } from 'wouter';
 import chatsState from '../state';
 import ChatMembersModal from '../components/management/ChatMembers';
+import ChatManageMuteModal from '../components/management/ChatManageMuteModal';
 
-export default function ChatMessagesView() {
-  const { chatId } = useParams();
-
-  const updateSelectedChat = useRecoilCallback(
-    (ctx) => (id: number) => {
-      ctx.set(chatsState.selectedChatId, id);
-    },
-    []
-  );
-
-  React.useEffect(() => {
-    updateSelectedChat((chatId && parseInt(chatId)) || -1);
-  }, [updateSelectedChat, chatId]);
+function _View(): JSX.Element {
   return (
     <Sheet
       sx={{
@@ -55,6 +44,25 @@ export default function ChatMessagesView() {
       <MessagesPane />
       <NewChatModal />
       <ChatMembersModal />
+      <ChatManageMuteModal />
     </Sheet>
   );
+}
+
+const View = React.memo(_View);
+
+export default function ChatMessagesView() {
+  const { chatId } = useParams();
+
+  const updateSelectedChat = useRecoilCallback(
+    (ctx) => (id: number) => {
+      ctx.set(chatsState.selectedChatId, id);
+    },
+    []
+  );
+
+  React.useEffect(() => {
+    updateSelectedChat((chatId && parseInt(chatId)) || -1);
+  }, [updateSelectedChat, chatId]);
+  return <View />;
 }

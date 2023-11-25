@@ -15,16 +15,13 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import {
-  InternalEndpointResponse,
-} from '@typings/api';
+import { InternalEndpointResponse } from '@typings/api';
 import UsersModel from '@typings/models/users';
 import { Auth } from '../auth/decorators';
 import HttpCtx from '@/helpers/decorators/httpCtx';
 import { HTTPContext } from '@typings/http';
 import UserCtx from './decorators/User.pipe';
 import User from './user';
-import { HttpError } from '@/helpers/decorators/httpError';
 
 @Auth()
 @Controller()
@@ -67,12 +64,15 @@ export class UsersController {
   @Patch(UsersModel.Endpoints.Targets.PatchUser)
   async patch(
     @UserCtx() target: User,
-    @Body() { avatar, nickname, status }: UsersModel.DTO.PatchUser,
+    @Body() { avatar, nickname, status, firstLogin }: UsersModel.DTO.PatchUser,
     @HttpCtx() { user }: HTTPContext<true>,
   ): Promise<InternalEndpointResponse<UsersModel.Endpoints.PatchUser>> {
     if (user.id !== target.id) throw new ForbiddenException();
-    const ok = await user.save({ avatar, nickname, status }, true);
-    if (!ok) throw new HttpError('Failed to update profile');
+    const ok = await user.save({ avatar, nickname, status, firstLogin }, true);
+    if (!ok)
+      throw new ForbiddenException(
+        'Failed to update profile: nickname is already taken',
+      );
     return user.public;
   }
 
@@ -145,5 +145,4 @@ export class UsersController {
   ): Promise<InternalEndpointResponse<UsersModel.Endpoints.UnblockUser>> {
     await user.friends.unblock(blockedId);
   }
-
 }

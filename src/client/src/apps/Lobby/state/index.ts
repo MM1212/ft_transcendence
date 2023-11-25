@@ -141,6 +141,8 @@ export const lobbyAppAtom = atom<Pixi.Application | null>({
         };
 
         const onMouseMove = async (event: Pixi.FederatedMouseEvent) => {
+          const hasInput = await getPromise(enablePlayerInput);
+          if (!hasInput) return;
           const sock = await getPromise(
             socketStorageAtom(
               buildTunnelEndpoint(LobbyModel.Endpoints.Targets.Connect)
@@ -194,7 +196,7 @@ export const lobbyAppAtom = atom<Pixi.Application | null>({
             getPromise,
           });
         };
-        app.ticker.add(tick);
+        // app.ticker.add(tick);
         app.stage.interactive = true;
         app.stage.onmousemove = onMouseMove;
         const onResize = () => {
@@ -221,7 +223,7 @@ export const lobbyAppAtom = atom<Pixi.Application | null>({
         onResize();
         window.addEventListener('resize', onResize);
         return () => {
-          app.ticker.remove(tick);
+          // app.ticker.remove(tick);
           app.stage.onmousemove = null;
           window.removeEventListener('resize', onResize);
         };
@@ -241,16 +243,9 @@ export const lobbyCurrentPlayerSelector = selector<Player | null>({
   dangerouslyAllowMutability: true,
 });
 
-// Lets create a context that will keep the state of an element
-
-export const allowPlayerMove = atom<boolean>({
-  key: 'lobby/allowPlayerMove',
-  default: false,
-});
-
-export const allowPlayerFocus = atom<boolean>({
+export const enablePlayerInput = atom<boolean>({
   key: 'lobby/allowPlayerFocus',
-  default: false,
+  default: true,
 });
 
 export const useLobbyPlayers = (): Player[] => useRecoilValue(lobbyPlayersAtom);

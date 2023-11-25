@@ -3,12 +3,11 @@ import AccountGroupIcon from '@components/icons/AccountGroupIcon';
 import AccountIcon from '@components/icons/AccountIcon';
 import AccountSearchIcon from '@components/icons/AccountSearchIcon';
 import ControllerIcon from '@components/icons/ControllerIcon';
+import DevToIcon from '@components/icons/DevToIcon';
 import ForumIcon from '@components/icons/ForumIcon';
 import HangerIcon from '@components/icons/HangerIcon';
 import HistoryIcon from '@components/icons/HistoryIcon';
 import HomeIcon from '@components/icons/HomeIcon';
-import ImageFilterCenterFocusIcon from '@components/icons/ImageFilterCenterFocusIcon';
-import LoginVariantIcon from '@components/icons/LoginVariantIcon';
 import PlayIcon from '@components/icons/PlayIcon';
 import TableTennisIcon from '@components/icons/TableTennisIcon';
 import TrophyIcon from '@components/icons/TrophyIcon';
@@ -41,12 +40,6 @@ const routes: ISidebarRoute[] = [
     path: '/',
     icon: <HomeIcon />,
     // Component: React.lazy(() => import('@views/home')),
-  },
-  {
-    label: 'Lobby (TEMP)',
-    path: '/lobby',
-    icon: <ImageFilterCenterFocusIcon />,
-    Component: React.lazy(() => import('@views/lobby')),
   },
   {
     label: 'Social',
@@ -101,13 +94,6 @@ const routes: ISidebarRoute[] = [
     Component: React.lazy(() => import('@apps/Customization/views')),
   },
   {
-    label: 'LoginPage',
-    path: '/loginPage',
-    icon: <LoginVariantIcon />,
-    exact : false,
-    Component: React.lazy(() => import('@apps/LoginPage/views'))
-  },
-  {
     label: 'Games',
     icon: <ControllerIcon />,
     children: [
@@ -121,7 +107,7 @@ const routes: ISidebarRoute[] = [
             path: '/',
             icon: <PlayIcon />,
             exact: false,
-            Component: React.lazy(() => import("@apps/GameLobby/views")),
+            Component: React.lazy(() => import('@apps/GameLobby/views')),
           },
           {
             label: 'Match History',
@@ -135,5 +121,21 @@ const routes: ISidebarRoute[] = [
     ],
   },
 ];
+
+if (import.meta.env.DEV) {
+  routes.push({
+    label: 'Dev',
+    icon: <DevToIcon />,
+    children: [
+      {
+        label: 'Clothing Showcase',
+        path: '/dev/clothing-showcase',
+        icon: <HangerIcon />,
+        exact: false,
+        Component: React.lazy(() => import('@views/ClothingShowcase')),
+      },
+    ],
+  });
+}
 
 export default routes;

@@ -11,6 +11,7 @@ import { ConfigService } from '@nestjs/config';
 import { IntraAPI } from '@/helpers/Intra';
 import { UsersService } from '@/modules/users/users.service';
 import { HttpError } from '@/helpers/decorators/httpError';
+import UsersModel from '@typings/models/users';
 
 @Injectable()
 export class AuthService {
@@ -124,16 +125,12 @@ export class AuthService {
       const apiData = await this.intra.me();
       if (!apiData) throw new Error('Failed to get user data from 42 API');
       if ((apiData as any).error) throw new HttpError((apiData as any).error);
-      const {
-        id,
-        login,
-        image: { link },
-      } = apiData;
+      const { id, login } = apiData;
       let user = await this.usersService.getByStudentId(id);
       if (!user)
         user = await this.usersService.create({
           studentId: id,
-          avatar: link,
+          avatar: UsersModel.Models.DEFAULT_AVATAR,
           nickname: login,
         });
       const uSession = user.withSession(req.session);
@@ -148,15 +145,17 @@ export class AuthService {
     }
   }
 
-  public async dummy(ctx: HTTPContext, dummyId: number): Promise<Partial<HttpRedirectResponse>> {
+  public async dummy(
+    ctx: HTTPContext,
+    dummyId: number,
+  ): Promise<Partial<HttpRedirectResponse>> {
     let dummyUser = await this.usersService.getByStudentId(dummyId);
     console.log(dummyId, dummyUser);
-    
+
     if (!dummyUser) {
       dummyUser = await this.usersService.create({
         studentId: dummyId,
-        avatar:
-          'https://cdn.intra.42.fr/users/429ed382acddf70f5a531af2d3304ef3/chris-pbacon.png',
+        avatar: UsersModel.Models.DEFAULT_AVATAR,
         nickname: `Dummy${dummyId}`,
       });
     }

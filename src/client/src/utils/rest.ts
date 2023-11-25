@@ -8,7 +8,7 @@ const restWrapper = async <R = unknown>(
   });
 
   if (!response.ok) {
-    throw new Error(response.statusText);
+    throw response;
   }
 
   return await response.json();

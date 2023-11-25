@@ -23,11 +23,12 @@ import tunnel from '@lib/tunnel';
 import UsersModel from '@typings/models/users';
 import { AuthModel } from '@typings/models';
 import CircleIcon from '../../../components/icons/CircleIcon';
-import { useModal, useModalActions } from '@hooks/useModal';
 import notifications from '@lib/notifications/hooks';
 import { useCurrentUser } from '@hooks/user';
 import { UserAvatar } from '../../../components/AvatarWithStatus';
 import ProfilePictureModal from './ProfilePictureModal';
+import { useUpdateUserModal } from '../hooks/useUpdateUserModal';
+import { useSelectUserAvatarActions } from '../hooks/useUpdateAvatarModal';
 
 type IUser = UsersModel.Models.IUserInfo;
 type State = Pick<IUser, 'avatar' | 'nickname' | 'status'>;
@@ -63,7 +64,11 @@ export default function UpdateUserModal(): JSX.Element {
   const user = useCurrentUser();
   const [input, setInput] = React.useState<State>(user ?? ({} as State));
   const [loading, setLoading] = React.useState(false);
-  const { close, isOpened } = useModal('profile:change-user');
+  const {
+    close,
+    isOpened,
+    data: { map, header, body, dismissable, submitAnyway },
+  } = useUpdateUserModal();
 
   const updateProperty = React.useCallback(
     <T extends keyof State>(key: T) =>
@@ -82,20 +87,19 @@ export default function UpdateUserModal(): JSX.Element {
 
   const submitProperties = React.useCallback(async () => {
     if (!user) return;
-    const { avatar, nickname, status } = input;
+    const data = await Promise.resolve(
+      map?.({
+        avatar: input.avatar,
+        nickname: input.nickname,
+        status: input.status,
+        id: user.id,
+      }) ?? input
+    );
     try {
       setLoading(true);
-      await tunnel.patch(
-        UsersModel.Endpoints.Targets.PatchUser,
-        {
-          avatar,
-          nickname,
-          status,
-        },
-        {
-          id: user.id,
-        }
-      );
+      await tunnel.patch(UsersModel.Endpoints.Targets.PatchUser, data, {
+        id: user.id,
+      });
       mutate(
         buildTunnelEndpoint(AuthModel.Endpoints.Targets.Session),
         undefined,
@@ -110,7 +114,7 @@ export default function UpdateUserModal(): JSX.Element {
     } finally {
       setLoading(false);
     }
-  }, [user, input, close]);
+  }, [user, map, input, close]);
 
   React.useEffect(() => {
     setInput(user ?? ({} as State));
@@ -124,100 +128,107 @@ export default function UpdateUserModal(): JSX.Element {
     return false;
   }, [input, user]);
 
-  const { open: openAvatarModal, data } = useModal<{ avatar: string }>(
-    'profile:change-avatar'
-  );
-
-  React.useEffect(() => {
-    if (!data.avatar) return;
-
-    updateProperty('avatar')(data.avatar);
-  }, [data.avatar, updateProperty]);
+  const { open: openAvatarModal } = useSelectUserAvatarActions();
 
   return (
     <>
       <Modal open={isOpened} onClose={close}>
         <ModalDialog>
-          <DialogTitle></DialogTitle>
-          <DialogContent>
+          <DialogTitle>{header}</DialogTitle>
+          <DialogContent style={{
+            overflow: 'inherit'
+          }}>
+            {body}
             <form
               onSubmit={(event: React.FormEvent<HTMLFormElement>) => {
                 event.preventDefault();
                 submitProperties();
               }}
             >
-              <Stack spacing={2} direction="row" alignItems="center">
-                <UserAvatar src={input.avatar} />
-                <Stack spacing={1}>
-                  <FormControl>
-                    <FormLabel>Nickname</FormLabel>
-                    <Input
-                      autoFocus
-                      required
-                      value={input.nickname}
-                      onChange={updateInputProperty('nickname')}
-                      error={!input.nickname}
-                    />
-                  </FormControl>
-                  <FormControl>
-                    <FormLabel>Avatar</FormLabel>
+              <Stack spacing={1} >
+                <FormControl>
+                  <FormLabel>Nickname</FormLabel>
+                  <Input
+                    autoFocus
+                    required
+                    value={input.nickname}
+                    onChange={updateInputProperty('nickname')}
+                    error={!input.nickname}
+                  />
+                </FormControl>
+                <FormControl>
+                  <FormLabel>Avatar</FormLabel>
+                  <Stack direction="row" spacing={1} alignItems="center">
                     <Button
                       variant="outlined"
-                      onClick={() => openAvatarModal({ avatar: input.avatar })}
+                      onClick={() =>
+                        openAvatarModal({
+                          avatar: input.avatar,
+                          onSubmit: updateProperty('avatar'),
+                        })
+                      }
                       color="neutral"
-                      style={{
-                        alignSelf: 'flex-start',
+                      sx={{
+                        px: 1
                       }}
-                    >
-                      Open Avatar Picker
-                    </Button>
-                  </FormControl>
-                  <FormControl>
-                    <FormLabel>Status</FormLabel>
-                    <Select
-                      value={input.status}
-                      onChange={(_, value) =>
-                        updateProperty('status')(
-                          value ?? UsersModel.Models.Status.Offline
-                        )
+                      startDecorator={
+                        <UserAvatar src={input.avatar} size="sm" variant="outlined" />
                       }
                     >
-                      {statusOptions.map(({ color, label, value }) => (
-                        <Option
-                          value={value}
-                          label={
-                            <StatusIndicator
-                              color={color}
-                              label={label}
-                              value={value}
-                            />
-                          }
-                          key={value}
-                        >
+                      Select Avatar
+                    </Button>
+                  </Stack>
+                </FormControl>
+                <FormControl>
+                  <FormLabel>Status</FormLabel>
+                  <Select
+                    value={input.status}
+                    onChange={(_, value) =>
+                      updateProperty('status')(
+                        value ?? UsersModel.Models.Status.Offline
+                      )
+                    }
+                    sx={{
+                      width: '50%',
+                    }}
+                  >
+                    {statusOptions.map(({ color, label, value }) => (
+                      <Option
+                        value={value}
+                        label={
                           <StatusIndicator
                             color={color}
                             label={label}
                             value={value}
                           />
-                        </Option>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Stack>
+                        }
+                        key={value}
+                      >
+                        <StatusIndicator
+                          color={color}
+                          label={label}
+                          value={value}
+                        />
+                      </Option>
+                    ))}
+                  </Select>
+                </FormControl>
               </Stack>
             </form>
           </DialogContent>
           <DialogActions>
             <Button
               onClick={submitProperties}
-              disabled={!propertiesUpdated}
+              disabled={!propertiesUpdated && !submitAnyway}
               loading={loading}
             >
               Submit
             </Button>
-            <Button variant="plain" color="neutral" onClick={close}>
-              Cancel
-            </Button>
+            {dismissable && (
+              <Button variant="plain" color="neutral" onClick={close}>
+                Cancel
+              </Button>
+            )}
           </DialogActions>
         </ModalDialog>
       </Modal>
