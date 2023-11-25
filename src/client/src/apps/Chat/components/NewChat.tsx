@@ -41,6 +41,7 @@ import LinkIcon from '@components/icons/LinkIcon';
 import LockIcon from '@components/icons/LockIcon';
 import friendsState from '@apps/Friends/state';
 import { useDebounce } from '@hooks/lodash';
+import { UserAvatar } from '@components/AvatarWithStatus';
 
 function PasswordMeterInput({ value, onChange, disabled }: any) {
   const minLength = 12;
@@ -201,7 +202,7 @@ function UsersAutocomplete({
             alignItems="center"
             spacing={1}
           >
-            <Avatar src={option.avatar} size="sm" />
+            <UserAvatar src={option.avatar} size="sm" />
             <Typography level="body-sm" component="span">
               {option.nickname}
             </Typography>

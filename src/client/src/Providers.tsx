@@ -9,7 +9,6 @@ import NotificationsProvider from '@lib/notifications/Provider';
 import moment from 'moment';
 import ErrorBoundary from '@components/ExceptionCatcher';
 import CustomScrollBar from '@theme/scrollBar';
-import { DebugObserver } from '@components/DebugObserver';
 
 moment.updateLocale('en', {
   relativeTime: {
@@ -35,7 +34,7 @@ export default function AppProviders({
 }: React.PropsWithChildren<{}>): JSX.Element {
   return (
     <RecoilRoot >
-      <DebugObserver />
+      {/* <DebugObserver /> */}
       <Router>
         <SWRConfig
           value={{

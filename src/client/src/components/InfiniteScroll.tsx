@@ -24,25 +24,28 @@ const InfiniteScroll = React.forwardRef<HTMLDivElement, InfiniteScrollProps>(
       endMessage,
       boxProps,
     } = props;
+
     const observableRef = useRef<HTMLDivElement>(null);
     const ref = useRef<HTMLDivElement>(null);
     const [showLoader, setShowLoader] = React.useState(false);
+    const lastNextPromiseRef = useRef<Promise<any> | null>(null);
 
     const divRef = bindRefs(ref, parentRef);
 
     const onChange = React.useCallback<IntersectionObserverCallback>(
-      (entries) => {
+      async (entries) => {
         if (!hasMore) {
           // if (ref.current)
           //   if (inverse) ref.current.scrollTop = 0;
           //   else ref.current.scrollTop = ref.current.scrollHeight;
           return;
         }
+
         const target = entries[0];
         console.log(target);
 
         if (target.isIntersecting) {
-          next();
+          lastNextPromiseRef.current = Promise.resolve(next());
           setShowLoader(true);
         }
       },
@@ -53,14 +56,14 @@ const InfiniteScroll = React.forwardRef<HTMLDivElement, InfiniteScrollProps>(
       () => new IntersectionObserver(onChange /* { root: ref.current } */)
     );
 
-    React.useEffect(() => {
+    React.useLayoutEffect(() => {
       setObserver((prev) => {
         prev.disconnect();
         return new IntersectionObserver(onChange);
       });
     }, [onChange]);
 
-    React.useEffect(() => {
+    React.useLayoutEffect(() => {
       const { current } = observableRef;
 
       if (current) observer.observe(current);
@@ -70,7 +73,7 @@ const InfiniteScroll = React.forwardRef<HTMLDivElement, InfiniteScrollProps>(
       };
     }, [observer, observableRef]);
 
-    React.useEffect(() => {
+    React.useLayoutEffect(() => {
       const { current } = ref;
       // setObserver((prev) => {
       //   prev.disconnect();
@@ -85,9 +88,17 @@ const InfiniteScroll = React.forwardRef<HTMLDivElement, InfiniteScrollProps>(
       else current.scrollTop = current.scrollHeight;
     }, [inverse]);
 
-    React.useEffect(() => {
+    const firstMount = React.useRef(true);
+
+    React.useLayoutEffect(() => {
+      firstMount.current = false;
+    }, []);
+
+    React.useLayoutEffect(() => {
       setShowLoader(false);
-      if (observableRef.current) {
+      if (observableRef.current && !firstMount.current) {
+        console.log('refreshing observer');
+
         observer.unobserve(observableRef.current);
         observer.observe(observableRef.current);
       }
@@ -103,7 +114,7 @@ const InfiniteScroll = React.forwardRef<HTMLDivElement, InfiniteScrollProps>(
       props.hasChildren ||
       !!(children && Array.isArray(children) && children.length);
 
-    console.log(
+    /* console.log(
       !showLoader && !hasChildren && hasMore,
       showLoader && hasMore,
       !hasMore,
@@ -112,50 +123,71 @@ const InfiniteScroll = React.forwardRef<HTMLDivElement, InfiniteScrollProps>(
         hasChildren,
         hasMore,
       }
+    ); */
+
+    const intersector = React.useMemo(
+      () => (
+        <div
+          ref={observableRef}
+          style={{ height: 1, margin: 0 }}
+          className="intersector"
+        />
+      ),
+      []
     );
 
-    return (
-      <Box
-        sx={{
-          overflowY: 'auto',
-          height: '100%',
-          display: 'flex',
-          p: 2,
-          flexDirection: inverse ? 'column-reverse' : 'column',
-        }}
-      >
-        {!inverse && (
-          <>
-            {!showLoader && !hasChildren && hasMore && loader}
-            {showLoader && hasMore && loader}
-            {!hasMore && endMessage}
-          </>
-        )}
-
+    return React.useMemo(
+      () => (
         <Box
-          ref={divRef}
-          style={{
+          sx={{
+            overflowY: 'auto',
+            height: '100%',
             display: 'flex',
+            p: 2,
             flexDirection: inverse ? 'column-reverse' : 'column',
           }}
-          {...boxProps}
         >
           {!inverse && (
-            <div ref={observableRef} style={{ height: 1, margin: 0 }} />
+            <>
+              {!showLoader && !hasChildren && hasMore && loader}
+              {showLoader && hasMore && loader}
+              {!hasMore && endMessage}
+            </>
           )}
-          <React.Suspense fallback={loader}>{children}</React.Suspense>
+
+          <Box
+            ref={divRef}
+            style={{
+              display: 'flex',
+              flexDirection: inverse ? 'column-reverse' : 'column',
+            }}
+            {...boxProps}
+          >
+            {!inverse && intersector}
+            <React.Suspense fallback={loader}>{children}</React.Suspense>
+            {inverse && intersector}
+          </Box>
           {inverse && (
-            <div ref={observableRef} style={{ height: 1, margin: 0 }} />
+            <>
+              {!showLoader && !hasChildren && hasMore && loader}
+              {showLoader && hasMore && loader}
+              {!hasMore && endMessage}
+            </>
           )}
         </Box>
-        {inverse && (
-          <>
-            {!showLoader && !hasChildren && hasMore && loader}
-            {showLoader && hasMore && loader}
-            {!hasMore && endMessage}
-          </>
-        )}
-      </Box>
+      ),
+      [
+        boxProps,
+        children,
+        divRef,
+        endMessage,
+        hasChildren,
+        hasMore,
+        intersector,
+        inverse,
+        loader,
+        showLoader,
+      ]
     );
   }
 );

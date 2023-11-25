@@ -338,28 +338,26 @@ const chatsState = new (class MessagesState {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { messages, participants, authorizationData, ...info } = chat;
         const self = get(sessionAtom);
-        const users = get(
-          waitForAll(participants.map((p) => usersAtom(p.userId)))
-        ).filter(Boolean);
         if (info.type === ChatsModel.Models.ChatType.Direct) {
-          const other = users.find((u) => u?.id !== self?.id);
-
-          info.name = other?.nickname ?? 'Unknown';
-          info.photo = other?.avatar ?? null;
+          const otherId = participants.find((p) => p?.userId !== self?.id);
+          if (!otherId)
+            throw new Error('Direct chat without other participant');
+          const other = get(usersAtom(otherId.userId))!;
+          info.name = other.nickname ?? 'Unknown';
+          info.photo = other.avatar ?? null;
           (info as ISelectedChatInfo).status =
-            other?.status ?? UsersModel.Models.Status.Offline;
+            other.status ?? UsersModel.Models.Status.Offline;
         } else {
-          (info as ISelectedChatInfo).participantNames = users
-            .filter((u) => u?.id !== self?.id)
-            .map((p) => p?.nickname)
-            .join(', ');
+          // (info as ISelectedChatInfo).participantNames = users
+          //   .filter((u) => u?.id !== self?.id)
+          //   .map((p) => p?.nickname)
+          //   .join(', ');
           const lastMessageParticipant = participants.find(
             (p) => p.id === chat.messages[0]?.authorId
           );
-
-          const lastMessageUser = users.find(
-            (u) => u?.id === lastMessageParticipant?.userId
-          );
+          if (!lastMessageParticipant)
+            throw new Error('Message without author participant');
+          const lastMessageUser = get(usersAtom(lastMessageParticipant.userId));
 
           (info as ISelectedChatInfo).lastMessageAuthorName =
             lastMessageUser?.id === self?.id
@@ -368,6 +366,26 @@ const chatsState = new (class MessagesState {
         }
         (info as ISelectedChatInfo).lastMessage = chat.messages[0] ?? null;
         return info as ISelectedChatInfo;
+      },
+  });
+  participantNames = selectorFamily<string, number>({
+    key: 'chatParticipantNames',
+    get:
+      (id) =>
+      ({ get }) => {
+        const chat = get(this.chat(id));
+        const self = get(sessionAtom);
+        const first4 = chat.participants
+          .filter((p) => p.userId !== self?.id)
+          .slice(0, 4);
+        const users = get(waitForAll(first4.map((p) => usersAtom(p.userId))));
+        const names = (
+          users.filter(Boolean) as UsersModel.Models.IUserInfo[]
+        ).map((p) => p.nickname);
+        let str = names.join(', ');
+        if (first4.length < chat.participants.length)
+          str += ` and ${chat.participants.length - first4.length} more`;
+        return str;
       },
   });
   selectedChatInfo = selector<ISelectedChatInfo>({
@@ -400,7 +418,6 @@ const chatsState = new (class MessagesState {
 })();
 interface ISelectedChatInfo extends ChatsModel.Models.IChatInfo {
   status: UsersModel.Models.Status;
-  participantNames: string;
   lastMessage: ChatsModel.Models.IChatMessage | null;
   lastMessageAuthorName: string;
 }

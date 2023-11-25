@@ -1,13 +1,12 @@
-import {
-  useRecoilTransaction_UNSTABLE,
-  useRecoilValue,
-} from 'recoil';
+import { useRecoilTransaction_UNSTABLE, useRecoilValue } from 'recoil';
 import chatsState from '../state';
 import ChatsModel from '@typings/models/chat';
 import { navigate } from 'wouter/use-location';
 
 const useChat = (chatId: number) => {
   const useInfo = () => useRecoilValue(chatsState.chatInfo(chatId));
+  const useHeaderNames = () =>
+    useRecoilValue(chatsState.participantNames(chatId));
   const useMessages = () => useRecoilValue(chatsState.messages(chatId));
   const useMessageIds = () => useRecoilValue(chatsState.messageIds(chatId));
   const useLastMessage = () => useRecoilValue(chatsState.lastMessage(chatId));
@@ -59,6 +58,7 @@ const useChat = (chatId: number) => {
   return {
     id: chatId,
     useInfo,
+    useHeaderNames,
     useMessages,
     useMessageIds,
     useLastMessage,

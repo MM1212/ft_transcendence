@@ -56,6 +56,9 @@ dependencies:
   fastify:
     specifier: ^4.24.3
     version: 4.24.3
+  fastify-print-routes:
+    specifier: ^2.2.0
+    version: 2.2.0
   pngjs:
     specifier: ^7.0.0
     version: 7.0.0
@@ -651,7 +654,7 @@ packages:
       '@fastify/static': 6.11.2
       '@nestjs/common': 10.2.7(class-transformer@0.5.1)(class-validator@0.14.0)(reflect-metadata@0.1.13)(rxjs@7.8.1)
       '@nestjs/core': 10.2.7(@nestjs/common@10.2.7)(@nestjs/platform-express@10.2.7)(@nestjs/websockets@10.2.7)(reflect-metadata@0.1.13)(rxjs@7.8.1)
-      fastify: 4.23.2
+      fastify: 4.24.3
       light-my-request: 5.11.0
       path-to-regexp: 3.2.0
       tslib: 2.6.2
@@ -1414,6 +1417,11 @@ packages:
     hasBin: true
     dev: true
 
+  /acquerello@1.1.2:
+    resolution: {integrity: sha512-V/ynq+ekRAls3iWOQMxA8G9pi40aTL9mheHHxA8x8oowZVjY7bROD99t+TSOKKp3BviACYOsNMlL+b+8jZ7ImQ==}
+    engines: {node: '>= 18.18.0'}
+    dev: false
+
   /ajv-formats@2.1.1(ajv@8.12.0):
     resolution: {integrity: sha512-Wx0Kx52hxE7C18hkMEggYlEifqWZtYaRgouJor+WMdPnQyEK13vgEWyVNup7SoeeoLMsr4kf5h6dOW11I15MUA==}
     peerDependencies:
@@ -1464,7 +1472,6 @@ packages:
   /ansi-regex@5.0.1:
     resolution: {integrity: sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ==}
     engines: {node: '>=8'}
-    dev: true
 
   /ansi-regex@6.0.1:
     resolution: {integrity: sha512-n5M855fKb2SsfMIiFFoVrABHJC8QtHwVx+mHWP3QcEqBHYienj5dHSgjbxtC0WEZXYt4wcD6zrQElDPhFuZgfA==}
@@ -1525,6 +1532,11 @@ packages:
     resolution: {integrity: sha512-HGyxoOTYUyCM6stUe6EJgnd4EoewAI7zMdfqO+kGjnlZmBDz/cR5pf8r/cR4Wq60sL/p0IkcjUEEPwS3GFrIyw==}
     engines: {node: '>=8'}
     dev: true
+
+  /astral-regex@2.0.0:
+    resolution: {integrity: sha512-Z7tMw1ytTXt5jqMcOP+OQteU1VuNK9Y02uuJtKQ1Sv69jXQKKg5cibLwGJow8yzZP+eAc18EmLGPal0bp36rvQ==}
+    engines: {node: '>=8'}
+    dev: false
 
   /async@3.2.4:
     resolution: {integrity: sha512-iAB+JbDEGXhyIUavoDl9WP/Jj106Kz9DEn1DPgYw5ruDn0e3Wgi3sKFm55sASdGBNOQB8F59d9qQ7deqrHA8wQ==}
@@ -2118,7 +2130,6 @@ packages:
 
   /emoji-regex@8.0.0:
     resolution: {integrity: sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==}
-    dev: true
 
   /emoji-regex@9.2.2:
     resolution: {integrity: sha512-L18DaJsXSUk2+42pv8mLs5jJT2hqFkFE4j21wOmgbUqsZ2hL72NsUU785g9RXgo3s0ZNgVl42TiHp3ZtOv/Vyg==}
@@ -2562,27 +2573,13 @@ packages:
     resolution: {integrity: sha512-stRHYGeuqpEZTL1Ef0Ovr2ltazUT9g844X5z/zEBFLG8RYlpDiOCIG+ATvYEp+/zmc7sN29mcIMp8gvYplYPIQ==}
     dev: false
 
-  /fastify@4.23.2:
-    resolution: {integrity: sha512-WFSxsHES115svC7NrerNqZwwM0UOxbC/P6toT9LRHgAAFvG7o2AN5W+H4ihCtOGuYXjZf4z+2jXC89rVEoPWOA==}
+  /fastify-print-routes@2.2.0:
+    resolution: {integrity: sha512-nmw5V8mbHw2oEpCwUX5PFfgyBzOy3E41d3OIvR8SGDm7IyqKbvnDg/IkjBNQ0SEXo19wjReTTo5D4ZY7WO1wgg==}
+    engines: {node: '>= 18.18.0'}
     dependencies:
-      '@fastify/ajv-compiler': 3.5.0
-      '@fastify/error': 3.4.0
-      '@fastify/fast-json-stringify-compiler': 4.3.0
-      abstract-logging: 2.0.1
-      avvio: 8.2.1
-      fast-content-type-parse: 1.1.0
-      fast-json-stringify: 5.8.0
-      find-my-way: 7.7.0
-      light-my-request: 5.11.0
-      pino: 8.16.1
-      process-warning: 2.2.0
-      proxy-addr: 2.0.7
-      rfdc: 1.3.0
-      secure-json-parse: 2.7.0
-      semver: 7.5.4
-      toad-cache: 3.3.0
-    transitivePeerDependencies:
-      - supports-color
+      acquerello: 1.1.2
+      fastify-plugin: 4.5.1
+      table: 6.8.1
     dev: false
 
   /fastify@4.24.3:
@@ -3126,7 +3123,6 @@ packages:
   /is-fullwidth-code-point@3.0.0:
     resolution: {integrity: sha512-zymm5+u+sCsSWyD9qNaejV3DFvhCKclKdizYaJUuHA83RLjb7nSuGnddCHGv0hk+KY7BMAlsWeK4Ueg6EV6XQg==}
     engines: {node: '>=8'}
-    dev: true
 
   /is-glob@4.0.3:
     resolution: {integrity: sha512-xelSayHH36ZgE7ZWhli7pW34hNbNl8Ojv5KVmkJD4hBdD3th8Tfk9vYasLM+mXWOZhFkgZfxhLSnrwRr4elSSg==}
@@ -3317,6 +3313,10 @@ packages:
   /lodash.merge@4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
     dev: true
+
+  /lodash.truncate@4.4.2:
+    resolution: {integrity: sha512-jttmRe7bRse52OsWIMDLaXxWqRAmtIUccAQ3garviCqJjafXOfNMO0yMfNpdD6zbGaTU0P5Nz7e7gAT6cKmJRw==}
+    dev: false
 
   /lodash@4.17.21:
     resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
@@ -4329,6 +4329,15 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
+  /slice-ansi@4.0.0:
+    resolution: {integrity: sha512-qMCMfhY040cVHT43K9BFygqYbUPFZKHOg7K73mtTWJRb8pyP3fzf4Ixd5SzdEJQ6MRUg/WBnOLxghZtKKurENQ==}
+    engines: {node: '>=10'}
+    dependencies:
+      ansi-styles: 4.3.0
+      astral-regex: 2.0.0
+      is-fullwidth-code-point: 3.0.0
+    dev: false
+
   /socket.io-adapter@2.5.2:
     resolution: {integrity: sha512-87C3LO/NOMc+eMcpcxUBebGjkpMDkNBS9tf7KJqcDsmL936EChtVva71Dw2q4tQcuVC+hAUy4an2NO/sYXmwRA==}
     dependencies:
@@ -4435,7 +4444,6 @@ packages:
       emoji-regex: 8.0.0
       is-fullwidth-code-point: 3.0.0
       strip-ansi: 6.0.1
-    dev: true
 
   /string-width@5.1.2:
     resolution: {integrity: sha512-HnLOCR3vjcY8beoNLtcjZ5/nxn2afmME6lhrDrebokqMap+XbeW8n9TXpPDOqdGK5qcI3oT0GKTW6wC7EMiVqA==}
@@ -4462,7 +4470,6 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       ansi-regex: 5.0.1
-    dev: true
 
   /strip-ansi@7.1.0:
     resolution: {integrity: sha512-iq6eVVI64nQQTRYq2KtEg2d2uU7LElhTJwsH4YzIHZshxlgZms/wIc4VoDQTlG/IvVIrBKG06CrZnp0qv7hkcQ==}
@@ -4546,6 +4553,17 @@ packages:
       '@pkgr/utils': 2.4.2
       tslib: 2.6.2
     dev: true
+
+  /table@6.8.1:
+    resolution: {integrity: sha512-Y4X9zqrCftUhMeH2EptSSERdVKt/nEdijTOacGD/97EKjhQ/Qs8RTlEGABSJNNN8lac9kheH+af7yAkEWlgneA==}
+    engines: {node: '>=10.0.0'}
+    dependencies:
+      ajv: 8.12.0
+      lodash.truncate: 4.4.2
+      slice-ansi: 4.0.0
+      string-width: 4.2.3
+      strip-ansi: 6.0.1
+    dev: false
 
   /tapable@2.2.1:
     resolution: {integrity: sha512-GNzQvQTOIP6RyTfE2Qxb8ZVlNmw0n88vp1szwWRimP02mnTsx3Wtn5qRdqY9w2XduFNUgvOwhNnQsjwCp+kqaQ==}
