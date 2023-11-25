@@ -100,25 +100,13 @@ export class PongGateway
   }
 
   @SubscribeMessage('ready-player')
-  readyToPlay(client: Socket, roomId: string): void {
+  readyToPlay(client: Socket): void {
     try {
-      const gameConf = this.service.readyToPlay(client, roomId);
+      const gameConf = this.service.readyToPlay(client);
       client.emit('ready-player', "", gameConf);
       this.server.to(gameConf.roomId).emit('update-config-changes',  gameConf);
     } catch (error) {
       this.errorHandler('ready-player', client, error.message);
-    }
-  }
-
-  // TODO
-  @SubscribeMessage('start-game')
-  startGame(client: Socket, data: any): void {
-    try {
-      const game = this.service.startGame(client, data);
-      // game.start for all players in room
-    } 
-    catch (error) {
-      this.errorHandler('start-game', client, error.message);
     }
   }
 
@@ -129,16 +117,6 @@ export class PongGateway
       client.emit("get-rooms", "", (gamesKeys));
     } catch (error) {
       this.errorHandler("get-rooms", client, error.message);
-    }
-  }
-
-  @SubscribeMessage('game-finished')
-  finishedGame(client: Socket, data: any): void {
-    try {
-      this.service.finishedGame(client, data);
-      // Hmmm i dunno about this one
-    } catch (error) {
-      this.errorHandler("", client, error.message);
     }
   }
 
@@ -177,12 +155,58 @@ export class PongGateway
   @SubscribeMessage('switch-team')
   switchTeam(client: Socket, data: string): void {
     try {
-      //data should be the team id, because we can switch to the other team normally, but if we are spectator we can switch to both
+      //data should be the team id, because we can switch to the other 
+      //  team normally, but if we are spectator we can switch to both
+      //or shall it exist a general switch-team button and a join team-if-spectator?
       const gameConf = this.service.switchTeam(client);
       client.emit('switch-team', "", gameConf);
       this.server.to(gameConf.roomId).emit('update-config-changes',  gameConf);
     } catch (error) {
       this.errorHandler('switch-team', client, error.message);
+    }
+  }
+
+  // missing tests with spectators
+  @SubscribeMessage('switch-party-owner')
+  switchPartyOwner(client: Socket, newOwnerId: string): void {
+    try {
+      const gameConf = this.service.switchPartyOwner(client, newOwnerId);
+      client.emit('switch-party-owner', "", gameConf);
+      this.server.to(gameConf.roomId).emit('update-config-changes',  gameConf);
+    } catch (error) {
+      this.errorHandler('switch-party-owner', client, error.message);
+    }
+  }
+
+  @SubscribeMessage('join-spectator')
+  joinSpectator(client: Socket, roomId: string): void {
+    try {
+      const gameConf = this.service.joinSpectator(client);
+      client.emit('join-spectator', "", gameConf);
+      this.server.to(gameConf.roomId).emit('update-config-changes',  gameConf);
+    } catch (error) {
+      this.errorHandler('join-spectator', client, error.message);
+    }
+  }
+
+  @SubscribeMessage('join-team')
+  joinTeam(client: Socket): void {
+    try {
+      const gameConf = this.service.joinTeam(client);
+      client.emit('join-team', "", gameConf);
+      this.server.to(gameConf.roomId).emit('update-config-changes',  gameConf);
+    } catch (error) {
+      this.errorHandler('join-team', client, error.message);
+    }
+  }
+
+  @SubscribeMessage('start-game')
+  startGame(client: Socket): void {
+    try {
+      const gameConf = this.service.startGame(client);
+      this.server.to(gameConf.roomId).emit('STARTGAME', gameConf);
+    } catch (error) {
+      this.errorHandler('start-game', client, error.message);
     }
   }
 
@@ -198,3 +222,4 @@ export class PongGateway
   //   room.handleKeyPress(client, data);
   // }
 }
+

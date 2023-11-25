@@ -172,12 +172,24 @@ export default function Pong() {
     React.useState<IPlayerConfig>(defaultPlayerConfig);
 
   const [input, setInput] = React.useState<string>("1");
+  
+  const [owner, setOwner] = React.useState<string>("name");
 
   const parentRef = React.useRef<HTMLDivElement>(null);
 
-  socket.on("update-config-changes", (data: IGameConfig) => {
-    setGameConfig(data);
-  });
+  React.useEffect(() => {
+    socket.on("update-config-changes", (data: IGameConfig) => {
+      setGameConfig(data);
+    });
+  
+    socket.on("STARTGAME", (data: IGameConfig) => {
+      if (!parentRef.current) return;
+      setGameConfig(data);
+      const game = new UIGame(socket, parentRef.current, data);
+      setGame(game);
+      game.start()
+    });
+  }, [socket, parentRef]);
 
   const createRoom = React.useCallback(() => {
     socket.emit("create-room", {game: gameConfig, player: myPlayerConfig});
@@ -190,7 +202,6 @@ export default function Pong() {
           setGameConfig(data);
           const newPlayerConf = getPlayerConfig(data, socket.id);
           if (newPlayerConf) setMyPlayerConfig(newPlayerConf);
-          console.log(data);
         }
       }
     );
@@ -210,8 +221,22 @@ export default function Pong() {
     });
   }, [socket, input, myPlayerConfig, setGameConfig, setMyPlayerConfig]);
 
+  const joinTeam = React.useCallback(() => {
+    socket.emit("join-team");
+    socket.once(
+      "join-team",
+      (error: string, data: IGameConfig | undefined) => {
+        if (data == undefined) {
+          alert(error);
+        } else {
+          setGameConfig(data);
+        }
+      }
+    );
+  } , [socket]);
+
   const readyPlayer = React.useCallback(() => {
-    socket.emit("ready-player", input);
+    socket.emit("ready-player");
     socket.once(
       "ready-player",
       (error: string, data: IGameConfig | undefined) => {
@@ -219,7 +244,6 @@ export default function Pong() {
           alert(error);
         } else {
           setGameConfig(data);
-          console.log(data);
           console.log("READY");
         }
       }
@@ -278,11 +302,6 @@ export default function Pong() {
         if (!parentRef.current) return;
         if (data == undefined) {
           alert(error);
-        } else {
-          const game = new UIGame(socket, parentRef.current, data);
-          setGame(game);
-
-          console.log("START");
         }
       }
     );
@@ -302,6 +321,35 @@ export default function Pong() {
     );
   }, [socket, input]);
 
+  const switchPartyOwner = React.useCallback(() => {
+    socket.emit("switch-party-owner", owner);
+    socket.once(
+      "switch-party-owner",
+      (error: string, data: IGameConfig | undefined) => {
+        if (data == undefined) {
+          alert(error);
+        } else {
+          setGameConfig(data);
+        }
+      }
+    );
+  }, [socket, owner]);
+
+  const joinSpectators = React.useCallback(() => {
+    socket.emit("join-spectator");
+    socket.once(
+      "join-spectators",
+      (error: string, data: IGameConfig | undefined) => {
+        if (data == undefined) {
+          alert(error);
+        } else {
+          setGameConfig(data);
+          console.log("SPECTATOR");
+        }
+      }
+    );
+  } , [socket]);
+
   return (
     <div ref={parentRef}>
       <h1>Pong {`${game?.socket.connected}`}</h1>
@@ -314,9 +362,11 @@ export default function Pong() {
       <h1>Team 2</h1>
       <h3>P1: {`${gameConfig?.teams[1]?.players[0]?.userId}`} || Ready:{`${gameConfig?.teams[1]?.players[0]?.ready}`}</h3>
       <h3>P2: {`${gameConfig?.teams[1]?.players[1]?.userId}`} || Ready:{`${gameConfig?.teams[1]?.players[1]?.ready}`}</h3>
-      <h2>Spectators: {`${gameConfig?.spectators[0]?.userId}`}</h2>
-      
+      <h2>Spectators: {`${gameConfig?.spectators.map((spec) => spec.userId)}`}</h2>
+
       <Input value={input} onChange={(event) => setInput(event.target.value)} />
+      <Input value={owner} onChange={(event) => setOwner(event.target.value)} />
+
 
       <div
         style={{
@@ -328,17 +378,22 @@ export default function Pong() {
       >
         <button onClick={createRoom}>Create Room</button>
         <button onClick={joinRoom}>Join Room</button>
+        <button onClick={joinSpectators}>Enter Spectator</button>
+        <button onClick={joinTeam}>Enter a Team</button>
         <button onClick={readyPlayer}>Ready</button>
         <button onClick={leaveRoom}>Leave room</button>
         <button onClick={getRooms}>Get Rooms</button>
-        <button onClick={startGame}>START</button>
         <button onClick={switchPosition}>Switch FrontBack</button>
         <button onClick={switchTeam}>Switch Team</button>
+        <button onClick={switchPartyOwner}>Switch Party Owner</button>
+        <button onClick={startGame}>START GAME</button>
+        <button>STOP GAME</button>
 
-        <button>Switch Party Owner</button>
-        <button>Enter Spectator</button>
+        <button>Change Special Power</button>
+        <button>Change Line Color</button>
+        <button>Change Background Color</button>
+        <button>Change Ball Color</button>
         <button>Change Paddle Color</button>
-        <button>STOP</button>
       </div>
     </div>
   );

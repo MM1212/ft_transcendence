@@ -38,7 +38,6 @@ type Room = BroadcastOperator<DefaultEventsMap, any>;
 export class ServerGame extends Game {
   public sessionId: number;
 
-  //private nConnectedPlayers = 0;
   private updateHandle: NodeJS.Timeout | undefined;
   public readonly room: Room;
   constructor(
@@ -52,18 +51,20 @@ export class ServerGame extends Game {
     this.room = server.to(`game-${this.sessionId}`);
     console.log(`game-${this.sessionId}: created`);
   }
-  get roomId(): string {
-    return `game-${this.sessionId}`;
+
+  // GAME LOGIC 
+
+  public start() {
+    this.buildObjects();
+    console.log(`Game-${this.roomId}: created`);
+    this.startTick();
   }
 
-  public joinGame(socket: Socket) {
-    socket.join(this.roomId);
-    this.config.nPlayers++;
-  }
-
-  public leaveGame(socket: Socket) {
-    socket.leave(this.roomId);
-    this.config.nPlayers--;
+  public buildObjects() {
+    this.buildPlayers();
+    this.add(new ArenaWall(new Vector2D(0, 0), new Vector2D(this.width, ARENA_SIZE), 0x00abff, this));
+    this.add(new ArenaWall(new Vector2D(0, this.height - ARENA_SIZE),new Vector2D(this.width, ARENA_SIZE),0x00abff,this));
+    this.add(new Ball(this.width / 2, this.height / 2, this));
   }
 
   public startTick() {
@@ -82,15 +83,16 @@ export class ServerGame extends Game {
     };
     this.updateHandle = setInterval(tick, 16);
   }
+
   public stop() {
     if (this.updateHandle) {
       clearInterval(this.updateHandle);
       this.updateHandle = undefined;
     }
   }
+
   public update(delta: number): void {
     super.update(delta);
-    // console.log(this.getObjectByTag('Bolinha')?.getVelocity);
     const ball = this.getObjectByTag('Bolinha');
     this.room.emit('movements', [
       {
@@ -99,8 +101,123 @@ export class ServerGame extends Game {
       },
     ]);
   }
+  // MISSING: SpecialPowers in bot
+  private buildPlayers() {
+    const p1Conf = this.config.teams[0].players[0];
+    const p2Conf = this.config.teams[1].players[0];
 
-  changePartyOwner(userId: string) {
+    let p1;
+    if (p1Conf.type === 'player') {
+      p1 = new Player(
+        P_START_DIST, 
+        this.height / 2,
+        p1Conf.keys!,
+        "Player 1",
+        new Vector2D(1, 1),
+        p1Conf.specialPower as SpecialPowerType,
+        this,
+      );  
+    } else {
+      p1 = new Bot(
+        P_START_DIST, 
+        this.height / 2,
+        "Player 1",
+        new Vector2D(1, 1),
+        this,
+      );
+    }
+    this.add(p1);
+
+    let p2;
+    if (p2Conf.type === 'player') {
+      p2 = new Player(
+        this.width - P_START_DIST,
+        this.height / 2,
+        p2Conf.keys!,
+        "Player 2",
+        new Vector2D(-1, 1),
+        p2Conf.specialPower as SpecialPowerType,
+        this,
+      );
+    } else {
+      p2 = new Bot(
+        this.width - P_START_DIST,
+        this.height / 2,
+        "Player 2",
+        new Vector2D(-1, 1),
+        this,
+      );
+    }
+    this.add(p2);
+
+    if (this.config.teams[0].players.length > 1) {
+      const p3Conf = this.config.teams[0].players[1];
+      let p3;
+      if (p3Conf.type === 'player') {
+        p3 = new Player(
+          MULTIPLAYER_START_POS,
+          this.height / 2,
+          p3Conf.keys!,
+          "Player 3",
+          new Vector2D(1, 1),
+          p3Conf.specialPower as SpecialPowerType,
+          this,
+        );
+      } else {
+        p3 = new Bot(
+          MULTIPLAYER_START_POS,
+          this.height / 2,
+          "Player 3",
+          new Vector2D(1, 1),
+          this,
+        );
+      }
+      this.add(p3);
+    }
+
+    if (this.config.teams[1].players.length > 1) {
+      const p4Conf = this.config.teams[1].players[1];
+      let p4;
+      if (p4Conf.type === 'player') {
+        p4 = new Player(
+          this.width - MULTIPLAYER_START_POS,
+          this.height / 2,
+          p4Conf.keys!,
+          "Player 4",
+          new Vector2D(-1, 1),
+          p4Conf.specialPower as SpecialPowerType,
+          this,
+        );
+      } else {
+        p4 = new Bot(
+          this.width - MULTIPLAYER_START_POS,
+          this.height / 2,
+          "Player 4",
+          new Vector2D(-1, 1),
+          this,
+        );
+      }
+      this.add(p4);
+    }
+  }
+  
+  // CONFIGURATION
+
+  get roomId(): string {
+    return `game-${this.sessionId}`;
+  }
+
+  public joinGame(socket: Socket) {
+    socket.join(this.roomId);
+    this.config.nPlayers++;
+  }
+
+  public leaveGame(socket: Socket) {
+    socket.leave(this.roomId);
+    this.config.nPlayers--;
+  }
+
+  public changePartyOwner(userId: string) {
     this.config.partyOwnerId = userId;
   }
 
@@ -138,7 +255,7 @@ export class ServerGame extends Game {
     }
   }
 
-  addPlayerToTeam(player: IPlayerConfig, side: ETeamSide | undefined) {
+  public addPlayerToTeam(player: IPlayerConfig, side: ETeamSide | undefined) {
     if (side === undefined) {
       side = this.smallestTeam;
     }
@@ -163,10 +280,6 @@ export class ServerGame extends Game {
     this.addPlayerToTeam(data.player, ETeamSide.Left);
     this.joinGame(socket);
     return this.config;
-  }
-
-  public removePlayerFromGame(socket: Socket): void {
-    this.leaveGame(socket);
   }
 
   public getPlayerIndex(socketId: string): number {
@@ -211,92 +324,4 @@ export class ServerGame extends Game {
       this.updatePlayerInGameConfig(socketId, playerConf);
     }
   }
-
-  // private buildPlayer(player: IPlayerConfig) {
-  //   let p;
-  //   let startX;
-  //   let tag;
-  //   switch (player.name) {
-  //     case 'Player1': {
-  //       startX = P_START_DIST;
-  //       if (player.type instanceof Player) {
-  //         tag = 'Player1';
-  //       } else {
-  //         tag = 'Bot1';
-  //       }
-  //       break;
-  //     }
-  //     case 'Player2': {
-  //       startX = this.width - P_START_DIST;
-  //       if (player.type instanceof Player) {
-  //         tag = 'Player2';
-  //       } else {
-  //         tag = 'Bot2';
-  //       }
-  //       break;
-  //     }
-  //     case 'Player3': {
-  //       startX = MULTIPLAYER_START_POS;
-  //       if (player.type instanceof Player) {
-  //         tag = 'Player3';
-  //       } else {
-  //         tag = 'Bot3';
-  //       }
-  //       break;
-  //     }
-  //     case 'Player4': {
-  //       startX = this.width - MULTIPLAYER_START_POS;
-  //       if (player.type instanceof Player) {
-  //         tag = 'Player4';
-  //       } else {
-  //         tag = 'Bot4';
-  //       }
-  //       break;
-  //     }
-  //   }
-  //   player.type instanceof Player
-  //     ? (p = new Player(
-  //         startX,
-  //         this.height / 2,
-  //         player.keys ?? defaultKeyControls,
-  //         tag,
-  //         new Vector2D(1, 1),
-  //         player.specialPower,
-  //         this,
-  //       ))
-  //     : (p = new Bot(startX, this.height / 2, tag, new Vector2D(1, 1), this));
-  //   this.add(p);
-  // }
-
-  // public buildObjects() {
-  // for (const player of ) {
-  // if (player !== undefined) {
-  // this.buildPlayer(player);
-  // }
-  // }
-  //
-  // this.add(
-  // new ArenaWall(
-  // new Vector2D(0, 0),
-  // new Vector2D(this.width, ARENA_SIZE),
-  // 0x00abff,
-  // this,
-  // ),
-  // );
-  // this.add(
-  // new ArenaWall(
-  // new Vector2D(0, this.height - ARENA_SIZE),
-  // new Vector2D(this.width, ARENA_SIZE),
-  // 0x00abff,
-  // this,
-  // ),
-  // );
-  // this.add(new Ball(this.width / 2, this.height / 2, this));
-  // }
-
-  // public start() {
-  //this.buildObjects()
-  //   console.log(`Game-${this.id}: created`);
-  //startTick()
-  // }
 }

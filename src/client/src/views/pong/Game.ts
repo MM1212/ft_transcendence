@@ -23,14 +23,7 @@ import { MULTIPLAYER_START_POS, WINDOWSIZE_X, WINDOWSIZE_Y, score } from "@share
 
 import { KeyControls } from "./Paddles/Player";
 import { UIBot } from "./Paddles/Bot";
-import { Socket, io } from "socket.io-client";
-//import { UIMarioBox } from './SpecialPowers/MarioBox';
-
-/**
- *
- *  HARDCODE
- *
- */
+import { Socket } from 'socket.io-client';
 
 const keys1: KeyControls = {
   up: "w",
@@ -47,6 +40,7 @@ const keys2: KeyControls = {
 };
 
 export class UIGame extends Game {
+
   public app: PIXI.Application;
   private debug: Debug;
   private scoreElement: PIXI.Text;
@@ -55,75 +49,28 @@ export class UIGame extends Game {
   private blueTranform = new PIXI.ColorMatrixFilter();
   private backgroundHue = new PIXI.ColorMatrixFilter();
 
-  
-
-  constructor(public readonly socket: Socket, container: HTMLDivElement, gameconfig: IGameConfig) {
+  constructor(public readonly socket: Socket, container: HTMLDivElement, gameConfig: IGameConfig) {
     super(WINDOWSIZE_X, WINDOWSIZE_Y);
-    this.gameconfig = gameconfig;
-    
+
     this.app = new PIXI.Application({
-      background: gameconfig.backgroundColor,
+      background: gameConfig.backgroundColor,
       antialias: true, // smooth edge rendering
-      width: WINDOWSIZE_X, // 80% of the window width
-      height: WINDOWSIZE_Y, // 80% of the window height
+      width: WINDOWSIZE_X,
+      height: WINDOWSIZE_Y,
     });
-    this.app.renderer.background.color = gameconfig.backgroundColor;
-    drawLines(gameconfig.lineColor, this.app);
-    const p1 = new UIPlayer(
-      P1Tex,
-      P_START_DIST,
-      this.height / 2,
-      keys1,
-      "Player1",
-      new Vector2D(1, 1),
-      gameConfig.p1.specialPower as SpecialPowerType,
-      this
-    );
-    this.blueTranform.hue(240, false);
-    p1.displayObject.filters = [this.blueTranform];
-    this.add(p1);
+    this.app.renderer.background.color = gameConfig.backgroundColor;
+    
+    drawLines(gameConfig.lineColor, this.app);
 
-    const p2 = new UIPlayer(
-      P2Tex,
-      this.width - P_START_DIST,
-      this.height / 2,
-      keys2,
-      "Player2",
-      new Vector2D(-1, 1),
-      "Fire",
-      this
-    );
-    this.add(p2);
-    //this.add(new Bot(P2Tex, this.app.view.width - P_START_DIST, this.app.view.height / 2, 'Player2', new Vector2D(-1, 1)));
-    //  this.add(new UIBot(P2Tex, MULTIPLAYER_START_POS, this.app.view.height / 2, 'Player3', new Vector2D(-1, 1),this) );
-    //  this.add(new UIBot(P2Tex, this.app.view.width - MULTIPLAYER_START_POS, this.app.view.height / 2, 'Player4', new Vector2D(-1, 1), this));
-    this.add(
-      new UIArenaWall(
-        new Vector2D(0, 0),
-        new Vector2D(this.width, ARENA_SIZE),
-        0x00abff,
-        this
-      )
-    );
-    this.add(
-      new UIArenaWall(
-        new Vector2D(0, this.height - ARENA_SIZE),
-        new Vector2D(this.width, ARENA_SIZE),
-        0x00abff,
-        this
-      )
-    );
+    this.drawPlayers(gameConfig)
+
+    this.add(new UIArenaWall(new Vector2D(0, 0), new Vector2D(this.width, ARENA_SIZE), 0x00abff, this));
+    this.add(new UIArenaWall(new Vector2D(0, this.height - ARENA_SIZE), new Vector2D(this.width, ARENA_SIZE), 0x00abff, this));
     this.add(new UIBall(this.width / 2, this.height / 2, BallTex, this));
-
-    // true or false?
-    // this.blueTranform.hue(120, false);
-    // p1.getDisplayObject.filters = [this.blueTranform];
-    // this.backgroundHue.hue(hue_value, false);
-    // this.app.stage.filters = [this.backgroundHue];
-
-    //this.add(new UIMarioBox(this));
+    
     container.appendChild(this.app.view as HTMLCanvasElement);
 
+    // change this
     this.scoreStyle = new PIXI.TextStyle({
       fontFamily: "arial",
       fontSize: 36,
@@ -160,20 +107,6 @@ export class UIGame extends Game {
     }]);
     console.log("keydown", e.key);
 
-    // this.keydown_gameObjects.forEach((gameObject) => {
-    //   if (gameObject?.onKeyDown != undefined) {
-    //     gameObject.onKeyDown.bind(gameObject)(e);
-
-    //   }
-    // });
-    // if (e.key === "t") {
-    //   // this.run = !this.run;
-    // }
-
-    // if (e.key === "v") {
-    //   this.getObjectByTag("Bolinha")?.setMove(!this.run);
-    // }
-
     // if (e.key === "p") this.debug.isDebug = !this.debug.isDebug;
   };
 
@@ -191,40 +124,29 @@ export class UIGame extends Game {
   start() {
     //super.start();
 
-    
-
     const text = new PIXI.Text(this.app.ticker.FPS, { fill: "white" });
     text.x = 200;
     text.y = 10;
     this.app.stage.addChild(text);
-
-    // socket test
-    
-
-    this.socket.on("connection", () => console.log("connected"));
-    this.socket.on(
-      "movements",
-      (payload: { tag: string; position: [number, number] }[]) => {
-        if (!payload) return;
-        payload.forEach((data) => {
-          const obj = this.getObjectByTag(data.tag) as UIGameObject;
-          if (obj) {
-            obj.setCenter(new Vector2D(data.position));
-            obj.displayObject.x = obj.getCenter.x;
-            obj.displayObject.y = obj.getCenter.y;
-          }
-        });
-      }
-    );
-
-    // socket.emit("connection", "ola")
+  
+    // not tested
+    this.socket.on('movements', (data: { tag:string, position:number[]} []) => {
+      console.log(data);
+      data.forEach((e) => {
+        const obj = this.getObjectByTag(e.tag) as UIGameObject;
+        if (obj) {
+          obj.setCenter(new Vector2D(e.position[0], e.position[1]));
+          obj.displayObject.x = obj.getCenter.x;
+          obj.displayObject.y = obj.getCenter.y;
+        }
+      })
+    });
 
     this.app.ticker.add(this.update.bind(this));
-    //requestAnimationFrame(tick);
   }
 
   update(delta: number) {
-    //super.update(delta);
+    super.update(delta);
 
     if (this.run) {
       this.scoreElement.text = `${score[0]}     ${score[1]}`;
@@ -255,5 +177,122 @@ export class UIGame extends Game {
     this.app.stop();
     this.app.destroy(true);
     super.shutdown();
+  }
+
+  private drawPlayers(gameConfig: IGameConfig) {
+    const p1Conf = gameConfig.teams[0].players[0];
+    const p2Conf = gameConfig.teams[1].players[0];
+
+    // Texture cannot be "P1Tex", it might need to be pre-loaded on the client side
+    // Add special power to the bots
+    let p1;
+    if (p1Conf.type === "player") {
+        p1 = new UIPlayer(
+        P1Tex,
+        P_START_DIST,
+        this.height / 2,
+        p1Conf.keys!,
+        "Player1", // might need to be changed
+        new Vector2D(1, 1),
+        p1Conf.specialPower as SpecialPowerType,
+        this
+      );
+    } else {
+        p1 = new UIBot(
+        P1Tex,
+        P_START_DIST,
+        this.height / 2,
+        "Player2",
+        new Vector2D(1, 1),
+        this
+      );
+    }
+    // modify the color of the player based on gameConfig
+    this.blueTranform.hue(240, false);
+    p1.displayObject.filters = [this.blueTranform];
+    this.add(p1);
+
+    let p2;
+    if (p2Conf.type === "player") {
+        p2 = new UIPlayer(
+        P2Tex,
+        this.width - P_START_DIST,
+        this.height / 2,
+        p2Conf.keys!,
+        "Player2",
+        new Vector2D(-1, 1),
+        p2Conf.specialPower as SpecialPowerType,
+        this
+      );
+    } else {
+        p2 = new UIBot(
+        P2Tex,
+        this.width - P_START_DIST,
+        this.height / 2,
+        "Player2",
+        new Vector2D(-1, 1),
+        this
+      );
+    }
+    // modify the color of the player based on gameConfig
+    this.add(p2);
+
+    if (gameConfig.teams[0].players.length > 1) {
+      const p3Conf = gameConfig.teams[0].players[1];
+      let p3;
+      if (p3Conf.type === "player") {
+        p3 = new UIPlayer(
+          P1Tex,
+          MULTIPLAYER_START_POS,
+          this.height / 2,
+          p3Conf.keys!,
+          "Player3",
+          new Vector2D(1, 1),
+          p3Conf.specialPower as SpecialPowerType,
+          this
+        );
+      } else {
+        p3 = new UIBot(
+          P1Tex,
+          MULTIPLAYER_START_POS,
+          this.height / 2,
+          "Player3",
+          new Vector2D(1, 1),
+          this
+        );
+      }
+      // modify the color of the player based on gameConfig
+      this.blueTranform.hue(240, false);
+      p3.displayObject.filters = [this.blueTranform];
+      this.add(p3);
+    }
+
+    if (gameConfig.teams[1].players.length > 1) {
+      const p4Conf = gameConfig.teams[1].players[1];
+      let p4;
+      if (p4Conf.type === "player") {
+        p4 = new UIPlayer(
+          P2Tex,
+          this.width - MULTIPLAYER_START_POS,
+          this.height / 2,
+          p4Conf.keys!,
+          "Player4",
+          new Vector2D(-1, 1),
+          p4Conf.specialPower as SpecialPowerType,
+          this
+        );
+      } else {
+        p4 = new UIBot(
+          P2Tex,
+          this.width - MULTIPLAYER_START_POS,
+          this.height / 2,
+          "Player4",
+          new Vector2D(-1, 1),
+          this
+        );
+      }
+      // modify the color of the player based on gameConfig
+      this.add(p4);
+    }
   }
 }

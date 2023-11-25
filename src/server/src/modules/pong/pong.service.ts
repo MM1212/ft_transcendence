@@ -100,29 +100,37 @@ export class PongService {
     return game.config;
   }
 
-  public readyToPlay(client: Socket, roomId: string): IGameConfig {
+  public readyToPlay(client: Socket): IGameConfig {
     if (!client) throw new Error('No client provided');
-    if (!roomId) throw new Error('No data provided');
     if (this.isUserInGames(client) === false)
-      throw new Error('Client is not in this game');
-    const game = this.games.get(roomId);
-    if (!game) throw new Error('Game does not exist');
+      throw new Error('Client is not in a game');
+    const game = this.getGameByPlayerId(client.id)
+    if (!game) throw new Error('You are not playing');
     game.playerReady(client.id);
     console.log(`socket ${client.id} clicked ready`);
     return game.config;
   }
 
-  // TODO
-  public startGame(client: Socket, data: any): ServerGame {
+  public startGame(client: Socket): IGameConfig {
     if (!client) throw new Error('No client provided');
-    if (!data) throw new Error('No data provided');
-    if (this.isUserInGames(client) === false)
-      throw new Error('Client is already in a game');
-    const game = this.games.get(data.room);
+    if (this.isUserInGames(client) === false) throw new Error('Client is not in a game');
+    const game = this.getGameByPlayerId(client.id);
     if (!game) throw new Error('Game does not exist');
+    if (game.config.partyOwnerId !== client.id) throw new Error('Client is not the party owner');
     if (game.config.nPlayers < 2)
       throw new Error('Not enough players to start the game');
-    return game;
+    if (this.everyoneIsReady(game) === false) throw new Error('Not everyone is ready');
+    // if game already begun
+    game.start();
+    return game.config;
+  }
+
+  private everyoneIsReady(game: ServerGame): boolean {
+    const team1 = game.config.teams[0].players;
+    const team2 = game.config.teams[1].players;
+
+    const players = team1.concat(team2);
+    return players.every((player: IPlayerConfig) => player.ready === true);
   }
 
   public getAllGames(client: Socket): Array<string> {
@@ -130,18 +138,7 @@ export class PongService {
     return Array.from(this.games.keys());
   }
 
-  public finishedGame(client: Socket, data: any): void {
-    if (!client) throw new Error('No client provided');
-    if (!data) throw new Error('No data provided');
-    if (this.isUserInGames(client) === false)
-      throw new Error('Client is not in this game');
-    const game = this.games.get(data.room);
-    if (!game) throw new Error('Game does not exist');
-    // dunno about this one, might need add something here
-    this.leaveGame(client, data);
-  }
-
-  getAnotherRandomPlayer(
+  private getRandomPlayer(
     game: ServerGame,
     player: IPlayerConfig,
   ): IPlayerConfig | undefined {
@@ -164,50 +161,107 @@ export class PongService {
     const game = this.games.get(roomId);
     if (!game) throw new Error('Game does not exist');
 
-    // i think this line is not needed because of user being spectator and not player
-    // if (game.config.nPlayers === 0) throw new Error('Game is empty');
-
-    // * TODO: this is remove if player, also need remove if spectator
     let player = game.getPlayer(client.id);
     if (!player){
-        player = this.getSpectator(client.id, game.config.spectators);
-        if (!player) throw new Error('Player does not exist');
-        else this.spectatorLeaveGame(client, player, game);
+      player = this.getSpectator(client.id, game.config.spectators);
+      if (!player) throw new Error('Player does not exist');
+      else this.spectatorLeaveGame(client, player, game);
     }
     else 
         this.playerLeaveGame(client, player, game);
     return game.config;
   }
 
+  public switchPartyOwner(client: Socket, newOwnerId: string): IGameConfig {
+    if (!client) throw new Error('No client provided');
+    if (!newOwnerId) throw new Error('No new owner provided');
+    if (this.isUserInGames(client) === false)
+      throw new Error('Client is not in this game');
+    const game = this.getGameByPlayerId(client.id);
+    if (!game) throw new Error('Game does not exist');
+    if (game.config.partyOwnerId !== client.id)
+      throw new Error('Client is not the party owner');
+    const newOwner = game.getPlayer(newOwnerId);
+    if (!newOwner) {
+      if (this.getSpectator(newOwnerId, game.config.spectators)) {
+        game.config.partyOwnerId = newOwnerId;
+        return game.config;
+      }
+      else throw new Error('New owner does not exist');
+    }
+    game.config.partyOwnerId = newOwnerId;
+    return game.config;
+  }
+
+  public joinSpectator(client: Socket): IGameConfig {
+    if (!client) throw new Error('No client provided');
+    
+    const game = this.getGameByPlayerId(client.id);
+    if (!game) throw new Error('Game does not exist');
+
+    const player = game.getPlayer(client.id);
+    if (!player) throw new Error('Player does not exist / Is already a spectator');
+
+    this.removePlayerFromTeam(client, player, game); // removes socket    
+    game.addSpectatorToGame(client, player); //  joins socket again
+    console.log(`${client.id} left team and joined ${game.roomId}'s spectators`);
+    return game.config
+  }
+
+  public joinTeam(client: Socket): IGameConfig {
+    if (!client) throw new Error('No client provided');
+    
+    const game = this.getGameBySpectatorId(client.id);
+    if (!game) throw new Error('Game does not exist / Is already a player');
+
+    const player = this.getSpectator(client.id, game.config.spectators);
+    if (!player) throw new Error('Player is not spectating');
+
+    this.spectatorLeaveGame(client, player, game); // removes socket
+    game.addPlayerToGame(client, player, undefined); // joins socket again
+  
+    console.log(`${client.id} left ${game.roomId}'s spectators and joined a team`);
+    return game.config
+  }
+  
   private getSpectator(id: string, spectators: Array<IPlayerConfig>): IPlayerConfig | undefined {
     return spectators.find((spectator: IPlayerConfig) => spectator.userId === id);
   }
 
+  private getGameBySpectatorId(spectatorId: string): ServerGame | undefined {
+    if (!spectatorId) return undefined;
+    const game = Array.from(this.games.values()).find((game) =>
+      this.getSpectator(spectatorId, game.config.spectators),
+    );
+    return game;
+  }
+
   private spectatorLeaveGame(client: Socket, player: IPlayerConfig, game: ServerGame): void {
-    // TODO
+    this.setNewRandomPartyOwner(client, player, game);
+    const index = game.config.spectators.findIndex(
+      (spectator: IPlayerConfig) => spectator.userId === client.id,
+    );
+    if (index > -1) {
+      client.leave(game.roomId);
+      game.config.spectators.splice(index, 1);
+    } else {
+      console.log('error deleting ' + client.id + ' from spectators');
+      throw new Error('Error deleting spectator from spectators');
+    }
     console.log(`${client.id} left ${game.roomId}'s spectators`);
   }
 
+  // needs to send a request to the new owner to change the base config options
   private playerLeaveGame(client: Socket, player: IPlayerConfig, game: ServerGame): void {
-    // this can't be like this. needs to receive the conf file from the new party owner
-    if (player.userId === game.config.partyOwnerId) {
-      if (game.config.nPlayers === 1) {
-        game.removePlayerFromGame(client);
-        game.config = defaultGameConfig;
-        return ;
-      } else {
-        // ADD Spectator to this another player search
-        const otherPlayer = this.getAnotherRandomPlayer(game, player);
-        if (otherPlayer) {
-          this.changeGameConfigOptions(
-            client,
-            { game: game.config, player: otherPlayer },
-            game,
-          );
-        }
-      }
-    }
+    if (this.setNewRandomPartyOwner(client, player, game) === false) return;
 
+    // if player
+    this.removePlayerFromTeam(client, player, game);
+  
+    console.log(`${client.id} left ${game.roomId}`);
+  }
+
+  private removePlayerFromTeam(client: Socket, player: IPlayerConfig, game: ServerGame): void {
     const teamSide = player.teamId;
     const teamPlayers = game.config.teams[player.teamId].players;
     const index = game.getPlayerIndex(client.id);
@@ -217,10 +271,53 @@ export class PongService {
       console.log('error deleting ' + client.id + ' from team');
       throw new Error('Error deleting player from team');
     }
-    game.removePlayerFromGame(client);
-    // should this be done in server or in client?
+    game.leaveGame(client);
     game.setBackOrFront(teamSide);
-    console.log(`${client.id} left ${game.roomId}`);
+  }
+
+  private setNewRandomPartyOwner(client: Socket, player: IPlayerConfig, game: ServerGame): boolean {
+    if (player.userId === game.config.partyOwnerId) {
+      // if player is last alone 
+      if (game.config.nPlayers === 1 && game.config?.spectators.length === 0) {
+        game.leaveGame(client);
+        game.config = defaultGameConfig;
+        return false;
+      } else {
+        // if there are other players
+        let otherPlayer = this.getRandomPlayer(game, player);
+        if (otherPlayer) {
+          this.changeGameConfigOptions(
+            client,
+            { game: game.config, player: otherPlayer },
+            game,
+          );
+        } else {
+        // if there are no other players but there are spectators
+          otherPlayer = this.getRandomSpectator(game);
+          if (otherPlayer) {
+            this.changeGameConfigOptions(
+                client,
+                { game: game.config, player: otherPlayer },
+                game,
+            );
+          }
+          else {
+            // if there are no other players and no spectators
+            game.leaveGame(client);
+            game.config = defaultGameConfig;
+            return false;
+          }
+        }
+      }
+    }
+    return true;
+  }
+
+  private getRandomSpectator(game: ServerGame): IPlayerConfig | undefined {
+    const spectators = game.config.spectators;
+    if (spectators.length === 0) return undefined;
+    const spectatorIndex = Math.floor(Math.random() * spectators.length);
+    return spectators[spectatorIndex];
   }
 
   private canCreateGame(client: Socket): boolean {
@@ -291,30 +388,34 @@ export class PongService {
   }
 
   // temporary code, needs to be rebuilt once we have the party lobby sending teamId
-  // also, wasnt tested much
   public switchTeam(client: Socket): IGameConfig {
     if (!client) throw new Error('No client provided');
-    // is this needed??
-    if (this.isUserInGames(client) === false)
-      throw new Error('Client is not in this game');
-    const game = this.getGameByPlayerId(client.id);
-    if (!game) throw new Error('Game does not exist');
-    const currTeam = game.getPlayer(client.id)?.teamId;
-    const otherTeam = currTeam === 0 ? 1 : 0;
-    if (game.config.teams[otherTeam]?.players.length === 2)
-      throw new Error('Team is full');
+    if (this.isUserInGames(client) === false) throw new Error('Client is not in this game');
+    
+    const game = this.getGameByPlayerId(client.id); if (!game) throw new Error('Game does not exist');
+    
     const player = game.getPlayer(client.id);
     if (!player) throw new Error('Player does not exist');
+
+    const currTeam = player.teamId;
+    const otherTeam = currTeam === 0 ? 1 : 0;
+
+    if (game.config.teams[otherTeam]?.players.length === 2)
+      throw new Error('Team is full');
+    
+    const index = game.getPlayerIndex(client.id);
+    
     player.teamId = otherTeam;
     game.config.teams[otherTeam].players.push(player);
-    const index = game.getPlayerIndex(client.id);
-    if (index > -1 && currTeam !== undefined) {
+    if (index > -1) {
       game.config.teams[currTeam].players.splice(index, 1);
     } else {
       console.log('error deleting ' + client.id + ' from team');
       throw new Error('Error deleting player from team');
     }
+
     game.setBackOrFront(otherTeam);
+    game.setBackOrFront(currTeam);
     return game.config;
   }
 

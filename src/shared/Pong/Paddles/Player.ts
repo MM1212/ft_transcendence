@@ -71,11 +71,11 @@ export class Player extends Bar
     }
 
     executeMovement():void {
-        if      (this.keyPressed[this.keys.up])  {this.setMove(true); this.setVelocity(UP.multiply(this.effectVelocity));  }
-        else if (this.keyPressed[this.keys.down])  {this.setMove(true); this.setVelocity(DOWN.multiply(this.effectVelocity));}
-        else                            {this.setMove(false); this.setVelocity(STOP);}
-        if      (this.keyPressed[this.keys.boost])  {if (this.energy.energy > 2 && this.move) {this.setAcceleration(2); this.energy.spendEnergy(2 * this.game.delta)}}
-        else                            {this.setAcceleration(1);}
+        //if      (this.keyPressed[this.keys.up])  {this.setMove(true); this.setVelocity(UP.multiply(this.effectVelocity));  }
+        //else if (this.keyPressed[this.keys.down])  {this.setMove(true); this.setVelocity(DOWN.multiply(this.effectVelocity));}
+        //else                            {this.setMove(false); this.setVelocity(STOP);}
+        //if      (this.keyPressed[this.keys.boost])  {if (this.energy.energy > 2 && this.move) {this.setAcceleration(2); this.energy.spendEnergy(2 * this.game.delta)}}
+        //else                            {this.setAcceleration(1);}
     }
 
     update(delta: number): boolean {
