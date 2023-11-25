@@ -16,8 +16,8 @@ type ChatListItemProps = {
   id: number;
 };
 
-export default function ChatListItem({ id }: ChatListItemProps) {
-  const { goTo, useIsSelected, useSelfParticipant, useInfo } = useChat(id);
+function ChatListContent({ id }: { id: number }): JSX.Element {
+  const { useInfo, useSelfParticipant } = useChat(id);
   const {
     lastMessage,
     lastMessageAuthorName,
@@ -27,10 +27,78 @@ export default function ChatListItem({ id }: ChatListItemProps) {
     status,
     type,
   } = useInfo();
-  const isSelected = useIsSelected();
 
   const participant = useSelfParticipant();
   const timestamp = lastMessage?.createdAt ?? createdAt;
+  return React.useMemo(
+    () => (
+      <Stack direction="row" spacing={1} alignItems="center" width="100%">
+        {type === ChatsModel.Models.ChatType.Direct ? (
+          <AvatarWithStatus
+            status={status}
+            src={photo ?? undefined}
+            size="lg"
+            inset=".5rem"
+          />
+        ) : (
+          <Avatar src={photo ?? undefined} size="lg" />
+        )}
+        <Stack spacing={0.25} width="100%">
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <Typography level="title-sm">{name}</Typography>
+            <Stack direction="row" alignItems="center" spacing={1}>
+              {participant.toReadPings !== 0 && (
+                <CircleIcon sx={{ fontSize: 8, color: 'primary.plainColor' }} />
+              )}
+              <Typography
+                level="body-xs"
+                display={{ xs: 'none', md: 'block' }}
+                noWrap
+              >
+                {moment(timestamp).fromNow()}
+              </Typography>
+            </Stack>
+          </Box>
+          {lastMessage && (
+            <Typography
+              level="body-sm"
+              component="span"
+              sx={{
+                whiteSpace: 'nowrap',
+                width: '25dvh',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
+              {lastMessageAuthorName && `${lastMessageAuthorName}: `}
+              {lastMessage.message}
+            </Typography>
+          )}
+        </Stack>
+      </Stack>
+    ),
+    [
+      lastMessage,
+      lastMessageAuthorName,
+      name,
+      participant.toReadPings,
+      photo,
+      status,
+      timestamp,
+      type,
+    ]
+  );
+}
+
+
+function _ChatListItem({ id }: ChatListItemProps) {
+  const { goTo, useIsSelected } = useChat(id);
+
+  const isSelected = useIsSelected();
   return React.useMemo(
     () => (
       <>
@@ -47,72 +115,15 @@ export default function ChatListItem({ id }: ChatListItemProps) {
               gap: 1,
             }}
           >
-            <Stack direction="row" spacing={1} alignItems="center" width="100%">
-              {type === ChatsModel.Models.ChatType.Direct ? (
-                <AvatarWithStatus
-                  status={status}
-                  src={photo ?? undefined}
-                  size="lg"
-                  inset=".5rem"
-                />
-              ) : (
-                <Avatar src={photo ?? undefined} size="lg" />
-              )}
-              <Stack spacing={0.25} width="100%">
-                <Box
-                  display="flex"
-                  justifyContent="space-between"
-                  alignItems="center"
-                >
-                  <Typography level="title-sm">{name}</Typography>
-                  <Stack direction="row" alignItems="center" spacing={1}>
-                    {participant.toReadPings !== 0 && (
-                      <CircleIcon
-                        sx={{ fontSize: 8, color: 'primary.plainColor' }}
-                      />
-                    )}
-                    <Typography
-                      level="body-xs"
-                      display={{ xs: 'none', md: 'block' }}
-                      noWrap
-                    >
-                      {moment(timestamp).fromNow()}
-                    </Typography>
-                  </Stack>
-                </Box>
-                {lastMessage && (
-                  <Typography
-                    level="body-sm"
-                    component="span"
-                    sx={{
-                      whiteSpace: 'nowrap',
-                      width: '25dvh',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                    }}
-                  >
-                    {lastMessageAuthorName && `${lastMessageAuthorName}: `}
-                    {lastMessage.message}
-                  </Typography>
-                )}
-              </Stack>
-            </Stack>
+            <ChatListContent id={id} />
           </ListItemButton>
         </ListItem>
         <ListDivider sx={{ margin: 0 }} />
       </>
     ),
-    [
-      goTo,
-      isSelected,
-      lastMessage,
-      lastMessageAuthorName,
-      name,
-      participant.toReadPings,
-      photo,
-      status,
-      timestamp,
-      type,
-    ]
+    [goTo, id, isSelected]
   );
 }
+
+const ChatListItem = React.memo(_ChatListItem);
+export default ChatListItem;

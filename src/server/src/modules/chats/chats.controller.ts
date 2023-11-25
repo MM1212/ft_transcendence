@@ -37,14 +37,14 @@ export class ChatsController {
   ): Promise<InternalEndpointResponse<ChatsModel.Endpoints.GetChats>> {
     const chats = await this.service.getAllByUserId(user.id);
 
-    return chats.map((chat) => chat.display);
+    return chats.map((chat) => chat.id);
   }
 
   @Get(Targets.GetChat)
   async getOne(
     @ChatCtx() chat: Chat,
   ): Promise<InternalEndpointResponse<ChatsModel.Endpoints.GetChat>> {
-    return chat.public;
+    return chat.display;
   }
 
   @Get(Targets.GetChatMessages)
@@ -100,7 +100,7 @@ export class ChatsController {
     @Body() data: ChatsModel.DTO.NewChat,
   ): Promise<InternalEndpointResponse<ChatsModel.Endpoints.CreateChat>> {
     const chat = await this.service.create(data, user);
-    return chat.public;
+    return chat.id;
   }
 
   @Put(Targets.CreateMessage)

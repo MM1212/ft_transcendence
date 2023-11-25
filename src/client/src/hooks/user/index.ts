@@ -94,6 +94,7 @@ export const useSessionRecoilService = () => {
   React.useEffect(() => {
     if (loading) return;
     setSession((prev) => {
+      if (!user) return null;
       if (isEqual(prev, user)) return prev;
       return user;
     });

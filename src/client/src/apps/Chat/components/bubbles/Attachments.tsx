@@ -4,6 +4,8 @@ import ChatDefaultMessageBubble, {
   ChatDefaultMessageBubbleProps,
 } from './Default';
 import { useImagePreviewActions } from '@apps/ImagePreview/hooks';
+import React from 'react';
+import { urlRegex } from '../NewChat';
 
 interface IChatEmbedAttachmentsBubbleProps
   extends ChatDefaultMessageBubbleProps {
@@ -21,9 +23,14 @@ export default function ChatEmbedAttachmentsBubble({
   ...props
 }: IChatEmbedAttachmentsBubbleProps): JSX.Element {
   const { open } = useImagePreviewActions();
+  const showDefaultBubble = React.useMemo(
+    () =>
+      props.message.replace(new RegExp(urlRegex, 'g'), '').trim().length > 0,
+    [props.message]
+  );
   return (
     <Stack spacing={0.5}>
-      <ChatDefaultMessageBubble {...props} />
+      {showDefaultBubble && <ChatDefaultMessageBubble {...props} />}
       <Box
         sx={{
           width: '100%',
@@ -37,9 +44,9 @@ export default function ChatEmbedAttachmentsBubble({
             aspectRatio: '1/1',
             objectFit: 'cover',
             borderRadius: 'md',
-            maxWidth: '10dvh',
+            maxWidth: showDefaultBubble ? '10dvh' : '14dvh',
             border: '2px solid',
-            borderColor: 'divider'
+            borderColor: 'divider',
           },
         }}
       >

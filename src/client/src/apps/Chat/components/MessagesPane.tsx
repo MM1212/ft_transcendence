@@ -21,18 +21,10 @@ function ChatMessagesImpl({ id }: { id: number }) {
   const resetMessages = useRecoilCallback(
     (ctx) => async () => {
       const chats = await ctx.snapshot.getPromise(chatsState.chats);
-      const chatIdx = chats.findIndex((chat) => chat.id === id);
-      if (chatIdx === -1) return;
-      const chat = { ...chats[chatIdx] };
-      chat.messages = chat.messages.slice(
-        0,
-        ChatsModel.Models.MAX_MESSAGES_PER_CHAT
+      if (!chats.includes(id)) return;
+      ctx.set(chatsState.messages(id), (prev) =>
+        prev.slice(0, ChatsModel.Models.MAX_MESSAGES_PER_CHAT)
       );
-      ctx.set(chatsState.chats, (prev) => {
-        const next = [...prev];
-        next[chatIdx] = chat;
-        return next;
-      });
     },
     [id]
   );
@@ -47,12 +39,15 @@ function ChatMessagesImpl({ id }: { id: number }) {
 
   const next = useRecoilCallback(
     (ctx) => async () => {
+      console.log(`Fetching messages for ${id}`);
+
       const chats = await ctx.snapshot.getPromise(chatsState.chats);
-      const chatIdx = chats.findIndex((chat) => chat.id === id);
-      if (chatIdx === -1) return;
-      const chat = { ...chats[chatIdx] };
-      let lastMessageId = chat.messages.length
-        ? chat.messages[chat.messages.length - 1]?.id ?? -1
+      if (!chats.includes(id)) return;
+      const lastMessages = await ctx.snapshot.getPromise(
+        chatsState.messages(id)
+      );
+      let lastMessageId = lastMessages.length
+        ? lastMessages[lastMessages.length - 1]?.id ?? -1
         : -1;
       if (isNaN(parseInt(lastMessageId as unknown as string)))
         lastMessageId = -1;
@@ -72,14 +67,7 @@ function ChatMessagesImpl({ id }: { id: number }) {
           }`
         );
         if (messages.length === 0) return setHasMore(false);
-        ctx.set(chatsState.chats, (prev) => {
-          const next = [...prev];
-          next[chatIdx] = {
-            ...chat,
-            messages: [...chat.messages, ...messages],
-          };
-          return next;
-        });
+        ctx.set(chatsState.messages(id), (prev) => [...prev, ...messages]);
       } catch (e) {
         console.error(e);
         notifications.error('Failed to fetch messages', (e as Error).message);
@@ -124,7 +112,7 @@ function ChatMessagesImpl({ id }: { id: number }) {
         hasMore={hasMore}
         loader={
           <CircularProgress
-            color="primary"
+            color="warning"
             sx={{
               position: 'absolute',
               my: 2,
@@ -153,7 +141,12 @@ function ChatMessagesImpl({ id }: { id: number }) {
         {messages.map((message, index: number) => {
           const features = computeMessageFeatures(messages, index);
           return (
-            <React.Suspense fallback={<></>} key={`${id}-${message.id}`}>
+            <React.Suspense
+              fallback={<></>}
+              key={`${id}-${message.authorId}-${message.id}-${
+                messages.length - index
+              }`}
+            >
               <ChatBubble
                 chatId={id}
                 messageId={message.id}

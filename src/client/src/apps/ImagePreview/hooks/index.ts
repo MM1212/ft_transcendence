@@ -2,6 +2,7 @@ import { useModal, useModalActions } from '@hooks/useModal';
 
 export interface ImagePreviewState {
   src: string;
+  from?: { left: number; top: number };
 }
 
 export const IMAGE_PREVIEW_ID = 'misc:image-preview';

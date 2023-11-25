@@ -33,7 +33,8 @@ export default function SidebarSwitchComposer() {
       };
     return routes.flatMap(getPossibleRoutes(null));
   }, []);
-
+  console.log(possibleRoutes);
+  
   return (
     <Switch>
       {possibleRoutes.map(

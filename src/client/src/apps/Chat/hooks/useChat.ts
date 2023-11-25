@@ -1,7 +1,10 @@
-import { useRecoilCallback, useRecoilValue } from 'recoil';
+import {
+  useRecoilTransaction_UNSTABLE,
+  useRecoilValue,
+} from 'recoil';
 import chatsState from '../state';
-import { useLocation } from 'wouter';
 import ChatsModel from '@typings/models/chat';
+import { navigate } from 'wouter/use-location';
 
 const useChat = (chatId: number) => {
   const useInfo = () => useRecoilValue(chatsState.chatInfo(chatId));
@@ -21,13 +24,12 @@ const useChat = (chatId: number) => {
   const useType = () => useRecoilValue(chatsState.chatType(chatId));
   const useIsSelected = () => useRecoilValue(chatsState.isChatSelected(chatId));
 
-  const [, navigate] = useLocation();
-  const goTo = useRecoilCallback(
+  const goTo = useRecoilTransaction_UNSTABLE(
     (ctx) => () => {
-      ctx.set(chatsState.isChatSelected(chatId), true);
+      ctx.set(chatsState.selectedChatId, chatId);
       navigate(`/messages/${chatId}`);
     },
-    [chatId, navigate]
+    [chatId]
   );
 
   const useIsParticipantBlocked = (participantId: number) =>
@@ -45,7 +47,7 @@ const useChat = (chatId: number) => {
     if (participant.muted === ChatsModel.Models.ChatParticipantMuteType.Forever)
       return { is: true, type: 'permanent' };
     console.log(pId, participant.userId, Date.now(), participant.mutedUntil);
-    
+
     if (Date.now() >= participant.mutedUntil!) return { is: false };
     return { is: true, type: 'temporary', until: participant.mutedUntil! };
   };

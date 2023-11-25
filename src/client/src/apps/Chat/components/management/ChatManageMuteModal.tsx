@@ -83,7 +83,7 @@ function ModalContent(): JSX.Element {
   );
 }
 
-export default function ChatManageMuteModal(): JSX.Element {
+function _ChatManageMuteModal(): JSX.Element {
   const { isOpened, close } = useModal<{
     user: UsersModel.Models.IUserInfo;
     participantId: number;
@@ -99,3 +99,7 @@ export default function ChatManageMuteModal(): JSX.Element {
     </Modal>
   );
 }
+
+const ChatManageMuteModal = React.memo(_ChatManageMuteModal);
+
+export default ChatManageMuteModal;

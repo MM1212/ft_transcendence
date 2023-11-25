@@ -5,6 +5,7 @@ import { GroupEnumValues } from '@typings/utils';
 import User from '@/modules/users/user';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { HttpError } from '@/helpers/decorators/httpError';
+import { isDeepStrictEqual } from 'util';
 
 class Participant extends CacheObserver<ChatsModel.Models.IChatParticipant> {
   constructor(
@@ -371,6 +372,11 @@ class Chat extends CacheObserver<IChat> {
     if (!participantOp) throw new ForbiddenException();
     if (!participantOp.isOP() && participant.userId !== op.id)
       throw new ForbiddenException();
+    const participantData = (Object.keys(data) as (keyof typeof data)[]).reduce(
+      (prev, key) => ({ ...prev, [key]: participant.get(key) }),
+      {},
+    );
+    if (isDeepStrictEqual(participantData, data)) return participant;
     const result = await this.helpers.db.chats.updateChatParticipant(
       participantId,
       data,

@@ -160,8 +160,8 @@ function UsersAutocomplete({
           option.type === 'search'
             ? 'Search results'
             : option.type === 'friends'
-            ? 'Friends'
-            : 'Selected'
+              ? 'Friends'
+              : 'Selected'
         }
         isOptionEqualToValue={(option, value) =>
           option.data.id === value.data.id
@@ -222,7 +222,7 @@ type FormValues = Pick<
   participants: UsersModel.Models.IUserInfo[];
 };
 
-export default function NewChatModal(): JSX.Element {
+function _NewChatModal(): JSX.Element {
   const { isOpened, close } = useModal('chat:new-chat');
 
   const form = useForm<FormValues>({
@@ -311,7 +311,7 @@ export default function NewChatModal(): JSX.Element {
         setLoading(true);
         const notif = notifications.default('Creating new chat...');
         try {
-          const data = await tunnel.put(
+          const chatId = await tunnel.put(
             ChatsModel.Endpoints.Targets.CreateChat,
             payload
           );
@@ -319,14 +319,7 @@ export default function NewChatModal(): JSX.Element {
             message: 'Chat created successfully!',
             color: 'success',
           });
-          ctx.set(chatsState.chats, (prev) => [
-            ...prev,
-            {
-              ...data,
-              messages: [],
-              authorizationData: null,
-            },
-          ]);
+          ctx.set(chatsState.chats, (prev) => [...prev, chatId]);
           close();
         } catch (e) {
           console.error(e);
@@ -493,3 +486,7 @@ export default function NewChatModal(): JSX.Element {
     </Modal>
   );
 }
+
+const NewChatModal = React.memo(_NewChatModal);
+
+export default NewChatModal;

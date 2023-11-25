@@ -66,7 +66,7 @@ export default function ProfilePictureModal() {
                     backgroundRepeat: 'no-repeat',
                     opacity: selected ? 1 : 0.5,
                     transition: (theme) => theme.transitions.create('opacity'),
-                    '-webkit-backface-visibility': 'hidden',
+                    WebkitBackfaceVisibility: 'hidden',
                     '&:hover': {
                       cursor: 'pointer',
                       opacity: 0.8,

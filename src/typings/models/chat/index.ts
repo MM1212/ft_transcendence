@@ -226,11 +226,11 @@ namespace ChatsModel {
     export interface GetChats
       extends GetEndpoint<
         Targets.GetSessionChats,
-        Models.IChatDisplay[],
+        number[],
         DTO.ChatParams
       > {}
     export interface GetChat
-      extends GetEndpoint<Targets.GetChat, Models.IChatInfo, DTO.ChatParams> {}
+      extends GetEndpoint<Targets.GetChat, Models.IChatDisplay, DTO.ChatParams> {}
     export interface GetChatParticipants
       extends GetEndpoint<
         Targets.GetChatParticipants,
@@ -259,7 +259,7 @@ namespace ChatsModel {
       extends Endpoint<
         EndpointMethods.Put,
         Targets.CreateChat,
-        Models.IChatInfo,
+        number,
         DTO.NewChat
       > {}
     export interface CreateMessage
@@ -426,7 +426,7 @@ namespace ChatsModel {
     export interface NewMessageEvent
       extends SseModel.Models.Event<Models.IChatMessage, Events.NewMessage> {}
     export interface NewChatEvent
-      extends SseModel.Models.Event<Models.IChatDisplay, Events.NewChat> {}
+      extends SseModel.Models.Event<{chatId: number}, Events.NewChat> {}
     export interface UpdateParticipantEvent
       extends SseModel.Models.Event<
         (AddParticipant | UpdateParticipant | RemoveParticipant) & {

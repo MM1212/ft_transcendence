@@ -18,7 +18,7 @@ import { useRecoilValue } from 'recoil';
 import { navigate } from 'wouter/use-location';
 import React, { useLayoutEffect } from 'react';
 import { useFriends } from '@apps/Friends/hooks';
-import { useModalActions } from '@hooks/useModal';
+import { useUpdateUserModalActions } from '../hooks/useUpdateUserModal';
 
 function UserProfile({
   user,
@@ -27,8 +27,7 @@ function UserProfile({
   user: UsersModel.Models.IUserInfo;
   affiliation: 'me' | 'friend' | 'unknown';
 }) {
-  console.log(affiliation);
-  const { open: openUpdateModal } = useModalActions('profile:change-user');
+  const { open: openUpdateModal } = useUpdateUserModalActions();
   return (
     <Sheet
       style={{
@@ -74,7 +73,7 @@ function UserProfile({
               src={user?.avatar}
               status={user?.status}
               badgeProps={{
-                size: 'lg'
+                size: 'lg',
               }}
             />
           )}

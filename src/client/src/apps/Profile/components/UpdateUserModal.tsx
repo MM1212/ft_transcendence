@@ -135,7 +135,9 @@ export default function UpdateUserModal(): JSX.Element {
       <Modal open={isOpened} onClose={close}>
         <ModalDialog>
           <DialogTitle>{header}</DialogTitle>
-          <DialogContent>
+          <DialogContent style={{
+            overflow: 'inherit'
+          }}>
             {body}
             <form
               onSubmit={(event: React.FormEvent<HTMLFormElement>) => {

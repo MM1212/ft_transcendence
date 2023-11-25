@@ -238,7 +238,7 @@ function MembersTab({ manage = false }: { manage?: boolean }): JSX.Element {
         }
       })
       .sort((a, b) => {
-       const aRole = a.participant.role;
+        const aRole = a.participant.role;
         const bRole = b.participant.role;
         if (aRole === Roles.Owner) return -1;
         if (bRole === Roles.Owner) return 1;
@@ -285,7 +285,7 @@ function MembersTab({ manage = false }: { manage?: boolean }): JSX.Element {
   );
 }
 
-export default function ChatMembersModal(): JSX.Element {
+function _ChatMembersModal(): JSX.Element {
   const { close, data, isOpened } = useModal<{ manage: boolean }>(
     'chat:members'
   );
@@ -304,3 +304,7 @@ export default function ChatMembersModal(): JSX.Element {
     </Modal>
   );
 }
+
+const ChatMembersModal = React.memo(_ChatMembersModal);
+
+export default ChatMembersModal;

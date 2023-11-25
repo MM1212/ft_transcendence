@@ -1,6 +1,6 @@
-import { Modal, Stack, Typography } from '@mui/joy';
+import { Modal } from '@mui/joy';
 import { useImagePreview } from '../hooks';
-import Fade from '@components/transitions/Fade';
+import Grow from '@components/transitions/Grow';
 
 export default function ImagePreviewView(): JSX.Element {
   const { close, data, isOpened } = useImagePreview();
@@ -16,7 +16,7 @@ export default function ImagePreviewView(): JSX.Element {
       }}
       keepMounted
     >
-      <Fade opened={isOpened}>
+      <Grow opened={isOpened} from={data.from}>
         <img
           src={data.src}
           style={{
@@ -25,7 +25,7 @@ export default function ImagePreviewView(): JSX.Element {
             objectFit: 'scale-down',
           }}
         />
-      </Fade>
+      </Grow>
     </Modal>
   );
 }

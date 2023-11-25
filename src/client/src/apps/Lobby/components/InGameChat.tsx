@@ -3,14 +3,14 @@ import { Input, Typography } from '@mui/joy';
 import { Box, Sheet } from '@mui/joy';
 import React, { useRef, useState } from 'react';
 import { useCurrentUser } from '@hooks/user';
-import { allowPlayerFocus } from '../state';
+import { enablePlayerInput } from '../state';
 import { useRecoilState } from 'recoil';
 
 interface ChatBoxProps {}
 
 const ChatBox: React.FC<ChatBoxProps> = () => {
   const [inputMessage, setInputMessage] = useState('');
-  const [focus, setFocus] = useRecoilState(allowPlayerFocus);
+  const [focus, setFocus] = useRecoilState(enablePlayerInput);
   const [messages, setMessages] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const messagesRef = useRef<HTMLDivElement>(null);
@@ -46,11 +46,11 @@ const ChatBox: React.FC<ChatBoxProps> = () => {
       if (!pressed) return;
       if (key === 'Tab' && !focus) {
         user;
-        setFocus(true);
+        setFocus(false);
         inputRef.current?.querySelector('input')?.focus();
         e.preventDefault();
       } else if (key === 'Tab' && focus) {
-        setFocus(false);
+        setFocus(true);
         inputRef.current?.querySelector('input')?.blur();
         e.preventDefault();
       }

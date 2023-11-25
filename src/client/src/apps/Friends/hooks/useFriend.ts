@@ -73,7 +73,7 @@ const useFriend = (friendId: number) => {
           undefined,
           { targetId: friendId }
         );
-        navigate(`/lobby/messages/${chatId}`);
+        navigate(`/messages/${chatId}`);
       } catch (e) {
         notifications.error('Failed to go to messages', (e as Error).message);
       }
@@ -85,8 +85,8 @@ const useFriend = (friendId: number) => {
     (ctx) => async () => {
       const self = await ctx.snapshot.getPromise(sessionAtom);
       if (!self) throw new Error('You are not logged in');
-      if (self.id === friendId) return navigate('/lobby/profile/me');
-      navigate(`/lobby/profile/${friendId}`);
+      if (self.id === friendId) return navigate('/profile/me');
+      navigate(`/profile/${friendId}`);
     },
     [friendId, navigate]
   );

@@ -108,6 +108,17 @@ function GroupOptions({
   );
 }
 
+const ButtonIcon = React.memo(() => (
+  <MenuButton
+    slots={{ root: IconButton }}
+    size="sm"
+    variant="plain"
+    color="neutral"
+  >
+    <DotsVerticalIcon />
+  </MenuButton>
+));
+
 export default function ChatManageMenu() {
   const { useSelfParticipant, useType } = useSelectedChat();
   const self = useSelfParticipant();
@@ -115,14 +126,7 @@ export default function ChatManageMenu() {
   return React.useMemo(
     () => (
       <Dropdown>
-        <MenuButton
-          slots={{ root: IconButton }}
-          size="sm"
-          variant="plain"
-          color="neutral"
-        >
-          <DotsVerticalIcon />
-        </MenuButton>
+        <ButtonIcon />
         <Menu placement="bottom-end" size="sm" sx={{ zIndex: 1300 }}>
           <React.Suspense fallback={<></>}>
             {type === ChatsModel.Models.ChatType.Direct && (

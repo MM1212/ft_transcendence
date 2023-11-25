@@ -15,18 +15,20 @@ import {
 const Targets = ChatsModel.Endpoints.Targets;
 
 const chatsState = new (class MessagesState {
-  chats = atom<ChatsModel.Models.IChat[]>({
+  chats = atom<number[]>({
     key: 'chats',
-    default: selector<ChatsModel.Models.IChat[]>({
+    default: selector<number[]>({
       key: 'chats/selector',
       get: async () => {
-        const data = await tunnel.get(Targets.GetSessionChats);
-        return data.map((chat) => ({
-          ...chat,
-          authorizationData: null,
-        }));
+        return await tunnel.get(Targets.GetSessionChats);
       },
     }),
+  });
+  allChats = selector<ChatsModel.Models.IChat[]>({
+    key: 'chats/all',
+    get: ({ get }) => {
+      return get(waitForAll(get(this.chats).map(this.chat)));
+    },
   });
   searchFilter = atom<string>({
     key: 'chats/searchFilter',
@@ -36,37 +38,20 @@ const chatsState = new (class MessagesState {
     key: 'chatIds',
     get: ({ get }) => {
       const search = get(this.searchFilter).toLowerCase();
-      let chats = get(this.chats);
+      let chats = get(waitForAll(get(this.chats).map(this.chatInfo)));
       if (search.trim().length)
         chats = chats.filter((c) => {
-          const lastMessage = c.messages[0];
+          const { lastMessage, name } = c;
           if (lastMessage?.message.toLowerCase().includes(search.toLowerCase()))
             return true;
-          switch (c.type) {
-            case ChatsModel.Models.ChatType.Direct:
-              const self = get(sessionAtom);
-              const otherP = c.participants.find((p) => p.userId !== self?.id);
-              if (!otherP)
-                throw new Error('Direct chat without other participant');
-              const other = get(usersAtom(otherP.userId));
-              if (!other) throw new Error('Direct chat without other user');
-              if (other.nickname.toLowerCase().includes(search.toLowerCase()))
-                return true;
-              break;
-            case ChatsModel.Models.ChatType.Group:
-              if (c.name.toLowerCase().includes(search.toLowerCase()))
-                return true;
-              break;
-            default:
-              break;
-          }
+          if (name.toLowerCase().includes(search.toLowerCase())) return true;
           return false;
         });
       else chats = [...chats];
       return chats
         .sort((a, b) => {
-          const aLast = a.messages[0]?.createdAt ?? a.createdAt;
-          const bLast = b.messages[0]?.createdAt ?? b.createdAt;
+          const aLast = a.lastMessage?.createdAt ?? a.createdAt;
+          const bLast = b.lastMessage?.createdAt ?? b.createdAt;
           return bLast - aLast;
         })
         .map((c) => c.id);
@@ -102,28 +87,21 @@ const chatsState = new (class MessagesState {
         set(this.selectedChatId, id);
       },
   });
-  chat = selectorFamily<ChatsModel.Models.IChat, number>({
+  chat = atomFamily<ChatsModel.Models.IChat, number>({
     key: 'chat',
-    get:
-      (id) =>
-      async ({ get }) => {
-        const chats = get(this.chats);
-        const chat = chats.find((c) => c.id === id);
-        if (!chat) throw new Error('Chat not found');
+    default: selectorFamily<ChatsModel.Models.IChat, number>({
+      key: 'chat/selector',
+      get: (id) => async () => {
+        const chat: ChatsModel.Models.IChat = (await tunnel.get(
+          Targets.GetChat,
+          {
+            chatId: id,
+          }
+        )) as ChatsModel.Models.IChat;
+        chat.authorizationData = null;
         return chat;
       },
-    set:
-      (id) =>
-      ({ set }, newValue) => {
-        if (newValue instanceof DefaultValue) return;
-        set(this.chats, (prev) => {
-          const idx = prev.findIndex((c) => c.id === id);
-          if (idx === -1) return prev;
-          const tmp = [...prev];
-          tmp[idx] = newValue;
-          return tmp;
-        });
-      },
+    }),
   });
   messages = selectorFamily<ChatsModel.Models.IChatMessage[], number>({
     key: 'chatMessages',
@@ -261,7 +239,7 @@ const chatsState = new (class MessagesState {
     key: 'chatUnreadPings',
     get: ({ get }) => {
       const self = get(sessionAtom);
-      const chats = get(this.chats);
+      const chats = get(this.allChats);
       return chats.reduce((acc, chat) => {
         const participant = chat.participants.find(
           (p) => p.userId === self?.id
@@ -346,6 +324,10 @@ const chatsState = new (class MessagesState {
         const chat = get(this.chat(id));
         return chat?.messages[0] ?? null;
       },
+  });
+  cachedChatInfo = atomFamily<ChatsModel.Models.IChatInfo | null, number>({
+    key: 'chatInfo/cached',
+    default: null,
   });
   chatInfo = selectorFamily<ISelectedChatInfo, number>({
     key: 'chatInfo',
