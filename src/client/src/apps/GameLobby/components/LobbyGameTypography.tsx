@@ -1,17 +1,20 @@
-import { Typography } from "@mui/joy";
+import { Typography, TypographyProps } from "@mui/joy";
+import React from "react";
 
-export interface LobbyGameTypographyProps {
-    label: string;
-    level:  "body-md" | "body-lg" | "body-sm" | "title-md" | "title-lg" | "title-xl"; 
-  }
-  
-  const LobbyGameTypography: React.FC<LobbyGameTypographyProps> = ({ label, level }) => {
+const LobbyGameTypography = React.forwardRef<HTMLSpanElement, TypographyProps>(
+  ({ children, ...props }, ref) => {
     return (
-      <Typography level={level} variant="outlined" color="warning" sx={{ border: "unset" }}>
-        {label}
+      <Typography
+        variant="outlined"
+        color="warning"
+        sx={{ border: "unset" }}
+        {...props}
+        ref={ref}
+      >
+        {children}
       </Typography>
     );
-  };
+  }
+);
 
-  
-    export default LobbyGameTypography;
+export default LobbyGameTypography;

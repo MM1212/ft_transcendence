@@ -19,19 +19,7 @@ import { Typography } from "@mui/joy";
 import { Box } from "@mui/joy";
 import { Radio } from "@mui/joy";
 import LobbyRoom from "./LobbyRoom";
-
-export interface LobbyGameTypographyProps {
-  label: string;
-  level:  "body-md" | "body-lg" | "body-sm" | "title-md" | "title-lg" | "title-xl"; 
-}
-
-const LobbyGameTypography: React.FC<LobbyGameTypographyProps> = ({ label, level }) => {
-  return (
-    <Typography level={level} variant="outlined" color="warning" sx={{ border: "unset" }}>
-      {label}
-    </Typography>
-  );
-};
+import LobbyGameTypography from "./LobbyGameTypography";
 
 export default function LobbyCreateCustom() {
   // Create a logic that first inputs the user to create a costum or to join an existing room
@@ -41,6 +29,9 @@ export default function LobbyCreateCustom() {
   const [spectators, setSpectators] = React.useState<string>("all");
   const [errors, setErrors] = React.useState({
     name: "",
+    // send error when size of name exceeds 20 characters
+
+
   });
   const [isCustom, setIsCustom] = React.useState(false);
   const validateForm = () => {
@@ -75,7 +66,9 @@ export default function LobbyCreateCustom() {
             <Stack spacing={2} sx={{ display: "flex", mt: 5 }}>
               <FormControl>
                 <FormLabel required>
-                  <LobbyGameTypography label="Name" level='body-sm' />
+                  <LobbyGameTypography level="body-sm">
+                    Name
+                  </LobbyGameTypography>
                 </FormLabel>
                 <Input
                   color={errors.name ? "danger" : "warning"}
@@ -89,7 +82,10 @@ export default function LobbyCreateCustom() {
                 {errors.name && <FormHelperText>{errors.name}</FormHelperText>}{" "}
               </FormControl>
               <FormControl required>
-                <FormLabel> <LobbyGameTypography label="Team Size" level='body-sm' /></FormLabel>
+                <FormLabel>
+                  {" "}
+                  <LobbyGameTypography level="body-sm" >Team Size</LobbyGameTypography>
+                </FormLabel>
                 <Select
                   variant="soft"
                   color="warning"
@@ -103,7 +99,9 @@ export default function LobbyCreateCustom() {
               </FormControl>
               <FormControl>
                 <FormLabel>
-                <LobbyGameTypography label="Password (optional)" level='body-sm' />
+                  <LobbyGameTypography
+                    level="body-sm"
+                  >Password (optional)</LobbyGameTypography>
                 </FormLabel>
                 <Input
                   placeholder="Enter Password"
@@ -125,7 +123,12 @@ export default function LobbyCreateCustom() {
               <FormControl
                 sx={{ mt: 2, display: "flex", flexDirection: "column" }}
               >
-                <FormLabel> <LobbyGameTypography label="ALLOW SPECTATORS" level='body-md' /></FormLabel>
+                <FormLabel>
+                  {" "}
+                  <LobbyGameTypography
+                    level="body-md"
+                  >ALLOW SPECTATORS</LobbyGameTypography>
+                </FormLabel>
                 <RadioGroup defaultValue="all" name="Spectator-Radio">
                   <Stack spacing={5} sx={{ mt: 2 }}>
                     <Radio
@@ -166,7 +169,7 @@ export default function LobbyCreateCustom() {
           name={name}
           password={password}
           teamSize={teamSize}
-          spectator={spectators}
+          spectators={spectators}
         />
       )}
     </Sheet>

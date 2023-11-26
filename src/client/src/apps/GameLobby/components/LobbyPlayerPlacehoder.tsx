@@ -11,16 +11,16 @@ export default function LobbyPlayerPlaceholder({ id, position }: { id: number, p
   return (
     <>
       <Divider />
-      <Stack display="flex" flexDirection="row" sx={{ pt: "5px", pb: "5px" }}>
-        <UserAvatar color='warning' variant='soft'  src={user?.avatar} sx={{ width: "80px", height: "80px" }} />
+      <Stack display="flex" flexDirection="row" sx={{ pt: 2, pb: 2 }}>
+        <UserAvatar color='warning' variant='soft'  src={user?.avatar} sx={{ width: 50, height: 50 }} />
         <Box
           display="flex"
           flexDirection="column"
           justifyContent="center"
           sx={{ pl: "20px" }}
         >
-          <Typography color='warning' variant='plain' level="body-lg">{user?.nickname}</Typography>
-          <Typography color='warning' variant='plain' level="body-sm">Rank Placeholder</Typography>
+          <Typography  level="body-lg">{user?.nickname}</Typography>
+          <Typography  level="body-sm">Rank Placeholder</Typography>
         </Box>
         {id === 0 ? (
           <IconButton

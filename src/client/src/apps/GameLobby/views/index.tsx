@@ -1,7 +1,14 @@
-import { Card, CardContent, CardCover, Divider } from "@mui/joy";
-import LobbyTop from "../components/LobbyTop";
+import { Divider } from "@mui/joy";
 import { Sheet } from "@mui/joy";
 import publicPath from "@utils/public";
+import { LobbyMatchMaking } from "../components/LobbyMatchMaking";
+import LobbyCreateCustom from "../components/LobbyCreateCustom";
+import LobbyPongTabs from "../components/LobbyPongTabs";
+// Define your customizations and components
+const label = ["Matchmaking", "Create Custom"];
+const components = [<LobbyMatchMaking key={0} />, <LobbyCreateCustom key={2} />];
+
+// Use LobbyTop component with your customizations and components
 
 export default function GameLobby() {
   return (
@@ -17,8 +24,7 @@ export default function GameLobby() {
         backgroundRepeat: "no-repeat",
       }}
     >
-      <LobbyTop/>
-      <Divider orientation="horizontal" />
+      <LobbyPongTabs tabLabel={label} reactComponents={components} />
     </Sheet>
   );
 }
