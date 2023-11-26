@@ -29,15 +29,15 @@ export default function LobbyCreateCustom() {
   const [spectators, setSpectators] = React.useState<string>("all");
   const [errors, setErrors] = React.useState({
     name: "",
-    // send error when size of name exceeds 20 characters
-
-
   });
   const [isCustom, setIsCustom] = React.useState(false);
   const validateForm = () => {
     const newErrors = {
-      name: name.trim() === "" ? "Name is required" : "",
+      name: name.trim() === "" ? "Name is required" : "", 
     };
+    if (name.trim().length > 20) {
+      newErrors.name = "Name cannot exceed 20 characters";
+    }
     setErrors(newErrors);
     return !Object.values(newErrors).some((error) => error !== "");
   };

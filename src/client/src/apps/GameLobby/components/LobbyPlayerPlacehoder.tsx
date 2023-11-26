@@ -1,6 +1,8 @@
 import { UserAvatar } from "@components/AvatarWithStatus";
 import AccountArrowDownIcon from "@components/icons/AccountArrowDownIcon";
 import AccountPlusIcon from "@components/icons/AccountPlusIcon";
+import RobotIcon from "@components/icons/RobotIcon";
+import SwapHorizontalBoldIcon from "@components/icons/SwapHorizontalBoldIcon";
 import { useUser } from "@hooks/user";
 import { Box, Divider, IconButton } from "@mui/joy";
 import { Typography } from "@mui/joy";
@@ -33,7 +35,8 @@ export default function LobbyPlayerPlaceholder({ id, position }: { id: number, p
               },
             }}
           >
-            <AccountPlusIcon  />
+            <RobotIcon  />
+            <SwapHorizontalBoldIcon  />
           </IconButton>
         ) : null}
       </Stack>

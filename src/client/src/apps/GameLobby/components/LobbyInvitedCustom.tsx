@@ -1,12 +1,11 @@
 import { UserAvatar } from "@components/AvatarWithStatus";
-import BookMarkerIcon from "@components/icons/BookMarkerIcon";
-import BookmarkRemoveIcon from "@components/icons/BookmarkRemoveIcon";
 import CloseIcon from "@components/icons/CloseIcon";
 import { useUser } from "@hooks/user";
 import { IconButton, Sheet } from "@mui/joy";
 import { Divider } from "@mui/joy";
 import { Stack, Typography } from "@mui/joy";
 import UsersModel from "@typings/models/users";
+import { useCurrentUser } from "@hooks/user";
 
 export default function LobbyInvitedCustom() {
   const usersSample: (UsersModel.Models.IUserInfo | null)[] = [
@@ -20,21 +19,31 @@ export default function LobbyInvitedCustom() {
   return (
     <>
       <Stack sx={{ width: "100" }}>
-        {usersSample.map((user, index) => (
-          <>
-            <Stack
-              key={index}
-              sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}
-            >
-              <UserAvatar src={user?.avatar}  sx={{ width: 20, height: 20 }} />
-              <Typography level="body-sm" sx={{ ml: 2 }}>{user?.nickname}</Typography>
-              <IconButton sx={{ml:'auto'}}>
-              <CloseIcon/>
-              </IconButton>
-            </Stack>
-            <Divider sx={{mb:2}} />
-          </>
-        ))}
+        {usersSample.length > 0 ? (
+          usersSample.map((user, index) => (
+            <>
+              <Stack
+                key={index}
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                }}
+              >
+                <UserAvatar src={user?.avatar} sx={{ width: 20, height: 20 }} />
+                <Typography level="body-sm" sx={{ ml: 2 }}>
+                  {user?.nickname}
+                </Typography>
+                <IconButton sx={{ ml: "auto" }}>
+                  <CloseIcon />
+                </IconButton>
+              </Stack>
+              <Divider sx={{ mb: 2 }} />
+            </>
+          ))
+        ) : (
+          <Typography level="body-sm">No pending invites</Typography>
+        )}
       </Stack>
     </>
   );

@@ -1,4 +1,4 @@
-import { Stack, Typography } from "@mui/joy";
+import { Button, Stack, Typography } from "@mui/joy";
 import LobbyGameTypography from "./LobbyGameTypography";
 import ShurikenIcon from "@components/icons/ShurikenIcon";
 import LobbbyCustomMatchPlayers from "./LobbyCustomMatchPlayers";
@@ -6,6 +6,13 @@ import { alpha } from "@theme";
 import LobbyPongTabs from "./LobbyPongTabs";
 import LobbyInvitedCustom from "./LobbyInvitedCustom";
 import LobbySpectatorCustom from "./LobbySpectatorCustom";
+import { roomPlayersTester } from "../state";
+import { useRecoilState } from "recoil";
+import { useCurrentUser } from "@hooks/user";
+import React, { useEffect } from "react";
+import AddFriendRoom from "./AddFriendRoom";
+import { FindMatchWrapper } from "./LobbyMatchMaking";
+import LobbyPongButton from "./LobbyPongBottom";
 
 export default function LobbyRoom({
   spectators,
@@ -18,12 +25,29 @@ export default function LobbyRoom({
   name: string;
   password: string;
 }) {
-  console.log(spectators, teamSize, name, password);
   const customTabs = ["Invited", "Spectators"];
   const components = [
     <LobbyInvitedCustom key={0} />,
     <LobbySpectatorCustom key={1} />,
   ];
+  const [playersId, setPlayersId] = useRecoilState(roomPlayersTester);
+  const user = useCurrentUser();
+  const [open, setOpen] = React.useState(false);
+
+  useEffect(() => {
+    if (user && playersId.length === 0) {
+      if (teamSize === "2")
+        setPlayersId((prevPlayersId) => [...prevPlayersId, user.id]);
+      else
+        setPlayersId((prevPlayersId) => [...prevPlayersId, user.id]);
+    }
+  }, [user, playersId.length, setPlayersId]);
+
+  const teamSizeInt = parseInt(teamSize!);
+  const handleStartMatch = () => {
+    console.log("start match");
+  }
+  if (user === null) return null;
 
   return (
     <>
@@ -49,10 +73,17 @@ export default function LobbyRoom({
         >
           DOJO PONG CUSTOM MATCH
         </Typography>
+        <Button
+           onClick={() => setOpen(true)}
+          sx={{ width: "25%", ml: "auto" }}
+          type="submit"
+          variant="outlined"
+        >
+          <Typography  >Invite</Typography>
+        </Button>
+        <AddFriendRoom open={open} setOpen={setOpen} roomSize={teamSizeInt} />
         <Stack sx={{ display: "flex", flexDirection: "row" }}>
-          <LobbyGameTypography level="body-sm">
-            {name}
-          </LobbyGameTypography>
+          <LobbyGameTypography level="body-sm">{name}</LobbyGameTypography>
           <ShurikenIcon size="xs" sx={{ ml: 1, mr: 1, mt: 0.7 }} />
           {teamSize === "2" ? (
             <LobbyGameTypography level="body-sm">2v2</LobbyGameTypography>
@@ -68,12 +99,16 @@ export default function LobbyRoom({
             mt: 10,
           }}
         >
-          <LobbbyCustomMatchPlayers nbPlayers={parseInt(teamSize!)!} />
+          <LobbbyCustomMatchPlayers
+            playersId={playersId}
+            nbPlayers={parseInt(teamSize!)!}
+          />
         </Stack>
         <Stack
           sx={{
             display: "flex",
-            flexDirection: "row",
+            flexDirection: "column",
+            alignItems: "center",
             justifyContent: "center",
             width: "100%",
             mt: 10,
@@ -87,10 +122,19 @@ export default function LobbyRoom({
               borderRadius: "md",
               backgroundColor: (theme) =>
                 alpha(theme.resolveVar("palette-background-surface"), 0.5),
+                mb:10
             }}
           >
             <LobbyPongTabs tabLabel={customTabs} reactComponents={components} />
           </Stack>
+          <FindMatchWrapper
+            sx={{
+              position: "relative",
+            }}
+            onClick={handleStartMatch}
+          >
+            <LobbyPongButton label="Start Match" src='/matchMaking/button1.webp'/>
+          </FindMatchWrapper>
         </Stack>
       </div>
     </>
