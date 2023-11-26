@@ -48,6 +48,7 @@ namespace ChatsModel {
       createdAt: number;
       muted: GroupEnumValues<ChatParticipantMuteType>;
       mutedUntil: number | null;
+      typing: boolean;
     }
 
     export interface IChatAuthorizationData {
@@ -116,7 +117,10 @@ namespace ChatsModel {
         meta: any;
       }
       export interface ChatParticipant
-        extends Omit<Models.IChatParticipant, 'createdAt' | 'mutedUntil'> {
+        extends Omit<
+          Models.IChatParticipant,
+          'createdAt' | 'mutedUntil' | 'typing'
+        > {
         createdAt: Date;
         mutedUntil: Date | null;
       }
@@ -178,7 +182,9 @@ namespace ChatsModel {
     export interface NewChat extends DB.CreateChat {}
     export interface NewMessage
       extends Omit<DB.CreateMessage, 'authorId' | 'chatId'> {}
-    export interface UpdateParticipant extends DTO.DB.UpdateParticipant {}
+    export interface UpdateParticipant extends DTO.DB.UpdateParticipant {
+      typing: boolean;
+    }
 
     export interface CheckOrCreateDirectChat {
       exists: boolean;
@@ -195,6 +201,11 @@ namespace ChatsModel {
     }
     export interface MuteParticipant {
       until?: number;
+    }
+
+    export interface SendInviteToTarget {
+      type: 'user' | 'chat';
+      id: number;
     }
   }
   export namespace Endpoints {
@@ -220,17 +231,19 @@ namespace ChatsModel {
       LeaveChat = '/chats/:chatId/leave',
       DeleteMessage = '/chats/:chatId/messages/:messageId',
       TransferOwnership = '/chats/:chatId/transfer',
+      SendInviteToTargets = '/chats/:chatId/invite',
+      SetTyping = '/chats/:chatId/typing',
     }
     export type All = GroupEndpointTargets<Targets>;
 
     export interface GetChats
+      extends GetEndpoint<Targets.GetSessionChats, number[], DTO.ChatParams> {}
+    export interface GetChat
       extends GetEndpoint<
-        Targets.GetSessionChats,
-        number[],
+        Targets.GetChat,
+        Models.IChatDisplay,
         DTO.ChatParams
       > {}
-    export interface GetChat
-      extends GetEndpoint<Targets.GetChat, Models.IChatDisplay, DTO.ChatParams> {}
     export interface GetChatParticipants
       extends GetEndpoint<
         Targets.GetChatParticipants,
@@ -370,6 +383,24 @@ namespace ChatsModel {
         DTO.ChatParams
       > {}
 
+    export interface SendInviteToTargets
+      extends Endpoint<
+        EndpointMethods.Post,
+        Targets.SendInviteToTargets,
+        undefined,
+        DTO.SendInviteToTarget[],
+        DTO.ChatParams
+      > {}
+
+    export interface SetTyping
+      extends Endpoint<
+        EndpointMethods.Put,
+        Targets.SetTyping,
+        undefined,
+        {state?: boolean},
+        DTO.ChatParams
+      > {}
+
     export interface Registry extends EndpointRegistry {
       [EndpointMethods.Get]: {
         [Targets.GetSessionChats]: GetChats;
@@ -386,10 +417,12 @@ namespace ChatsModel {
         [Targets.LeaveChat]: LeaveChat;
         [Targets.TransferOwnership]: TransferOwnership;
         [Targets.MuteParticipant]: MuteParticipant;
+        [Targets.SendInviteToTargets]: SendInviteToTargets;
       };
       [EndpointMethods.Put]: {
         [Targets.CreateChat]: CreateChat;
         [Targets.CreateMessage]: CreateMessage;
+        [Targets.SetTyping]: SetTyping;
       };
       [EndpointMethods.Patch]: {
         [Targets.UpdateChatInfo]: UpdateChatInfo;
@@ -426,7 +459,7 @@ namespace ChatsModel {
     export interface NewMessageEvent
       extends SseModel.Models.Event<Models.IChatMessage, Events.NewMessage> {}
     export interface NewChatEvent
-      extends SseModel.Models.Event<{chatId: number}, Events.NewChat> {}
+      extends SseModel.Models.Event<{ chatId: number }, Events.NewChat> {}
     export interface UpdateParticipantEvent
       extends SseModel.Models.Event<
         (AddParticipant | UpdateParticipant | RemoveParticipant) & {

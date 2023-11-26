@@ -61,7 +61,7 @@ export default function ChatBubble({
       ) : (
         <Stack
           direction={isSent ? 'row-reverse' : 'row'}
-          spacing={2}
+          spacing={1}
           sx={
             features.next
               ? {
@@ -76,6 +76,7 @@ export default function ChatBubble({
               src={user.avatar}
               hide={features.prev}
               muted={isMuted}
+              size="md"
             />
           )}
 
@@ -84,7 +85,9 @@ export default function ChatBubble({
               direction="row"
               justifyContent={isSent ? 'flex-end' : 'flex-start'}
               spacing={2}
-              sx={{ mb: 0.25 }}
+              mb={0.25}
+              pr={0.25}
+              width="100%"
             >
               {!isSent && !features.prev && (
                 <Typography level="body-xs">{user.nickname}</Typography>
@@ -98,7 +101,7 @@ export default function ChatBubble({
                   placement="top"
                   arrow
                 >
-                  <Typography level="body-xs">
+                  <Typography level="body-xs" ml="auto !important">
                     {moment(createdAt).fromNow(true)}
                   </Typography>
                 </Tooltip>

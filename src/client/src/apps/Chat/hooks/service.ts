@@ -17,14 +17,14 @@ const useMessagesService = () => {
         chatsState.selectedChatId
       );
       if (chatIdx === -1) return;
+      if (selectedChatId !== data.chatId)
+        ctx.set(chatsState.selfParticipantByChat(data.chatId), (prev) => ({
+          ...prev,
+          toReadPings: prev.toReadPings + 1,
+        }));
       ctx.set(chatsState.messages(data.chatId), (prev) => {
         if (prev.some((message) => message.id === data.id)) return prev;
         const messages = [data, ...prev];
-        if (selectedChatId !== data.chatId)
-          ctx.set(chatsState.selfParticipantByChat(data.chatId), (prev) => ({
-            ...prev,
-            toReadPings: prev.toReadPings + 1,
-          }));
         return messages;
       });
     },

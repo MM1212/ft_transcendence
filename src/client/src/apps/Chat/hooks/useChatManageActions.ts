@@ -1,14 +1,12 @@
 import { useModalActions } from '@hooks/useModal';
-import {
-  useRecoilCallback,
-} from 'recoil';
+import { useRecoilCallback } from 'recoil';
 import chatsState from '../state';
 import ChatsModel from '@typings/models/chat';
 import UsersModel from '@typings/models/users';
 import notifications from '@lib/notifications/hooks';
 import tunnel from '@lib/tunnel';
 import { useConfirmationModalActions } from '@apps/Modals/Confirmation/hooks';
-
+import { useChatSelectModalActions } from '../modals/ChatSelectModal/hooks/useChatSelectModal';
 
 const useChatManageActions = () => {
   const useModal = () => {
@@ -19,6 +17,7 @@ const useChatManageActions = () => {
     return { open, close };
   };
   const { confirm } = useConfirmationModalActions();
+  const { select } = useChatSelectModalActions();
 
   const toggleAdmin = useRecoilCallback(
     (ctx) => async (pId: number, is: boolean) => {
@@ -280,6 +279,35 @@ const useChatManageActions = () => {
     [confirm]
   );
 
+  const sendInviteFromGroup = useRecoilCallback(
+    (ctx) => async () => {
+      try {
+        const chatId = await ctx.snapshot.getPromise(chatsState.selectedChatId);
+        if (chatId === -1)
+          throw new Error('You must select a chat before inviting a user');
+        const selected = await select({
+          multiple: true,
+          body: ` Select chats to send an invite to.`,
+          exclude: [{ type: 'chat', id: chatId }],
+        });
+        if (!selected) return;
+        await tunnel.post(
+          ChatsModel.Endpoints.Targets.SendInviteToTargets,
+          selected,
+          {
+            chatId,
+          }
+        );
+        notifications.success('Invites sent!');
+      } catch (e) {
+        notifications.error('Failed to send invites', (e as Error).message);
+      }
+    },
+    [select]
+  );
+
+  
+
   return {
     useModal,
     toggleAdmin,
@@ -292,6 +320,7 @@ const useChatManageActions = () => {
     transferOwnership,
     openMuteModal,
     nuke,
+    sendInviteFromGroup,
   };
 };
 

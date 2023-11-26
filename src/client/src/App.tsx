@@ -8,6 +8,7 @@ import UpdateUserModal from '@apps/Profile/components/UpdateUserModal';
 import React, { memo } from 'react';
 import ImagePreviewView from '@apps/ImagePreview/views';
 import ConfirmationModalView from '@apps/Modals/Confirmation/views';
+import ChatSelectModal from '@apps/Chat/modals/ChatSelectModal';
 
 const MainRoute = memo(() => {
   return React.useMemo(
@@ -43,6 +44,7 @@ function App() {
           <UpdateUserModal />
           <ImagePreviewView />
           <ConfirmationModalView />
+          <ChatSelectModal />
         </AuthRoute>
       </Switch>
     </div>

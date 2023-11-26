@@ -20,6 +20,7 @@ export class Chats {
       ...participant,
       createdAt: participant.createdAt.getTime(),
       mutedUntil: participant.mutedUntil?.getTime() ?? null,
+      typing: false
     };
   }
   public formatChat<T extends ChatModel.DTO.DB.Chat | null>(

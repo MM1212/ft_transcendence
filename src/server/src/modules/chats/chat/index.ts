@@ -3,8 +3,14 @@ import ChatsModel from '@typings/models/chat';
 import { ChatDependencies } from './dependencies';
 import { GroupEnumValues } from '@typings/utils';
 import User from '@/modules/users/user';
-import { ForbiddenException, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  HttpException,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { isDeepStrictEqual } from 'util';
+import { ChatsService } from '../chats.service';
 
 class Participant extends CacheObserver<ChatsModel.Models.IChatParticipant> {
   constructor(
@@ -47,7 +53,7 @@ class Participant extends CacheObserver<ChatsModel.Models.IChatParticipant> {
   public isAdmin(): boolean {
     return this.role === ChatsModel.Models.ChatParticipantRole.Admin;
   }
-  public isOP(): boolean {
+  public isOperator(): boolean {
     return this.isOwner() || this.isAdmin();
   }
   public isBanned(): boolean {
@@ -74,6 +80,34 @@ class Participant extends CacheObserver<ChatsModel.Models.IChatParticipant> {
   public get createdAt(): number {
     return this.get('createdAt');
   }
+
+  public get typing(): boolean {
+    return this.get('typing');
+  }
+  private typingTick: NodeJS.Timeout | null = null;
+  public set typing(value: boolean) {
+    if (this.typingTick) clearTimeout(this.typingTick);
+    this.set('typing', value);
+    if (value) {
+      this.typingTick = setTimeout(() => {
+        this.set('typing', false);
+        this.typingTick = null;
+        this.chat.helpers.sseService.emitToTargets<ChatsModel.Sse.UpdateParticipantEvent>(
+          ChatsModel.Sse.Events.UpdateParticipant,
+          this.userId,
+          this.chat.sseTargets,
+          {
+            type: 'update',
+            participantId: this.id,
+            chatId: this.chat.id,
+            participant: {
+              typing: false,
+            },
+          },
+        );
+      }, 6000);
+    }
+  }
 }
 
 interface IChat extends Omit<ChatsModel.Models.IChat, 'participants'> {
@@ -93,6 +127,9 @@ class Chat extends CacheObserver<IChat> {
       'participants',
       data.participants.map((p) => new Participant(p, this)),
     );
+  }
+  public get service(): ChatsService {
+    return this.helpers.service;
   }
   public get public(): ChatsModel.Models.IChatInfo {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -144,7 +181,7 @@ class Chat extends CacheObserver<IChat> {
   public get isPrivate(): boolean {
     return this.authorization === ChatsModel.Models.ChatAccess.Private;
   }
-  private get sseTargets(): number[] {
+  public get sseTargets(): number[] {
     return this.participants.map((p) => p.userId);
   }
 
@@ -229,7 +266,7 @@ class Chat extends CacheObserver<IChat> {
     if (op instanceof User) {
       const participantOp = this.getParticipantByUserId(op.id);
       if (!participantOp) throw new ForbiddenException();
-      if (!participantOp.isOP())
+      if (!participantOp.isOperator())
         throw new ForbiddenException('Insufficient permissions');
       if (participant.isAdmin() && !participantOp.isOwner())
         throw new ForbiddenException('Insufficient permissions');
@@ -295,6 +332,7 @@ class Chat extends CacheObserver<IChat> {
   public async addMessage(
     author: User,
     data: ChatsModel.DTO.NewMessage,
+    sendToAuthor: boolean = false,
   ): Promise<ChatsModel.Models.IChatMessage> {
     const participant = this.getParticipantByUserId(author.id);
     if (!participant || !participant.isMember()) throw new ForbiddenException();
@@ -352,25 +390,32 @@ class Chat extends CacheObserver<IChat> {
       this.set('messages', (prev) =>
         prev.slice(0, ChatsModel.Models.MAX_MESSAGES_PER_CHAT),
       );
-    this.helpers.sseService.emitToTargets<ChatsModel.Sse.NewMessageEvent>(
-      ChatsModel.Sse.Events.NewMessage,
-      author.id,
-      this.sseTargets,
-      result,
-    );
+    if (sendToAuthor)
+      this.helpers.sseService.emitToTargets<ChatsModel.Sse.NewMessageEvent>(
+        ChatsModel.Sse.Events.NewMessage,
+        this.sseTargets,
+        result,
+      );
+    else
+      this.helpers.sseService.emitToTargets<ChatsModel.Sse.NewMessageEvent>(
+        ChatsModel.Sse.Events.NewMessage,
+        author.id,
+        this.sseTargets,
+        result,
+      );
     return result;
   }
 
   public async updateParticipant(
     op: User,
     participantId: number,
-    data: ChatsModel.DTO.UpdateParticipant,
+    data: Partial<ChatsModel.DTO.UpdateParticipant>,
   ): Promise<Participant> {
     const participant = this.getParticipant(participantId, true);
     if (!participant) throw new ForbiddenException();
     const participantOp = this.getParticipantByUserId(op.id);
     if (!participantOp) throw new ForbiddenException();
-    if (!participantOp.isOP() && participant.userId !== op.id)
+    if (!participantOp.isOperator() && participant.userId !== op.id)
       throw new ForbiddenException();
     const participantData = (Object.keys(data) as (keyof typeof data)[]).reduce(
       (prev, key) => ({ ...prev, [key]: participant.get(key) }),
@@ -407,7 +452,7 @@ class Chat extends CacheObserver<IChat> {
     if (participant.isBanned() === banned) return;
     const participantOp = this.getParticipantByUserId(op.id);
     if (!participantOp) throw new ForbiddenException();
-    if (!participantOp.isOP())
+    if (!participantOp.isOperator())
       throw new ForbiddenException('Insufficient permissions');
     if (participant.isAdmin() && !participantOp.isOwner())
       throw new ForbiddenException('Insufficient permissions');
@@ -499,7 +544,7 @@ class Chat extends CacheObserver<IChat> {
     if (!participant) throw new NotFoundException();
     const participantOp = this.getParticipantByUserId(op.id);
     if (!participantOp) throw new ForbiddenException();
-    if (!participantOp.isOP())
+    if (!participantOp.isOperator())
       throw new ForbiddenException('Insufficient permissions');
     if (participant.isAdmin() && !participantOp.isOwner())
       throw new ForbiddenException('Insufficient permissions');
@@ -549,6 +594,78 @@ class Chat extends CacheObserver<IChat> {
           banned: false,
         },
       ),
+    );
+  }
+
+  public async sendInviteToTargets(
+    op: User,
+    _targets: ChatsModel.DTO.SendInviteToTarget[],
+  ): Promise<void> {
+    if (!this.isGroup) throw new ForbiddenException();
+    const participant = this.getParticipantByUserId(op.id);
+    if (!participant) throw new ForbiddenException();
+    if (!this.isPublic && !participant.isOperator())
+      throw new ForbiddenException('Insufficient permissions');
+    const targets: (User | Chat | null)[] = await Promise.all(
+      _targets.map(async (t) => {
+        switch (t.type) {
+          case 'chat':
+            return await this.service.get(t.id);
+          case 'user':
+            return await this.helpers.usersService.get(t.id);
+          default:
+            return null;
+        }
+      }),
+    );
+    if (targets.includes(null)) throw new ForbiddenException('Invalid targets');
+    try {
+      const chats = await Promise.all(
+        targets.map(async (t) => {
+          if (t instanceof Chat) return t;
+          const user = t as User;
+          const [, chat] = await this.service.checkOrCreateDirectChat(op, user);
+          return chat as Chat;
+        }),
+      );
+      await Promise.all(
+        chats.map((chat) => {
+          return chat.addMessage(
+            op,
+            {
+              message: `Invite to ${this.name}`,
+              type: ChatsModel.Models.ChatMessageType.Embed,
+              meta: {
+                type: ChatsModel.Models.Embeds.Type.ChatInvite,
+                chatId: this.id,
+              },
+            },
+            true,
+          );
+        }),
+      );
+    } catch (e) {
+      if (e instanceof HttpException) throw e;
+      throw new InternalServerErrorException('Failed to send invites');
+    }
+  }
+  public async setTyping(user: User, state: boolean): Promise<void> {
+    const participant = this.getParticipantByUserId(user.id);
+    if (!participant) throw new ForbiddenException();
+    if (!participant.isMember()) throw new ForbiddenException();
+    participant.typing = state;
+    this.helpers.sseService.emitToTargets<ChatsModel.Sse.UpdateParticipantEvent>(
+      ChatsModel.Sse.Events.UpdateParticipant,
+      user.id,
+      this.sseTargets,
+      {
+        type: 'update',
+        participantId: participant.id,
+        chatId: this.id,
+        participant: {
+          typing: state,
+        },
+      },
     );
   }
 }

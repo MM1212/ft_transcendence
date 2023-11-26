@@ -38,7 +38,6 @@ function ChatListContent({ id }: { id: number }): JSX.Element {
             status={status}
             src={photo ?? undefined}
             size="lg"
-            inset=".5rem"
           />
         ) : (
           <Avatar src={photo ?? undefined} size="lg" />

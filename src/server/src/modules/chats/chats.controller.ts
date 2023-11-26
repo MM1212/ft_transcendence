@@ -6,6 +6,8 @@ import {
   InternalServerErrorException,
   NotFoundException,
   Param,
+  ParseArrayPipe,
+  ParseBoolPipe,
   ParseIntPipe,
   Patch,
   Post,
@@ -235,6 +237,29 @@ export class ChatsController {
   ): Promise<InternalEndpointResponse<ChatsModel.Endpoints.DeleteChat>> {
     await this.service.nukeChat(chat.id, op);
   }
+
+  @Post(Targets.SendInviteToTargets)
+  @ChatAuth()
+  async sendInviteToTargets(
+    @ChatCtx() chat: Chat,
+    @Body(new ParseArrayPipe({ errorHttpStatusCode: 400 }))
+    targets: ChatsModel.DTO.SendInviteToTarget[],
+    @HttpCtx() { user: op }: HTTPContext<true>,
+  ): Promise<
+    InternalEndpointResponse<ChatsModel.Endpoints.SendInviteToTargets>
+  > {
+    await chat.sendInviteToTargets(op, targets);
+  }
+
+  @Put(Targets.SetTyping)
+  @ChatAuth()
+  async setTyping(
+    @ChatCtx() chat: Chat,
+    @Body('state', new ParseBoolPipe({ errorHttpStatusCode: 400, optional: true })) state: boolean = true,
+    @HttpCtx() { user }: HTTPContext<true>,
+  ): Promise<InternalEndpointResponse<ChatsModel.Endpoints.SetTyping>> {
+    await chat.setTyping(user, state);
+  }
 }
 // @Patch(Targets.UpdateMessage)
 // @ChatAuth()
@@ -247,16 +272,6 @@ export class ChatsController {
 //   const [ok, resp] = await chat.updateMessage(messageId, data);
 //   if (!ok) return buildErrorResponse(resp);
 //   return (resp);
-// }
-
-// @Delete(Targets.DeleteChat)
-// @ChatAuth(ChatsModel.Models.ChatParticipantRole.Owner)
-// async delete(
-//   @ChatCtx() chat: Chat,
-// ): Promise<InternalEndpointResponse<ChatsModel.Endpoints.DeleteChat>> {
-//   const ok = await chat.delete();
-//   if (!ok) return buildErrorResponse('Failed to delete chat');
-//   return buildEmptyResponse();
 // }
 
 // @Delete(Targets.DeleteMessage)

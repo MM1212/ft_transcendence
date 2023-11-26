@@ -144,8 +144,6 @@ function UsersAutocomplete({
           type: 'friends',
           data: option,
         });
-    console.log(data);
-
     return [...data.values()];
   }, [searchCache, selectedCache, friends]);
 

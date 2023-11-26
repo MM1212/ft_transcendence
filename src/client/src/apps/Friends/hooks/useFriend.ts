@@ -7,6 +7,8 @@ import { useRecoilCallback } from 'recoil';
 import useLocation from 'wouter/use-location';
 import { useBlocked, useFriends } from '.';
 import React from 'react';
+import chatsState from '@apps/Chat/state';
+import { useChatSelectModalActions } from '@apps/Chat/modals/ChatSelectModal/hooks/useChatSelectModal';
 
 const useFriend = (friendId: number) => {
   const [, navigate] = useLocation();
@@ -99,6 +101,40 @@ const useFriend = (friendId: number) => {
     const friends = useFriends();
     return React.useMemo(() => friends.includes(friendId), [friends]);
   };
+
+  const { select } = useChatSelectModalActions();
+  const sendInviteFromDM = useRecoilCallback(
+    (ctx) => async () => {
+      try {
+        const chatId = await ctx.snapshot.getPromise(chatsState.selectedChatId);
+        if (chatId === -1)
+          throw new Error('You must select a chat before inviting a user');
+        const [chatData] = await select({
+          multiple: false,
+          includeDMs: false,
+          body: ` Select a chat to send an invite to.`,
+        });
+        if (!chatData) return;
+        await tunnel.post(
+          ChatsModel.Endpoints.Targets.SendInviteToTargets,
+          [
+            {
+              type: 'chat',
+              id: chatId,
+            },
+          ],
+          {
+            chatId: chatData.id,
+          }
+        );
+        notifications.success('Invites sent!');
+      } catch (e) {
+        notifications.error('Failed to send invites', (e as Error).message);
+      }
+    },
+    [select]
+  );
+
   return {
     remove,
     block,
@@ -107,6 +143,7 @@ const useFriend = (friendId: number) => {
     goToProfile,
     useIsBlocked,
     useIsFriend,
+    sendInviteFromDM,
   };
 };
 

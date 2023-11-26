@@ -230,6 +230,23 @@ const chatsState = new (class MessagesState {
         return blocked.includes(other.userId);
       },
   });
+  participantsWithNameTyping = selectorFamily<string, number>({
+    key: 'chatParticipantsWithNameTyping',
+    get:
+      (id) =>
+      ({ get }) => {
+        const chat = get(this.chat(id));
+        const self = get(sessionAtom);
+        const others = chat.participants.filter(
+          (p) => p.userId !== self?.id && p.typing
+        );
+        if (others.length === 0) return '';
+        const users = get(waitForAll(others.map((p) => usersAtom(p.userId))));
+        const names = users.map((u) => u?.nickname ?? 'Unknown').join(', ');
+
+        return `${names} ${others.length === 1 ? 'is' : 'are'} typing`;
+      },
+  });
   unreadPings = selector<number>({
     key: 'chatUnreadPings',
     get: ({ get }) => {
@@ -333,33 +350,41 @@ const chatsState = new (class MessagesState {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { messages, participants, authorizationData, ...info } = chat;
         const self = get(sessionAtom);
+        (info as ISelectedChatInfo).lastMessage = chat.messages[0] ?? null;
         if (info.type === ChatsModel.Models.ChatType.Direct) {
-          const otherId = participants.find((p) => p?.userId !== self?.id);
-          if (!otherId)
+          const otherParticipant = participants.find(
+            (p) => p?.userId !== self?.id
+          );
+          if (!otherParticipant)
             throw new Error('Direct chat without other participant');
-          const other = get(usersAtom(otherId.userId))!;
+          const other = get(usersAtom(otherParticipant.userId))!;
           info.name = other.nickname ?? 'Unknown';
           info.photo = other.avatar ?? null;
           (info as ISelectedChatInfo).status =
             other.status ?? UsersModel.Models.Status.Offline;
+          if (
+            chat.messages[0] &&
+            chat.messages[0].authorId !== otherParticipant.id
+          )
+            (info as ISelectedChatInfo).lastMessageAuthorName = 'You';
         } else {
-          // (info as ISelectedChatInfo).participantNames = users
-          //   .filter((u) => u?.id !== self?.id)
-          //   .map((p) => p?.nickname)
-          //   .join(', ');
-          const lastMessageParticipant = participants.find(
-            (p) => p.id === chat.messages[0]?.authorId
-          );
-          if (!lastMessageParticipant)
-            throw new Error('Message without author participant');
-          const lastMessageUser = get(usersAtom(lastMessageParticipant.userId));
+          (info as ISelectedChatInfo).participantCount = participants.length;
+          if (chat.messages[0]) {
+            const lastMessageParticipant = participants.find(
+              (p) => p.id === chat.messages[0]?.authorId
+            );
+            if (!lastMessageParticipant)
+              throw new Error('Message without author participant');
+            const lastMessageUser = get(
+              usersAtom(lastMessageParticipant.userId)
+            );
 
-          (info as ISelectedChatInfo).lastMessageAuthorName =
-            lastMessageUser?.id === self?.id
-              ? 'You'
-              : lastMessageUser?.nickname ?? 'Unknown';
+            (info as ISelectedChatInfo).lastMessageAuthorName =
+              lastMessageUser?.id === self?.id
+                ? 'You'
+                : lastMessageUser?.nickname ?? 'Unknown';
+          }
         }
-        (info as ISelectedChatInfo).lastMessage = chat.messages[0] ?? null;
         return info as ISelectedChatInfo;
       },
   });
@@ -369,6 +394,7 @@ const chatsState = new (class MessagesState {
       (id) =>
       ({ get }) => {
         const chat = get(this.chat(id));
+        if (chat.type !== ChatsModel.Models.ChatType.Group) return '';
         const self = get(sessionAtom);
         const first4 = chat.participants
           .filter((p) => p.userId !== self?.id)
@@ -410,12 +436,16 @@ const chatsState = new (class MessagesState {
     key: 'chatsInput',
     default: '',
   });
-
 })();
-interface ISelectedChatInfo extends ChatsModel.Models.IChatInfo {
+interface ISelectedChatInfo
+  extends Omit<
+    ChatsModel.Models.IChatInfo,
+    'messages' | 'participants' | 'authorizationData'
+  > {
   status: UsersModel.Models.Status;
   lastMessage: ChatsModel.Models.IChatMessage | null;
   lastMessageAuthorName: string;
+  participantCount: number;
 }
 
 interface IMessageInteraction {

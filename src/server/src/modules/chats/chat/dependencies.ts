@@ -8,4 +8,5 @@ export class ChatDependencies {
   @Inject(DbService) readonly db: DbService;
   @Inject(SseService) readonly sseService: SseService;
   @Inject(UsersService) readonly usersService: UsersService;
+  readonly service: any;
 }

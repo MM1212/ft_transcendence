@@ -55,6 +55,8 @@ const useChat = (chatId: number) => {
     const self = useSelfParticipant();
     return useIsParticipantMutedComputed(self.id);
   };
+  const useParticipantNamesTyping = () =>
+    useRecoilValue(chatsState.participantsWithNameTyping(chatId))
 
   return {
     id: chatId,
@@ -76,6 +78,7 @@ const useChat = (chatId: number) => {
     useIsParticipantMutedComputed,
     useIsSelfMutedComputed,
     goTo,
+    useParticipantNamesTyping
   };
 };
 

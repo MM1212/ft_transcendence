@@ -1,15 +1,19 @@
 import Avatar from '@mui/joy/Avatar';
 import Stack from '@mui/joy/Stack';
 import Typography from '@mui/joy/Typography';
-import AvatarWithStatus from '@components/AvatarWithStatus';
+import { UserAvatar } from '@components/AvatarWithStatus';
 import ChatsModel from '@typings/models/chat';
 import ChatManageMenu from './ChatManage';
-import { Tooltip } from '@mui/joy';
+import { Badge, Tooltip } from '@mui/joy';
 import { useSelectedChat } from '../hooks/useChat';
+import LockIcon from '@components/icons/LockIcon';
+import CircleIcon from '@components/icons/CircleIcon';
+import { userStatusToColor, userStatusToString } from '@utils/userStatus';
+import AccountGroupIcon from '@components/icons/AccountGroupIcon';
 
 export default function MessagesPaneHeader() {
   const { useHeaderNames, useInfo } = useSelectedChat();
-  const { name, photo, status, type, id, topic } = useInfo();
+  const { name, photo, status, type, id, topic, authorization } = useInfo();
   const participantNames = useHeaderNames();
   return (
     <Stack
@@ -26,15 +30,22 @@ export default function MessagesPaneHeader() {
     >
       <Stack direction="row" spacing={{ xs: 1, md: 1 }} alignItems="center">
         {type === ChatsModel.Models.ChatType.Direct ? (
-          <AvatarWithStatus
-            status={status}
-            src={photo ?? undefined}
-            size="lg"
-            inset=".4rem"
-          />
+          <UserAvatar src={photo ?? undefined} size="lg" />
         ) : (
-          <Avatar src={photo ?? undefined} size="lg" />
-        )}{' '}
+          <Badge
+            badgeContent={<LockIcon size="xs" />}
+            color="warning"
+            badgeInset="14%"
+            size="sm"
+            variant="plain"
+            anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+            invisible={authorization !== ChatsModel.Models.ChatAccess.Private}
+          >
+            <Avatar src={photo ?? undefined} size="lg">
+              <AccountGroupIcon />
+            </Avatar>
+          </Badge>
+        )}
         <Stack>
           <Stack direction="row" alignItems="center" spacing={1}>
             <Typography fontWeight="lg" fontSize="lg" component="h2" noWrap>
@@ -48,16 +59,30 @@ export default function MessagesPaneHeader() {
               </Tooltip>
             )}
           </Stack>
-          {participantNames && (
-            <Typography
-              fontSize="sm"
-              color="neutral"
-              sx={{
-                display: { xs: 'none', sm: 'block' },
-              }}
-            >
-              {participantNames}
-            </Typography>
+          {type === ChatsModel.Models.ChatType.Direct ? (
+            <Stack direction="row" spacing={0.5} alignItems="center">
+              <CircleIcon
+                size="xxs"
+                sx={{
+                  color: (theme) => theme.getCssVar(userStatusToColor(status)),
+                }}
+              />
+              <Typography level="body-xs">
+                {userStatusToString(status)}
+              </Typography>
+            </Stack>
+          ) : (
+            participantNames && (
+              <Typography
+                fontSize="sm"
+                color="neutral"
+                sx={{
+                  display: { xs: 'none', sm: 'block' },
+                }}
+              >
+                {participantNames}
+              </Typography>
+            )
           )}
         </Stack>
       </Stack>

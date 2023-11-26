@@ -18,6 +18,7 @@ import FileDocumentEditIcon from '@components/icons/FileDocumentEditIcon';
 import useChatManageActions from '../hooks/useChatManageActions';
 import MenuOption from '@components/menu/MenuOption';
 import NukeIcon from '@components/icons/NukeIcon';
+import AccountMultiplePlusIcon from '@components/icons/AccountMultiplePlusIcon';
 
 function DirectOptions({ self }: { self: ChatsModel.Models.IChatParticipant }) {
   const participants = useSelectedChat().useParticipants();
@@ -29,7 +30,8 @@ function DirectOptions({ self }: { self: ChatsModel.Models.IChatParticipant }) {
     const isBlocked = blocked.includes(other?.userId ?? -1);
     return [!!isFriend, isBlocked, other?.userId ?? -1];
   }, [blocked, friends, participants, self.id]);
-  const { remove, block, unblock, goToProfile } = useFriend(friendId);
+  const { remove, block, unblock, goToProfile, sendInviteFromDM } =
+    useFriend(friendId);
   const [, navigate] = useLocation();
   const hookAction = React.useCallback(
     (action: () => void | Promise<void>, leave: boolean = false) =>
@@ -43,6 +45,9 @@ function DirectOptions({ self }: { self: ChatsModel.Models.IChatParticipant }) {
     <>
       <MenuOption icon={AccountIcon} onClick={goToProfile}>
         Go to Profile
+      </MenuOption>
+      <MenuOption icon={AccountMultiplePlusIcon} onClick={sendInviteFromDM}>
+        Invite to Group
       </MenuOption>
       {isFriend ? (
         <MenuOption
@@ -70,16 +75,26 @@ function DirectOptions({ self }: { self: ChatsModel.Models.IChatParticipant }) {
 
 function GroupOptions({
   self,
+  isPublic,
 }: {
   self: ChatsModel.Models.IChatParticipant;
+  isPublic: boolean;
 }): JSX.Element {
   const isOwner = self.role === ChatsModel.Models.ChatParticipantRole.Owner;
   const isAdmin =
     self.role === ChatsModel.Models.ChatParticipantRole.Admin || isOwner;
-  const { useModal, leave, nuke } = useChatManageActions();
+  const { useModal, leave, nuke, sendInviteFromGroup } = useChatManageActions();
   const { open } = useModal();
   return (
     <>
+      {(isPublic || isAdmin) && (
+        <MenuOption
+          icon={AccountMultiplePlusIcon}
+          onClick={sendInviteFromGroup}
+        >
+          Send Invite Link
+        </MenuOption>
+      )}
       {isAdmin ? (
         <>
           <MenuOption icon={FileDocumentEditIcon}>Edit</MenuOption>
@@ -120,9 +135,9 @@ const ButtonIcon = React.memo(() => (
 ));
 
 export default function ChatManageMenu() {
-  const { useSelfParticipant, useType } = useSelectedChat();
+  const { useSelfParticipant, useSelf } = useSelectedChat();
   const self = useSelfParticipant();
-  const type = useType();
+  const { type, authorization } = useSelf();
   return React.useMemo(
     () => (
       <Dropdown>
@@ -133,12 +148,15 @@ export default function ChatManageMenu() {
               <DirectOptions self={self} />
             )}
             {type === ChatsModel.Models.ChatType.Group && (
-              <GroupOptions self={self} />
+              <GroupOptions
+                self={self}
+                isPublic={authorization === ChatsModel.Models.ChatAccess.Public}
+              />
             )}
           </React.Suspense>
         </Menu>
       </Dropdown>
     ),
-    [self, type]
+    [authorization, self, type]
   );
 }

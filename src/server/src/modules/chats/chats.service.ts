@@ -10,7 +10,10 @@ import { ChatModel } from '@typings/api';
 @Injectable()
 export class ChatsService {
   private readonly chats: Map<number, Chat> = new Map();
-  constructor(private readonly deps: ChatDependencies) {}
+  constructor(private readonly deps: ChatDependencies) {
+    // @ts-expect-error - circular dependency
+    this.deps.service = this;
+  }
 
   private get db(): DbService {
     return this.deps.db;
