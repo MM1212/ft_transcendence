@@ -71,12 +71,12 @@ export default function setupLogger(): FastifyBaseLogger {
             try {
               if (timestamp === new Date(timestamp).toISOString()) {
                 timestamp = new Date(timestamp).toLocaleString(undefined, {
-                  month: '2-digit',
-                  day: '2-digit',
+                  month: 'numeric',
+                  day: 'numeric',
                   year: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  second: '2-digit',
+                  hour: 'numeric',
+                  minute: 'numeric',
+                  second: 'numeric',
                 });
               }
             } catch (error) {
@@ -95,18 +95,17 @@ export default function setupLogger(): FastifyBaseLogger {
           });
 
           return (
-            `${color(`[App]`)} ` +
-            `${yellow(level.charAt(0).toUpperCase() + level.slice(1))}\t` +
-            ('undefined' !== typeof timestamp ? `${timestamp} ` : '') +
-            ('undefined' !== typeof context
-              ? `${yellow('[' + context + ']')} `
-              : '') +
-            `${prefix ?? ''} ` +
+            `${color(`[Nest]`)} ` +
+            color(`${process.pid.toString()}  - `) +
+            (timestamp !== undefined ? `${timestamp} ` : '') +
+            `${color(level.toUpperCase().padStart(7))} ` +
+            `${yellow('[' + (context ?? 'App') + ']')}` +
+            (prefix ? `${prefix} ` : ' ') +
             `${color(message)}` +
             (formattedMeta && formattedMeta !== '{}'
               ? ` - ${formattedMeta}`
               : '') +
-            ('undefined' !== typeof ms ? ` ${yellow(ms)}` : '')
+            (ms !== undefined ? ` ${yellow(ms)}` : '')
           );
         },
       ),

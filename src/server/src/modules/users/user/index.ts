@@ -111,8 +111,10 @@ class User extends CacheObserver<UsersModel.Models.IUser> {
       (acc, key) => ({ ...acc, [key]: this.get(key) }),
       {} as Partial<UsersModel.Models.IUserInfo>,
     );
-    this.helpers.sseService.emitToAll<UsersModel.Sse.UserUpdatedEvent>(
+
+    this.helpers.sseService.emitWithTarget<UsersModel.Sse.UserUpdatedEvent>(
       UsersModel.Sse.Events.UserUpdated,
+      this.id,
       { id: this.id, ...data },
     );
   }

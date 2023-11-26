@@ -1,4 +1,4 @@
-import { Inject, Injectable, forwardRef } from '@nestjs/common';
+import { Inject, Injectable, Logger, forwardRef } from '@nestjs/common';
 import { UserDependencies } from './user/dependencies';
 import User from './user';
 import { DbService } from '../db';
@@ -8,6 +8,7 @@ import { HttpError } from '@/helpers/decorators/httpError';
 
 @Injectable()
 export class UsersService {
+  private readonly logger = new Logger(UsersService.name);
   private readonly users: Map<number, User> = new Map();
   private readonly studentIds: Map<number, number> = new Map();
   constructor(
@@ -17,20 +18,17 @@ export class UsersService {
 
   @OnEvent('sse.connected')
   private async onSseConnected(userId: number) {
-    console.log('User connected', userId);
-
     const user = await this.get(userId);
-    if (!user || !user.isOffline) return;
+    if (!user) return;
+    this.logger.log(`User ${user.nickname}[${user.id}] connected`);
     user.set('status', user.get('storedStatus'));
-    console.log(user.public);
-
     user.propagate('status');
   }
   @OnEvent('sse.disconnected')
   private async onSseDisconnected(userId: number) {
-    console.log('User disconnected', userId);
     const user = await this.get(userId);
     if (!user) return;
+    this.logger.log(`User ${user.nickname}[${user.id}] disconnected`);
     user.set('status', UsersModel.Models.Status.Offline);
     user.propagate('status');
   }
