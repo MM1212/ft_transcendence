@@ -30,23 +30,26 @@ const isAnyModalOpenedSelector = selector({
   },
 });
 
+export type ModalOpenProps<T> = Omit<ModalState<T>, 'dismissable'> & {
+  dismissable?: boolean;
+};
+
 export const useModalActions = <T>(id: string) => {
   const open = useRecoilCallback(
-    (ctx) =>
-      (
-        data?: Omit<ModalState<T>, 'dismissable'> & {
-          dismissable?: boolean;
-        }
-      ) => {
-        if (data) {
-          ctx.set(modalsDataAtom(id), {
-            dismissable: data.dismissable ?? true,
-            ...data,
-          } as ModalState<T>);
-        }
-        ctx.set(modalsAtom(id), true);
-        ctx.set(modalsRegistryAtom, (ids) => [...ids, id]);
-      },
+    (ctx) => (data?: ModalOpenProps<T> | null) => {
+      if (data) {
+        ctx.set(modalsDataAtom(id), {
+          dismissable: data.dismissable ?? true,
+          ...data,
+        } as ModalState<T>);
+      }
+      const { contents: isOpened, state } = ctx.snapshot.getLoadable(
+        modalsAtom(id)
+      );
+      if (state === 'hasValue' && isOpened) return;
+      ctx.set(modalsAtom(id), true);
+      ctx.set(modalsRegistryAtom, (ids) => [...ids, id]);
+    },
     [id]
   );
   const close = useRecoilCallback(
@@ -57,6 +60,10 @@ export const useModalActions = <T>(id: string) => {
       ) => {
         const data = await ctx.snapshot.getPromise(modalsDataAtom(id));
         if (data?.dismissable === false && !!reason) return;
+        const { contents: isOpened, state } = ctx.snapshot.getLoadable(
+          modalsAtom(id)
+        );
+        if (state === 'hasValue' && !isOpened) return;
         ctx.set(modalsAtom(id), false);
         ctx.set(modalsRegistryAtom, (ids) => ids.filter((i) => i !== id));
       },
