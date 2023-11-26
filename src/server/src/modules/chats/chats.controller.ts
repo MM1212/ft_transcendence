@@ -93,7 +93,7 @@ export class ChatsController {
   async getPublicChats(): Promise<
     InternalEndpointResponse<ChatsModel.Endpoints.GetPublicChats>
   > {
-    return await this.service.publics;
+    return await this.service.getPublicChats();
   }
 
   @Put(Targets.CreateChat)

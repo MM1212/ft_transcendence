@@ -35,7 +35,7 @@ export class ChatsService {
   public getAll(): Chat[] {
     return [...this.chats.values()];
   }
-  public get publics(): Promise<ChatsModel.Models.IChatInfo[]> {
+  public getPublicChats(): Promise<ChatsModel.Models.IChatInfo[]> {
     return this.db.chats.getAllPublicChats();
   }
 

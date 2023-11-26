@@ -11,6 +11,7 @@ import ChatManageMuteModal from '../components/management/ChatManageMuteModal';
 import { navigate } from 'wouter/use-location';
 import { Typography } from '@mui/joy';
 import EmoticonSadIcon from '@components/icons/EmoticonSadIcon';
+import PublicChatsModalView from '../modals/PublicChatsModal';
 
 function _View(): JSX.Element {
   return (
@@ -67,6 +68,7 @@ function _View(): JSX.Element {
       <NewChatModal />
       <ChatMembersModal />
       <ChatManageMuteModal />
+      <PublicChatsModalView />
     </Sheet>
   );
 }

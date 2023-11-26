@@ -12,12 +12,14 @@ import ChatsModel from '@typings/models/chat';
 import {
   AutocompleteOption,
   Avatar,
+  Box,
   Button,
   Checkbox,
   CircularProgress,
   DialogActions,
   FormHelperText,
   Textarea,
+  Tooltip,
   textareaClasses,
 } from '@mui/joy';
 
@@ -42,6 +44,7 @@ import LockIcon from '@components/icons/LockIcon';
 import friendsState from '@apps/Friends/state';
 import { useDebounce } from '@hooks/lodash';
 import { UserAvatar } from '@components/AvatarWithStatus';
+import InformationVariantCircleIcon from '@components/icons/InformationVariantCircleIcon';
 
 function PasswordMeterInput({ value, onChange, disabled }: any) {
   const minLength = 12;
@@ -415,7 +418,21 @@ function _NewChatModal(): JSX.Element {
             </FormControl>
             <div>
               <FormControl>
-                <FormLabel>Group Access</FormLabel>
+                <Box display="flex" gap={1} mb={1}>
+                  <FormLabel
+                    style={{
+                      verticalAlign: 'middle',
+                      marginBottom: 0,
+                    }}
+                  >
+                    Group Access
+                  </FormLabel>
+                  <Tooltip title="A private group doesn't get displayed in the public chats dialog">
+                    <InformationVariantCircleIcon size="xs" style={{
+                      cursor: 'pointer'
+                    }} />
+                  </Tooltip>
+                </Box>
                 <Checkbox
                   disabled={loading}
                   label="Is Private"

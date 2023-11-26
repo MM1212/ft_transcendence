@@ -133,10 +133,10 @@ class Chat extends CacheObserver<IChat> {
   }
   public get public(): ChatsModel.Models.IChatInfo {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { messages, authorizationData, ...chat } = this.get();
+    const { messages, authorizationData, participants, ...chat } = this.get();
     return {
       ...chat,
-      participants: chat.participants.map((p: Participant) => p.public),
+      participantsCount: this.participants.length,
     } satisfies ChatsModel.Models.IChatInfo;
   }
   public get display(): ChatsModel.Models.IChatDisplay {

@@ -10,6 +10,8 @@ import chatsState from '@/apps/Chat/state';
 import { useModalActions } from '@hooks/useModal';
 import PlaylistEditIcon from '@components/icons/PlaylistEditIcon';
 import ChatsInput from './ChatsInput';
+import { usePublicChatsModalActions } from '../modals/PublicChatsModal/hooks/usePublicChatsModal';
+import ForumIcon from '@components/icons/ForumIcon';
 
 function ChatEntries() {
   const chatIds = useRecoilValue(chatsState.filteredChatIds);
@@ -24,6 +26,7 @@ function ChatEntries() {
 
 export default function ChatsPane() {
   const { open } = useModalActions('chat:new-chat');
+  const { open: openPublicChats } = usePublicChatsModalActions();
   const unreadPings = useRecoilValue(chatsState.unreadPings);
   return (
     <Sheet
@@ -64,18 +67,28 @@ export default function ChatsPane() {
           Messages
         </Typography>
 
-        <Tooltip title="New Group Chat" placement="left">
-          <IconButton
-            variant="plain"
-            aria-label="edit"
-            color="neutral"
-            size="sm"
-            sx={{ display: { xs: 'none', sm: 'unset' } }}
-            onClick={open}
-          >
-            <PlaylistEditIcon />
-          </IconButton>
-        </Tooltip>
+        <Box gap={0.5} display="flex" alignItems="center">
+          <Tooltip title="Public Chats" size="sm">
+            <IconButton
+              variant="plain"
+              color="neutral"
+              size="sm"
+              onClick={openPublicChats}
+            >
+              <ForumIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="New Group Chat" size="sm">
+            <IconButton
+              variant="plain"
+              color="neutral"
+              size="sm"
+              onClick={open}
+            >
+              <PlaylistEditIcon size="md" />
+            </IconButton>
+          </Tooltip>
+        </Box>
       </Stack>
       <Box sx={{ px: 2, pb: 1.5 }}>
         <ChatsInput />

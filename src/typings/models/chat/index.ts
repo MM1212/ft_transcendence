@@ -107,7 +107,9 @@ namespace ChatsModel {
     export interface IChatDisplay extends Omit<IChat, 'authorizationData'> {}
 
     export interface IChatInfo
-      extends Omit<IChat, 'messages' | 'authorizationData'> {}
+      extends Omit<IChat, 'messages' | 'authorizationData' | 'participants'> {
+      participantsCount: number;
+    }
   }
   export namespace DTO {
     export namespace DB {
@@ -397,7 +399,7 @@ namespace ChatsModel {
         EndpointMethods.Put,
         Targets.SetTyping,
         undefined,
-        {state?: boolean},
+        { state?: boolean },
         DTO.ChatParams
       > {}
 

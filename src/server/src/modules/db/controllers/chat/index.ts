@@ -20,7 +20,7 @@ export class Chats {
       ...participant,
       createdAt: participant.createdAt.getTime(),
       mutedUntil: participant.mutedUntil?.getTime() ?? null,
-      typing: false
+      typing: false,
     };
   }
   public formatChat<T extends ChatModel.DTO.DB.Chat | null>(
@@ -140,14 +140,21 @@ export class Chats {
     })) as unknown as ChatModel.Models.IChatParticipant[];
   }
   public async getAllPublicChats(): Promise<ChatModel.Models.IChatInfo[]> {
-    return (await this.prisma.chat.findMany({
-      where: {
-        authorization: ChatModel.Models.ChatAccess.Public,
-      },
-      include: {
-        participants: true,
-      },
-    })) as unknown as ChatModel.Models.IChatInfo[];
+    return (
+      await this.prisma.chat.findMany({
+        where: {
+          authorization: ChatModel.Models.ChatAccess.Public,
+        },
+        include: {
+          participants: true,
+        },
+      })
+    )
+      .map(this.formatChat.bind(this))
+      .map((chat) => ({
+        ...chat,
+        participantsCount: chat.participants.length,
+      }));
   }
   /**
    *
