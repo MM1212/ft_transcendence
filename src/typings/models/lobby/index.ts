@@ -42,7 +42,8 @@ namespace LobbyModel {
   export namespace Endpoints {
     export enum Targets {
       Connect = '/lobby',
-      StaticBackground = '/assets/lobby.webp'
+      StaticBackground = '/assets/lobby.webp',
+      WalkableMask = '/assets/lobby-mask.webp',
     }
     export type All = GroupEndpointTargets<Targets>;
     export interface Registry extends EndpointRegistry {}

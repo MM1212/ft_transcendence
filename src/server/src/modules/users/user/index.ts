@@ -77,26 +77,36 @@ class User extends CacheObserver<UsersModel.Models.IUser> {
       avatar,
       nickname,
       status,
+      firstLogin,
     }: NestedPartial<UsersModel.Models.IUserInfo> = this.public,
     propagate: boolean = false,
   ): Promise<boolean> {
-    const result = await this.helpers.db.users.update(this.id, {
-      avatar,
-      nickname,
-      storedStatus: status,
-    });
-    if (!result) return false;
-    if (status !== undefined) this.set('status', status);
-    for (const [key, value] of Object.entries(result))
-      this.set(key as keyof UsersModel.Models.IUser, value as any);
-    if (propagate) this.propagate('avatar', 'nickname', 'status');
-    return true;
+    try {
+      const result = await this.helpers.db.users.update(this.id, {
+        avatar,
+        nickname,
+        storedStatus: status,
+        firstLogin,
+      });
+      if (!result) return false;
+      if (status !== undefined) this.set('status', status);
+      for (const [key, value] of Object.entries(result))
+        this.set(key as keyof UsersModel.Models.IUser, value as any);
+      if (propagate) this.propagate('avatar', 'nickname', 'status');
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   /**
    * Syncs the user with all connected clients
    */
-  public propagate(...keys: (keyof UsersModel.Models.IUserInfo)[]): void {
+  public propagate(
+    firstKey: keyof UsersModel.Models.IUserInfo,
+    ...keys: (keyof UsersModel.Models.IUserInfo)[]
+  ): void {
+    keys.unshift(firstKey);
     const data = keys.reduce(
       (acc, key) => ({ ...acc, [key]: this.get(key) }),
       {} as Partial<UsersModel.Models.IUserInfo>,

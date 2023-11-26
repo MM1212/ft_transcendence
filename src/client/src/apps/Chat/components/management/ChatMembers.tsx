@@ -4,7 +4,7 @@ import useFriend from '@apps/Friends/hooks/useFriend';
 import AvatarWithStatus from '@components/AvatarWithStatus';
 import AccountIcon from '@components/icons/AccountIcon';
 import CrownIcon from '@components/icons/CrownIcon';
-import DotsVerticalIcon from '@components/icons/DotsVerticalIcon';
+import MessageIcon from '@components/icons/MessageIcon';
 import ShieldIcon from '@components/icons/ShieldIcon';
 import TimelapseIcon from '@components/icons/TimelapseIcon';
 import { useModal, useModalActions } from '@hooks/useModal';
@@ -29,6 +29,7 @@ import ChatsModel from '@typings/models/chat';
 import UsersModel from '@typings/models/users';
 import moment from 'moment';
 import React from 'react';
+import ChatManageMember from './ChatManageMember';
 
 interface BadgeData {
   color: ColorPaletteProp;
@@ -36,15 +37,23 @@ interface BadgeData {
   tooltip: React.ReactNode;
 }
 
-interface MemberProps {
+export interface ChatMemberProps {
   participant: ChatsModel.Models.IChatParticipant;
   user: UsersModel.Models.IUserInfo;
   manage: boolean;
+  isSelf: boolean;
+  selfRole: ChatsModel.Models.ChatParticipantRole;
 }
 
 const Roles = ChatsModel.Models.ChatParticipantRole;
 
-function Member({ participant, user }: MemberProps): JSX.Element {
+function Member({
+  participant,
+  user,
+  isSelf,
+  manage,
+  selfRole,
+}: ChatMemberProps): JSX.Element {
   const { close } = useModalActions('chat:members');
   const isMutedData = useSelectedChat().useIsParticipantMutedComputed(
     participant.id
@@ -85,7 +94,7 @@ function Member({ participant, user }: MemberProps): JSX.Element {
     return arr;
   }, [isMutedData, participant.role]);
 
-  const { goToProfile } = useFriend(user.id);
+  const { goToProfile, goToMessages } = useFriend(user.id);
 
   const closeAndRun = React.useCallback(
     (cb: () => void) => () => {
@@ -118,8 +127,8 @@ function Member({ participant, user }: MemberProps): JSX.Element {
                 color: isBanned
                   ? 'danger.mainChannel'
                   : left
-                  ? 'neutral.mainChannel'
-                  : undefined,
+                    ? 'neutral.mainChannel'
+                    : undefined,
               }}
             >
               {user.nickname}
@@ -151,16 +160,30 @@ function Member({ participant, user }: MemberProps): JSX.Element {
             <AccountIcon />
           </IconButton>
         </Tooltip>
-        <IconButton
-          size="sm"
-          sx={{
-            borderRadius: 'md',
-          }}
-          variant={isBanned || left ? 'soft' : undefined}
-          color={isBanned ? 'danger' : left ? 'neutral' : undefined}
-        >
-          <DotsVerticalIcon />
-        </IconButton>
+        {manage ? (
+          <ChatManageMember
+            closeAndRun={closeAndRun}
+            participant={participant}
+            user={user}
+            role={selfRole}
+            disabled={isSelf}
+            variant={isBanned || left ? 'soft' : undefined}
+            color={isBanned ? 'danger' : left ? 'neutral' : undefined}
+          />
+        ) : (
+          <IconButton
+            size="sm"
+            sx={{
+              borderRadius: 'md',
+            }}
+            variant={isBanned || left ? 'soft' : undefined}
+            color={isBanned ? 'danger' : left ? 'neutral' : undefined}
+            disabled={isSelf}
+            onClick={closeAndRun(goToMessages)}
+          >
+            <MessageIcon />
+          </IconButton>
+        )}
       </Stack>
     </Sheet>
   );
@@ -170,27 +193,33 @@ function MembersList({
   list,
 }: {
   manage?: boolean;
-  list: Omit<MemberProps, 'manage'>[];
+  list: Omit<ChatMemberProps, 'manage' | 'isSelf' | 'selfRole'>[];
 }): JSX.Element {
-  return (
-    <Stack
-      spacing={0.1}
-      sx={{
-        width: '50dvh',
-        height: '30dvh',
-        overflow: 'auto',
-        gap: (theme) => theme.spacing(0.5),
-      }}
-    >
-      {list.map(({ participant, user }) => (
-        <Member
-          participant={participant}
-          user={user}
-          manage={manage}
-          key={participant.id}
-        />
-      ))}
-    </Stack>
+  const self = useSelectedChat().useSelfParticipant();
+  return React.useMemo(
+    () => (
+      <Stack
+        spacing={0.1}
+        sx={{
+          width: '50dvh',
+          height: '30dvh',
+          overflow: 'auto',
+          gap: (theme) => theme.spacing(0.5),
+        }}
+      >
+        {list.map(({ participant, user }) => (
+          <Member
+            participant={participant}
+            user={user}
+            manage={manage}
+            key={participant.id}
+            isSelf={self.id === participant.id}
+            selfRole={self.role as ChatsModel.Models.ChatParticipantRole}
+          />
+        ))}
+      </Stack>
+    ),
+    [list, manage, self.id, self.role]
   );
 }
 
@@ -209,19 +238,13 @@ function MembersTab({ manage = false }: { manage?: boolean }): JSX.Element {
         }
       })
       .sort((a, b) => {
-        if (a.participant.role === Roles.Owner) {
-          return -1;
-        }
-        if (b.participant.role === Roles.Owner) {
-          return 1;
-        }
-        if (a.participant.role === Roles.Admin) {
-          return -1;
-        }
-        if (b.participant.role === Roles.Admin) {
-          return 1;
-        }
-        return 0;
+        const aRole = a.participant.role;
+        const bRole = b.participant.role;
+        if (aRole === Roles.Owner) return -1;
+        if (bRole === Roles.Owner) return 1;
+        if (aRole === Roles.Admin && bRole !== Roles.Admin) return -1;
+        if (bRole === Roles.Admin && aRole !== Roles.Admin) return 1;
+        return a.participant.createdAt - b.participant.createdAt;
       });
   }, [data]);
 
@@ -231,14 +254,15 @@ function MembersTab({ manage = false }: { manage?: boolean }): JSX.Element {
   const left = React.useMemo(() => {
     return data.filter((d) => d.participant.role === Roles.Left);
   }, [data]);
+
   return (
-    <Tabs size="sm">
+    <Tabs size="sm" defaultValue={0}>
       <TabList tabFlex="auto" disableUnderline sx={{ gap: 1 }}>
-        <Tab value={0} disableIndicator sx={{ borderRadius: 'sm' }}>
-          Members
-        </Tab>
         {manage && (
           <>
+            <Tab value={0} disableIndicator sx={{ borderRadius: 'sm' }}>
+              Members
+            </Tab>
             <Tab value={1} disableIndicator sx={{ borderRadius: 'sm' }}>
               Banned
             </Tab>
@@ -261,7 +285,7 @@ function MembersTab({ manage = false }: { manage?: boolean }): JSX.Element {
   );
 }
 
-export default function ChatMembersModal(): JSX.Element {
+function _ChatMembersModal(): JSX.Element {
   const { close, data, isOpened } = useModal<{ manage: boolean }>(
     'chat:members'
   );
@@ -280,3 +304,7 @@ export default function ChatMembersModal(): JSX.Element {
     </Modal>
   );
 }
+
+const ChatMembersModal = React.memo(_ChatMembersModal);
+
+export default ChatMembersModal;

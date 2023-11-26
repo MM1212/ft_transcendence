@@ -77,14 +77,14 @@ export class ChatsService {
       this.deps.sseService.emitToTargets<ChatsModel.Sse.NewChatEvent>(
         ChatsModel.Sse.Events.NewChat,
         author.id,
-        chat.participants.map((p) => p.userId),
-        chat.display,
+        chat.participants.map((p) => p.userId).filter((id) => id !== author.id),
+        { chatId: chat.id },
       );
     else
       this.deps.sseService.emitToTargets<ChatsModel.Sse.NewChatEvent>(
         ChatsModel.Sse.Events.NewChat,
         chat.participants.map((p) => p.userId),
-        chat.display,
+        { chatId: chat.id },
       );
     return chat;
   }
@@ -120,4 +120,10 @@ export class ChatsService {
     ];
   }
 
+  public async nukeChat(id: number, op: User): Promise<void> {
+    const chat = await this.get(id);
+    if (!chat) return;
+    await chat.nuke(op);
+    this.chats.delete(id);
+  }
 }

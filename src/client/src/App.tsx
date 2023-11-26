@@ -1,15 +1,26 @@
 import SideBar from '@apps/Sidebar/views';
-import SidebarWithRouter from '@apps/Sidebar/views/WithRouter';
-import SseTester from '@components/SseTester';
 import LoginPage from '@apps/LoginPage/views';
-import ClothingShowcase from '@views/ClothingShowcase';
-import Lobby from '@views/lobby';
-import { useRouter, Route } from 'wouter';
+import Lobby from '@apps/Lobby/views';
+import { Route, Switch } from 'wouter';
 import ErrorPage from '@views/error';
+import AuthRoute from '@components/AuthRoute';
 import UpdateUserModal from '@apps/Profile/components/UpdateUserModal';
+import React, { memo } from 'react';
+import ImagePreviewView from '@apps/ImagePreview/views';
+
+const MainRoute = memo(() => {
+  return React.useMemo(
+    () => (
+      <>
+        <Lobby />
+        <SideBar />
+      </>
+    ),
+    []
+  );
+});
 
 function App() {
-  const router = useRouter();
   return (
     <div
       style={{
@@ -19,29 +30,19 @@ function App() {
         padding: 0,
       }}
     >
-      <SidebarWithRouter base="/sse" parent={router}>
-        <SseTester />
-      </SidebarWithRouter>
-      <SidebarWithRouter base="/lobby" parent={router}>
-        <Lobby />
-      </SidebarWithRouter>
-      <Route path="/login">
-        <LoginPage />
-      </Route>
-      <Route path="/">
-        <SideBar />
-      </Route>
-      <Route path="/clothing-showcase">
-        <ClothingShowcase />
-      </Route>
-      <Route path="/error">
-        <ErrorPage />
-      </Route>
-      {/* <Route>
-          <Redirect to="/error?t=404" />
-        </Route> */}
-      {/* <SandboxRouter /> */}
-      <UpdateUserModal />
+      <Switch>
+        <Route path="/login">
+          <LoginPage />
+        </Route>
+        <Route path="/error">
+          <ErrorPage />
+        </Route>
+        <AuthRoute redirect="/login">
+          <MainRoute />
+          <UpdateUserModal />
+          <ImagePreviewView />
+        </AuthRoute>
+      </Switch>
     </div>
   );
 }

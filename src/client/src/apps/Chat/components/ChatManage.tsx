@@ -1,13 +1,5 @@
 import DotsVerticalIcon from '@components/icons/DotsVerticalIcon';
-import {
-  Dropdown,
-  IconButton,
-  ListItemDecorator,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuItemProps,
-} from '@mui/joy';
+import { Dropdown, IconButton, Menu, MenuButton } from '@mui/joy';
 import React from 'react';
 import { useSelectedChat } from '../hooks/useChat';
 import AccountIcon from '@components/icons/AccountIcon';
@@ -22,29 +14,10 @@ import CloseOctagonOutlineIcon from '@components/icons/CloseOctagonOutlineIcon';
 import LogoutVariantIcon from '@components/icons/LogoutVariantIcon';
 import AccountGroupIcon from '@components/icons/AccountGroupIcon';
 import FolderCogIcon from '@components/icons/FolderCogIcon';
-import TrashCanIcon from '@components/icons/TrashCanIcon';
 import FileDocumentEditIcon from '@components/icons/FileDocumentEditIcon';
 import useChatManageActions from '../hooks/useChatManageActions';
-
-function MenuOption({
-  icon: Icon,
-  children,
-  ...props
-}: Omit<MenuItemProps, 'children'> & {
-  icon?: React.ComponentType;
-  children: React.ReactNode;
-}): JSX.Element {
-  return (
-    <MenuItem {...props}>
-      {Icon && (
-        <ListItemDecorator>
-          <Icon />
-        </ListItemDecorator>
-      )}
-      {children}
-    </MenuItem>
-  );
-}
+import MenuOption from '@components/menu/MenuOption';
+import NukeIcon from '@components/icons/NukeIcon';
 
 function DirectOptions({ self }: { self: ChatsModel.Models.IChatParticipant }) {
   const participants = useSelectedChat().useParticipants();
@@ -56,7 +29,7 @@ function DirectOptions({ self }: { self: ChatsModel.Models.IChatParticipant }) {
     const isBlocked = blocked.includes(other?.userId ?? -1);
     return [!!isFriend, isBlocked, other?.userId ?? -1];
   }, [blocked, friends, participants, self.id]);
-  const { remove, block, unblock } = useFriend(friendId);
+  const { remove, block, unblock, goToProfile } = useFriend(friendId);
   const [, navigate] = useLocation();
   const hookAction = React.useCallback(
     (action: () => void | Promise<void>, leave: boolean = false) =>
@@ -68,7 +41,9 @@ function DirectOptions({ self }: { self: ChatsModel.Models.IChatParticipant }) {
   );
   return (
     <>
-      <MenuOption icon={AccountIcon}>Go to Profile</MenuOption>
+      <MenuOption icon={AccountIcon} onClick={goToProfile}>
+        Go to Profile
+      </MenuOption>
       {isFriend ? (
         <MenuOption
           icon={AccountRemoveIcon}
@@ -101,7 +76,7 @@ function GroupOptions({
   const isOwner = self.role === ChatsModel.Models.ChatParticipantRole.Owner;
   const isAdmin =
     self.role === ChatsModel.Models.ChatParticipantRole.Admin || isOwner;
-  const { useModal } = useChatManageActions();
+  const { useModal, leave, nuke } = useChatManageActions();
   const { open } = useModal();
   return (
     <>
@@ -117,17 +92,32 @@ function GroupOptions({
           Members
         </MenuOption>
       )}
-      <MenuOption icon={LogoutVariantIcon} color="warning">
+      <MenuOption
+        icon={LogoutVariantIcon}
+        color="warning"
+        onClick={() => leave()}
+      >
         Leave
       </MenuOption>
       {isOwner && (
-        <MenuOption icon={TrashCanIcon} color="danger">
+        <MenuOption icon={NukeIcon} color="danger" onClick={nuke}>
           Delete
         </MenuOption>
       )}
     </>
   );
 }
+
+const ButtonIcon = React.memo(() => (
+  <MenuButton
+    slots={{ root: IconButton }}
+    size="sm"
+    variant="plain"
+    color="neutral"
+  >
+    <DotsVerticalIcon />
+  </MenuButton>
+));
 
 export default function ChatManageMenu() {
   const { useSelfParticipant, useType } = useSelectedChat();
@@ -136,14 +126,7 @@ export default function ChatManageMenu() {
   return React.useMemo(
     () => (
       <Dropdown>
-        <MenuButton
-          slots={{ root: IconButton }}
-          size="sm"
-          variant="plain"
-          color="neutral"
-        >
-          <DotsVerticalIcon />
-        </MenuButton>
+        <ButtonIcon />
         <Menu placement="bottom-end" size="sm" sx={{ zIndex: 1300 }}>
           <React.Suspense fallback={<></>}>
             {type === ChatsModel.Models.ChatType.Direct && (

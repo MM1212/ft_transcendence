@@ -1,6 +1,6 @@
 import ChevronRightIcon from '@components/icons/ChevronRightIcon';
 import { useDebounce } from '@hooks/lodash';
-import { Button, Checkbox, Container } from '@mui/joy';
+import { Button, Checkbox } from '@mui/joy';
 import { Divider, Input, Sheet, Stack } from '@mui/joy';
 import React from 'react';
 
@@ -26,11 +26,13 @@ export default function ClothingShowcase(): JSX.Element {
   }, [clothId]);
 
   return (
-    <Container
+    <Sheet
       sx={{
-        my: 2,
+        p: 2,
+        height: '100%',
+        width: '80dvh',
+        overflow: 'auto',
       }}
-      maxWidth="xl"
     >
       <Input
         type="number"
@@ -138,6 +140,6 @@ export default function ClothingShowcase(): JSX.Element {
           </Stack>
         )}
       </Sheet>
-    </Container>
+    </Sheet>
   );
 }

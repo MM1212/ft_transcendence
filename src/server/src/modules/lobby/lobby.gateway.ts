@@ -13,6 +13,9 @@ import { Server, Socket } from 'socket.io';
 import { Lobbies } from '@typings/lobby';
 import { IPenguinBaseAnimationsTypes } from '@typings/penguin';
 import LobbyModel from '@typings/models/lobby';
+import Vector2D from '@shared/Vector/Vector2D';
+import fs from 'fs';
+import { PNG } from 'pngjs';
 
 @WebSocketGateway({
   namespace: 'api/lobby',
@@ -31,8 +34,39 @@ export class LobbyGateway
   @WebSocketServer()
   private readonly server: Server;
   readonly players: Lobbies.IPlayer[] = [];
+  private readonly walkableAreaMaskBuffer: PNG;
 
-  constructor(private readonly rootService: AppService) {}
+  constructor(private readonly rootService: AppService) {
+    const stream = fs.createReadStream('dist/assets/lobby/mask.png');
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const instance = this;
+    stream.pipe(new PNG()).on('parsed', function () {
+      // @ts-expect-error - pngjs typings are wrong
+      instance.walkableAreaMaskBuffer = this;
+    });
+  }
+  getPixelColor(x: number, y: number): number {
+    const address = (this.walkableAreaMaskBuffer.width * y + x) << 2;
+    const r = this.walkableAreaMaskBuffer.data[address];
+    const g = this.walkableAreaMaskBuffer.data[address + 1];
+    const b = this.walkableAreaMaskBuffer.data[address + 2];
+    const a = this.walkableAreaMaskBuffer.data[address + 3];
+    return (r << 24) | (g << 16) | (b << 8) | a;
+  }
+  validateNewPlayerPosition(position: Vector2D): boolean {
+    const pixel = this.getPixelColor(
+      Math.floor(position.x),
+      Math.floor(position.y),
+    );
+    const r = (pixel >> 24) & 0xff;
+    const g = (pixel >> 16) & 0xff;
+    const b = (pixel >> 8) & 0xff;
+    const a = pixel & 0xff;
+    console.log(
+      `#${[a, r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('')}`,
+    );
+    return a !== 0;
+  }
   afterInit() {
     setInterval(() => this.onTick(), 1000 / 60);
   }
@@ -61,9 +95,12 @@ export class LobbyGateway
       this.players.push({
         userId: user.id,
         transform: {
-          position: { x: LobbyModel.Models.STAGE_WIDTH / 2, y: LobbyModel.Models.STAGE_HEIGHT / 2 },
+          position: {
+            x: LobbyModel.Models.STAGE_WIDTH / 2 - 300,
+            y: LobbyModel.Models.STAGE_HEIGHT / 2,
+          },
           direction: { x: 0, y: 0 },
-          speed: 4
+          speed: 4,
         },
         currentAnimation: 'idle/down',
         connections: [client],
@@ -168,25 +205,49 @@ export class LobbyGateway
     });
   }
   private lastTick = Date.now();
+  private moved = new Map<number, boolean>();
   onTick() {
     this.players.forEach((player) => {
-      player.transform.position.x += player.transform.direction.x * player.transform.speed;
-      player.transform.position.y += player.transform.direction.y * player.transform.speed;
+      if (
+        player.transform.direction.x === 0 &&
+        player.transform.direction.y === 0
+      )
+        return;
+      const velocity = new Vector2D(player.transform.direction)
+        .normalize()
+        .multiply(player.transform.speed);
+      const newPosition = new Vector2D(player.transform.position).add(velocity);
+      if (
+        !this.validateNewPlayerPosition(newPosition) ||
+        newPosition.x < 0 ||
+        newPosition.x > LobbyModel.Models.STAGE_WIDTH ||
+        newPosition.y < 0 ||
+        newPosition.y > LobbyModel.Models.STAGE_HEIGHT
+      ) {
+        return;
+      }
+      player.transform.position = newPosition.toObject();
+      this.moved.set(player.userId, true);
     });
-    if (Date.now() - this.lastTick > 1000 / 30) {
-      const payload: Lobbies.Packets.UpdatePlayersTransform = {
-        players: this.players.map((player) => ({
+    // if (Date.now() - this.lastTick > 1000 / 30) {
+    const payload: Lobbies.Packets.UpdatePlayersTransform = {
+      players: this.players
+        .map((player) => ({
           id: player.userId,
           ...player.transform,
-        })),
-      };
+        }))
+        .filter((player) => !!this.moved.get(player.id)),
+    };
+    this.moved.clear();
+    if (payload.players.length > 0) {
       this.players.forEach((player) => {
         player.connections.forEach((con: Socket) => {
           con.emit(Lobbies.Packets.Events.UpdatePlayersTransform, payload);
         });
       });
-      this.lastTick = Date.now();
     }
+    this.lastTick = Date.now();
+    // }
   }
   @SubscribeMessage('lobby:toggle-dance')
   toggleDance(@ConnectedSocket() client: Socket) {
@@ -237,7 +298,7 @@ export class LobbyGateway
     if (!playerRef) return client.disconnect(true), void 0;
     playerRef.currentAnimation = data.anim as IPenguinBaseAnimationsTypes;
     console.log('lobby:update-animation', data.anim, playerRef.userId);
-    
+
     this.players.forEach((player) => {
       player.connections.forEach((con: Socket) => {
         con.emit(Lobbies.Packets.Events.UpdatePlayersTransform, {

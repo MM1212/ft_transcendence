@@ -3,7 +3,6 @@ import {
   atomFamily,
   selector,
   useRecoilCallback,
-  useRecoilState,
   useRecoilValue,
 } from 'recoil';
 
@@ -13,7 +12,9 @@ const modalsAtom = atomFamily<boolean, string>({
 });
 const modalsDataAtom = atomFamily<any, string>({
   key: 'modalsData',
-  default: {},
+  default: {
+    dismissable: true,
+  },
 });
 
 const modalsRegistryAtom = atom<string[]>({
@@ -31,18 +32,34 @@ const isAnyModalOpenedSelector = selector({
 
 export const useModalActions = <T>(id: string) => {
   const open = useRecoilCallback(
-    (ctx) => (data?: T) => {
-      if (data) ctx.set(modalsDataAtom(id), data);
-      ctx.set(modalsAtom(id), true);
-      ctx.set(modalsRegistryAtom, (ids) => [...ids, id]);
-    },
+    (ctx) =>
+      (
+        data?: Omit<ModalState<T>, 'dismissable'> & {
+          dismissable?: boolean;
+        }
+      ) => {
+        if (data) {
+          ctx.set(modalsDataAtom(id), {
+            dismissable: data.dismissable ?? true,
+            ...data,
+          } as ModalState<T>);
+        }
+        ctx.set(modalsAtom(id), true);
+        ctx.set(modalsRegistryAtom, (ids) => [...ids, id]);
+      },
     [id]
   );
   const close = useRecoilCallback(
-    (ctx) => () => {
-      ctx.set(modalsAtom(id), false);
-      ctx.set(modalsRegistryAtom, (ids) => ids.filter((i) => i !== id));
-    },
+    (ctx) =>
+      async (
+        _event?: {},
+        reason?: 'backdropClick' | 'escapeKeyDown' | 'closeClick'
+      ) => {
+        const data = await ctx.snapshot.getPromise(modalsDataAtom(id));
+        if (data?.dismissable === false && !!reason) return;
+        ctx.set(modalsAtom(id), false);
+        ctx.set(modalsRegistryAtom, (ids) => ids.filter((i) => i !== id));
+      },
     [id]
   );
   const toggle = useRecoilCallback(
@@ -59,9 +76,21 @@ export const useModalActions = <T>(id: string) => {
   return { open, close, toggle };
 };
 
+export type ModalState<T> = T & {
+  dismissable: boolean;
+};
+
 export const useModal = <T>(id: string) => {
   const isOpened = useRecoilValue(modalsAtom(id));
-  const [data, setData] = useRecoilState<T>(modalsDataAtom(id));
+  const data = useRecoilValue<ModalState<T>>(modalsDataAtom(id));
+  const setData = useRecoilCallback(
+    (ctx) => (data: T) =>
+      ctx.set(modalsDataAtom(id), (prev) => ({
+        dismissable: prev.dismissable,
+        ...data,
+      })),
+    [id]
+  );
   const { open, close, toggle } = useModalActions<T>(id);
   return { isOpened, data, setData, open, close, toggle };
 };

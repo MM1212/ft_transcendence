@@ -16,9 +16,6 @@ const USER_EXT_QUERY = Prisma.validator<Prisma.UserSelect>()({
   blocked: {
     select: { id: true },
   },
-  blockedBy: {
-    select: { id: true },
-  },
 });
 
 @Injectable()
@@ -40,7 +37,6 @@ export class Users {
     delete (formatted as any).friendOf;
     formatted.blocked = [
       ...user.blocked.map((blocked) => blocked.id),
-      ...user.blockedBy.map((blocked) => blocked.id),
     ];
     delete (formatted as any).blockedBy;
     formatted.chats = user.chats.map((chat) => chat.id);

@@ -1,17 +1,16 @@
 import Avatar from '@mui/joy/Avatar';
 import Stack from '@mui/joy/Stack';
 import Typography from '@mui/joy/Typography';
-import { useRecoilValue } from 'recoil';
-import chatsState from '@/apps/Chat/state';
 import AvatarWithStatus from '@components/AvatarWithStatus';
 import ChatsModel from '@typings/models/chat';
 import ChatManageMenu from './ChatManage';
 import { Tooltip } from '@mui/joy';
+import { useSelectedChat } from '../hooks/useChat';
 
 export default function MessagesPaneHeader() {
-  const { name, photo, status, participantNames, type, id, topic } =
-    useRecoilValue(chatsState.selectedChatInfo);
-
+  const { useHeaderNames, useInfo } = useSelectedChat();
+  const { name, photo, status, type, id, topic } = useInfo();
+  const participantNames = useHeaderNames();
   return (
     <Stack
       direction="row"

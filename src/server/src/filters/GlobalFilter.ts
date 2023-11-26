@@ -28,6 +28,8 @@ export class GlobalFilter implements ExceptionFilter {
           exception instanceof Error ? exception.message : 'Unknown error'
         }`,
       };
+      if (exception instanceof Error && exception.message)
+        responseBody.errorMsg = exception.message;
       if (httpStatus === HttpStatus.INTERNAL_SERVER_ERROR)
         console.error(exception);
 

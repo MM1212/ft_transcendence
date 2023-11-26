@@ -24,7 +24,7 @@ export class UsersService {
     user.set('status', user.get('storedStatus'));
     console.log(user.public);
 
-    user.propagate();
+    user.propagate('status');
   }
   @OnEvent('sse.disconnected')
   private async onSseDisconnected(userId: number) {
@@ -32,7 +32,7 @@ export class UsersService {
     const user = await this.get(userId);
     if (!user) return;
     user.set('status', UsersModel.Models.Status.Offline);
-    user.propagate();
+    user.propagate('status');
   }
 
   private get db(): DbService {
