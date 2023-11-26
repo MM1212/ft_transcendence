@@ -31,7 +31,7 @@ const Roles = ChatsModel.Models.ChatParticipantRole;
 interface Props
   extends Omit<ChatMemberProps, 'manage' | 'isSelf' | 'selfRole'> {
   role: ChatsModel.Models.ChatParticipantRole;
-  closeAndRun: (callback: () => any) => () => void;
+  closeAndRun: (callback: () => any, prev?: boolean) => () => void;
 }
 
 function AdminOptions({
@@ -73,7 +73,7 @@ function AdminOptions({
           <MenuOption
             icon={HandExtendedIcon}
             color="warning"
-            onClick={closeAndRun(() => transferOwnership(participant.id))}
+            onClick={closeAndRun(() => transferOwnership(participant.id), false)}
           >
             Transfer Ownership
           </MenuOption>
@@ -149,7 +149,7 @@ export default function ChatManageMember({
   participant: ChatsModel.Models.IChatParticipant;
   user: UsersModel.Models.IUserInfo;
   role: ChatsModel.Models.ChatParticipantRole;
-  closeAndRun: (callback: () => any) => () => void;
+  closeAndRun: (callback: () => any, prev?: boolean) => () => void;
 } & IconButtonProps): JSX.Element {
   const {
     useIsBlocked,

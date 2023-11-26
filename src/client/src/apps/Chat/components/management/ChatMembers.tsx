@@ -97,9 +97,12 @@ function Member({
   const { goToProfile, goToMessages } = useFriend(user.id);
 
   const closeAndRun = React.useCallback(
-    (cb: () => void) => () => {
-      close();
-      cb();
+    (cb: () => (void | Promise<void>), prev: boolean = true) => async () => {
+      if (prev)
+        close();
+      await Promise.resolve(cb());
+      if (!prev)
+        close();
     },
     [close]
   );

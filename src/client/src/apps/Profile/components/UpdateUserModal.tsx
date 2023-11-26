@@ -108,7 +108,7 @@ export default function UpdateUserModal(): JSX.Element {
         }
       );
       close();
-      notifications.success('User updated!');
+      notifications.success('Profile updated!');
     } catch (error) {
       notifications.error('Could not update user', (error as Error).message);
     } finally {

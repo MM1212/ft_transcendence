@@ -11,6 +11,7 @@ import UsersModel from '@typings/models/users';
 import { usersAtom } from '@hooks/user';
 import notifications from '@lib/notifications/hooks';
 import tunnel from '@lib/tunnel';
+import { useConfirmationModalActions } from '@apps/Modals/Confirmation/hooks';
 
 const chatParticipantsDataSelector = selector<
   {
@@ -37,6 +38,7 @@ const useChatManageActions = () => {
     const open = (manage: boolean = false) => openModal({ manage });
     return { open, close };
   };
+  const { confirm } = useConfirmationModalActions();
 
   const useParticipantsData = () =>
     useRecoilValue(chatParticipantsDataSelector);
@@ -73,6 +75,21 @@ const useChatManageActions = () => {
         const chatId = await ctx.snapshot.getPromise(chatsState.selectedChatId);
         if (chatId === -1)
           throw new Error('You must select a chat before leaving it');
+        const self = await ctx.snapshot.getPromise(
+          chatsState.selfParticipantByChat(chatId)
+        );
+        if (!self) throw new Error('You are not in this chat');
+        if (self.role === ChatsModel.Models.ChatParticipantRole.Owner) {
+          const confirmed = await confirm({
+            content: `
+              Are you sure you want to leave this chat?
+              This will select a new owner for this chat (the oldest member, prioritizing admins).
+          `,
+            confirmText: 'Leave',
+            confirmColor: 'warning',
+          });
+          if (!confirmed) return;
+        }
         const chat = await ctx.snapshot.getPromise(chatsState.chat(chatId));
         await tunnel.post(ChatsModel.Endpoints.Targets.LeaveChat, undefined, {
           chatId,
@@ -82,12 +99,17 @@ const useChatManageActions = () => {
         notifications.error('Failed to leave chat', (e as Error).message);
       }
     },
-    []
+    [confirm]
   );
 
   const kick = useRecoilCallback(
     (ctx) => async (pId: number) => {
       try {
+        const confirmed = await confirm({
+          content: 'Are you sure you want to kick this user?',
+          confirmText: 'Kick',
+        });
+        if (!confirmed) return;
         const chatId = await ctx.snapshot.getPromise(chatsState.selectedChatId);
         if (chatId === -1)
           throw new Error('You must select a chat before kicking a user');
@@ -100,12 +122,17 @@ const useChatManageActions = () => {
         notifications.error('Failed to kick user', (e as Error).message);
       }
     },
-    []
+    [confirm]
   );
 
   const ban = useRecoilCallback(
     (ctx) => async (pId: number) => {
       try {
+        const confirmed = await confirm({
+          content: 'Are you sure you want to ban this user?',
+          confirmText: 'Ban',
+        });
+        if (!confirmed) return;
         const chatId = await ctx.snapshot.getPromise(chatsState.selectedChatId);
         if (chatId === -1)
           throw new Error('You must select a chat before banning a user');
@@ -122,7 +149,7 @@ const useChatManageActions = () => {
         notifications.error('Failed to ban user', (e as Error).message);
       }
     },
-    []
+    [confirm]
   );
 
   const unban = useRecoilCallback(
@@ -171,6 +198,14 @@ const useChatManageActions = () => {
   const transferOwnership = useRecoilCallback(
     (ctx) => async (pId: number) => {
       try {
+        const confirmed = await confirm({
+          content: `
+            Are you sure you want to transfer ownership to this user?
+            This action cannot be undone and you will lose all permissions in this chat.
+        `,
+          confirmText: 'Transfer',
+        });
+        if (!confirmed) return;
         const chatId = await ctx.snapshot.getPromise(chatsState.selectedChatId);
         if (chatId === -1)
           throw new Error(
@@ -193,7 +228,7 @@ const useChatManageActions = () => {
         );
       }
     },
-    []
+    [confirm]
   );
 
   const { open: _openMuteModal } = useModalActions<{
@@ -246,6 +281,14 @@ const useChatManageActions = () => {
   const nuke = useRecoilCallback(
     (ctx) => async () => {
       try {
+        const confirmed = await confirm({
+          content: `
+            Are you sure you want to delete this chat?
+            This action cannot be undone and the chat will be permanently removed.
+        `,
+          confirmText: 'Delete',
+        });
+        if (!confirmed) return;
         const chatId = await ctx.snapshot.getPromise(chatsState.selectedChatId);
         if (chatId === -1)
           throw new Error('You must select a chat before nuking it');
@@ -257,7 +300,7 @@ const useChatManageActions = () => {
         notifications.error('Failed to nuke chat', (e as Error).message);
       }
     },
-    []
+    [confirm]
   );
 
   return {
