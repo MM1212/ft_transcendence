@@ -33,7 +33,7 @@ function _ParticipantsTyping({ id }: { id: number; selfId: number }) {
 
   if (participantNames.length === 0) return null;
   return (
-    <Typography level="body-xs" color="neutral">
+    <Typography level="body-xs" color="neutral" position="absolute" mt={0.5} ml={0.5}>
       {participantNames}
       {threeDots}
     </Typography>
@@ -162,6 +162,7 @@ function MessageInput({ id }: { id: number }) {
       component="form"
       onSubmit={submit}
       ref={formRef}
+      position="relative"
     >
       <FormControl
         style={{
@@ -207,6 +208,7 @@ function MessageInput({ id }: { id: number }) {
             }
           }}
           sx={{
+            mt: 1,
             '& textarea:first-of-type': {},
             flexGrow: 1,
           }}
