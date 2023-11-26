@@ -42,7 +42,6 @@ const InfiniteScroll = React.forwardRef<HTMLDivElement, InfiniteScrollProps>(
         }
 
         const target = entries[0];
-        console.log(target);
 
         if (target.isIntersecting) {
           lastNextPromiseRef.current = Promise.resolve(next());
@@ -97,8 +96,6 @@ const InfiniteScroll = React.forwardRef<HTMLDivElement, InfiniteScrollProps>(
     React.useLayoutEffect(() => {
       setShowLoader(false);
       if (observableRef.current && !firstMount.current) {
-        console.log('refreshing observer');
-
         observer.unobserve(observableRef.current);
         observer.observe(observableRef.current);
       }

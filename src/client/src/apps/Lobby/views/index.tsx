@@ -69,9 +69,12 @@ export default function Lobby() {
       const inventory = await ctx.snapshot.getPromise(inventoryAtom);
       const { color, ...selected } = inventory.selected;
 
-      await Pixi.Assets.load(
-        ['/penguin/base/asset.json', '/penguin/body/asset.json'].map(publicPath)
-      );
+      if (!Pixi.Cache.has('base/shadow'))
+        await Pixi.Assets.load(
+          ['/penguin/base/asset.json', '/penguin/body/asset.json'].map(
+            publicPath
+          )
+        );
 
       const layers: PlayerLayers = {} as PlayerLayers;
       layers.container = new Pixi.Container();

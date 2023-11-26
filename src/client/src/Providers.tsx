@@ -9,6 +9,7 @@ import NotificationsProvider from '@lib/notifications/Provider';
 import moment from 'moment';
 import ErrorBoundary from '@components/ExceptionCatcher';
 import CustomScrollBar from '@theme/scrollBar';
+import { Pixi } from '@hooks/pixiRenderer';
 
 moment.updateLocale('en', {
   relativeTime: {
@@ -27,6 +28,10 @@ moment.updateLocale('en', {
     y: '1Y',
     yy: '%dY',
   },
+});
+
+Pixi.Assets.setPreferences({
+  preferWorkers: true,
 });
 
 export default function AppProviders({

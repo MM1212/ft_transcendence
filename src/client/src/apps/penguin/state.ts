@@ -41,7 +41,7 @@ const buildAnimationSet = (
   ] as AnimationConfigSet;
   const textures = Array.from<Pixi.Texture>({ length: frames });
   for (let i = 0; i < frames; i++) {
-    if (!Pixi.Assets.get(`${assetId}/${id}_${i + 1}`))
+    if (!Pixi.Assets.cache.has(`${assetId}/${id}_${i + 1}`))
       return Array.from({ length: i }, (_, i) =>
         Pixi.Texture.from(`${assetId}/${id}_${i + 1}`)
       );
@@ -57,8 +57,13 @@ const penguinState = new (class PenguinState {
   baseAnimations = atomFamily<IPenguinBaseAnimations, string>({
     key: 'penguin/base-animations',
     default: async (id) => {
-      if (!isNaN(parseInt(id)))
-        await Pixi.Assets.load(publicPath(`/penguin/clothing/${id}/asset.json`));
+      if (
+        !isNaN(parseInt(id)) &&
+        !Pixi.Assets.cache.has(publicPath(`/penguin/clothing/${id}/asset.json`))
+      )
+        await Pixi.Assets.load(
+          publicPath(`/penguin/clothing/${id}/asset.json`)
+        );
       return Object.keys(animationConfig).reduce((acc, key) => {
         const [animationSet, direction] = key.split('/');
         const setKey = !direction
