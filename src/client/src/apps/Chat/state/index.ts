@@ -60,11 +60,6 @@ const chatsState = new (class MessagesState {
   selectedChatId = atom<number>({
     key: 'selectedChatId',
     default: -1,
-    effects: [
-      (ctx) => {
-        ctx.onSet(console.log);
-      },
-    ],
   });
   selectedChat = selector<ChatsModel.Models.IChat | null>({
     key: 'selectedChat',
@@ -383,8 +378,8 @@ const chatsState = new (class MessagesState {
           users.filter(Boolean) as UsersModel.Models.IUserInfo[]
         ).map((p) => p.nickname);
         let str = names.join(', ');
-        if (first4.length < chat.participants.length)
-          str += ` and ${chat.participants.length - first4.length} more`;
+        if (first4.length < chat.participants.length - 1)
+          str += ` and ${chat.participants.length - 1 - first4.length} more`;
         return str;
       },
   });
@@ -415,6 +410,7 @@ const chatsState = new (class MessagesState {
     key: 'chatsInput',
     default: '',
   });
+
 })();
 interface ISelectedChatInfo extends ChatsModel.Models.IChatInfo {
   status: UsersModel.Models.Status;

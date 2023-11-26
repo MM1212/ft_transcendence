@@ -1,34 +1,14 @@
 import { useModalActions } from '@hooks/useModal';
 import {
-  selector,
   useRecoilCallback,
-  useRecoilValue,
-  waitForAll,
 } from 'recoil';
 import chatsState from '../state';
 import ChatsModel from '@typings/models/chat';
 import UsersModel from '@typings/models/users';
-import { usersAtom } from '@hooks/user';
 import notifications from '@lib/notifications/hooks';
 import tunnel from '@lib/tunnel';
 import { useConfirmationModalActions } from '@apps/Modals/Confirmation/hooks';
 
-const chatParticipantsDataSelector = selector<
-  {
-    participant: ChatsModel.Models.IChatParticipant;
-    user: UsersModel.Models.IUserInfo;
-  }[]
->({
-  key: 'chatManageModal/chatParticipantsData',
-  get: ({ get }) => {
-    const chatId = get(chatsState.selectedChatId);
-    const participants = get(chatsState.participants(chatId));
-    const users = get(waitForAll(participants.map((p) => usersAtom(p.userId))));
-    return participants.map((participant, i) => {
-      return { participant, user: users[i]! };
-    });
-  },
-});
 
 const useChatManageActions = () => {
   const useModal = () => {
@@ -39,9 +19,6 @@ const useChatManageActions = () => {
     return { open, close };
   };
   const { confirm } = useConfirmationModalActions();
-
-  const useParticipantsData = () =>
-    useRecoilValue(chatParticipantsDataSelector);
 
   const toggleAdmin = useRecoilCallback(
     (ctx) => async (pId: number, is: boolean) => {
@@ -305,7 +282,6 @@ const useChatManageActions = () => {
 
   return {
     useModal,
-    useParticipantsData,
     toggleAdmin,
     kick,
     ban,

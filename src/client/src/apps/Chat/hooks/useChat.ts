@@ -24,7 +24,9 @@ const useChat = (chatId: number) => {
   const useIsSelected = () => useRecoilValue(chatsState.isChatSelected(chatId));
 
   const goTo = useRecoilTransaction_UNSTABLE(
-    (ctx) => () => {
+    (ctx) => async () => {
+      const selectedChatId = ctx.get(chatsState.selectedChatId);
+      if (selectedChatId === chatId) return;
       ctx.set(chatsState.selectedChatId, chatId);
       navigate(`/messages/${chatId}`);
     },
@@ -45,7 +47,6 @@ const useChat = (chatId: number) => {
       return { is: false };
     if (participant.muted === ChatsModel.Models.ChatParticipantMuteType.Forever)
       return { is: true, type: 'permanent' };
-    console.log(pId, participant.userId, Date.now(), participant.mutedUntil);
 
     if (Date.now() >= participant.mutedUntil!) return { is: false };
     return { is: true, type: 'temporary', until: participant.mutedUntil! };
