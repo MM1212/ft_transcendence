@@ -124,8 +124,8 @@ namespace ChatsModel {
         extends Omit<Models.IChat, 'participants' | 'createdAt' | 'messages'> {
         createdAt: Date;
         authorizationData: any;
-        participants: ChatParticipant[];
-        messages: ChatMessage[];
+        participants?: ChatParticipant[];
+        messages?: ChatMessage[];
       }
       export interface GetChat extends Models.IChatDisplay {}
       export type GetChatParticipants = Models.IChatParticipant[];
@@ -150,7 +150,7 @@ namespace ChatsModel {
       export interface UpdateChatInfo
         extends Pick<
           Partial<Models.IChat>,
-          'name' | 'photo' | 'authorization' | 'authorizationData'
+          'name' | 'photo' | 'authorization' | 'authorizationData' | 'topic'
         > {}
       export interface UpdateParticipant
         extends Pick<
