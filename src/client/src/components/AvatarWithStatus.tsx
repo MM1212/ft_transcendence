@@ -15,15 +15,19 @@ type AvatarWithStatusProps = AvatarProps & {
   muted?: boolean;
 };
 
-export function UserAvatar({ src, ...rest }: AvatarProps) {
+export const UserAvatar: React.FC<AvatarProps> = React.forwardRef<
+  HTMLDivElement,
+  AvatarProps
+>(({ src, ...rest }: AvatarProps, ref) => {
   return (
     <Avatar
       size="sm"
       src={src ? computeUserAvatar(src) : undefined}
       {...rest}
+      ref={ref}
     />
   );
-}
+});
 
 export default function AvatarWithStatus({
   status = UsersModel.Models.Status.Offline,
