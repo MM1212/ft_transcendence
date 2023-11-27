@@ -56,6 +56,21 @@ export class PongService {
     player.ready = false;
   }
 
+  public handleKeys(client: Socket, data: {key: string, state: boolean}): void {
+    const game = this.getGameByPlayerId(client.id);
+    if (game) {
+      const player = game.getPlayerInstanceById(client.id);
+      if (player) {
+        if (data.state) {
+          player.onKeyDown(data.key);
+        }
+        else {
+          player.onKeyUp(data.key);
+        }
+      } 
+    }
+  }
+
   public createGame(
     data: { game: IGameConfig; player: IPlayerConfig },
     server: Server,
@@ -120,8 +135,7 @@ export class PongService {
     if (game.config.nPlayers < 2)
       throw new Error('Not enough players to start the game');
     if (this.everyoneIsReady(game) === false) throw new Error('Not everyone is ready');
-    // if game already begun
-    game.start();
+    console.log(`Game ${game.roomId} is ready to start`);
     return game.config;
   }
 
@@ -427,6 +441,7 @@ export class PongService {
     return game;
   }
 
+  // RoomId is just a number and not game-<number>
   public getGameByRoomId(roomId: string): ServerGame | undefined {
     if (!roomId) return undefined;
     const game = this.games.get(roomId);

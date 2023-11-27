@@ -8,8 +8,6 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { ServerGame } from './game';
-import { Player } from '@shared/Pong/Paddles/Player';
 import { PongService } from './pong.service';
 import { IGameConfig, IPlayerConfig } from '@shared/Pong/config/configInterface';
 
@@ -201,10 +199,20 @@ export class PongGateway
   }
 
   @SubscribeMessage('start-game')
-  startGame(client: Socket): void {
+  startGame(client: Socket, roomId: string | undefined): void {
     try {
-      const gameConf = this.service.startGame(client);
-      this.server.to(gameConf.roomId).emit('STARTGAME', gameConf);
+      if (!roomId)
+      {
+        const gameConf = this.service.startGame(client);
+        this.server.to(gameConf.roomId).emit('STARTGAME', gameConf);
+      } else {
+        console.log(`Starting game ${roomId}`);
+        // temp
+        const game = this.service.getGameByRoomId(roomId.replace("game-", ""));
+        if (!game) throw new Error(`Game ${roomId} not found`);
+        this.server.to(roomId).emit('STARTMOVING');
+        game?.start();
+      }
     } catch (error) {
       this.errorHandler('start-game', client, error.message);
     }
@@ -215,11 +223,9 @@ export class PongGateway
     console.log(message);
   }
 
-  // @SubscribeMessage('keyPress')
-  // handleKeyPress(client: Socket, data: any): void {
-  //   const room = this.rooms.get(data.room);
-  //   if (!room) return;
-  //   room.handleKeyPress(client, data);
-  // }
+  @SubscribeMessage('keyPress')
+  handleKeyPress(client: Socket, data: {key: string, state: boolean}): void {
+    this.service.handleKeys(client, data);
+  }
 }
 

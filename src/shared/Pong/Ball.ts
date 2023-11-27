@@ -24,6 +24,8 @@ export class Ball extends GameObject {
         this.collider.lastCollision = undefined;
         this.effect = undefined;
         this.effectVelocity = new Vector2D(1, 1);
+        
+        this.hasChanged = true;
     }
 
     getRandomVelocity(): Vector2D {

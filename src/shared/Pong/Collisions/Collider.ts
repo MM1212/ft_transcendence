@@ -6,7 +6,7 @@ import { Vector2D } from '../utils/Vector';
 export class Collider {
     public center: Vector2D = Vector2D.Zero;
     public lastCollision: Collider | undefined | false;
-    public isCollider: boolean = false;
+    public hasCollided: boolean = false;
     public target: GameObject | undefined;
     public line: { start: Vector2D, end: Vector2D} | undefined = undefined;
     public intersection: Vector2D | undefined = undefined;
@@ -54,8 +54,8 @@ export class Collider {
             const co = ob1.getPolygon.collides(ob2.getPolygon);
             if (co != undefined) 
             {
-                ob1.collider.isCollider = true;
-                ob2.collider.isCollider = true;
+                ob1.collider.hasCollided = true;
+                ob2.collider.hasCollided = true;
 
                 ob1.collider.line = co.obj;
                 ob2.collider.line = co.target;
@@ -88,7 +88,7 @@ export class Collider {
     public reset(){
         //this.target = undefined;
         this.line = undefined;
-        this.isCollider = false;
+        this.hasCollided = false;
         this.intersection = undefined;
     }
 

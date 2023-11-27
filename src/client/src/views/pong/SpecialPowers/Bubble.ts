@@ -1,6 +1,6 @@
 import { UIGameObject } from "../GameObject";
 import { Vector2D } from "../utils/Vector";
-import { BubbleTex } from "../index";
+import { BubbleTex } from "../utils";
 import { Bar } from "@shared/Pong/Paddles/Bar";
 import * as PIXI from "pixi.js";
 import { Bubble } from "@shared/Pong/SpecialPowers/Bubble";

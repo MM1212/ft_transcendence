@@ -1,6 +1,6 @@
 import { UIGameObject } from "../GameObject";
 import { Vector2D } from "../utils/Vector";
-import { GhostTex } from "../index";
+import { GhostTex } from "../utils";
 import { Bar } from "@shared/Pong/Paddles/Bar";
 import * as PIXI from "pixi.js";
 import { Ghost } from "@shared/Pong/SpecialPowers/Ghost";

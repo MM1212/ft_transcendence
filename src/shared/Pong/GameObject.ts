@@ -22,6 +22,8 @@ export abstract class GameObject {
     protected hitAmount: number = 0;
     protected effect: Effect | undefined;
     protected effectVelocity: Vector2D = new Vector2D(1, 1);
+    
+    public hasChanged: boolean = false;
 
     constructor(public tag: string, public readonly game: Game) {
         this._move = false;
@@ -109,7 +111,7 @@ export abstract class GameObject {
     abstract update(delta: number): void;
     abstract updatePolygon(center: { x: number; y: number }): void;
     onCollide?(target: GameObject, line: { start: Vector2D; end: Vector2D }): void;
-    onKeyDown?(e: KeyboardEvent): void;
-    onKeyUp?(e: KeyboardEvent): void;
+    onKeyDown?(key: string): void;
+    onKeyUp?(key: string): void;
     onDestroy?(): void;
 }

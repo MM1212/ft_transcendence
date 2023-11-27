@@ -89,7 +89,7 @@ export abstract class Bar extends GameObject {
         }
         return true;
     }
-
+    
     public static create(specialPower: SpecialPowerType, center: Vector2D, direction: number, shooter: Bar) {
         switch (specialPower) {
             case "Bubble":

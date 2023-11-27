@@ -25,13 +25,8 @@ import {
 } from 'node_modules/socket.io/dist/typed-events';
 import { BroadcastOperator, Server, Socket } from 'socket.io';
 import { PongGateway } from '../pong.gateway';
-
-const defaultKeyControls = {
-  up: 'w',
-  down: 's',
-  boost: 'a',
-  shoot: 'q',
-};
+import { SubscribeMessage } from '@nestjs/websockets';
+import { GameObject } from '@shared/Pong/GameObject';
 
 type Room = BroadcastOperator<DefaultEventsMap, any>;
 
@@ -84,6 +79,15 @@ export class ServerGame extends Game {
     this.updateHandle = setInterval(tick, 16);
   }
 
+  public getPlayerInstanceById(id: string): Player | undefined {
+    return this.gameObjects.find((gameObject: GameObject) => {
+      if (gameObject instanceof Player) {
+        return gameObject.socketId === id;
+      }
+      return false;
+    }) as Player;
+  }
+
   public stop() {
     if (this.updateHandle) {
       clearInterval(this.updateHandle);
@@ -93,13 +97,17 @@ export class ServerGame extends Game {
 
   public update(delta: number): void {
     super.update(delta);
-    const ball = this.getObjectByTag('Bolinha');
-    this.room.emit('movements', [
-      {
-        tag: ball?.tag,
-        position: ball?.getCenter.toArray(),
-      },
-    ]);
+    if (this.sendObjects.length > 0)
+    {
+      this.room.emit('movements', this.sendObjects.map((gameObject: GameObject) => {
+        const temp = {
+          tag: gameObject.tag,
+          position: gameObject.getCenter.toArray(),
+        }
+        return temp;
+      })
+      );
+    }
   }
   // MISSING: SpecialPowers in bot
   private buildPlayers() {
@@ -116,6 +124,7 @@ export class ServerGame extends Game {
         new Vector2D(1, 1),
         p1Conf.specialPower as SpecialPowerType,
         this,
+        p1Conf.userId,
       );  
     } else {
       p1 = new Bot(
@@ -138,6 +147,7 @@ export class ServerGame extends Game {
         new Vector2D(-1, 1),
         p2Conf.specialPower as SpecialPowerType,
         this,
+        p2Conf.userId,
       );
     } else {
       p2 = new Bot(
@@ -162,6 +172,7 @@ export class ServerGame extends Game {
           new Vector2D(1, 1),
           p3Conf.specialPower as SpecialPowerType,
           this,
+          p3Conf.userId,
         );
       } else {
         p3 = new Bot(
@@ -187,6 +198,7 @@ export class ServerGame extends Game {
           new Vector2D(-1, 1),
           p4Conf.specialPower as SpecialPowerType,
           this,
+          p4Conf.userId,
         );
       } else {
         p4 = new Bot(

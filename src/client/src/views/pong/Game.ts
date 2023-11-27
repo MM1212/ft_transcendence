@@ -14,33 +14,20 @@ import {
   P1Tex,
   P2Tex,
   BallTex,
-  DEFAULT_LINE_COLOR,
-  DEFAULT_FIELD_COLOR,
-} from "./index";
-import { IGameConfig, gameConfig } from "@shared/Pong/config/configInterface";
+} from "./utils";
+import { IGameConfig } from "@shared/Pong/config/configInterface";
 import { SpecialPowerType } from "@shared/Pong/SpecialPowers/SpecialPower";
-import { MULTIPLAYER_START_POS, WINDOWSIZE_X, WINDOWSIZE_Y, score } from "@shared/Pong/main";
+import {
+  MULTIPLAYER_START_POS,
+  WINDOWSIZE_X,
+  WINDOWSIZE_Y,
+  score,
+} from "@shared/Pong/main";
 
-import { KeyControls } from "./Paddles/Player";
 import { UIBot } from "./Paddles/Bot";
-import { Socket } from 'socket.io-client';
-
-const keys1: KeyControls = {
-  up: "w",
-  down: "s",
-  boost: "a",
-  shoot: "q",
-};
-
-const keys2: KeyControls = {
-  up: "ArrowUp",
-  down: "ArrowDown",
-  boost: "ArrowLeft",
-  shoot: "ArrowRight",
-};
+import { Socket } from "socket.io-client";
 
 export class UIGame extends Game {
-
   public app: PIXI.Application;
   private debug: Debug;
   private scoreElement: PIXI.Text;
@@ -49,8 +36,16 @@ export class UIGame extends Game {
   private blueTranform = new PIXI.ColorMatrixFilter();
   private backgroundHue = new PIXI.ColorMatrixFilter();
 
-  constructor(public readonly socket: Socket, container: HTMLDivElement, gameConfig: IGameConfig) {
+  public roomId: string;
+
+  constructor(
+    public readonly socket: Socket,
+    container: HTMLDivElement,
+    gameConfig: IGameConfig
+  ) {
     super(WINDOWSIZE_X, WINDOWSIZE_Y);
+
+    this.roomId = gameConfig.roomId;
 
     this.app = new PIXI.Application({
       background: gameConfig.backgroundColor,
@@ -59,15 +54,29 @@ export class UIGame extends Game {
       height: WINDOWSIZE_Y,
     });
     this.app.renderer.background.color = gameConfig.backgroundColor;
-    
+
     drawLines(gameConfig.lineColor, this.app);
 
-    this.drawPlayers(gameConfig)
+    this.drawPlayers(gameConfig);
 
-    this.add(new UIArenaWall(new Vector2D(0, 0), new Vector2D(this.width, ARENA_SIZE), 0x00abff, this));
-    this.add(new UIArenaWall(new Vector2D(0, this.height - ARENA_SIZE), new Vector2D(this.width, ARENA_SIZE), 0x00abff, this));
+    this.add(
+      new UIArenaWall(
+        new Vector2D(0, 0),
+        new Vector2D(this.width, ARENA_SIZE),
+        0x00abff,
+        this
+      )
+    );
+    this.add(
+      new UIArenaWall(
+        new Vector2D(0, this.height - ARENA_SIZE),
+        new Vector2D(this.width, ARENA_SIZE),
+        0x00abff,
+        this
+      )
+    );
     this.add(new UIBall(this.width / 2, this.height / 2, BallTex, this));
-    
+
     container.appendChild(this.app.view as HTMLCanvasElement);
 
     // change this
@@ -101,25 +110,39 @@ export class UIGame extends Game {
   }
 
   handleKeyDown = (e: KeyboardEvent) => {
-    this.socket.emit("keyPress", [{
-      key: e.key, 
-      state: true
-    }]);
+    this.socket.emit("keyPress", {
+      key: e.key,
+      state: true,
+    });
     console.log("keydown", e.key);
 
-    // if (e.key === "p") this.debug.isDebug = !this.debug.isDebug;
+    if (e.key === "p") this.debug.isDebug = !this.debug.isDebug;
   };
 
   handleKeyUp = (e: KeyboardEvent) => {
-    this.socket.emit("keyPress", [{
-      key: e,
+    this.socket.emit("keyPress", {
+      key: e.key,
       state: false,
-    }]);
+    });
     console.log("keyup", e.key);
     // this.keyup_gameObjects.forEach((gameObject) => {
     //   if (gameObject?.onKeyUp) gameObject.onKeyUp.bind(gameObject)(e);
     // });
   };
+
+  handleMovements(data: { tag: string; position: number[] }[]) {
+    console.log(data);
+    data.forEach((e) => {
+      const obj = this.getObjectByTag(e.tag) as UIGameObject;
+      console.log("OBJ" + obj);
+      if (obj) {
+        console.log("TAG" + obj.tag);
+        obj.setCenter(new Vector2D(e.position[0], e.position[1]));
+        obj.displayObject.x = obj.getCenter.x;
+        obj.displayObject.y = obj.getCenter.y;
+      }
+    });
+  }
 
   start() {
     //super.start();
@@ -128,25 +151,12 @@ export class UIGame extends Game {
     text.x = 200;
     text.y = 10;
     this.app.stage.addChild(text);
-  
-    // not tested
-    this.socket.on('movements', (data: { tag:string, position:number[]} []) => {
-      console.log(data);
-      data.forEach((e) => {
-        const obj = this.getObjectByTag(e.tag) as UIGameObject;
-        if (obj) {
-          obj.setCenter(new Vector2D(e.position[0], e.position[1]));
-          obj.displayObject.x = obj.getCenter.x;
-          obj.displayObject.y = obj.getCenter.y;
-        }
-      })
-    });
 
     this.app.ticker.add(this.update.bind(this));
   }
 
   update(delta: number) {
-    super.update(delta);
+    //super.update(delta);
 
     if (this.run) {
       this.scoreElement.text = `${score[0]}     ${score[1]}`;
@@ -166,7 +176,9 @@ export class UIGame extends Game {
     this.app.stage.removeChild(
       ...(this.remove_gameObjects as UIGameObject[]).map((e) => e.displayObject)
     );
-    (this.remove_gameObjects as UIGameObject[]).forEach(e => e.displayObject.destroy());
+    (this.remove_gameObjects as UIGameObject[]).forEach((e) =>
+      e.displayObject.destroy()
+    );
     super.removeObjects();
   }
 
@@ -187,22 +199,22 @@ export class UIGame extends Game {
     // Add special power to the bots
     let p1;
     if (p1Conf.type === "player") {
-        p1 = new UIPlayer(
+      p1 = new UIPlayer(
         P1Tex,
         P_START_DIST,
         this.height / 2,
         p1Conf.keys!,
-        "Player1", // might need to be changed
+        "Player 1", // might need to be changed
         new Vector2D(1, 1),
         p1Conf.specialPower as SpecialPowerType,
         this
       );
     } else {
-        p1 = new UIBot(
+      p1 = new UIBot(
         P1Tex,
         P_START_DIST,
         this.height / 2,
-        "Player2",
+        "Player 2",
         new Vector2D(1, 1),
         this
       );
@@ -214,22 +226,22 @@ export class UIGame extends Game {
 
     let p2;
     if (p2Conf.type === "player") {
-        p2 = new UIPlayer(
+      p2 = new UIPlayer(
         P2Tex,
         this.width - P_START_DIST,
         this.height / 2,
         p2Conf.keys!,
-        "Player2",
+        "Player 2",
         new Vector2D(-1, 1),
         p2Conf.specialPower as SpecialPowerType,
         this
       );
     } else {
-        p2 = new UIBot(
+      p2 = new UIBot(
         P2Tex,
         this.width - P_START_DIST,
         this.height / 2,
-        "Player2",
+        "Player 2",
         new Vector2D(-1, 1),
         this
       );
@@ -246,7 +258,7 @@ export class UIGame extends Game {
           MULTIPLAYER_START_POS,
           this.height / 2,
           p3Conf.keys!,
-          "Player3",
+          "Player 3",
           new Vector2D(1, 1),
           p3Conf.specialPower as SpecialPowerType,
           this
@@ -256,7 +268,7 @@ export class UIGame extends Game {
           P1Tex,
           MULTIPLAYER_START_POS,
           this.height / 2,
-          "Player3",
+          "Player 3",
           new Vector2D(1, 1),
           this
         );
@@ -276,7 +288,7 @@ export class UIGame extends Game {
           this.width - MULTIPLAYER_START_POS,
           this.height / 2,
           p4Conf.keys!,
-          "Player4",
+          "Player 4",
           new Vector2D(-1, 1),
           p4Conf.specialPower as SpecialPowerType,
           this
@@ -286,7 +298,7 @@ export class UIGame extends Game {
           P2Tex,
           this.width - MULTIPLAYER_START_POS,
           this.height / 2,
-          "Player4",
+          "Player 4",
           new Vector2D(-1, 1),
           this
         );

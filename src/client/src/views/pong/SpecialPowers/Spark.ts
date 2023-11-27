@@ -1,6 +1,6 @@
 import { UIGameObject } from "../GameObject";
 import { Vector2D } from "../utils/Vector";
-import { SparkTex } from "../index";
+import { SparkTex } from "../utils";
 import { Bar } from "@shared/Pong/Paddles/Bar";
 import * as PIXI from "pixi.js";
 import { Spark } from "@shared/Pong/SpecialPowers/Spark";

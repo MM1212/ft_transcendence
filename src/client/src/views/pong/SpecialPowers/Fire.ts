@@ -1,6 +1,6 @@
 import { UIGameObject } from "../GameObject";
 import { Vector2D } from "../utils/Vector";
-import { CannonTex } from "../index";
+import { CannonTex } from "../utils";
 import { Bar } from "@shared/Pong/Paddles/Bar";
 import { UIShooter } from "./Shooter";
 import * as PIXI from "pixi.js";
