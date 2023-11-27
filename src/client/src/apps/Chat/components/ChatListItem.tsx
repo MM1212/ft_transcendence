@@ -11,6 +11,7 @@ import { Avatar } from '@mui/joy';
 import ChatsModel from '@typings/models/chat';
 import moment from 'moment';
 import useChat from '../hooks/useChat';
+import AccountGroupIcon from '@components/icons/AccountGroupIcon';
 
 type ChatListItemProps = {
   id: number;
@@ -41,7 +42,9 @@ function ChatListContent({ id }: { id: number }): JSX.Element {
             size="lg"
           />
         ) : (
-          <Avatar src={photo ?? undefined} size="lg" />
+          <Avatar src={photo ?? undefined} size="lg" >
+            <AccountGroupIcon />
+          </Avatar>
         )}
         <Stack spacing={0.25} width="100%">
           <Box

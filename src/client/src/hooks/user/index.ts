@@ -44,6 +44,7 @@ export const useSessionActions = (): SessionActions => {
     await tunnel.rawGet(AuthModel.Endpoints.Targets.Logout);
     await clearAllSwrCache();
     navigate('/login');
+    window.location.reload(); // invalidate all recoil cache
   };
 
   return { login, logout };
