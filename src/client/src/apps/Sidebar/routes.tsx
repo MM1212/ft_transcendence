@@ -8,7 +8,6 @@ import ForumIcon from '@components/icons/ForumIcon';
 import HangerIcon from '@components/icons/HangerIcon';
 import HistoryIcon from '@components/icons/HistoryIcon';
 import HomeIcon from '@components/icons/HomeIcon';
-import HumanQueueIcon from '@components/icons/HumanQueueIcon';
 import PlayIcon from '@components/icons/PlayIcon';
 import PodiumIcon from '@components/icons/PodiumIcon';
 import TableTennisIcon from '@components/icons/TableTennisIcon';
