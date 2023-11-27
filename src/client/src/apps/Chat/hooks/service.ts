@@ -11,12 +11,11 @@ const useMessagesService = () => {
   const onNewMessage = useRecoilCallback(
     (ctx) => async (ev: ChatsModel.Sse.NewMessageEvent) => {
       const { data } = ev;
-      const chats = [...(await ctx.snapshot.getPromise(chatsState.chats))];
-      const chatIdx = chats.indexOf(data.chatId);
+      const chats = await ctx.snapshot.getPromise(chatsState.chats);
+      if (!chats.includes(data.chatId)) return;
       const selectedChatId = await ctx.snapshot.getPromise(
         chatsState.selectedChatId
       );
-      if (chatIdx === -1) return;
       if (selectedChatId !== data.chatId)
         ctx.set(chatsState.selfParticipantByChat(data.chatId), (prev) => ({
           ...prev,

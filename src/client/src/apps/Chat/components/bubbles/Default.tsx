@@ -4,6 +4,7 @@ import { urlRegex } from '../NewChat';
 import React from 'react';
 
 export interface ChatDefaultMessageBubbleProps {
+  messageId: number;
   isSent: boolean;
   features: {
     prev: boolean;

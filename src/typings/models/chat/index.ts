@@ -19,6 +19,7 @@ namespace ChatsModel {
     }
     export enum ChatAccess {
       Public = 'PUBLIC',
+      Protected = 'PROTECTED',
       Private = 'PRIVATE',
     }
     export enum ChatParticipantRole {
@@ -77,6 +78,7 @@ namespace ChatsModel {
       export interface ChatInvite {
         type: GroupEnumValues<Type.ChatInvite>;
         chatId: number;
+        inviteNonce: string;
       }
       export type All = Media | UserProfile | GameInvite | ChatInvite;
     }
@@ -209,10 +211,20 @@ namespace ChatsModel {
       type: 'user' | 'chat';
       id: number;
     }
+
+    export interface JoinChat {
+      password?: string;
+      messageData?: {
+        id: number;
+        nonce: string;
+      };
+      returnChatInfo?: boolean;
+    }
   }
   export namespace Endpoints {
     export enum Targets {
       GetChat = '/chats/:chatId',
+      GetChatInfo = '/chats/:chatId/info',
       GetChatParticipants = '/chats/:chatId/participants',
       GetChatMessages = '/chats/:chatId/messages',
       GetChatMessage = '/chats/:chatId/messages/:messageId',
@@ -235,6 +247,7 @@ namespace ChatsModel {
       TransferOwnership = '/chats/:chatId/transfer',
       SendInviteToTargets = '/chats/:chatId/invite',
       SetTyping = '/chats/:chatId/typing',
+      JoinChat = '/chats/:chatId/join',
     }
     export type All = GroupEndpointTargets<Targets>;
 
@@ -244,6 +257,12 @@ namespace ChatsModel {
       extends GetEndpoint<
         Targets.GetChat,
         Models.IChatDisplay,
+        DTO.ChatParams
+      > {}
+    export interface GetChatInfo
+      extends GetEndpoint<
+        Targets.GetChatInfo,
+        Models.IChatInfo,
         DTO.ChatParams
       > {}
     export interface GetChatParticipants
@@ -403,10 +422,20 @@ namespace ChatsModel {
         DTO.ChatParams
       > {}
 
+    export interface JoinChat
+      extends Endpoint<
+        EndpointMethods.Post,
+        Targets.JoinChat,
+        Models.IChatDisplay | undefined,
+        DTO.JoinChat,
+        DTO.ChatParams
+      > {}
+
     export interface Registry extends EndpointRegistry {
       [EndpointMethods.Get]: {
         [Targets.GetSessionChats]: GetChats;
         [Targets.GetChat]: GetChat;
+        [Targets.GetChatInfo]: GetChatInfo;
         [Targets.GetChatParticipants]: GetChatParticipants;
         [Targets.GetChatMessages]: GetChatMessages;
         [Targets.GetChatMessage]: GetChatMessage;
@@ -420,6 +449,7 @@ namespace ChatsModel {
         [Targets.TransferOwnership]: TransferOwnership;
         [Targets.MuteParticipant]: MuteParticipant;
         [Targets.SendInviteToTargets]: SendInviteToTargets;
+        [Targets.JoinChat]: JoinChat;
       };
       [EndpointMethods.Put]: {
         [Targets.CreateChat]: CreateChat;

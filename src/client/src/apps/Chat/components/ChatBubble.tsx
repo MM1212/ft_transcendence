@@ -35,6 +35,7 @@ export default function ChatBubble({
     type,
     pending,
     meta,
+    id,
   }: ChatsModel.Models.IChatMessage & { pending?: boolean } =
     messageData; /* useRecoilValue(chatsState.message({ chatId, messageId }))! */
 
@@ -80,17 +81,18 @@ export default function ChatBubble({
             />
           )}
 
-          <Box sx={{ maxWidth: '60%', minWidth: 'auto' }}>
-            <Stack
-              direction="row"
-              justifyContent={isSent ? 'flex-end' : 'flex-start'}
-              spacing={2}
+          <Box sx={{ maxWidth: '60%', minWidth: '8dvh' }}>
+            <Box
+              display="flex"
+              justifyContent="space-between"
               mb={0.25}
               pr={0.25}
               width="100%"
             >
               {!isSent && !features.prev && (
-                <Typography level="body-xs">{user.nickname}</Typography>
+                <Typography level="body-xs" mr={2}>
+                  {user.nickname}
+                </Typography>
               )}
               {!features.prev && (
                 <Tooltip
@@ -106,17 +108,19 @@ export default function ChatBubble({
                   </Typography>
                 </Tooltip>
               )}
-            </Stack>
+            </Box>
             <Box
               sx={{
                 position: 'relative',
                 display: 'flex',
                 alignItems: 'center',
+                width: '100%',
                 justifyContent: isSent ? 'flex-end' : 'flex-start',
               }}
             >
               {type === ChatsModel.Models.ChatMessageType.Normal ? (
                 <ChatDefaultMessageBubble
+                  messageId={id}
                   isSent={isSent}
                   features={features}
                   message={message}
@@ -124,6 +128,7 @@ export default function ChatBubble({
                 />
               ) : (
                 <ChatEmbedMessage
+                  messageId={id}
                   isSent={isSent}
                   features={features}
                   message={message}
@@ -146,6 +151,7 @@ export default function ChatBubble({
       isMuted,
       createdAt,
       type,
+      id,
       message,
       pending,
       meta,

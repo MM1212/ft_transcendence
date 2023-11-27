@@ -17,8 +17,8 @@ function ChatEntries() {
   const chatIds = useRecoilValue(chatsState.filteredChatIds);
   return (
     <>
-      {chatIds.map((id) => (
-        <ChatListItem key={id} id={id} />
+      {chatIds.map((id, i) => (
+        <ChatListItem key={id} id={id} last={i === chatIds.length - 1} />
       ))}
     </>
   );
@@ -36,6 +36,8 @@ export default function ChatsPane() {
         height: '100%',
         overflowY: 'auto',
         width: '35dvh',
+        display: 'flex',
+        flexDirection: 'column',
       }}
     >
       <Stack
@@ -58,7 +60,7 @@ export default function ChatsPane() {
                 size="md"
                 slotProps={{ root: { component: 'span' } }}
               >
-                {unreadPings}
+                {unreadPings > 9 ? '9+' : unreadPings}
               </Chip>
             )
           }
@@ -93,15 +95,17 @@ export default function ChatsPane() {
       <Box sx={{ px: 2, pb: 1.5 }}>
         <ChatsInput />
       </Box>
-      <List
-        sx={{
-          py: 0,
-          '--ListItem-paddingY': '0.75rem',
-          '--ListItem-paddingX': '1rem',
-        }}
-      >
-        <ChatEntries />
-      </List>
+      <Box flexGrow={1} overflow="auto" height="auto">
+        <List
+          sx={{
+            py: 0,
+            '--ListItem-paddingY': '0.75rem',
+            '--ListItem-paddingX': '1rem',
+          }}
+        >
+          <ChatEntries />
+        </List>
+      </Box>
     </Sheet>
   );
 }

@@ -87,14 +87,19 @@ const chatsState = new (class MessagesState {
     default: selectorFamily<ChatsModel.Models.IChat, number>({
       key: 'chat/selector',
       get: (id) => async () => {
-        const chat: ChatsModel.Models.IChat = (await tunnel.get(
-          Targets.GetChat,
-          {
-            chatId: id,
-          }
-        )) as ChatsModel.Models.IChat;
-        chat.authorizationData = null;
-        return chat;
+        try {
+          const chat: ChatsModel.Models.IChat = (await tunnel.get(
+            Targets.GetChat,
+            {
+              chatId: id,
+            }
+          )) as ChatsModel.Models.IChat;
+          chat.authorizationData = null;
+          return chat;
+        }
+        catch (e) {
+          return null as any;
+        }
       },
     }),
   });
@@ -176,6 +181,7 @@ const chatsState = new (class MessagesState {
       (id) =>
       ({ get }) => {
         const chat = get(this.chat(id));
+        if (!chat) return null as any;
         const self = get(sessionAtom);
         return chat.participants.find((p) => p.userId === self?.id)!;
       },
@@ -183,10 +189,7 @@ const chatsState = new (class MessagesState {
       (id) =>
       ({ set }, newValue) => {
         if (newValue instanceof DefaultValue) return;
-        set(this.participant({ chatId: id, participantId: newValue.id }), {
-          ...newValue,
-          toReadPings: 0,
-        });
+        set(this.participant({ chatId: id, participantId: newValue.id }), newValue);
       },
   });
   isParticipantBlocked = selectorFamily<
@@ -347,6 +350,7 @@ const chatsState = new (class MessagesState {
       (id) =>
       ({ get }) => {
         const chat = get(this.chat(id));
+        if (!chat) return {deleted: true} as any;
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { messages, participants, authorizationData, ...info } = chat;
         const self = get(sessionAtom);
@@ -437,7 +441,7 @@ const chatsState = new (class MessagesState {
     default: '',
   });
 })();
-interface ISelectedChatInfo
+export interface ISelectedChatInfo
   extends Omit<
     ChatsModel.Models.IChatInfo,
     'messages' | 'participants' | 'authorizationData'

@@ -14,6 +14,7 @@ import useChat from '../hooks/useChat';
 
 type ChatListItemProps = {
   id: number;
+  last: boolean;
 };
 
 function ChatListContent({ id }: { id: number }): JSX.Element {
@@ -47,6 +48,7 @@ function ChatListContent({ id }: { id: number }): JSX.Element {
             display="flex"
             justifyContent="space-between"
             alignItems="center"
+            width="25dvh"
           >
             <Typography level="title-sm">{name}</Typography>
             <Stack direction="row" alignItems="center" spacing={1}>
@@ -93,8 +95,7 @@ function ChatListContent({ id }: { id: number }): JSX.Element {
   );
 }
 
-
-function _ChatListItem({ id }: ChatListItemProps) {
+function _ChatListItem({ id, last }: ChatListItemProps) {
   const { goTo, useIsSelected } = useChat(id);
 
   const isSelected = useIsSelected();
@@ -117,10 +118,10 @@ function _ChatListItem({ id }: ChatListItemProps) {
             <ChatListContent id={id} />
           </ListItemButton>
         </ListItem>
-        <ListDivider sx={{ margin: 0 }} />
+        {!last && <ListDivider sx={{ margin: 0 }} />}
       </>
     ),
-    [goTo, id, isSelected]
+    [goTo, id, isSelected, last]
   );
 }
 

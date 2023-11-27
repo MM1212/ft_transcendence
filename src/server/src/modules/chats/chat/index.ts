@@ -181,6 +181,9 @@ class Chat extends CacheObserver<IChat> {
   public get isPrivate(): boolean {
     return this.authorization === ChatsModel.Models.ChatAccess.Private;
   }
+  public get isProtected(): boolean {
+    return this.authorization === ChatsModel.Models.ChatAccess.Protected;
+  }
   public get sseTargets(): number[] {
     return this.participants.map((p) => p.userId);
   }
@@ -406,14 +409,39 @@ class Chat extends CacheObserver<IChat> {
     return result;
   }
 
+  public async addParticipant(
+    user: User
+  ): Promise<Participant> {
+    if (this.hasParticipantByUserId(user.id))
+      throw new ForbiddenException('You are already in this chat.');
+    const participantData = await this.helpers.db.chats.createChatParticipant({
+      chatId: this.id,
+      userId: user.id,
+      role: ChatsModel.Models.ChatParticipantRole.Member,
+    });
+    const participant = new Participant(participantData, this);
+    this.helpers.sseService.emitToTargets<ChatsModel.Sse.UpdateParticipantEvent>(
+      ChatsModel.Sse.Events.UpdateParticipant,
+      this.sseTargets,
+      {
+        type: 'add',
+        participantId: participant.id,
+        chatId: this.id,
+        participant: participant.public,
+      },
+    );
+    this.set('participants', (prev) => [...prev, participant]);
+    return participant;
+  }
   public async updateParticipant(
     op: User,
     participantId: number,
     data: Partial<ChatsModel.DTO.UpdateParticipant>,
+    member: boolean = true,
   ): Promise<Participant> {
-    const participant = this.getParticipant(participantId, true);
+    const participant = this.getParticipant(participantId, member);
     if (!participant) throw new ForbiddenException();
-    const participantOp = this.getParticipantByUserId(op.id);
+    const participantOp = this.getParticipantByUserId(op.id, member);
     if (!participantOp) throw new ForbiddenException();
     if (!participantOp.isOperator() && participant.userId !== op.id)
       throw new ForbiddenException();
@@ -638,6 +666,7 @@ class Chat extends CacheObserver<IChat> {
               meta: {
                 type: ChatsModel.Models.Embeds.Type.ChatInvite,
                 chatId: this.id,
+                inviteNonce: Math.floor(Math.random() * 1000000).toString(),
               },
             },
             true,

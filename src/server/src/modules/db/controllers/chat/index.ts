@@ -143,7 +143,9 @@ export class Chats {
     return (
       await this.prisma.chat.findMany({
         where: {
-          authorization: ChatModel.Models.ChatAccess.Public,
+          authorization: {
+            not: ChatModel.Models.ChatAccess.Private
+          },
         },
         include: {
           participants: true,

@@ -11,26 +11,42 @@ import {
   Stack,
   Typography,
 } from '@mui/joy';
-import { usePublicChatsModal } from './hooks/usePublicChatsModal';
+import {
+  usePublicChatsModal,
+  usePublicChatsModalActions,
+} from './hooks/usePublicChatsModal';
 import React from 'react';
 import ChatsModel from '@typings/models/chat';
 import tunnel from '@lib/tunnel';
 import AccountGroupIcon from '@components/icons/AccountGroupIcon';
 import { useRecoilValue } from 'recoil';
 import chatsState from '@apps/Chat/state';
+import { Badge } from '@mui/joy';
+import LockIcon from '@components/icons/LockIcon';
+import useChat from '@apps/Chat/hooks/useChat';
 
 function Entry(props: ChatsModel.Models.IChatInfo) {
-  const { id, name, photo, participantsCount, topic } = props;
+  const { id, name, photo, authorization, participantsCount, topic } = props;
   const chats = useRecoilValue(chatsState.chats);
   const joined = React.useMemo(() => chats.includes(id), [chats, id]);
+  const { attemptToJoin: _attemptToJoin } = useChat(id);
+  const [loading, setLoading] = React.useState(false);
+  const { close } = usePublicChatsModalActions();
+  const attemptToJoin = React.useCallback(async () => {
+    setLoading(true);
+    await _attemptToJoin();
+    setLoading(false);
+    close();
+  }, [_attemptToJoin, close]);
   return React.useMemo(
     () => (
-      <Stack
-        direction="row"
-        spacing={1}
+      <Box
+        display="flex"
+        justifyContent="space-between"
         alignItems="center"
         sx={(theme) => ({
           p: 1,
+          gap: 4,
           borderRadius: 'md',
           transition: theme.transitions.create('background-color', {
             duration: theme.transitions.duration.shortest,
@@ -40,22 +56,52 @@ function Entry(props: ChatsModel.Models.IChatInfo) {
           },
         })}
       >
-        <Avatar src={photo ?? undefined}>
-          <AccountGroupIcon />
-        </Avatar>
-        <Stack spacing={0.5} flexGrow={1}>
-          <Box display="flex" alignItems="center" gap={1}>
-            <Typography level="title-sm">{name}</Typography>
-            {topic && <Typography level="body-xs">{topic}</Typography>}
-          </Box>
-          <Typography level="body-xs">{participantsCount} members</Typography>
+        <Stack spacing={1} alignItems="center" direction="row">
+          <Badge
+            badgeContent={<LockIcon size="xs" />}
+            color="warning"
+            badgeInset="14%"
+            size="sm"
+            variant="plain"
+            anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+            invisible={authorization !== ChatsModel.Models.ChatAccess.Protected}
+          >
+            <Avatar src={photo ?? undefined} size="lg">
+              <AccountGroupIcon />
+            </Avatar>
+          </Badge>
+          <Stack spacing={0.5} flexGrow={1}>
+            <Box display="flex" alignItems="center" gap={1}>
+              <Typography level="title-sm">{name}</Typography>
+              {topic && (
+                <Typography level="body-xs">{topic.slice(0, 40)}..</Typography>
+              )}
+            </Box>
+            <Typography level="body-xs">{participantsCount} members</Typography>
+          </Stack>
         </Stack>
-        <Button variant="solid" color="primary" disabled={joined} size="sm">
+        <Button
+          variant="solid"
+          color="primary"
+          disabled={joined}
+          size="sm"
+          onClick={attemptToJoin}
+          loading={loading}
+        >
           {joined ? 'Joined' : 'Join'}
         </Button>
-      </Stack>
+      </Box>
     ),
-    [joined, name, participantsCount, photo, topic]
+    [
+      attemptToJoin,
+      authorization,
+      joined,
+      loading,
+      name,
+      participantsCount,
+      photo,
+      topic,
+    ]
   );
 }
 

@@ -48,6 +48,7 @@ function _ChatSelectModal(): JSX.Element {
       const data: ChatSelectedData[] = [];
       // friends
       const friends = await ctx.snapshot.getPromise(friendsState.friends);
+      const blocked = await ctx.snapshot.getPromise(friendsState.blocked);
       if (includeDMs) {
         data.push(
           ...friends
@@ -75,7 +76,10 @@ function _ChatSelectModal(): JSX.Element {
                 chat.participants.some((p) => friends.includes(p.userId)))
             )
               return false;
-            if (chat.authorization !== ChatsModel.Models.ChatAccess.Public) {
+            if (
+              chat.authorization === ChatsModel.Models.ChatAccess.Private &&
+              chat.type === ChatsModel.Models.ChatType.Group
+            ) {
               const selfParticipant = chat.participants.find(
                 (p) => p.userId === self.id
               );
@@ -85,6 +89,16 @@ function _ChatSelectModal(): JSX.Element {
                 ChatsModel.Models.ChatParticipantRole.Member
               )
                 return true;
+              return false;
+            }
+            if (chat.type === ChatsModel.Models.ChatType.Direct) {
+              const other = chat.participants.find((p) => p.userId !== self.id);
+              if (!other) return false;
+              if (blocked.includes(other.userId)) return false;
+              data.push({
+                type: 'user',
+                id: other.userId,
+              });
               return false;
             }
             return true;
@@ -131,6 +145,7 @@ function _ChatSelectModal(): JSX.Element {
           <Stack
             spacing={1}
             mt={2}
+            px={0.5}
             alignItems="center"
             maxHeight="50dvh"
             overflow="hidden auto"

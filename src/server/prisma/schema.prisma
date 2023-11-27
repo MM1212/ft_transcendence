@@ -43,6 +43,7 @@ enum ChatType {
 
 enum ChatAuthorization {
   PUBLIC
+  PROTECTED
   PRIVATE
 }
 

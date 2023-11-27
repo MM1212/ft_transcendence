@@ -21,7 +21,7 @@ import HttpCtx from '@/helpers/decorators/httpCtx';
 import { HTTPContext } from '@typings/http';
 import ChatCtx from './decorators/Chat.pipe';
 import Chat from './chat';
-import { InternalEndpointResponse } from '@typings/api';
+import { EndpointData, InternalEndpointResponse } from '@typings/api';
 import { ChatAuth, ChatOPAuth } from './decorators/Role.guard';
 import UserCtx from '../users/decorators/User.pipe';
 import User from '../users/user';
@@ -47,6 +47,13 @@ export class ChatsController {
     @ChatCtx() chat: Chat,
   ): Promise<InternalEndpointResponse<ChatsModel.Endpoints.GetChat>> {
     return chat.display;
+  }
+
+  @Get(Targets.GetChatInfo)
+  async getInfo(
+    @ChatCtx() chat: Chat,
+  ): Promise<InternalEndpointResponse<ChatsModel.Endpoints.GetChatInfo>> {
+    return chat.public;
   }
 
   @Get(Targets.GetChatMessages)
@@ -255,10 +262,24 @@ export class ChatsController {
   @ChatAuth()
   async setTyping(
     @ChatCtx() chat: Chat,
-    @Body('state', new ParseBoolPipe({ errorHttpStatusCode: 400, optional: true })) state: boolean = true,
+    @Body(
+      'state',
+      new ParseBoolPipe({ errorHttpStatusCode: 400, optional: true }),
+    )
+    state: boolean = true,
     @HttpCtx() { user }: HTTPContext<true>,
   ): Promise<InternalEndpointResponse<ChatsModel.Endpoints.SetTyping>> {
     await chat.setTyping(user, state);
+  }
+
+  @Post(Targets.JoinChat)
+  async joinChat(
+    @ChatCtx() chat: Chat,
+    @HttpCtx() { user }: HTTPContext<true>,
+    @Body() data: EndpointData<ChatsModel.Endpoints.JoinChat> = {},
+  ): Promise<InternalEndpointResponse<ChatsModel.Endpoints.JoinChat>> {
+    await this.service.joinChat(chat.id, user, data);
+    if (data.returnChatInfo) return chat.display;
   }
 }
 // @Patch(Targets.UpdateMessage)

@@ -150,7 +150,7 @@ export default function ChatManageMenu() {
             {type === ChatsModel.Models.ChatType.Group && (
               <GroupOptions
                 self={self}
-                isPublic={authorization === ChatsModel.Models.ChatAccess.Public}
+                isPublic={authorization !== ChatsModel.Models.ChatAccess.Private}
               />
             )}
           </React.Suspense>

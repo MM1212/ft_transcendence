@@ -1,7 +1,7 @@
 import { Sheet, styled } from '@mui/joy';
 
 const Bubble = styled(Sheet, {
-  shouldForwardProp: (prop) => prop !== 'isSent' && prop !== 'features',
+  shouldForwardProp: (prop) => prop !== 'isSent' && prop !== 'features' && prop !== 'messageId',
 })<{
   isSent: boolean;
   features: { prev: boolean; next: boolean };
@@ -20,8 +20,7 @@ const Bubble = styled(Sheet, {
   display: 'flex',
   alignItems: 'center',
   justifyContent: isSent ? 'flex-end' : 'flex-start',
-  maxWidth: 'fit-content',
-  minWidth: '8dvh',
+  width: '100%',
 }));
 
 export default Bubble;

@@ -12,6 +12,7 @@ import { navigate } from 'wouter/use-location';
 import { Typography } from '@mui/joy';
 import EmoticonSadIcon from '@components/icons/EmoticonSadIcon';
 import PublicChatsModalView from '../modals/PublicChatsModal';
+import ChatPasswordInputModalView from '../modals/ChatPasswordInputModal';
 
 function _View(): JSX.Element {
   return (
@@ -28,23 +29,7 @@ function _View(): JSX.Element {
         },
       }}
     >
-      <Sheet
-        sx={{
-          position: {
-            xs: 'fixed',
-            sm: 'sticky',
-          },
-          transform: {
-            xs: 'translateX(calc(100% * (var(--MessagesPane-slideIn, 0) - 1)))',
-            sm: 'none',
-          },
-          transition: 'transform 0.4s, width 0.4s',
-          zIndex: 100,
-          height: '100%',
-        }}
-      >
-        <ChatsPane />
-      </Sheet>
+      <ChatsPane />
       <Switch>
         <Route path="/messages/not-found">
           <Sheet
@@ -69,6 +54,7 @@ function _View(): JSX.Element {
       <ChatMembersModal />
       <ChatManageMuteModal />
       <PublicChatsModalView />
+      <ChatPasswordInputModalView />
     </Sheet>
   );
 }
