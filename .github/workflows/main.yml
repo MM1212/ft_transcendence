@@ -18,14 +18,14 @@ jobs:
       - name: Prettify client code
         uses: creyD/prettier_action@v4.3
         with:
-          working_directory: ${GITHUB_WORKSPACE}/src/client
+          working_directory: "${{ github.workspace }}/src/client"
           same_commit: true
           # This part is also where you can pass other options, for example:
           prettier_options: --write **/*.{ts,tsx}
       - name: Prettify server code
         uses: creyD/prettier_action@v4.3
         with:
-          working_directory: ${GITHUB_WORKSPACE}/src/server
+          working_directory: "${{ github.workspace }}/src/server"
           same_commit: true
           # This part is also where you can pass other options, for example:
           prettier_options: --write **/*.{ts,tsx}
