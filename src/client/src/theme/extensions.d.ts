@@ -4,5 +4,6 @@ declare module '@mui/joy' {
   interface SvgIconPropsSizeOverrides {
     xxs: true;
     xs: true;
+    xl: true;
   }
 }
