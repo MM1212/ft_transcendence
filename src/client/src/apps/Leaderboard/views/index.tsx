@@ -8,9 +8,12 @@ import { fourth } from '../styles';
 import { randomInt } from '@utils/random';
 
 export default function LeaderBoard() {
-  const id = 4;
-  const user = useUser(id);
-  if (!user) return null;
+  const users = [
+    useUser(1),
+    useUser(2),
+    useUser(3),
+    useUser(4),
+  ];
   return (
     <Sheet
       sx={{
@@ -23,11 +26,12 @@ export default function LeaderBoard() {
       <Divider />
       <div
         style={{
-          margin: '20px 0',
+          margin: '24px 0',
           display: 'grid',
-          gridTemplateColumns: '1.5fr 1fr 2fr 1fr',
-          rowGap: '15px',
+          gridTemplateColumns: '1fr 0.25fr 2fr 1.5fr 1fr',
+          rowGap: '16px',
           alignItems: 'center',
+          justifyItems: 'center'
         }}
       >
         <Typography
@@ -35,6 +39,7 @@ export default function LeaderBoard() {
           fontWeight={600}
           style={{
             gridColumnStart: '1',
+            justifySelf: 'left'
           }}
         >
           Position
@@ -43,7 +48,8 @@ export default function LeaderBoard() {
           level="title-md"
           fontWeight={600}
           style={{
-            gridColumnStart: 2,
+            gridColumnStart: 3,
+            justifySelf: 'left'
           }}
         >
           Name
@@ -51,8 +57,8 @@ export default function LeaderBoard() {
         <Typography style={fourth} level="title-md" fontWeight={600}>
           Points
         </Typography>
-        {[...new Array(10)].map((_, i) => (
-          <LeaderBoardUser key={i} position={i + 1} user={user} points={randomInt(50, 500) * (Math.pow(10, 10 - i))} />
+        {users.map((user, i) => (
+          <LeaderBoardUser key={i} position={i + 1} user={user!} points={randomInt(5, 50) * (Math.pow(2, 10 - i))} />
         ))}
       </div>
     </Sheet>

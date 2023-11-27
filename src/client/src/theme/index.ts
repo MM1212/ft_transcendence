@@ -101,6 +101,9 @@ const testTheme = extendTheme({
           ...(ownerState.size === 'xxs' && {
             fontSize: '0.50rem',
           }),
+          ...(ownerState.size === 'xl' && {
+            fontSize: theme.fontSize.xl,
+          }),
         }),
       },
     },

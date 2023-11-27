@@ -1,9 +1,10 @@
 import useFriend from '@apps/Friends/hooks/useFriend';
 import { useUser } from '@hooks/user';
-import { Box, Divider, Tooltip, Typography } from '@mui/joy';
+import { Box, Chip, Divider, Tooltip, Typography, colors } from '@mui/joy';
 import { fourth } from '../styles';
 import { UserAvatar } from '@components/AvatarWithStatus';
 import UsersModel from '@typings/models/users';
+import MedalIcon from '@components/icons/MedalIcon';
 
 const ordinals = new Intl.PluralRules('en', { type: 'ordinal' });
 
@@ -32,23 +33,44 @@ export default function LeaderBoardUser({
   const { goToProfile } = useFriend(user.id);
   return (
     <>
-      <Typography
-        level="h3"
-        sx={{
-          gridColumnStart: '1',
-          py: 1,
-        }}
-      >
-        {formatToOrdinal(position)}
-      </Typography>
+      {position < 4 ? (
+        <MedalIcon
+          sx={{
+            fontSize: '2.5rem',
+            color:
+              position === 3
+                ? '#cd7f32'
+                : position === 2
+                  ? '#b0bec5'
+                  : position === 1
+                    ? '#fbc02d'
+                    : undefined,
+          }}
+        />
+      ) : (
+        <Typography
+          level="h3"
+          sx={{
+            gridColumnStart: '1',
+            py: 1,
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
+          {/* {formatToOrdinal(position)} */}
+          <small>#</small>{position}
+        </Typography>
+      )}
       <Box
         sx={{
-          gridColumnStart: '2',
+          gridColumnStart: '3',
+          justifySelf: 'left',
           padding: '1 0 1 0',
           display: 'flex',
           flexDirection: 'row',
           alignItems: 'center',
           gap: 1,
+          maxWidth: '25dvh'
         }}
       >
         <Tooltip title="Profile">
@@ -63,8 +85,8 @@ export default function LeaderBoardUser({
             }}
           />
         </Tooltip>
-        <Typography level="title-md" sx={{}}>
-          {user.nickname}
+        <Typography level="title-md" noWrap={true}>
+        {user.nickname}
         </Typography>
       </Box>
       <Typography
@@ -79,7 +101,7 @@ export default function LeaderBoardUser({
       <Divider
         style={{
           gridColumnStart: 1,
-          gridColumnEnd: 'span 4',
+          gridColumnEnd: 'span 5',
         }}
       />
     </>
