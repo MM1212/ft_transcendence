@@ -1,8 +1,9 @@
 import tunnel from '@lib/tunnel';
+import { AuthModel } from '@typings/models';
 import UsersModel from '@typings/models/users';
 import { atom, atomFamily, selector, selectorFamily } from 'recoil';
 
-export const sessionAtom = atom<UsersModel.Models.IUserInfo | null>({
+export const sessionAtom = atom<AuthModel.DTO.Session | null>({
   key: 'session',
   default: null,
 });

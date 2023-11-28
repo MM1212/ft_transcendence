@@ -22,7 +22,7 @@ type IUser = UsersModel.Models.IUserInfo;
 
 interface LoggedInSession {
   readonly loggedIn: true;
-  readonly user: IUser;
+  readonly user: AuthModel.DTO.Session;
 }
 
 interface SessionActions {
@@ -104,7 +104,8 @@ export const useSessionRecoilService = () => {
   return null;
 };
 
-export const useCurrentUser = (): IUser | null => useRecoilValue(sessionAtom);
+export const useCurrentUser = (): AuthModel.DTO.Session | null =>
+  useRecoilValue(sessionAtom);
 export const useUser = (id: number): IUser | null =>
   useRecoilValue(usersAtom(id));
 export const useIsLoggedIn = (): boolean => useRecoilValue(isLoggedInSelector);

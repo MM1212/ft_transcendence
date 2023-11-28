@@ -2,7 +2,7 @@ import { ModalOpenProps, useModal, useModalActions } from '@hooks/useModal';
 import { ColorPaletteProp, VariantProp } from '@mui/joy';
 import React from 'react';
 
-export interface ConfirmationModalState {
+export interface ConfirmationModalState<T = unknown> {
   header?: React.ReactNode;
   headerIcon?: React.ComponentType;
   content: React.ReactNode;
@@ -12,24 +12,25 @@ export interface ConfirmationModalState {
   cancelColor?: ColorPaletteProp;
   cancelVariant?: VariantProp;
   cancelText?: React.ReactNode;
+  data?: T;
   onConfirm: () => any;
   onCancel?: () => void;
 }
 
 export const CONFIRMATION_MODAL_ID = 'misc:confirmation-dialog';
 
-export const useConfirmationModal = () =>
-  useModal<ConfirmationModalState>(CONFIRMATION_MODAL_ID);
+export const useConfirmationModal = <T>() =>
+  useModal<ConfirmationModalState<T>>(CONFIRMATION_MODAL_ID);
 
-export const useConfirmationModalActions = () => {
-  const actions = useModalActions<ConfirmationModalState>(
+export const useConfirmationModalActions = <T>() => {
+  const actions = useModalActions<ConfirmationModalState<T>>(
     CONFIRMATION_MODAL_ID
   );
 
   const confirm = React.useCallback(
     (
       props: Omit<
-        ModalOpenProps<ConfirmationModalState>,
+        ModalOpenProps<ConfirmationModalState<T>>,
         'onConfirm' | 'onCancel'
       >
     ): Promise<boolean> => {

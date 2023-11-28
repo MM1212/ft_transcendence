@@ -7,6 +7,7 @@ import { Session } from '@fastify/secure-session';
 import { IAuthSession } from '@typings/auth/session';
 import UserExtFriends from './ext/Friends';
 import { HttpError } from '@/helpers/decorators/httpError';
+import { AuthModel } from '@typings/api';
 
 class User extends CacheObserver<UsersModel.Models.IUser> {
   public readonly friends: UserExtFriends = new UserExtFriends(this);
@@ -19,7 +20,7 @@ class User extends CacheObserver<UsersModel.Models.IUser> {
 
   public get public(): UsersModel.Models.IUserInfo {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { friends, blocked, chats, storedStatus, ...user } = this.get();
+    const { friends, blocked, chats, storedStatus, tfa, ...user } = this.get();
     return user satisfies UsersModel.Models.IUserInfo;
   }
 
@@ -139,6 +140,13 @@ class UserExtWithSession extends User {
     public readonly session: UserExtSession,
   ) {
     super(data, helpers);
+  }
+
+  public get publicSession(): AuthModel.DTO.Session {
+    return {
+      ...this.session.user.public,
+      tfaEnabled: this.session.auth.tfaEnabled,
+    };
   }
 }
 

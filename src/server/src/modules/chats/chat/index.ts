@@ -175,8 +175,11 @@ class Chat extends CacheObserver<IChat> {
   public get authorization(): GroupEnumValues<ChatsModel.Models.ChatAccess> {
     return this.get('authorization');
   }
+  /* 
+  * Protected chats are also "Public"
+  */
   public get isPublic(): boolean {
-    return this.authorization === ChatsModel.Models.ChatAccess.Public;
+    return this.authorization !== ChatsModel.Models.ChatAccess.Private;
   }
   public get isPrivate(): boolean {
     return this.authorization === ChatsModel.Models.ChatAccess.Private;
