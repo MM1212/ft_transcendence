@@ -36,13 +36,11 @@ export type ModalOpenProps<T> = Omit<ModalState<T>, 'dismissable'> & {
 
 export const useModalActions = <T>(id: string) => {
   const open = useRecoilCallback(
-    (ctx) => (data?: ModalOpenProps<T> | null) => {
-      if (data) {
-        ctx.set(modalsDataAtom(id), {
-          dismissable: data.dismissable ?? true,
-          ...data,
-        } as ModalState<T>);
-      }
+    (ctx) => (data?: ModalOpenProps<T>) => {
+      ctx.set(modalsDataAtom(id), {
+        dismissable: data?.dismissable ?? true,
+        ...data,
+      } as ModalState<T>);
       const { contents: isOpened, state } = ctx.snapshot.getLoadable(
         modalsAtom(id)
       );
@@ -80,7 +78,14 @@ export const useModalActions = <T>(id: string) => {
     },
     [id]
   );
-  return { open, close, toggle };
+
+  const getData = useRecoilCallback(
+    (ctx) => async (): Promise<T> => {
+      return await ctx.snapshot.getPromise(modalsDataAtom(id));
+    },
+    [id]
+  );
+  return { open, close, toggle, getData };
 };
 
 export type ModalState<T> = T & {
@@ -91,8 +96,9 @@ export const useModal = <T>(id: string) => {
   const isOpened = useRecoilValue(modalsAtom(id));
   const data = useRecoilValue<ModalState<T>>(modalsDataAtom(id));
   const setData = useRecoilCallback(
-    (ctx) => (data: T) =>
+    (ctx) => (data: Partial<T>) =>
       ctx.set(modalsDataAtom(id), (prev) => ({
+        ...prev,
         dismissable: prev.dismissable,
         ...data,
       })),

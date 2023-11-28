@@ -290,7 +290,7 @@ const useChatManageActions = () => {
           body: ` Select chats to send an invite to.`,
           exclude: [{ type: 'chat', id: chatId }],
         });
-        if (!selected) return;
+        if (!selected || !selected.length) return;
         await tunnel.post(
           ChatsModel.Endpoints.Targets.SendInviteToTargets,
           selected,

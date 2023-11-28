@@ -1,4 +1,5 @@
 import {
+  AuthModel,
   Endpoint,
   EndpointMethod,
   EndpointMethods,
@@ -29,9 +30,11 @@ namespace UsersModel {
       friends: number[];
       blocked: number[];
       chats: number[];
+      tfa: AuthModel.Models.TFA;
     }
     export interface IUserInfo
-      extends Omit<IUser, 'friends' | 'blocked' | 'chats' | 'storedStatus'> {}
+      extends Omit<IUser, 'friends' | 'blocked' | 'chats' | 'storedStatus' | 'tfa'> {}
+    
   }
   export namespace DTO {
     export namespace DB {
@@ -43,6 +46,8 @@ namespace UsersModel {
         chats: { id: number }[];
         blocked: { id: number }[];
         storedStatus: Models.Status;
+        tfaEnabled: boolean;
+        tfaSecret: string | null;
       }
       export interface IUserInfo
         extends Omit<Models.IUserInfo, 'createdAt' | 'status'> {

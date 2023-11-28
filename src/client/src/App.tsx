@@ -9,6 +9,7 @@ import React, { memo } from 'react';
 import ImagePreviewView from '@apps/ImagePreview/views';
 import ConfirmationModalView from '@apps/Modals/Confirmation/views';
 import ChatSelectModal from '@apps/Chat/modals/ChatSelectModal';
+import TFALoginPage from '@apps/TFALoginPage/views';
 
 const MainRoute = memo(() => {
   return React.useMemo(
@@ -38,6 +39,9 @@ function App() {
         </Route>
         <Route path="/error">
           <ErrorPage />
+        </Route>
+        <Route path="/tfa">
+          <TFALoginPage />
         </Route>
         <AuthRoute redirect="/login">
           <MainRoute />

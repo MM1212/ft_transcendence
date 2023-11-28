@@ -28,6 +28,8 @@ model User {
   blockedBy          User[]            @relation("blocked")
   chats              ChatParticipant[]
   notifications      Notification[]
+  tfaEnabled        Boolean           @default(false) @map("tfa_enabled")
+  tfaSecret         String?           @map("tfa_secret")
 
   gamesPlayed MatchHistory[] @relation("match_players")
 

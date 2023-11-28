@@ -25,6 +25,7 @@
     "pixi.js": "^7.3.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-imask": "^7.1.3",
     "react-infinite-scroll-component": "^6.1.0",
     "react-moment": "^1.1.3",
     "recoil": "^0.7.7",
