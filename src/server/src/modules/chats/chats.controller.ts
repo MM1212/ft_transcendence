@@ -122,16 +122,14 @@ export class ChatsController {
     return await chat.addMessage(user, data);
   }
 
-  // @Patch(Targets.UpdateChatInfo)
-  // @ChatOPAuth()
-  // async updateChatInfo(
-  //   @ChatCtx() chat: Chat,
-  //   @Body() data: ChatsModel.DTO.DB.UpdateChatInfo,
-  // ): Promise<InternalEndpointResponse<ChatsModel.Endpoints.UpdateChatInfo>> {
-  //   const [ok, resp] = await chat.updateInfo(data);
-  //   if (!ok) return buildErrorResponse(resp);
-  //   return (resp);
-  // }
+  @Patch(Targets.UpdateChatInfo)
+  @ChatOPAuth()
+  async updateChatInfo(
+    @ChatCtx() chat: Chat,
+    @Body() data: ChatsModel.DTO.DB.UpdateChatInfo,
+  ): Promise<InternalEndpointResponse<ChatsModel.Endpoints.UpdateChatInfo>> {
+    await chat.updateInfo(data);
+  }
 
   @Patch(Targets.UpdateParticipant)
   @ChatAuth()

@@ -3,7 +3,10 @@ import {
   Button,
   ButtonGroup,
   Divider,
+  Dropdown,
   IconButton,
+  Menu,
+  MenuButton,
   Sheet,
   Stack,
   Typography,
@@ -19,6 +22,38 @@ import { navigate } from 'wouter/use-location';
 import React, { useLayoutEffect } from 'react';
 import { useFriends } from '@apps/Friends/hooks';
 import { useUpdateUserModalActions } from '../hooks/useUpdateUserModal';
+import useFriend from '@apps/Friends/hooks/useFriend';
+import MessageIcon from '@components/icons/MessageIcon';
+import UserMenuOptions from '../components/UserMenuOptions';
+import AccountPlusIcon from '@components/icons/AccountPlusIcon';
+
+function OtherOptions({ userId, friend }: { userId: number; friend: boolean }) {
+  const { goToMessages } = useFriend(userId);
+  return (
+    <ButtonGroup size="sm" variant="outlined">
+      <Button
+        size="sm"
+        onClick={goToMessages}
+        startDecorator={<MessageIcon size="sm" />}
+      >
+        Message
+      </Button>
+      {!friend && (
+        <Button size="sm" startDecorator={<AccountPlusIcon size="sm" />}>
+          Friend Request
+        </Button>
+      )}
+      <Dropdown>
+        <MenuButton slots={{ root: IconButton }} data-last-child>
+          <DotsVerticalIcon />
+        </MenuButton>
+        <Menu variant="outlined" sx={{ zIndex: 1300 }}>
+          <UserMenuOptions userId={userId} />
+        </Menu>
+      </Dropdown>
+    </ButtonGroup>
+  );
+}
 
 function UserProfile({
   user,
@@ -79,15 +114,7 @@ function UserProfile({
           )}
           <Typography level="h2">{user.nickname}</Typography>
           {affiliation !== 'me' && (
-            <ButtonGroup size="sm" variant="outlined">
-              <Button size="sm">Message</Button>
-              {affiliation === 'unknown' && (
-                <Button size="sm">Friend Request</Button>
-              )}
-              <IconButton>
-                <DotsVerticalIcon />
-              </IconButton>
-            </ButtonGroup>
+            <OtherOptions userId={user.id} friend={affiliation === 'friend'} />
           )}
         </Stack>
         <Divider />

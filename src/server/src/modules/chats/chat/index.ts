@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { isDeepStrictEqual } from 'util';
 import { ChatsService } from '../chats.service';
+import { hash } from '@shared/hash';
 
 class Participant extends CacheObserver<ChatsModel.Models.IChatParticipant> {
   constructor(
@@ -175,9 +176,9 @@ class Chat extends CacheObserver<IChat> {
   public get authorization(): GroupEnumValues<ChatsModel.Models.ChatAccess> {
     return this.get('authorization');
   }
-  /* 
-  * Protected chats are also "Public"
-  */
+  /*
+   * Protected chats are also "Public"
+   */
   public get isPublic(): boolean {
     return this.authorization !== ChatsModel.Models.ChatAccess.Private;
   }
@@ -412,9 +413,7 @@ class Chat extends CacheObserver<IChat> {
     return result;
   }
 
-  public async addParticipant(
-    user: User
-  ): Promise<Participant> {
+  public async addParticipant(user: User): Promise<Participant> {
     if (this.hasParticipantByUserId(user.id))
       throw new ForbiddenException('You are already in this chat.');
     const participantData = await this.helpers.db.chats.createChatParticipant({
@@ -697,6 +696,36 @@ class Chat extends CacheObserver<IChat> {
         participant: {
           typing: state,
         },
+      },
+    );
+  }
+
+  public async updateInfo(data: ChatsModel.DTO.DB.UpdateChatInfo) {
+    if (data.authorizationData?.password)
+      data.authorizationData.password = hash(
+        data.authorizationData.password,
+      ).toString();
+    const result = !this.isTemporary
+      ? await this.helpers.db.chats.updateChatInfo(this.id, data)
+      : ({
+          ...this.public,
+          ...data,
+        } satisfies ChatsModel.Models.IChatInfo);
+    if (!result)
+      throw new InternalServerErrorException('Failed to update chat info');
+    for (const key of Object.keys(
+      data,
+    ) as (keyof ChatsModel.DTO.DB.UpdateChatInfo)[])
+      this.set(key, result[key] as any);
+    for (const key of Object.keys(result) as (keyof typeof result)[]) {
+      if (data[key as keyof typeof data] === undefined) delete result[key];
+    }
+    this.helpers.sseService.emitToTargets<ChatsModel.Sse.UpdateChatInfoEvent>(
+      ChatsModel.Sse.Events.UpdateChatInfo,
+      this.sseTargets,
+      {
+        chatId: this.id,
+        ...(result as ChatsModel.DTO.DB.UpdateChatInfo),
       },
     );
   }

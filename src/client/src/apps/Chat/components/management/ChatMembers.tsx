@@ -1,6 +1,5 @@
 import { useSelectedChat } from '@apps/Chat/hooks/useChat';
 import useFriend from '@apps/Friends/hooks/useFriend';
-import AvatarWithStatus from '@components/AvatarWithStatus';
 import AccountIcon from '@components/icons/AccountIcon';
 import CrownIcon from '@components/icons/CrownIcon';
 import MessageIcon from '@components/icons/MessageIcon';
@@ -30,6 +29,7 @@ import React from 'react';
 import ChatManageMember from './ChatManageMember';
 import { useUser } from '@hooks/user';
 import ChatManageMemberSkeleton from '../skeletons/ChatManageMember';
+import ChatAvatarWithTooltip from '../ChatAvatarWithTooltip';
 
 interface BadgeData {
   color: ColorPaletteProp;
@@ -119,7 +119,12 @@ function Member({
       p={1}
     >
       <Stack direction="row" alignItems="center" spacing={1}>
-        <AvatarWithStatus status={user.status} src={user.avatar} size="lg" />
+        <ChatAvatarWithTooltip
+          user={user}
+          participant={participant}
+          size="lg"
+          tooltipProps={{ placement: 'left-start' }}
+        />
         <Stack spacing={0.1} height="100%" justifyContent="center">
           <Stack direction="row" alignItems="center" spacing={1}>
             <Typography
