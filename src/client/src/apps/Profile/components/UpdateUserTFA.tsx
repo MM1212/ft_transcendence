@@ -295,54 +295,50 @@ export default function UpdateUserTFA(
         >
           <AccordionSummary>Two Factor Authentication</AccordionSummary>
           <AccordionDetails>
-            {opened && (
-              <>
-                <Stack
-                  spacing={2}
-                  mt={1}
-                  direction={user.tfaEnabled ? 'column' : 'row'}
-                  alignItems="center"
+            <Stack
+              spacing={2}
+              mt={1}
+              direction={user.tfaEnabled ? 'column' : 'row'}
+              alignItems="center"
+            >
+              <Typography level="title-md">
+                Status:{' '}
+                <Typography color="neutral" level="body-sm">
+                  {user.tfaEnabled ? 'Enabled' : 'Disabled'}{' '}
+                </Typography>
+              </Typography>
+              {user.tfaEnabled ? (
+                <ButtonGroup
+                  variant={user.tfaEnabled ? 'soft' : 'plain'}
+                  color="primary"
                 >
-                  <Typography level="title-md">
-                    Status:{' '}
-                    <Typography color="neutral" level="body-sm">
-                      {user.tfaEnabled ? 'Enabled' : 'Disabled'}{' '}
-                    </Typography>
-                  </Typography>
-                  {user.tfaEnabled ? (
-                    <ButtonGroup
-                      variant={user.tfaEnabled ? 'soft' : 'plain'}
-                      color="primary"
-                    >
-                      <Button
-                        startDecorator={<TwoFactorAuthenticationIcon />}
-                        onClick={user.tfaEnabled ? disable : handleSetup}
-                      >
-                        {user.tfaEnabled ? 'Disable' : 'Setup'}
-                      </Button>
-                      {user.tfaEnabled && (
-                        <Button
-                          startDecorator={<DevicesIcon />}
-                          onClick={() => setState(TFAState.NewDevice)}
-                        >
-                          New Device
-                        </Button>
-                      )}
-                    </ButtonGroup>
-                  ) : (
+                  <Button
+                    startDecorator={<TwoFactorAuthenticationIcon />}
+                    onClick={user.tfaEnabled ? disable : handleSetup}
+                  >
+                    {user.tfaEnabled ? 'Disable' : 'Setup'}
+                  </Button>
+                  {user.tfaEnabled && (
                     <Button
-                      variant={'plain'}
-                      color="primary"
-                      startDecorator={<TwoFactorAuthenticationIcon />}
-                      onClick={handleSetup}
+                      startDecorator={<DevicesIcon />}
+                      onClick={() => setState(TFAState.NewDevice)}
                     >
-                      Setup
+                      New Device
                     </Button>
                   )}
-                </Stack>
-                {stateComponent}
-              </>
-            )}
+                </ButtonGroup>
+              ) : (
+                <Button
+                  variant={'plain'}
+                  color="primary"
+                  startDecorator={<TwoFactorAuthenticationIcon />}
+                  onClick={handleSetup}
+                >
+                  Setup
+                </Button>
+              )}
+            </Stack>
+            {stateComponent}
           </AccordionDetails>
         </Accordion>
       </AccordionGroup>

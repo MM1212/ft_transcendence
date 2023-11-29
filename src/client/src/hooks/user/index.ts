@@ -8,7 +8,7 @@ import React from 'react';
 import {} from 'wouter';
 import useLocation, { navigate } from 'wouter/use-location';
 import tunnel from '@lib/tunnel';
-import { useRecoilCallback, useRecoilValue, useSetRecoilState } from 'recoil';
+import { useRecoilCallback, useRecoilValue } from 'recoil';
 import { clearAllSwrCache } from '../swrUtils';
 import UsersModel from '@typings/models/users';
 import { isLoggedInSelector, sessionAtom, usersAtom } from './state';
@@ -90,16 +90,33 @@ export const useLoggedInSession = (
 };
 
 export const useSessionRecoilService = () => {
-  const setSession = useSetRecoilState(sessionAtom);
   const { user, loading } = useSession();
+
+  const updateSession = useRecoilCallback(
+    (ctx) => (user: AuthModel.DTO.Session | null) => {
+      ctx.set(sessionAtom, (prev) => {
+        if (!user) return null;
+        if (isEqual(prev, user)) return prev;
+        return user;
+      });
+      if (!user) return;
+      const { state } = ctx.snapshot.getLoadable(usersAtom(user.id));
+      const { isActive } = ctx.snapshot.getInfo_UNSTABLE(usersAtom(user.id));
+      if (state === 'loading' || !isActive) {
+        return;
+      }
+      ctx.set(usersAtom(user.id), (prev) => {
+        if (!user) return null;
+        if (isEqual(prev, user)) return prev;
+        return user;
+      });
+    },
+    []
+  );
   React.useEffect(() => {
     if (loading) return;
-    setSession((prev) => {
-      if (!user) return null;
-      if (isEqual(prev, user)) return prev;
-      return user;
-    });
-  }, [setSession, user, loading]);
+    updateSession(user);
+  }, [updateSession, user, loading]);
 
   return null;
 };

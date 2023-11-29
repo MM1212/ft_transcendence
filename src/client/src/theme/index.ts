@@ -64,7 +64,7 @@ const testTheme = extendTheme({
       md: 960,
       lg: 1280,
       xl: 1920,
-    }
+    },
   },
 
   components: {
@@ -111,10 +111,11 @@ const testTheme = extendTheme({
       defaultProps: {
         placement: 'top',
         arrow: true,
+        variant: 'outlined',
       },
       styleOverrides: {
         root: {
-          boxShadow: 'none',
+          // boxShadow: 'none',
         },
       },
     },
@@ -189,6 +190,27 @@ const testTheme = extendTheme({
         }),
       },
     },
+    JoyAvatar: {
+      styleOverrides: {
+        root: ({ theme, ownerState }) => ({
+          ...(ownerState.size === 'xl' && {
+            width: theme.spacing(9),
+            height: theme.spacing(9),
+          }),
+        }),
+      },
+    },
+    JoyMenu: {
+      defaultProps: {
+        placement:"right-start",
+        size:"sm",
+      },
+      styleOverrides: {
+        root: {
+          zIndex: 1300
+        }
+      }
+    }
   },
 });
 

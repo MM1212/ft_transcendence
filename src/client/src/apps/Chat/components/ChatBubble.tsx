@@ -6,13 +6,13 @@ import ChatsModel from '@typings/models/chat';
 import { useRecoilValue } from 'recoil';
 import chatsState from '@/apps/Chat/state';
 import { sessionAtom, usersAtom } from '@hooks/user/state';
-import AvatarWithStatus from '@components/AvatarWithStatus';
 import moment from 'moment';
 import { Tooltip } from '@mui/joy';
 import useChat from '../hooks/useChat';
 import BlockedBubble from './BlockedBubble';
 import ChatDefaultMessageBubble from './bubbles/Default';
 import ChatEmbedMessage from './bubbles';
+import ChatAvatarWithTooltip from './ChatAvatarWithTooltip';
 
 type ChatBubbleProps = {
   message: ChatsModel.Models.IChatMessage;
@@ -45,7 +45,7 @@ export default function ChatBubble({
   const user = useRecoilValue(usersAtom(author.userId))!;
   const self = useRecoilValue(sessionAtom);
   const isSent = self?.id === user?.id;
-  const { muted: isMuted, blocked: isBlocked } =
+  const { blocked: isBlocked } =
     useChat(chatId).useIsParticipantBlocked(authorId);
   const [showAnyway, setShowAnyway] = React.useState(false);
   const features = React.useMemo(
@@ -72,12 +72,10 @@ export default function ChatBubble({
           }
         >
           {!isSent && (
-            <AvatarWithStatus
-              status={user.status}
-              src={user.avatar}
+            <ChatAvatarWithTooltip
               hide={features.prev}
-              muted={isMuted}
-              size="md"
+              user={user}
+              participant={author}
             />
           )}
 
@@ -145,10 +143,8 @@ export default function ChatBubble({
       showAnyway,
       isSent,
       features,
-      user.status,
-      user.avatar,
-      user.nickname,
-      isMuted,
+      user,
+      author,
       createdAt,
       type,
       id,
