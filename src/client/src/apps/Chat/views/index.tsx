@@ -13,6 +13,7 @@ import { Typography } from '@mui/joy';
 import EmoticonSadIcon from '@components/icons/EmoticonSadIcon';
 import PublicChatsModalView from '../modals/PublicChatsModal';
 import ChatPasswordInputModalView from '../modals/ChatPasswordInputModal';
+import ChatInfoEditModal from '../modals/ChatInfoEdit';
 
 function _View(): JSX.Element {
   return (
@@ -55,6 +56,7 @@ function _View(): JSX.Element {
       <ChatManageMuteModal />
       <PublicChatsModalView />
       <ChatPasswordInputModalView />
+      <ChatInfoEditModal />
     </Sheet>
   );
 }

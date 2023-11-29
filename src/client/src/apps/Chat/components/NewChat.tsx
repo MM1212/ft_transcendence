@@ -48,7 +48,7 @@ import ShieldCheckIcon from '@components/icons/ShieldCheckIcon';
 import { Select } from '@mui/joy';
 import EarthIcon from '@components/icons/EarthIcon';
 
-function PasswordMeterInput({ value, onChange, disabled }: any) {
+export function PasswordMeterInput({ value, onChange, disabled }: any) {
   const minLength = 12;
   return (
     <Stack

@@ -19,6 +19,7 @@ import useChatManageActions from '../hooks/useChatManageActions';
 import MenuOption from '@components/menu/MenuOption';
 import NukeIcon from '@components/icons/NukeIcon';
 import AccountMultiplePlusIcon from '@components/icons/AccountMultiplePlusIcon';
+import { useChatInfoEditModalActions } from '../modals/ChatInfoEdit/hooks/useChatInfoEditModal';
 
 function DirectOptions({ self }: { self: ChatsModel.Models.IChatParticipant }) {
   const participants = useSelectedChat().useParticipants();
@@ -84,7 +85,8 @@ function GroupOptions({
   const isAdmin =
     self.role === ChatsModel.Models.ChatParticipantRole.Admin || isOwner;
   const { useModal, leave, nuke, sendInviteFromGroup } = useChatManageActions();
-  const { open } = useModal();
+  const { open: openMembersModal } = useModal();
+  const { open: openChatInfoEditModal } = useChatInfoEditModalActions();
   return (
     <>
       {(isPublic || isAdmin) && (
@@ -97,13 +99,23 @@ function GroupOptions({
       )}
       {isAdmin ? (
         <>
-          <MenuOption icon={FileDocumentEditIcon}>Edit</MenuOption>
-          <MenuOption icon={FolderCogIcon} onClick={() => open(true)}>
+          <MenuOption
+            icon={FileDocumentEditIcon}
+            onClick={() => {
+              openChatInfoEditModal({chatId: self.chatId})
+            }}
+          >
+            Edit
+          </MenuOption>
+          <MenuOption
+            icon={FolderCogIcon}
+            onClick={() => openMembersModal(true)}
+          >
             Manage Members
           </MenuOption>
         </>
       ) : (
-        <MenuOption icon={AccountGroupIcon} onClick={() => open()}>
+        <MenuOption icon={AccountGroupIcon} onClick={() => openMembersModal()}>
           Members
         </MenuOption>
       )}
@@ -150,7 +162,9 @@ export default function ChatManageMenu() {
             {type === ChatsModel.Models.ChatType.Group && (
               <GroupOptions
                 self={self}
-                isPublic={authorization !== ChatsModel.Models.ChatAccess.Private}
+                isPublic={
+                  authorization !== ChatsModel.Models.ChatAccess.Private
+                }
               />
             )}
           </React.Suspense>
