@@ -474,6 +474,7 @@ namespace ChatsModel {
       NewMessage = 'chat.new-message',
       NewChat = 'chat.new-chat',
       UpdateParticipant = 'chat.update-participant',
+      UpdateChatInfo = 'chat.update-chat-info',
     }
     export interface AddParticipant {
       type: 'add';
@@ -488,6 +489,7 @@ namespace ChatsModel {
       participantId: number;
       banned: boolean;
     }
+    export interface UpdateChatInfo extends DTO.DB.UpdateChatInfo {}
     export interface NewMessageEvent
       extends SseModel.Models.Event<Models.IChatMessage, Events.NewMessage> {}
     export interface NewChatEvent
@@ -499,6 +501,13 @@ namespace ChatsModel {
           participantId: number;
         },
         Events.UpdateParticipant
+      > {}
+    export interface UpdateChatInfoEvent
+      extends SseModel.Models.Event<
+        UpdateChatInfo & {
+          chatId: number;
+        },
+        Events.UpdateChatInfo
       > {}
   }
 }

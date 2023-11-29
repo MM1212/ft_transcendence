@@ -306,7 +306,22 @@ const useChatManageActions = () => {
     [select]
   );
 
-  
+  const updateInfo = useRecoilCallback(
+    (ctx) => async (info: ChatsModel.DTO.DB.UpdateChatInfo) => {
+      try {
+        const chatId = await ctx.snapshot.getPromise(chatsState.selectedChatId);
+        if (chatId === -1)
+          throw new Error('You must select a chat before updating its info');
+        await tunnel.patch(ChatsModel.Endpoints.Targets.UpdateChatInfo, info, {
+          chatId,
+        });
+        notifications.success('Chat info updated!');
+      } catch (e) {
+        notifications.error('Failed to update chat info', (e as Error).message);
+      }
+    },
+    []
+  );
 
   return {
     useModal,
@@ -321,6 +336,7 @@ const useChatManageActions = () => {
     openMuteModal,
     nuke,
     sendInviteFromGroup,
+    updateInfo
   };
 };
 
