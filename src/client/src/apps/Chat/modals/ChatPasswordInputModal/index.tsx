@@ -23,15 +23,23 @@ export default function ChatPasswordInputModalView(): JSX.Element {
   const [input, setInput] = React.useState('');
 
   const onSubmit = React.useCallback(() => {
-    onSelect?.(input.trim());
+    onSelect?.(input);
     close();
     setInput('');
   }, [close, input, onSelect]);
 
+  const handleClose = (
+    _event?: {} | undefined,
+    reason?: 'backdropClick' | 'escapeKeyDown' | 'closeClick' | undefined
+  ) => {
+    close(_event, reason);
+    onCancel?.();
+  };
+
   return (
     <Modal
       open={isOpened}
-      onClose={close}
+      onClose={handleClose}
       style={{
         display: 'flex',
         alignItems: 'center',
@@ -41,7 +49,7 @@ export default function ChatPasswordInputModalView(): JSX.Element {
       <ModalDialog>
         <DialogTitle>
           {chatName} password
-          <ModalClose onClick={close} />
+          <ModalClose onClick={handleClose} />
         </DialogTitle>
         <DialogContent>
           <FormControl
@@ -67,7 +75,7 @@ export default function ChatPasswordInputModalView(): JSX.Element {
           <Button
             color="primary"
             variant="solid"
-            disabled={input.trim().length === 0}
+            disabled={input.length === 0}
             onClick={onSubmit}
           >
             Submit
@@ -76,8 +84,7 @@ export default function ChatPasswordInputModalView(): JSX.Element {
             color="neutral"
             variant="plain"
             onClick={() => {
-              close(undefined, 'closeClick');
-              onCancel?.();
+              handleClose(undefined, 'closeClick');
             }}
           >
             Cancel

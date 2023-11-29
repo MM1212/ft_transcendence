@@ -165,12 +165,6 @@ export class ChatsService {
   ): Promise<void> {
     const chat = await this.get(id);
     if (!chat) throw new BadRequestException('Chat does not exist.');
-    if (chat.hasParticipantByUserId(op.id, true))
-      throw new BadRequestException('You are already in this chat.');
-    else if (chat.hasParticipantByUserId(op.id, false))
-      return await this.rejoinChat(chat, op);
-    if (chat.isDirect)
-      throw new ForbiddenException('You cannot join a direct chat.');
     switch (chat.authorization) {
       case ChatsModel.Models.ChatAccess.Private: {
         if (!messageData)
@@ -197,6 +191,12 @@ export class ChatsService {
         break;
       }
     }
+    if (chat.hasParticipantByUserId(op.id, true))
+      throw new BadRequestException('You are already in this chat.');
+    else if (chat.hasParticipantByUserId(op.id, false))
+      return await this.rejoinChat(chat, op);
+    if (chat.isDirect)
+      throw new ForbiddenException('You cannot join a direct chat.');
     await chat.addParticipant(op);
   }
 }
