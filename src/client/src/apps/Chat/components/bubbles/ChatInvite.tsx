@@ -49,7 +49,8 @@ function _ChatEmbedChatInviteBubble({
   const { data, error, isLoading } =
     useTunnelEndpoint<ChatsModel.Endpoints.GetChatInfo>(
       ChatsModel.Endpoints.Targets.GetChatInfo,
-      { chatId: embed.chatId }
+      { chatId: embed.chatId },
+      { revalidateOnFocus: false }
     );
   const { attemptToJoin: _attemptToJoin } = useChat(embed.chatId);
   const chats = useRecoilValue(chatsState.chats);

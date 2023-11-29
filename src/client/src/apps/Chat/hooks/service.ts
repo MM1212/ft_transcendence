@@ -141,6 +141,33 @@ const useMessagesService = () => {
     []
   );
 
+  const updateChatInfo = useRecoilCallback(
+    (ctx) => async (ev: ChatsModel.Sse.UpdateChatInfoEvent) => {
+      const {
+        data: { chatId, ...info },
+      } = ev;
+      console.log(chatId, info);
+
+      const chats = await ctx.snapshot.getPromise(chatsState.chats);
+      console.log(chats);
+
+      if (!chats.includes(chatId)) return;
+      const { state } = ctx.snapshot.getLoadable(chatsState.chat(chatId));
+      const { isActive } = ctx.snapshot.getInfo_UNSTABLE(
+        chatsState.chat(chatId)
+      );
+      console.log(state, isActive);
+      if (state === 'loading' && !isActive) {
+        return;
+      }
+      ctx.set(chatsState.chat(chatId), (prev) => ({
+        ...prev,
+        ...info,
+      }));
+    },
+    []
+  );
+
   useSseEvent<ChatsModel.Sse.NewMessageEvent>(
     ChatsModel.Sse.Events.NewMessage,
     onNewMessage
@@ -152,6 +179,11 @@ const useMessagesService = () => {
   useSseEvent<ChatsModel.Sse.UpdateParticipantEvent>(
     ChatsModel.Sse.Events.UpdateParticipant,
     updateParticipants
+  );
+
+  useSseEvent<ChatsModel.Sse.UpdateChatInfoEvent>(
+    ChatsModel.Sse.Events.UpdateChatInfo,
+    updateChatInfo
   );
 };
 

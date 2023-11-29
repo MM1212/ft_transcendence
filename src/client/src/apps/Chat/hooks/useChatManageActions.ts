@@ -7,6 +7,7 @@ import notifications from '@lib/notifications/hooks';
 import tunnel from '@lib/tunnel';
 import { useConfirmationModalActions } from '@apps/Modals/Confirmation/hooks';
 import { useChatSelectModalActions } from '../modals/ChatSelectModal/hooks/useChatSelectModal';
+import { useChatInfoEditModalActions } from '../modals/ChatInfoEdit/hooks/useChatInfoEditModal';
 
 const useChatManageActions = () => {
   const useModal = () => {
@@ -305,6 +306,7 @@ const useChatManageActions = () => {
     },
     [select]
   );
+  const { close } = useChatInfoEditModalActions();
 
   const updateInfo = useRecoilCallback(
     (ctx) => async (info: ChatsModel.DTO.DB.UpdateChatInfo) => {
@@ -316,11 +318,12 @@ const useChatManageActions = () => {
           chatId,
         });
         notifications.success('Chat info updated!');
+        close();
       } catch (e) {
         notifications.error('Failed to update chat info', (e as Error).message);
       }
     },
-    []
+    [close]
   );
 
   return {

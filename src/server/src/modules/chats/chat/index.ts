@@ -720,6 +720,7 @@ class Chat extends CacheObserver<IChat> {
     for (const key of Object.keys(result) as (keyof typeof result)[]) {
       if (data[key as keyof typeof data] === undefined) delete result[key];
     }
+    delete result['authorizationData'];
     this.helpers.sseService.emitToTargets<ChatsModel.Sse.UpdateChatInfoEvent>(
       ChatsModel.Sse.Events.UpdateChatInfo,
       this.sseTargets,

@@ -163,14 +163,14 @@ function _ChatSelectModal(): JSX.Element {
                       <ChatSelectGroupEntry
                         {...option}
                         multiple={multiple}
-                        selected={selected.some((s) => s.id === option.id)}
+                        selected={selected.some((s) => s.type === option.type && s.id === option.id)}
                         toggle={() => toggleOption(option)}
                       />
                     ) : (
                       <ChatSelectUserEntry
                         {...option}
                         multiple={multiple}
-                        selected={selected.some((s) => s.id === option.id)}
+                        selected={selected.some((s) => s.type === option.type && s.id === option.id)}
                         toggle={() => toggleOption(option)}
                       />
                     )}

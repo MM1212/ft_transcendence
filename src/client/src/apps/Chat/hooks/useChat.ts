@@ -87,11 +87,10 @@ const useChat = (chatId: number) => {
               passwordPrompt = await promptChatPassword({
                 chatName: chatInfo.name,
               });
-              if (!passwordPrompt.trim()) return;
+              if (!passwordPrompt.trim().length) return;
               break;
             }
           }
-          const { state } = ctx.snapshot.getLoadable(chatsState.chat(chatId));
           const { isActive } = ctx.snapshot.getInfo_UNSTABLE(
             chatsState.chat(chatId)
           );
@@ -100,7 +99,7 @@ const useChat = (chatId: number) => {
             {
               password: passwordPrompt,
               messageData,
-              returnChatInfo: state !== 'loading' && isActive
+              returnChatInfo: isActive,
             },
             {
               chatId,
@@ -113,7 +112,7 @@ const useChat = (chatId: number) => {
             });
           }
           ctx.set(chatsState.chats, (prev) => [...prev, chatId]);
-          ctx.set(chatsState.selectedChatId, chatId);
+          navigate(`/messages/${chatId}`);
           notifications.success('Joined chat', `You joined ${chatInfo.name}`);
         } catch (e) {
           notifications.error('Failed to join chat', (e as Error).message);

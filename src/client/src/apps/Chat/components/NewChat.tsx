@@ -47,8 +47,19 @@ import InformationVariantCircleIcon from '@components/icons/InformationVariantCi
 import ShieldCheckIcon from '@components/icons/ShieldCheckIcon';
 import { Select } from '@mui/joy';
 import EarthIcon from '@components/icons/EarthIcon';
+import InformationSlabCircleIcon from '@components/icons/InformationSlabCircleIcon';
 
-export function PasswordMeterInput({ value, onChange, disabled }: any) {
+export function PasswordMeterInput({
+  value,
+  onChange,
+  disabled,
+  updating,
+}: {
+  value: string;
+  onChange: React.ChangeEventHandler<HTMLInputElement>;
+  disabled?: boolean;
+  updating?: boolean;
+}) {
   const minLength = 12;
   return (
     <Stack
@@ -58,15 +69,25 @@ export function PasswordMeterInput({ value, onChange, disabled }: any) {
         '--hue': Math.min(value.length * 10, 120),
       }}
     >
-      <Input
-        type="password"
-        placeholder="Type in here…"
-        startDecorator={<FormTextboxPasswordIcon size="sm" />}
-        value={value}
-        onChange={onChange}
-        disabled={disabled}
-        size="sm"
-      />
+      <FormControl>
+        <FormLabel required>Password</FormLabel>
+        <Input
+          type="password"
+          placeholder="Type in here…"
+          startDecorator={<FormTextboxPasswordIcon size="sm" />}
+          endDecorator={
+            updating && (
+              <Tooltip title="Leave it blank if you dont want to update">
+                <InformationSlabCircleIcon />
+              </Tooltip>
+            )
+          }
+          value={value}
+          onChange={onChange}
+          disabled={disabled}
+          size="sm"
+        />
+      </FormControl>
       <LinearProgress
         determinate
         size="sm"
