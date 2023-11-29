@@ -23,7 +23,7 @@ export default function ChatPasswordInputModalView(): JSX.Element {
   const [input, setInput] = React.useState('');
 
   const onSubmit = React.useCallback(() => {
-    onSelect?.(input.trim());
+    onSelect?.(input);
     close();
     setInput('');
   }, [close, input, onSelect]);
@@ -75,7 +75,7 @@ export default function ChatPasswordInputModalView(): JSX.Element {
           <Button
             color="primary"
             variant="solid"
-            disabled={input.trim().length === 0}
+            disabled={input.length === 0}
             onClick={onSubmit}
           >
             Submit

@@ -84,9 +84,14 @@ function ChatInfoEditContent({ chatId }: { chatId: number }) {
     if (
       input.authorization === Access.Protected &&
       chat.authorization !== input.authorization &&
-      input.passwordInput.trim().length === 0
+      input.passwordInput.length === 0
     )
       return false;
+    if (
+      input.authorization === Access.Protected &&
+      input.passwordInput.length > 0
+    )
+      return true;
     for (const key in input) {
       if (
         input[key as keyof InputState] !==
@@ -100,7 +105,26 @@ function ChatInfoEditContent({ chatId }: { chatId: number }) {
 
   const { close } = useChatInfoEditModalActions();
   const { updateInfo } = useChatManageActions();
+  const [loading, setLoading] = React.useState(false);
 
+  const submit = async () => {
+    setLoading(true);
+    await updateInfo({
+      name: input.name,
+      authorization: input.authorization,
+      authorizationData:
+        input.authorization === Access.Protected
+          ? input.passwordInput.length > 0
+            ? {
+                password: input.passwordInput,
+              }
+            : undefined
+          : {},
+      photo: input.photo?.trim().length ? input.photo : null,
+      topic: input.topic,
+    });
+    setLoading(false);
+  }
   return (
     <>
       <DialogContent>
@@ -234,20 +258,8 @@ function ChatInfoEditContent({ chatId }: { chatId: number }) {
             disabled={!propertiesUpdated}
             type="submit"
             variant="solid"
-            onClick={() => {
-              updateInfo({
-                name: input.name,
-                authorization: input.authorization,
-                authorizationData:
-                  input.authorization === Access.Protected
-                    ? {
-                        password: input.passwordInput,
-                      }
-                    : {},
-                photo: input.photo?.trim().length ? input.photo : null,
-                topic: input.topic,
-              });
-            }}
+            onClick={submit}
+            loading={loading}
           >
             Save
           </Button>
