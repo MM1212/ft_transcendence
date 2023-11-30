@@ -25,6 +25,7 @@ function SidebarContent(): JSX.Element {
           border: '1px solid',
           borderColor: 'divider',
         }}
+        variant='outlined'
       >
         <Sheet
           sx={{
