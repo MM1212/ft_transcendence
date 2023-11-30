@@ -1,0 +1,183 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("BACKEND_DB_URL")
+}
+
+// Infrastructure Modules
+
+model User {
+  id                 Int               @id @default(autoincrement())
+  studentId          Int               @unique @map("student_id")
+  nickname           String            @unique
+  avatar             String
+  createdAt          DateTime          @default(now()) @map("created_at")
+  currentCharacterId Int?              @map("current_character_id")
+  storedStatus       Int               @default(1) @map("stored_status")
+  firstLogin         Boolean           @default(true) @map("first_login")
+  characters         Character[]
+  friends            User[]            @relation("friends")
+  friendOf           User[]            @relation("friends")
+  blocked            User[]            @relation("blocked")
+  blockedBy          User[]            @relation("blocked")
+  chats              ChatParticipant[]
+  notifications      Notification[]
+  tfaEnabled        Boolean           @default(false) @map("tfa_enabled")
+  tfaSecret         String?           @map("tfa_secret")
+
+  gamesPlayed MatchHistory[] @relation("match_players")
+
+  @@index([studentId, nickname])
+  @@map("users")
+}
+
+enum ChatType {
+  TEMP
+  GROUP
+  DIRECT
+}
+
+enum ChatAuthorization {
+  PUBLIC
+  PROTECTED
+  PRIVATE
+}
+
+enum ChatParticipantRole {
+  OWNER
+  ADMIN
+  MEMBER
+  BANNED
+  LEFT
+}
+
+enum ChatParticipantMuteType {
+  NO
+  FOREVER
+  UNTIL
+}
+
+model ChatParticipant {
+  id           Int                 @id @default(autoincrement())
+  chat         Chat                @relation(fields: [chatId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  chatId       Int                 @map("chat_id")
+  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId       Int                 @map("user_id")
+  role         ChatParticipantRole @default(MEMBER)
+  messagesSent ChatMessage[]
+
+  toReadPings Int      @default(0) @map("to_read_pings")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  muted      ChatParticipantMuteType @default(NO) @map("muted")
+  mutedUntil DateTime?               @map("muted_until")
+
+  @@unique([chatId, userId], name: "chat_participant_unique")
+  @@index([chatId, userId])
+  @@map("chat_participants")
+}
+
+model Chat {
+  id                Int               @id @default(autoincrement())
+  type              ChatType          @default(TEMP)
+  authorization     ChatAuthorization @default(PUBLIC)
+  authorizationData Json              @default("{}") @map("authorization_data")
+  name              String
+  photo             String?
+  topic             String
+  participants      ChatParticipant[]
+  messages          ChatMessage[]
+  createdAt         DateTime          @default(now()) @map("created_at")
+
+  @@index([type, authorization, authorizationData])
+  @@map("chats")
+}
+
+enum ChatMessageType {
+  NORMAL
+  EMBED
+}
+
+model ChatMessage {
+  id        Int             @id @default(autoincrement())
+  chat      Chat            @relation(fields: [chatId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  chatId    Int             @map("chat_id")
+  type      ChatMessageType @default(NORMAL)
+  message   String          @default("")
+  meta      Json            @default("{}")
+  author    ChatParticipant @relation(fields: [authorId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  authorId  Int             @map("author_id")
+  createdAt DateTime        @default(now()) @map("created_at")
+
+  @@index([chatId, authorId])
+  @@map("chat_messages")
+}
+
+model Notification {
+  id        Int       @id @default(autoincrement())
+  type      String
+  meta      Json?     @default("{}")
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId    Int       @map("user_id")
+  createdAt DateTime  @default(now()) @map("created_at")
+  readAt    DateTime? @map("read_at")
+
+  @@index([userId])
+  @@map("notifications")
+}
+
+// Game Models
+
+model Character {
+  id        Int             @id @default(autoincrement())
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId    Int             @map("user_id")
+  name      String
+  createdAt DateTime        @default(now()) @map("created_at")
+  stats     CharacterStat[]
+  inventory CharacterItem[]
+
+  @@map("characters")
+}
+
+model CharacterStat {
+  id          Int       @id @default(autoincrement())
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  characterId Int       @map("character_id")
+  type        String
+  name        String
+  value       Int
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  @@map("characters_stats")
+}
+
+model CharacterItem {
+  id          Int       @id @default(autoincrement())
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  characterId Int       @map("character_id")
+  type        String
+  name        String
+  meta        Json      @default("{}")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  @@map("characters_inventories")
+}
+
+model MatchHistory {
+  id        Int      @id @default(autoincrement())
+  players   User[]   @relation("match_players")
+  winner    Int      @map("winner_id")
+  rounds    Int
+  gameType  String   @map("game_type")
+  gameTime  Int      @map("game_time")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("matches_history")
+}

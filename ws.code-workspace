@@ -1,0 +1,37 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "[javascript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "editor.tabSize": 2,
+    "prettier.singleQuote": true,
+    "prettier.tabWidth": 2,
+    "prettier.useTabs": false,
+    "[typescriptreact]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[typescript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "editor.formatOnSaveMode": "modifications",
+    "files.exclude": {
+      "node_modules": true,
+      "src/client/src/components/icons": true
+    },
+    "materialdesigniconsIntellisense.matchers": [
+      {
+        "match": "[^/]{pascal}Icon",
+        "insert": "mdi:{pascal}",
+        "displayName": "{pascal}Icon",
+        "description": "Material Design Icon"
+      }
+    ],
+    "materialdesigniconsIntellisense.enableLinter": false,
+    "materialdesigniconsIntellisense.selector": []
+  }
+}

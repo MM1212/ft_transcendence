@@ -1,0 +1,46 @@
+module.exports = {
+  root: true,
+  env: { browser: true, es2020: true },
+  extends: [
+    'eslint:recommended',
+    'plugin:@typescript-eslint/recommended',
+    'plugin:react/recommended',
+    'plugin:react-hooks/recommended',
+    'plugin:prettier/recommended', // Make sure this is always the last element in the array.
+  ],
+  ignorePatterns: ['dist', '.eslintrc.cjs'],
+  parser: '@typescript-eslint/parser',
+  plugins: ['react-refresh', 'simple-import-sort', 'prettier'],
+  rules: {
+    'prettier/prettier': ['off', {}, { usePrettierrc: true }],
+    'react/react-in-jsx-scope': 'off',
+    'jsx-a11y/accessible-emoji': 'off',
+    'react/prop-types': 'off',
+    '@typescript-eslint/explicit-function-return-type': 'off',
+    'simple-import-sort/imports': 'off',
+    'simple-import-sort/exports': 'off',
+    '@typescript-eslint/no-namespace': 'off',
+    '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/ban-types': 'off',
+    '@typescript-eslint/no-non-null-assertion': 'off',
+    '@typescript-eslint/no-inferrable-types': 'off',
+    '@typescript-eslint/no-extra-non-null-assertion': 'off',
+    'no-constant-condition': 'off',
+    '@typescript-eslint/no-empty-function': 'off',
+    '@typescript-eslint/no-unused-vars': 'warn',
+    'react-hooks/rules-of-hooks': 'error',
+    'react-hooks/exhaustive-deps': [
+      'warn',
+      {
+        additionalHooks: '(useRecoilCallback|useRecoilTransaction_UNSTABLE)',
+      },
+    ],
+    'react/display-name': 'off',
+    '@typescript-eslint/no-empty-interface': 'off',
+    'react-refresh/only-export-components': [
+      'warn',
+      { allowConstantExport: true },
+    ],
+    'no-case-declarations': 'off',
+  },
+};
