@@ -11,7 +11,7 @@ import { UsersService } from '@/modules/users/users.service';
 import { Session } from '@fastify/secure-session';
 
 @Injectable()
-export class SessionService {
+export class TfaService {
   constructor(
     private readonly config: ConfigService<ImportMetaEnv>,
     private readonly usersService: UsersService,
@@ -21,10 +21,10 @@ export class SessionService {
     return this.config.get<string>('BACKEND_TFA_ISSUER')!;
   }
   public get tfaSecretLength(): number {
-    return this.config.get<number>('BACKEND_TFA_SECRET_LENGTH')!;
+    return parseInt(this.config.get<string>('BACKEND_TFA_SECRET_LENGTH')!);
   }
 
-  public async handleTfaSetup(user: UserExtWithSession): Promise<string> {
+  public async setup(user: UserExtWithSession): Promise<string> {
     if (user.session.auth.tfaEnabled)
       throw new ForbiddenException('Two-Factor Auth is already enabled');
     const secret =
@@ -49,7 +49,7 @@ export class SessionService {
     }
   }
 
-  public async handleTfaSetupConfirm(user: UserExtWithSession, code: string) {
+  public async setupConfirm(user: UserExtWithSession, code: string) {
     if (user.session.auth.tfaEnabled)
       throw new ForbiddenException('Two-Factor Auth is already enabled');
     const secret = user.session.session.get('tfa_secret');
@@ -61,7 +61,7 @@ export class SessionService {
     user.session.session.set('tfa_secret', undefined);
   }
 
-  public async getTfaQrCode(user: UserExtWithSession): Promise<string> {
+  public async getQrCode(user: UserExtWithSession): Promise<string> {
     if (!user.session.auth.tfaEnabled)
       throw new ForbiddenException('Two-Factor Auth is not enabled');
     const secret = user.session.auth.tfaSecret;
@@ -83,7 +83,7 @@ export class SessionService {
     }
   }
 
-  public async handleTfaDisable(user: UserExtWithSession, code: string) {
+  public async disable(user: UserExtWithSession, code: string) {
     if (!user.session.auth.tfaEnabled)
       throw new ForbiddenException('Two-Factor Auth is not enabled');
     const match = await user.session.auth.tfaMatch(code);
@@ -91,7 +91,7 @@ export class SessionService {
     await user.session.auth.disableTfa();
   }
 
-  public async handleTfaCallback(
+  public async callback(
     userId: number,
     session: Session,
     code: string,
