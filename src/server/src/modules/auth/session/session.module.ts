@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { SessionController } from './session.controller';
-import { SessionService } from './session.service';
+import { TfaService } from '../2fa/2fa.service';
 import { UsersModule } from '@/modules/users/users.module';
 
 @Module({
   imports: [UsersModule],
   controllers: [SessionController],
-  providers: [SessionService]
+  providers: [TfaService]
 })
 export class AuthSessionModule {}
