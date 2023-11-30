@@ -21,10 +21,8 @@ services:
     container_name: ft_transcendence
     image: ft_transcendence
     build:
-      context: production
-      dockerfile: Dockerfile
-    env_file:
-      - .env
+      context: .
+      dockerfile: production/Dockerfile
     ports:
       - "3000:3000"
     depends_on:

@@ -1,3 +1,5 @@
-make db_migrate name=production
+#!/bin/bash
 
-exec "cd src/server && pnpm start:prod"
+cd src/server && pnpx prisma migrate deploy
+
+exec pnpm start:prod
