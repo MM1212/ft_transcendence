@@ -149,13 +149,14 @@ function ProfileTooltipContent({
             {moment(user.createdAt).format('MMM Do YYYY')}
           </Typography>
         </Stack>
-        <Stack mt="auto" spacing={1} direction="row" alignItems="center">
+        <Box mt="auto" gap={1} display="flex" alignItems="center">
           <Button
             variant="outlined"
             color="neutral"
             startDecorator={<AccountIcon />}
             size="sm"
             onClick={goToProfile}
+            fullWidth
           >
             Profile
           </Button>
@@ -165,10 +166,12 @@ function ProfileTooltipContent({
             startDecorator={<MessageIcon size="sm" />}
             size="sm"
             onClick={goToMessages}
+            fullWidth
+
           >
             Message
           </Button>
-        </Stack>
+        </Box>
       </Sheet>
     </Box>
   );

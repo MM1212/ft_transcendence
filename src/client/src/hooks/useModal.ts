@@ -3,6 +3,7 @@ import {
   atomFamily,
   selector,
   useRecoilCallback,
+  useRecoilTransaction_UNSTABLE,
   useRecoilValue,
 } from 'recoil';
 
@@ -67,6 +68,14 @@ export const useModalActions = <T>(id: string) => {
       },
     [id]
   );
+
+  const closeAll = useRecoilTransaction_UNSTABLE((ctx) => () => {
+    const modals = [...ctx.get(modalsRegistryAtom)];
+    ctx.set(modalsRegistryAtom, []);
+    modals.forEach((modalId) => {
+      ctx.set(modalsAtom(modalId), false);
+    });
+  });
   const toggle = useRecoilCallback(
     (ctx) => async (data?: T) => {
       const isOpened = await ctx.snapshot.getPromise(modalsAtom(id));
@@ -85,7 +94,7 @@ export const useModalActions = <T>(id: string) => {
     },
     [id]
   );
-  return { open, close, toggle, getData };
+  return { open, close, toggle, getData, closeAll };
 };
 
 export type ModalState<T> = T & {
