@@ -1,4 +1,4 @@
-import { SvgIconPropsSizeOverrides, AvatarPropsSizeOverrides } from '@mui/joy';
+import { SvgIconPropsSizeOverrides, AvatarPropsSizeOverrides, FontFamilyOverrides, TypographySystemOverrides } from '@mui/joy';
 
 declare module '@mui/joy' {
   interface SvgIconPropsSizeOverrides {
@@ -9,5 +9,17 @@ declare module '@mui/joy' {
 
   interface AvatarPropsSizeOverrides {
     xl: true;
+  }
+
+  interface FontFamilyOverrides {
+    text: true;
+  }
+
+  interface TypographySystemOverrides {
+    'text-xl': true;
+    'text-lg': true;
+    'text-md': true;
+    'text-sm': true;
+    'text-xs': true;
   }
 }

@@ -1,7 +1,9 @@
 import { Theme, ThemeCssVar, extendTheme } from '@mui/joy';
 import { TransitionAPI } from './transitions';
 import { alpha, lighten, darken } from './bin/color';
+import { TypographySystem } from '@mui/joy';
 export * from './scrollBar';
+import './font';
 
 const transitionConstants: Pick<TransitionAPI, 'duration' | 'easing'> = {
   duration: {
@@ -32,7 +34,7 @@ function resolveVar(this: Theme, variable: ThemeCssVar): string {
   return value.trim();
 }
 
-const testTheme = extendTheme({
+const theme = extendTheme({
   transitions: {
     ...transitionConstants,
     create: (props, options = {}) => {
@@ -66,7 +68,50 @@ const testTheme = extendTheme({
       xl: 1920,
     },
   },
-
+  fontFamily: {
+    body: 'Poppins',
+    display: 'Poppins',
+    fallback: 'sans-serif',
+    text: 'Open Sans',
+  },
+  typography: {
+    'text-xl': {
+      fontFamily: 'text',
+    },
+    'text-lg': {
+      fontFamily: 'text',
+    },
+    'text-md': {
+      fontFamily: 'text',
+    },
+    'text-sm': {
+      fontFamily: 'text',
+    },
+    'text-xs': {
+      fontFamily: 'text',
+    },
+  },
+  fontSize: {
+    xs: '0.50rem',
+    sm: '0.75rem',
+    md: '0.875rem',
+    lg: '1rem',
+    xl: '1.125rem',
+  },
+  lineHeight: {
+    // xs: '0.625rem',
+    // sm: '0.875rem',
+    // md: '1rem',
+    // lg: '1.125rem',
+    // xl: '1.25rem',
+  },
+  fontWeight: {
+    xs: 500,
+    sm: 500,
+    md: 500,
+    lg: 500,
+    xl: 600,
+  },
   components: {
     JoyButton: {
       styleOverrides: {
@@ -202,26 +247,47 @@ const testTheme = extendTheme({
     },
     JoyMenu: {
       defaultProps: {
-        placement:"right-start",
-        size:"sm",
+        placement: 'right-start',
+        size: 'sm',
       },
       styleOverrides: {
         root: {
-          zIndex: 1300
-        }
-      }
-    }
+          zIndex: 1300,
+        },
+      },
+    },
+    JoyTextarea: {
+      styleOverrides: {
+        textarea: ({ theme }) => ({
+          fontFamily: theme.fontFamily.text,
+        }),
+      },
+    },
+    JoyInput: {
+      styleOverrides: {
+        input: ({ theme }) => ({
+          fontFamily: theme.fontFamily.text,
+        }),
+      },
+    },
   },
 });
 
-testTheme.gradients = {
-  primary: `linear-gradient(45deg, ${testTheme.palette.primary.solidBg}, ${testTheme.palette.primary.softBg})`,
-  success: `linear-gradient(45deg, ${testTheme.palette.success.solidBg}, ${testTheme.palette.success.softBg})`,
-  warning: `linear-gradient(45deg, ${testTheme.palette.warning.solidBg}, ${testTheme.palette.warning.softBg})`,
-  danger: `linear-gradient(45deg, ${testTheme.palette.danger.solidBg}, ${testTheme.palette.danger.softBg})`,
-  neutral: `linear-gradient(45deg, ${testTheme.palette.neutral.solidBg}, ${testTheme.palette.neutral.softBg})`,
-  background: `linear-gradient(45deg, ${testTheme.vars.palette.background.level1} 0%, ${testTheme.vars.palette.background.surface} 100%)`,
+for (const [level, val] of Object.entries<TypographySystem['body-lg']>(
+  theme.typography
+)) {
+  if (!level.includes('text')) continue;
+  val.fontFamily = theme.getCssVar(`fontFamily-text`);
+}
+
+theme.gradients = {
+  primary: `linear-gradient(45deg, ${theme.palette.primary.solidBg}, ${theme.palette.primary.softBg})`,
+  success: `linear-gradient(45deg, ${theme.palette.success.solidBg}, ${theme.palette.success.softBg})`,
+  warning: `linear-gradient(45deg, ${theme.palette.warning.solidBg}, ${theme.palette.warning.softBg})`,
+  danger: `linear-gradient(45deg, ${theme.palette.danger.solidBg}, ${theme.palette.danger.softBg})`,
+  neutral: `linear-gradient(45deg, ${theme.palette.neutral.solidBg}, ${theme.palette.neutral.softBg})`,
+  background: `linear-gradient(45deg, ${theme.vars.palette.background.level1} 0%, ${theme.vars.palette.background.surface} 100%)`,
 };
 
 export { alpha, lighten, darken };
-export default testTheme;
+export default theme;

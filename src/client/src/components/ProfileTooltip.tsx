@@ -81,12 +81,10 @@ function ProfileTooltipContent({
             width: '100%',
             position: 'absolute',
             height: '3rem',
-            backgroundImage: theme =>  {
-              const color = averageAvatarColor ?? theme.resolveVar('palette-neutral-400');
-              return `linear-gradient(45deg, ${darken(
-                color,
-                0.4
-              )}, ${color})`
+            backgroundImage: (theme) => {
+              const color =
+                averageAvatarColor ?? theme.resolveVar('palette-neutral-400');
+              return `linear-gradient(45deg, ${darken(color, 0.4)}, ${color})`;
             },
             top: 0,
             left: 0,
@@ -167,7 +165,6 @@ function ProfileTooltipContent({
             size="sm"
             onClick={goToMessages}
             fullWidth
-
           >
             Message
           </Button>

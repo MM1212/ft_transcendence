@@ -1,7 +1,7 @@
 import { CssBaseline, CssVarsProvider } from '@mui/joy';
 import React from 'react';
 import { RecoilRoot } from 'recoil';
-import testTheme from './theme';
+import theme from './theme';
 import { SWRConfig } from 'swr';
 import { Router } from 'wouter';
 import StateMounter from '@state/mounter';
@@ -54,7 +54,7 @@ export default function AppProviders({
         >
           <StateMounter />
           <CssVarsProvider
-            theme={testTheme}
+            theme={theme}
             defaultMode="system"
             defaultColorScheme="dark"
             disableNestedContext

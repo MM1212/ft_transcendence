@@ -28,7 +28,7 @@ export default function ChatDefaultMessageBubble({
   return (
     <Bubble variant={variant} isSent={isSent} features={features}>
       <Typography
-        level="body-sm"
+        level="text-sm"
         component="div"
         sx={{
           color: isSent
