@@ -4,7 +4,7 @@ import { Game } from "../Game";
 import { Ball } from "../Ball";
 
 export class Shooter {
-    protected line: {start: Vector2D, end: Vector2D}
+    public line: {start: Vector2D, end: Vector2D}
     protected angle: number;
     protected center: Vector2D;
     protected direction: Vector2D = new Vector2D(1, 0);
@@ -27,6 +27,11 @@ export class Shooter {
         this.center = this.ballRef.getCenter;
         this.direction = shooter.direction;
         shooter.setVelocity(new Vector2D(0, 0));
+    }
+
+    public linePositions(): {start: number[], end: number[]}
+    {
+        return {start: [this.line.start.x, this.line.start.y], end: [this.line.end.x, this.line.end.y]};
     }
     
     shootBall(shooter: Bar): void

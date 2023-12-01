@@ -8,31 +8,25 @@ import { UIEffect } from "./Effect";
 
 export class UIIce extends Ice {
     public displayObject: PIXI.Sprite;
-    constructor(center: Vector2D, velocity: Vector2D, shooter: Bar) {
+    constructor(center: Vector2D, velocity: Vector2D, shooter: Bar, tag: string) {
         super(center, velocity, shooter);
         this.displayObject = new PIXI.Sprite(IceTex);
         this.displayObject.anchor.set(0.5);
         this.displayObject.x = center.x;
         this.displayObject.y = center.y;
+        this.tag = tag;
     }
 
-    update(delta: number): boolean {
-        if (super.update(delta) === false) { return false; }
+    update(): void {
         this.displayObject.x = this.center.x;
         this.displayObject.y = this.center.y;
-        return true;
     }
 
-    onCollide(target: UIGameObject): boolean {
-        if (super.onCollide(target) === true)
-        {    
-            if (target.getEffect === undefined)
-                target.setEffect(new UIEffect("SLOW", target));
-            else
-                target.setEffect(new UIEffect("STOP", target));
-            this.game.remove(this);
-            return true;
-        }
-        return false;
+    removePower(): void {
+        // load effect timer display here
+    }
+
+    onCollide(): boolean {
+        return true;
     }
 }

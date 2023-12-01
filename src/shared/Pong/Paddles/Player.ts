@@ -1,8 +1,8 @@
-import { Bar } from "./Bar";
-import { Vector2D } from "../utils/Vector";
-import { SpecialPowerType } from "../SpecialPowers/SpecialPower";
-import { Game } from "../Game";
-import { GameObject } from "../GameObject";
+import { Bar } from './Bar';
+import { Vector2D } from '../utils/Vector';
+import { SpecialPower, SpecialPowerType } from '../SpecialPowers/SpecialPower';
+import { Game } from '../Game';
+import { GameObject } from '../GameObject';
 
 /* ----------------- Velocity ----------------- */
 const UP = new Vector2D(0, -5);
@@ -20,9 +20,21 @@ export interface KeyControls {
   shoot: string;
 }
 
+export enum SHOOT_ACTION {
+  NONE,
+  CREATE,
+  SHOOT,
+}
+
 /* ------------------- Player ------------------- */
 export class Player extends Bar {
   public keyPressed: KeyState = {
+    up: false,
+    down: false,
+    boost: false,
+    shoot: false,
+  };
+  public keyJustPressed: KeyState = {
     up: false,
     down: false,
     boost: false,
@@ -35,7 +47,7 @@ export class Player extends Bar {
     public keys: KeyControls,
     tag: string,
     public direction: Vector2D,
-    specialPower: SpecialPowerType,
+    public specialPower: SpecialPowerType,
     game: Game,
     public readonly socketId?: string
   ) {
@@ -45,8 +57,16 @@ export class Player extends Bar {
 
   onKeyDown(key: string): void {
     this.keyPressed[key] = true;
-    console.log(this.tag + key);
-    if (this.keyPressed[this.keys.shoot]) {
+  }
+
+  onKeyUp(key: string): void {
+    if (this.keyPressed[key])
+      this.keyJustPressed[key] = true;
+    this.keyPressed[key] = false;
+  }
+
+  public handleShoot(): [number, string] {
+    if (this.keyJustPressed[this.keys.shoot]) {
       if (
         this.isShooting === false &&
         this.shooter === undefined &&
@@ -57,30 +77,31 @@ export class Player extends Bar {
             this.specialPowerType,
             this.center,
             this.direction.x,
-            this
+            this,
+            ""
           );
           if (this.power !== undefined) {
-            this.game.add(this.power as unknown as GameObject);
-            this.spendMana();
+            this.game.add(this.power);
+            this.spendMana();            
+            return [SHOOT_ACTION.CREATE, this.power.tag];
           }
         }
       } else if (this.isShooting === true) {
         this.shooter?.shootBall(this);
+        return [SHOOT_ACTION.SHOOT, ""];
       }
     }
+    return [SHOOT_ACTION.NONE, ""];
   }
 
   protected createPower(
     specialPower: SpecialPowerType,
     center: Vector2D,
     direction: number,
-    shooter: Bar
+    shooter: Bar,
+    tag: string
   ) {
-    return Bar.create(specialPower, center, direction, shooter);
-  }
-
-  onKeyUp(key: string): void {
-    this.keyPressed[key] = false;
+    return Bar.create(specialPower, center, direction, shooter, tag);
   }
 
   executeMovement(): void {
@@ -130,6 +151,12 @@ export class Player extends Bar {
     }
     if (this.shooter !== undefined) {
       this.shooter.update(delta, this);
+    }
+    this.keyJustPressed = {
+      up: false,
+      down: false,
+      boost: false,
+      shoot: false,
     }
   }
 }

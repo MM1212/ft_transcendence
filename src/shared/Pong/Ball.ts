@@ -4,9 +4,8 @@ import { BallPolygon } from './Collisions/Polygon';
 import { Vector2D } from './utils/Vector';
 import { Player } from './Paddles/Player';
 import { Bot } from './Paddles/Bot';
-import { score } from './main';
 import { Game } from './Game';
-import { gameConfig } from './config/configInterface';
+import { ETeamSide, gameConfig } from './config/configInterface';
 import { Bubble } from './SpecialPowers/Bubble';
 import { ArenaWall } from './Collisions/Arena';
 
@@ -49,17 +48,29 @@ export class Ball extends GameObject {
 
     resetBall(x: number): void {
         if (x <= 0) {
-            const p2 = this.game.getObjectByTag('Player2');
+            const p2 = this.game.getObjectByTag('Player 2');
             if (p2 && p2.getScale >= 0.82) {
                 p2.setScale(p2.getScale - 0.02);
+                this.game.sendScale = p2.getScale;
             }
-            score[1] += 1;
+            const p4 = this.game.getObjectByTag('Player 4');
+            if (p4 && p4.getScale >= 0.82) {
+                p4.setScale(p4.getScale - 0.02);
+            }
+            this.game.score[1] += 1;
+            this.game.sendTeamScored = ETeamSide.Right;
         } else {
-            const p1 = this.game.getObjectByTag('Player1');
+            const p1 = this.game.getObjectByTag('Player 1');
             if (p1 && p1.getScale >= 0.82) {
                 p1.setScale(p1.getScale - 0.02);
+                this.game.sendScale = p1.getScale;
             }
-            score[0] += 1;
+            const p3 = this.game.getObjectByTag('Player 3');
+            if (p3 && p3.getScale >= 0.82) {
+                p3.setScale(p3.getScale - 0.02);
+            }
+            this.game.score[0] += 1;
+            this.game.sendTeamScored = ETeamSide.Left;
         }
         this.startBall();
     }

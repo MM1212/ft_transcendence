@@ -23,6 +23,7 @@ export abstract class SpecialPower extends GameObject {
         this.collider.updateBoundingBox();
         this.collider.lastCollision = undefined;
         this.shooterObject = shooter;
+        this.hasChanged = true;
     }
 
     updatePolygon(center: Vector2D): void {
@@ -31,15 +32,18 @@ export abstract class SpecialPower extends GameObject {
         this.collider.center = center;
     }
 
-    update(delta: number): boolean {
-        if (!this.move) return false;
+    update(delta: number): void {
+        //if (!this.move) return false;
+        if (this.getCenter.x < 0 || this.getCenter.x > this.game.width) {
+            this.game.remove(this);
+            return;
+        }
         this.center = this.center.add(
             this.velocity.x * this.acceleration * delta,
             this.velocity.y * this.acceleration * delta
         );
         this.updatePolygon(this.center);
         this.collider.updateBoundingBox();
-        return true;
     }
 
     onCollide(target: GameObject): boolean {

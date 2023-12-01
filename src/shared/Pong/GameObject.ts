@@ -6,6 +6,12 @@ import { Game } from './Game';
 
 let objectID = 0;
 
+export enum effectSendOption {
+    NONE,
+    SEND,
+    REMOVE
+}
+
 export abstract class GameObject {
     protected _move: boolean;
     protected acceleration: number;
@@ -20,10 +26,13 @@ export abstract class GameObject {
     public id: number = objectID;
     
     protected hitAmount: number = 0;
-    protected effect: Effect | undefined;
+    public effect: Effect | undefined;
+    public effectSendOpt: effectSendOption = effectSendOption.NONE;
+    
     protected effectVelocity: Vector2D = new Vector2D(1, 1);
     
     public hasChanged: boolean = false;
+    public hasChangedShooter: boolean = false;
 
     constructor(public tag: string, public readonly game: Game) {
         this._move = false;
@@ -45,6 +54,11 @@ export abstract class GameObject {
     }
     setEffect(effect: Effect | undefined): void {
         this.effect = effect;
+        if (effect !== undefined) {
+            this.effectSendOpt = effectSendOption.SEND;
+        } else if (effect === undefined) {
+            this.effectSendOpt = effectSendOption.REMOVE;
+        }
     }
     get hitAmountEffect(): number {
         return this.hitAmount;

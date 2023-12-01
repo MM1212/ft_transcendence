@@ -6,6 +6,7 @@ import {
   IGameConfig,
   IPlayerConfig,
 } from '@shared/Pong/config/configInterface';
+import { SHOOT_ACTION } from '@shared/Pong/Paddles/Player';
 
 // temporary
 const defaultLeftTeamConfig = {
@@ -67,9 +68,22 @@ export class PongService {
         else {
           player.onKeyUp(data.key);
         }
+        const [action, powertag] = player.handleShoot();
+        switch (action) {
+          case SHOOT_ACTION.CREATE:
+            game.room.emit('create-power', {tag: player.tag, powertag: powertag});
+            break;
+          case SHOOT_ACTION.SHOOT:
+            game.room.emit('shoot-power', {tag: player.tag});
+            break;
+          default:
+            break;
+        }
       } 
     }
   }
+
+  
 
   public createGame(
     data: { game: IGameConfig; player: IPlayerConfig },

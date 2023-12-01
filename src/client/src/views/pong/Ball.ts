@@ -1,7 +1,7 @@
 import * as PIXI from 'pixi.js';
-import { GameObject } from '@shared/Pong/GameObject';
 import { Game } from '@shared/Pong/Game';
 import { Ball } from '@shared/Pong/Ball';
+import { UIEffect } from './SpecialPowers/Effect';
 
 export class UIBall extends Ball {
     public displayObject: PIXI.Sprite;
@@ -18,16 +18,12 @@ export class UIBall extends Ball {
         this.displayObject.filters = [blueTranform];
     }
 
+    resetBall(x: number): void {
+    }
+
     update(delta: number): void {
-        super.update(delta);
-        this.displayObject.x = this.center.x;
-        this.displayObject.y = this.center.y;
-        if (this.effect !== undefined) {
-            this.effect.update(delta, this);
-        }
     }
     
-    onCollide(target: GameObject): void {
-        super.onCollide(target);
+    onCollide(): void {
     }
 }

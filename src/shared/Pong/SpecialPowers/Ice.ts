@@ -9,19 +9,21 @@ import { Ball } from "../Ball";
 export class Ice extends SpecialPower {
     constructor(center: Vector2D, velocity: Vector2D, shooter: Bar) {
         super("Ice", center, velocity, shooter, specialpowerConfig.ice.diameter, specialpowerConfig.ice.vertices);
+        this.tag += this.id;
     }
 
     onCollide(target: GameObject): boolean {
 
         if (target instanceof Bar)
         {
+            console.log("ICE HIT BAR");
             if (target.getEffect === undefined)
                 target.setEffect(new Effect("SLOW", target));
             else
                 target.setEffect(new Effect("STOP", target));
         }
 
-        if (!(target instanceof SpecialPower || target instanceof Ball))
+        if (target instanceof SpecialPower || target instanceof Ball)
         {
             return true;
         }

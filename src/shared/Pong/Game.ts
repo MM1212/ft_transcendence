@@ -1,6 +1,6 @@
-import { GameObject } from "./GameObject";
+import { GameObject, effectSendOption } from "./GameObject";
 import { Collider } from "./Collisions/Collider";
-import { IGameConfig } from "./config/configInterface";
+import { ETeamSide, IGameConfig } from "./config/configInterface";
 
 export class Game {
   public run = true;
@@ -11,7 +11,16 @@ export class Game {
   protected keyup_gameObjects: GameObject[] = [];
   protected gameconfig: IGameConfig;
 
+  protected playerTags: string[] = [];
+
+  public score: [number, number] = [0, 0];
+  public sendScale: number = 1;
   protected sendObjects: GameObject[] = [];
+  protected sendRemoveObjects: string[] = [];
+  protected sendShooter: GameObject[] = [];
+  protected sendEffects: GameObject[] = [];
+  public sendTeamScored: ETeamSide | undefined = undefined;
+
 
   public delta: number = 0;
 
@@ -25,9 +34,15 @@ export class Game {
   update(delta: number) {
     if (this.run) {
       //console.log(delta);
+      this.sendTeamScored = undefined;
       this.sendObjects.length = 0;
-      this.gameObjects.forEach((gameObject: GameObject) =>
+      this.sendEffects.length = 0;
+      this.sendShooter.length = 0;
+      this.sendRemoveObjects.length = 0;
+      this.gameObjects.forEach((gameObject: GameObject) => {
         gameObject.collider.reset()
+        gameObject.effectSendOpt = effectSendOption.NONE;
+      }
       );
       this.collider_gameObjects.forEach((target: GameObject) => {
         this.gameObjects.forEach((gameObject: GameObject) => {
@@ -41,6 +56,13 @@ export class Game {
       this.sendObjects = this.gameObjects.filter(
         (gameObject: GameObject) => gameObject.hasChanged
       );
+      this.sendShooter = this.gameObjects.filter(
+        (gameObject: GameObject) => gameObject.hasChangedShooter
+      );
+      this.sendEffects = this.gameObjects.filter(
+        (gameObject: GameObject) => gameObject.effectSendOpt !== effectSendOption.NONE
+      );
+
       if (this.remove_gameObjects.length > 0) this.removeObjects();
     }
   }
@@ -53,17 +75,13 @@ export class Game {
     this.collider_gameObjects.length = 0;
     this.remove_gameObjects.length = 0;
     this.sendObjects.length = 0;
+    this.sendRemoveObjects.length = 0;
+    this.sendEffects.length = 0;
+    this.sendShooter.length = 0;
   }
 
   public add(gameObject: GameObject) {
     this.gameObjects.push(gameObject);
-    console.log(
-      "adding obg",
-      gameObject.tag,
-      "with collider?",
-      gameObject.onCollide,
-      gameObject.collider.enabled
-    );
 
     if (!!gameObject.onCollide)
       this.collider_gameObjects.push(gameObject);
@@ -71,8 +89,8 @@ export class Game {
 
   public remove(gameObject: GameObject) {
     this.remove_gameObjects.push(gameObject);
+    this.sendRemoveObjects.push(gameObject.tag);
   }
-
 
   protected removeObjects() {
     this.collider_gameObjects = this.collider_gameObjects.filter(

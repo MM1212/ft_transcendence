@@ -8,6 +8,7 @@ import { UIShooter } from '../SpecialPowers/Shooter';
 import { Player } from '@shared/Pong/Paddles/Player';
 import { UIBar } from './Bar';
 import { UIEffect } from '../SpecialPowers/Effect';
+import { UIGameObject } from '../GameObject';
 
 export interface KeyControls {
   up: string;
@@ -33,18 +34,47 @@ export class UIPlayer extends Player {
     public keys: KeyControls,
     tag: string,
     public direction: Vector2D,
-    specialPower: SpecialPowerType,
-    uigame: UIGame
+    public specialPower: SpecialPowerType,
+    private uigame: UIGame
   ) {
     super(x, y, keys, tag, direction, specialPower, uigame);
     this.displayObject = new PIXI.Sprite(texture);
     this.displayObject.anchor.set(0.5);
     this.displayObject.x = this.center.x;
     this.displayObject.y = this.center.y;
+    this.scale = 1;
     this.mana = new UIMana(tag, uigame);
     this.energy = new UIEnergy(tag, uigame);
     this.shooter = undefined;
     this.effect = undefined;
+
+    // add listeners for mana and energy updates    
+  }
+
+  updateEffect(effectName: string, effectValue: number): void {
+    console.log(effectName + " " + effectValue);
+    if (this.effect === undefined) {
+      this.effect = new UIEffect(effectName, this);
+      if (effectName === "INVISIBLE") {
+        this.displayObject.alpha = 0;
+      }
+    } else {
+      this.effect.update(effectValue, this);
+    }
+  }
+
+  updateShooter(line: {start: number[], end: number[]}): void {
+    if (this.shooter !== undefined) {
+      this.shooter.draw(line);
+      this.displayObject.y = this.uigame.height / 2;
+    }
+  }
+
+  shootPower(): void {
+    if (this.shooter !== undefined) {
+      this.shooter.shootBall(this);
+      this.uigame.app.stage.removeChild(this.shooter?.displayObject);
+    }
   }
 
   setScaleDisplayObject(scale: number): void {
@@ -61,26 +91,18 @@ export class UIPlayer extends Player {
     specialPower: SpecialPowerType,
     center: Vector2D,
     direction: number,
-    shooter: UIBar
+    shooter: UIBar,
+    powertag: string
   ) {
-    return UIBar.create(specialPower, center, direction, shooter);
+    return UIBar.create(specialPower, center, direction, shooter, powertag);
   }
 
-  setScale(scale: number): void {
-    super.setScale(scale);
-    this.setScaleDisplayObject(scale);
+  setScaleDisplay(scale: number): void {
+    this.setScale(scale);
+    this.setScaleDisplayObject(this.scale);
     this.setDisplayObjectCoords(this.center);
   }
 
-  update(delta: number): void {
-    super.update(delta);
-    this.displayObject.y = this.center.y;
-    this.mana.update(this.tag, delta);
-    this.energy.update(this.tag, delta);
-    if (this.effect !== undefined) this.effect.update(delta, this);
-    if (this.shooter !== undefined) {
-      this.shooter.update(delta, this);
-      this.displayObject.y = this.center.y;
-    }
+  update(): void {
   }
 }

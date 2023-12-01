@@ -2,11 +2,10 @@ import { Ball } from "../Ball";
 import { GameObject } from "../GameObject";
 import { Vector2D } from "../utils/Vector";
 
-
 export class Effect {
-    protected effectCur: number;
+    public effectCur: number;
     protected effectMax: number;
-    protected effectType: string;
+    public effectType: string;
     
     constructor(effectName: string, target: GameObject) {
         this.effectCur = 0;

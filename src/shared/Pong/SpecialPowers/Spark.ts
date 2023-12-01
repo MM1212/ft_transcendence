@@ -10,6 +10,7 @@ import { Ball } from "../Ball";
 export class Spark extends SpecialPower {
     constructor(center: Vector2D, velocity: Vector2D, shooter: Bar) {
         super("Spark", center, velocity, shooter, specialpowerConfig.spark.diameter, specialpowerConfig.spark.vertices);
+        this.tag += this.id;
     }
 
     onCollide(target: GameObject): boolean {
@@ -19,7 +20,7 @@ export class Spark extends SpecialPower {
                 target.setEffect(new Effect("REVERSE", target));
         }
 
-        if (!(target instanceof SpecialPower || target instanceof Ball))
+        if (target instanceof SpecialPower || target instanceof Ball)
         {
             return true;
         }

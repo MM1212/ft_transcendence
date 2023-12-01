@@ -6,8 +6,6 @@ export const ARENA_SIZE = 50;
 export const WINDOWSIZE_X = 800;
 export const WINDOWSIZE_Y = 600;
 
-export const score: [number, number] = [0, 0];
-
 export let backgroundMultiplier: number = 0.00025;
 export function setBackgroundMultiplier(value: number) {
     backgroundMultiplier = value;

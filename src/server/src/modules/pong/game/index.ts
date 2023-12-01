@@ -24,9 +24,8 @@ import {
   EventsMap,
 } from 'node_modules/socket.io/dist/typed-events';
 import { BroadcastOperator, Server, Socket } from 'socket.io';
-import { PongGateway } from '../pong.gateway';
-import { SubscribeMessage } from '@nestjs/websockets';
 import { GameObject } from '@shared/Pong/GameObject';
+import { Bar } from '@shared/Pong/Paddles/Bar';
 
 type Room = BroadcastOperator<DefaultEventsMap, any>;
 
@@ -37,7 +36,7 @@ export class ServerGame extends Game {
   public readonly room: Room;
   constructor(
     public config: IGameConfig,
-    server: Server,
+    public server: Server,
     id: number,
   ) {
     super(WINDOWSIZE_X, WINDOWSIZE_Y);
@@ -51,7 +50,7 @@ export class ServerGame extends Game {
 
   public start() {
     this.buildObjects();
-    console.log(`Game-${this.roomId}: created`);
+    console.log(`Game-${this.roomId}: started!`);
     this.startTick();
   }
 
@@ -72,6 +71,7 @@ export class ServerGame extends Game {
       lastTimeStamp = timestamp;
       this.delta = deltaTime / fixedDeltaTime;
       this.update(this.delta);
+
       if (timestamp - lastFPSTimestamp > 1000) {
         lastFPSTimestamp = timestamp;
       }
@@ -107,7 +107,32 @@ export class ServerGame extends Game {
         return temp;
       })
       );
+    } 
+    if (this.sendRemoveObjects.length > 0)
+    {
+      this.room.emit('remove-power', {tag: this.sendRemoveObjects});
     }
+    if (this.sendShooter.length > 0) {
+      this.room.emit('shooter-update',  {
+          tag: this.sendShooter[0].tag,
+          line: (this.sendShooter[0] as Bar).shooter?.linePositions(),
+      })
+    }
+    if (this.sendEffects.length > 0) {
+      this.room.emit('effect-create-remove', this.sendEffects.map((gameObject: GameObject) => {
+        const temp = {
+          tag: gameObject.tag,
+          effectName: gameObject.getEffect?.effectType,
+          option: gameObject.effectSendOpt
+        }
+        return temp;
+      })
+      );
+    }
+    if (this.sendTeamScored != undefined) {
+      this.room.emit('score-update', {teamId: this.sendTeamScored, score: this.score, scale: this.sendScale});
+    }
+    
   }
   // MISSING: SpecialPowers in bot
   private buildPlayers() {
@@ -133,8 +158,9 @@ export class ServerGame extends Game {
         "Player 1",
         new Vector2D(1, 1),
         this,
-      );
-    }
+        );
+      }
+    this.playerTags.push(p1.tag);
     this.add(p1);
 
     let p2;
@@ -149,6 +175,7 @@ export class ServerGame extends Game {
         this,
         p2Conf.userId,
       );
+      
     } else {
       p2 = new Bot(
         this.width - P_START_DIST,
@@ -158,6 +185,7 @@ export class ServerGame extends Game {
         this,
       );
     }
+    this.playerTags.push(p2.tag);
     this.add(p2);
 
     if (this.config.teams[0].players.length > 1) {
@@ -184,6 +212,7 @@ export class ServerGame extends Game {
         );
       }
       this.add(p3);
+      this.playerTags.push(p3.tag);
     }
 
     if (this.config.teams[1].players.length > 1) {
@@ -210,9 +239,10 @@ export class ServerGame extends Game {
         );
       }
       this.add(p4);
+      this.playerTags.push(p4.tag);
     }
   }
-  
+
   // CONFIGURATION
 
   get roomId(): string {

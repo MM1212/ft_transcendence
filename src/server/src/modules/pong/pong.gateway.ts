@@ -225,6 +225,7 @@ export class PongGateway
 
   @SubscribeMessage('keyPress')
   handleKeyPress(client: Socket, data: {key: string, state: boolean}): void {
+    console.log(data.key)
     this.service.handleKeys(client, data);
   }
 }

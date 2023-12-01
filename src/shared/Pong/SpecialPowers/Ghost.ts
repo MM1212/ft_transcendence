@@ -8,10 +8,10 @@ import { Effect } from "./Effect";
 export class Ghost extends SpecialPower {
     constructor(center: Vector2D, velocity: Vector2D, shooter: Bar) {
         super("Ghost", center, velocity, shooter, specialpowerConfig.ghost.diameter, specialpowerConfig.ghost.vertices);
+        this.tag += this.id;
     }
 
     onCollide(target: GameObject): boolean {
-
         if (!(target instanceof SpecialPower))
         {
             target.setEffect(new Effect("INVISIBLE", target));

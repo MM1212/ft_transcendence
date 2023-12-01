@@ -14,21 +14,21 @@ export class UIEnergy extends Energy {
     getEnergyBarPosition(player: string): Vector2D {
         const position: Vector2D = new Vector2D(0, 0);
 
-        if (player === "Player1"){
+        if (player === "Player 1"){
             position.x = 10;
             position.y = 18;
         } 
-        else if (player === "Player2") 
+        else if (player === "Player 2") 
         {
             position.x = this.game.width - this.energyMax - 10;
             position.y = 18;
         }
-        else if (player === "Player3")
+        else if (player === "Player 3")
         {
             position.x = 10;
             position.y = 40;
         }
-        else if (player === "Player4")
+        else if (player === "Player 4")
         {
             position.x = this.game.width - this.energyMax - 10;
             position.y = 40;

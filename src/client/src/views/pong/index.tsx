@@ -11,6 +11,9 @@ import {
   IPlayerConfig,
 } from "@shared/Pong/config/configInterface";
 import { Input } from "@mui/joy";
+import { UIPlayer } from "./Paddles/Player";
+import { UIGameObject } from "./GameObject";
+import { UIBall } from "./Ball";
 
 
 
@@ -51,7 +54,7 @@ const defaultKeyControls = {
   teamId: 0,
   type: "player",
   keys: defaultKeyControls,
-  specialPower: "Spark",
+  specialPower: "Ghost",
   paddleTexture: Targets.PaddleTexture1,
   paddleColor: 0xffffff,
   positionOrder: "back",
@@ -132,10 +135,12 @@ export default function Pong() {
     console.log(`!!!`);
     setGame(new UIGame(socket, parentRef.current, data));
   });
+  
   useListener(
     "STARTMOVING",
     () => {
       if (!parentRef.current) return;
+      if (game?.delta) return;
       console.log(`Room: ${game?.roomId}`);
       game?.start();
     },
@@ -144,16 +149,63 @@ export default function Pong() {
 
   useListener(
     "movements",
-    (
-      data: {
-        tag: string;
-        position: number[];
-      }[]
-    ) => {
+    (data: {tag: string;position: number[];}[]) => {
       game?.handleMovements(data);
     },
     [game]
   );
+
+  // add special power collision
+  // useListener()
+
+  useListener(
+    'create-power',
+    (data: {
+      tag: string;
+      powertag: string;
+    }) => {
+      const player = game?.getObjectByTag(data.tag) as UIPlayer;
+      let power
+      if (player) power = player?.createPower(player.specialPower, player.getCenter, player.direction.x, player, data.powertag)
+      if (power) {
+        game?.add(power)
+      }
+    },
+    [game]
+  )
+
+  useListener('shoot-power', (data: {tag: string
+  }) => {
+    const player = game?.getObjectByTag(data.tag) as UIPlayer;
+    if (player) player.shootPower()
+  } , [game]
+)
+
+  useListener('shooter-update', (data: {tag: string, line: {start: number[], end: number[]}}) => {
+    const player = game?.getObjectByTag(data.tag) as UIPlayer;
+    if (player) player.updateShooter(data.line)
+  }, [game]
+  )
+
+  useListener('remove-power', (data: {tag: string[]}) => {
+    data.tag.forEach((tag) => {
+      const object = game?.getObjectByTag(tag)
+      if (object) game?.handleRemovePower(object);
+    })
+  }, [game])
+
+  useListener('effect-create-remove', (data: {tag: string, effectName: string | undefined, option: number}[]) => {
+    data.forEach((effect) => {
+      console.log(effect.tag + " has " + effect.effectName + " " + effect.option)
+      const object = game?.getObjectByTag(effect.tag);
+      if (object) game?.handleEffect(object, effect.effectName, effect.option);
+    })
+  }, [game])
+
+  useListener('score-update', (data: {teamId: number, score: [number, number], scale: number}) => {
+    console.log(data.scale)
+    game?.updateScore(data.teamId, data.score, data.scale)
+  }, [game])
 
   const createRoom = React.useCallback(() => {
     socket.emit("create-room", { game: gameConfig, player: myPlayerConfig });

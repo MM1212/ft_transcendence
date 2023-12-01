@@ -22,17 +22,15 @@ export class Bot extends Bar {
     // add bot difficulty:
     // add bot reaction time
 
-    update(delta: number): boolean {
-
-        let ret = false;
-
+    update(delta: number): void {
+        this.hasChanged = false;
         const ballPosition = this.game.getObjectByTag('Bolinha')?.getCenter;
-        if (!ballPosition) return false;
-        if (ballPosition.y < this.center.y - 5) {
+        if (!ballPosition) return;
+        if (ballPosition?.y < this.center.y - 5) {
             this.setMove(true);
             this.velocity = UP.multiply(this.effectVelocity);
         }
-        else if (ballPosition.y > this.center.y + 5) {
+        else if (ballPosition?.y > this.center.y + 5) {
             this.setMove(true);
             this.velocity = DOWN.multiply(this.effectVelocity);
         }
@@ -43,7 +41,7 @@ export class Bot extends Bar {
 
         if (this.move && this.checkArenaCollision()) {
             this.center.y += this.velocity.y * this.acceleration * delta;
-            ret = true;
+            this.hasChanged = true;
         }
 
         this.mana.update(this.tag, delta);
@@ -52,7 +50,6 @@ export class Bot extends Bar {
         if (this.effect !== undefined) {
             this.effect.update(delta, this);
         }
-        return ret;
     }
 
     onCollide(target: GameObject, line: { start: Vector2D; end: Vector2D; }): void {

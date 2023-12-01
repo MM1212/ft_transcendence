@@ -23,7 +23,7 @@ export abstract class Bar extends GameObject {
     protected specialPowerType: SpecialPowerType;
     public power: SpecialPower | undefined = undefined;
 
-    protected shooter: Shooter | undefined = undefined;
+    public shooter: Shooter | undefined = undefined;
     protected isShooting: boolean = false;
 
     constructor(x: number, y: number, tag: string, public direction: Vector2D, game: Game) {
@@ -52,11 +52,13 @@ export abstract class Bar extends GameObject {
         if (shooter !== undefined)
         {
             this.shooter = shooter;
+            this.hasChangedShooter = true;
             this.isShooting = true;
         }
         else
         {
             this.isShooting = false;
+            this.hasChangedShooter = false;
             this.shooter = undefined;
         }
     }
@@ -90,7 +92,7 @@ export abstract class Bar extends GameObject {
         return true;
     }
     
-    public static create(specialPower: SpecialPowerType, center: Vector2D, direction: number, shooter: Bar) {
+    public static create(specialPower: SpecialPowerType, center: Vector2D, direction: number, shooter: Bar, tag: string) {
         switch (specialPower) {
             case "Bubble":
                 return new Bubble(new Vector2D(center.x + (40 * direction), center.y), new Vector2D(direction === 1 ? 5 : -5, 0), shooter);

@@ -33,15 +33,12 @@ export class UIBot extends Bot {
     }
 
     setScale(scale: number): void {
-        super.setScale(scale);
         this.setScaleDisplayObject(scale);
         this.setDisplayObjectCoords(this.center);
     }
 
-    update(delta: number): boolean {
-        if (super.update(delta) === true) this.displayObject.y = this.center.y; 
+    update(delta: number): void { 
         this.displayObject.x = this.center.x;
         this.displayObject.y = this.center.y;
-        return true;
     }
 }
