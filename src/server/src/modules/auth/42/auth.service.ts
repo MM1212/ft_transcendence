@@ -11,6 +11,8 @@ import { ConfigService } from '@nestjs/config';
 import { IntraAPI } from '@/helpers/Intra';
 import { UsersService } from '@/modules/users/users.service';
 import { HttpError } from '@/helpers/decorators/httpError';
+import UsersModel from '@typings/models/users';
+import { UserExtWithSession } from '@/modules/users/user';
 
 @Injectable()
 export class AuthService {
@@ -124,21 +126,18 @@ export class AuthService {
       const apiData = await this.intra.me();
       if (!apiData) throw new Error('Failed to get user data from 42 API');
       if ((apiData as any).error) throw new HttpError((apiData as any).error);
-      const {
-        id,
-        login,
-        image: { link },
-      } = apiData;
+      const { id, login } = apiData;
       let user = await this.usersService.getByStudentId(id);
       if (!user)
         user = await this.usersService.create({
           studentId: id,
-          avatar: link,
+          avatar: UsersModel.Models.DEFAULT_AVATAR,
           nickname: login,
         });
       const uSession = user.withSession(req.session);
-      uSession.session.sync().loggedIn = true;
       uSession.session.auth.updateNewToken(resp.data);
+      if (user.get('tfa.enabled')) return this.handleTFA(uSession);
+      uSession.session.sync().loggedIn = true;
       console.log(`[Auth] [42] Logged in as `, user.public);
       return { url: `${this.config.get<string>('FRONTEND_URL')}` };
     } catch (e) {
@@ -148,22 +147,35 @@ export class AuthService {
     }
   }
 
-  public async dummy(ctx: HTTPContext, dummyId: number): Promise<Partial<HttpRedirectResponse>> {
+  public async dummy(
+    ctx: HTTPContext,
+    dummyId: number,
+  ): Promise<Partial<HttpRedirectResponse>> {
     let dummyUser = await this.usersService.getByStudentId(dummyId);
     console.log(dummyId, dummyUser);
-    
+
     if (!dummyUser) {
       dummyUser = await this.usersService.create({
         studentId: dummyId,
-        avatar:
-          'https://cdn.intra.42.fr/users/429ed382acddf70f5a531af2d3304ef3/chris-pbacon.png',
+        avatar: UsersModel.Models.DEFAULT_AVATAR,
         nickname: `Dummy${dummyId}`,
       });
     }
     const uSession = dummyUser.withSession(ctx.session);
+    if (dummyUser.get('tfa.enabled')) return this.handleTFA(uSession);
     uSession.session.sync().loggedIn = true;
     uSession.session.dummy = true;
     console.log(`[Auth] [42] Logged in as dummy`);
     return { url: `${this.config.get<string>('FRONTEND_URL')}` };
+  }
+
+  private handleTFA(user: UserExtWithSession): Partial<HttpRedirectResponse> {
+    if (!user.session.auth.tfaEnabled)
+      throw new HttpError('TFA is not enabled');
+    if (!user.session.auth.tfaSecret)
+      throw new HttpError('TFA secret is not set');
+    user.session.session.set('tfa_login', true);
+    user.session.session.set('tfa_user_id', user.id);
+    return { url: `${this.config.get<string>('FRONTEND_URL')}/tfa` };
   }
 }

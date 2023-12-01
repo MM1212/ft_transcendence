@@ -59,7 +59,6 @@ async function bootstrap() {
   app.get(AppService).setApp(app);
 
   app.setGlobalPrefix('/api');
-
   await app.listen(host.port, host.ip);
 }
 bootstrap();

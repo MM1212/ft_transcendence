@@ -1,20 +1,68 @@
-import { useCurrentUser } from '@hooks/user';
+import { useCurrentUser, usersAtom } from '@hooks/user';
 import {
   Button,
   ButtonGroup,
   Divider,
+  Dropdown,
   IconButton,
+  Menu,
+  MenuButton,
   Sheet,
   Stack,
   Typography,
 } from '@mui/joy';
 import UserAchievements from '../components/UserAchievements';
 import UserMatchHistory from '../components/UserMatchHistory';
-import AvatarWithStatus from '@components/AvatarWithStatus';
+import AvatarWithStatus, { UserAvatar } from '@components/AvatarWithStatus';
 import DotsVerticalIcon from '@components/icons/DotsVerticalIcon';
+import { Route, Switch, useParams } from 'wouter';
+import UsersModel from '@typings/models/users';
+import { useRecoilValue } from 'recoil';
+import { navigate } from 'wouter/use-location';
+import React, { useLayoutEffect } from 'react';
+import { useFriends } from '@apps/Friends/hooks';
+import { useUpdateUserModalActions } from '../hooks/useUpdateUserModal';
+import useFriend from '@apps/Friends/hooks/useFriend';
+import MessageIcon from '@components/icons/MessageIcon';
+import UserMenuOptions from '../components/UserMenuOptions';
+import AccountPlusIcon from '@components/icons/AccountPlusIcon';
 
-export default function ProfileView() {
-  const user = useCurrentUser();
+function OtherOptions({ userId, friend }: { userId: number; friend: boolean }) {
+  const { goToMessages } = useFriend(userId);
+  return (
+    <ButtonGroup size="sm" variant="outlined">
+      <Button
+        size="sm"
+        onClick={goToMessages}
+        startDecorator={<MessageIcon size="sm" />}
+      >
+        Message
+      </Button>
+      {!friend && (
+        <Button size="sm" startDecorator={<AccountPlusIcon size="sm" />}>
+          Friend Request
+        </Button>
+      )}
+      <Dropdown>
+        <MenuButton slots={{ root: IconButton }} data-last-child>
+          <DotsVerticalIcon />
+        </MenuButton>
+        <Menu variant="outlined" sx={{ zIndex: 1300 }}>
+          <UserMenuOptions userId={userId} />
+        </Menu>
+      </Dropdown>
+    </ButtonGroup>
+  );
+}
+
+function UserProfile({
+  user,
+  affiliation,
+}: {
+  user: UsersModel.Models.IUserInfo;
+  affiliation: 'me' | 'friend' | 'unknown';
+}) {
+  const { open: openUpdateModal } = useUpdateUserModalActions();
   return (
     <Sheet
       style={{
@@ -37,25 +85,37 @@ export default function ProfileView() {
           p={1}
           spacing={0.5}
         >
-          <AvatarWithStatus
-            sx={(theme) => ({
-              width: theme.spacing(17),
-              height: theme.spacing(17),
-            })}
-            src={user?.avatar}
-            status={user?.status}
-            badgeProps={{
-              size: 'lg',
-            }}
-          />
-          <Typography level="h2">{user?.nickname}</Typography>
-          <ButtonGroup size="sm" variant="outlined">
-            <Button size="sm">Message</Button>
-            <Button size="sm">Friend Request</Button>
-            <IconButton>
-              <DotsVerticalIcon />
-            </IconButton>
-          </ButtonGroup>
+          {affiliation === 'me' ? (
+            <UserAvatar
+              sx={(theme) => ({
+                width: theme.spacing(17),
+                height: theme.spacing(17),
+                transition: theme.transitions.create('opacity'),
+                '&:hover': {
+                  cursor: 'pointer',
+                  opacity: 0.8,
+                },
+              })}
+              src={user?.avatar}
+              onClick={() => openUpdateModal()}
+            />
+          ) : (
+            <AvatarWithStatus
+              sx={(theme) => ({
+                width: theme.spacing(17),
+                height: theme.spacing(17),
+              })}
+              src={user?.avatar}
+              status={user?.status}
+              badgeProps={{
+                size: 'lg',
+              }}
+            />
+          )}
+          <Typography level="h2">{user.nickname}</Typography>
+          {affiliation !== 'me' && (
+            <OtherOptions userId={user.id} friend={affiliation === 'friend'} />
+          )}
         </Stack>
         <Divider />
         <UserAchievements />
@@ -63,5 +123,46 @@ export default function ProfileView() {
         <UserMatchHistory />
       </Stack>
     </Sheet>
+  );
+}
+
+function UserProfileById() {
+  const { userId } = useParams();
+  const user = useRecoilValue(usersAtom(parseInt(userId!)));
+  const friends = useFriends();
+
+  useLayoutEffect(() => {
+    if (user) return;
+    const searchParams = new URLSearchParams();
+    searchParams.append('t', 'Profile Not Found');
+    navigate(`/error?${searchParams.toString()}`);
+  }, [user]);
+
+  if (!user) {
+    return null;
+  }
+  return (
+    <UserProfile
+      user={user!}
+      affiliation={friends.includes(parseInt(userId!)) ? 'friend' : 'unknown'}
+    />
+  );
+}
+
+function UserProfileByMe() {
+  const user = useCurrentUser();
+  return <UserProfile user={user!} affiliation={'me'} />;
+}
+
+export default function ProfileView() {
+  return (
+    <Switch>
+      <Route path="/profile/me">
+        <UserProfileByMe />
+      </Route>
+      <Route path="/profile/:userId">
+        <UserProfileById />
+      </Route>
+    </Switch>
   );
 }

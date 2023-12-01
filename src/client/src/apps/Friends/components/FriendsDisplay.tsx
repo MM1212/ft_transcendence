@@ -7,10 +7,11 @@ import MessageIcon from '@components/icons/MessageIcon';
 import { useUser } from '@hooks/user';
 import FriendsOptionsMenu from './FriendsOptionsMenu';
 import useFriend from '../hooks/useFriend';
+import ProfileTooltip from '@components/ProfileTooltip';
 
 function FriendDisplay({ id }: { id: number }): JSX.Element | null {
   const user = useUser(id);
-  const { goToMessages } = useFriend(id);
+  const { goToMessages, goToProfile } = useFriend(id);
   if (!user) return null;
   return (
     <Stack
@@ -29,9 +30,12 @@ function FriendDisplay({ id }: { id: number }): JSX.Element | null {
           cursor: 'pointer',
         },
       }}
+      onClick={goToProfile}
     >
       <Stack direction="row" spacing={1.5}>
-        <AvatarWithStatus status={user.status} src={user.avatar} size="lg" />
+        <ProfileTooltip user={user} placement='right-start'>
+          <AvatarWithStatus status={user.status} src={user.avatar} size="lg" />
+        </ProfileTooltip>
         <Stack>
           <Typography level="title-md">{user.nickname}</Typography>
           <Typography level="body-sm">
@@ -46,7 +50,10 @@ function FriendDisplay({ id }: { id: number }): JSX.Element | null {
           sx={{
             borderRadius: (theme) => theme.radius.xl,
           }}
-          onClick={goToMessages}
+          onClick={(e) => {
+            e.stopPropagation();
+            goToMessages();
+          }}
         >
           <MessageIcon size="sm" />
         </IconButton>

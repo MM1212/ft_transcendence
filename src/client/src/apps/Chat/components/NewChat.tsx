@@ -13,25 +13,25 @@ import {
   AutocompleteOption,
   Avatar,
   Button,
-  Checkbox,
   CircularProgress,
   DialogActions,
   FormHelperText,
+  Option,
   Textarea,
+  Tooltip,
   textareaClasses,
 } from '@mui/joy';
 
-const urlRegex =
+export const urlRegex =
   /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/;
 
 import LinearProgress from '@mui/joy/LinearProgress';
 import Typography from '@mui/joy/Typography';
 import UsersModel from '@typings/models/users';
 import { Autocomplete } from '@mui/joy';
-import debounce from 'lodash.debounce';
 import tunnel from '@lib/tunnel';
 import Collapse from '@components/transitions/Collapse';
-import { useRecoilCallback } from 'recoil';
+import { useRecoilCallback, useRecoilValue } from 'recoil';
 import chatsState from '@/apps/Chat/state';
 import notifications from '@lib/notifications/hooks';
 import FormTextboxPasswordIcon from '@components/icons/FormTextboxPasswordIcon';
@@ -40,24 +40,54 @@ import LabelIcon from '@components/icons/LabelIcon';
 import ImageIcon from '@components/icons/ImageIcon';
 import LinkIcon from '@components/icons/LinkIcon';
 import LockIcon from '@components/icons/LockIcon';
+import friendsState from '@apps/Friends/state';
+import { useDebounce } from '@hooks/lodash';
+import { UserAvatar } from '@components/AvatarWithStatus';
+import InformationVariantCircleIcon from '@components/icons/InformationVariantCircleIcon';
+import ShieldCheckIcon from '@components/icons/ShieldCheckIcon';
+import { Select } from '@mui/joy';
+import EarthIcon from '@components/icons/EarthIcon';
+import InformationSlabCircleIcon from '@components/icons/InformationSlabCircleIcon';
 
-function PasswordMeterInput({ value, onChange, disabled }: any) {
+export function PasswordMeterInput({
+  value,
+  onChange,
+  disabled,
+  updating,
+}: {
+  value: string;
+  onChange: React.ChangeEventHandler<HTMLInputElement>;
+  disabled?: boolean;
+  updating?: boolean;
+}) {
   const minLength = 12;
   return (
     <Stack
       spacing={0.5}
       sx={{
+        mt: 1,
         '--hue': Math.min(value.length * 10, 120),
       }}
     >
-      <Input
-        type="password"
-        placeholder="Type in here…"
-        startDecorator={<FormTextboxPasswordIcon />}
-        value={value}
-        onChange={onChange}
-        disabled={disabled}
-      />
+      <FormControl>
+        <FormLabel required>Password</FormLabel>
+        <Input
+          type="password"
+          placeholder="Type in here…"
+          startDecorator={<FormTextboxPasswordIcon size="sm" />}
+          endDecorator={
+            updating && (
+              <Tooltip title="Leave it blank if you dont want to update">
+                <InformationSlabCircleIcon />
+              </Tooltip>
+            )
+          }
+          value={value}
+          onChange={onChange}
+          disabled={disabled}
+          size="sm"
+        />
+      </FormControl>
       <LinearProgress
         determinate
         size="sm"
@@ -80,6 +110,11 @@ function PasswordMeterInput({ value, onChange, disabled }: any) {
   );
 }
 
+interface Cache {
+  type: 'search' | 'friends' | 'selected';
+  data: UsersModel.Models.IUserInfo;
+}
+
 function UsersAutocomplete({
   selected,
   setSelected,
@@ -94,11 +129,12 @@ function UsersAutocomplete({
   disabled: boolean;
 }) {
   const [search, setSearch] = React.useState('');
-  const [cache, setCache] = React.useState<UsersModel.Models.IUserInfo[]>([]);
+  const friends = useRecoilValue(friendsState.friendsExtended);
+  const [searchCache, setSearchCache] = React.useState<Cache[]>([]);
   const [loading, setLoading] = React.useState(false);
 
-  const onQueryChange = React.useCallback(
-    debounce(async (query: string) => {
+  const onQueryChange = useDebounce(
+    async (query: string) => {
       setLoading(true);
       try {
         const data = await tunnel.post(
@@ -106,17 +142,38 @@ function UsersAutocomplete({
           {
             query,
             excluseSelf: true,
+            exclude: friends.map((friend) => friend.id),
           }
         );
-        setCache(data);
+        setSearchCache(data.map((user) => ({ type: 'search', data: user })));
       } catch (e) {
         notifications.error('Failed to search users', (e as Error).message);
       } finally {
         setLoading(false);
       }
-    }, 1000),
+    },
+    1000,
+    [selected, friends]
+  );
+
+  const selectedCache = React.useMemo(
+    () => selected.map<Cache>((s) => ({ type: 'selected', data: s })),
     [selected]
   );
+
+  const options = React.useMemo(() => {
+    const data = new Map<number, Cache>();
+    for (const option of selectedCache) data.set(option.data.id, option);
+    for (const option of searchCache)
+      !data.has(option.data.id) && data.set(option.data.id, option);
+    for (const option of friends)
+      !data.has(option.id) &&
+        data.set(option.id, {
+          type: 'friends',
+          data: option,
+        });
+    return [...data.values()];
+  }, [searchCache, selectedCache, friends]);
 
   return (
     <FormControl error={!!error}>
@@ -124,11 +181,20 @@ function UsersAutocomplete({
       <Autocomplete
         disabled={disabled}
         placeholder="search users.."
-        options={cache}
-        getOptionLabel={(option) => option.nickname}
-        isOptionEqualToValue={(option, value) => option.id === value.id}
-        value={selected}
-        onChange={(_, value) => setSelected(value)}
+        options={loading ? [] : options}
+        getOptionLabel={(option) => option.data.nickname}
+        groupBy={(option) =>
+          option.type === 'search'
+            ? 'Search results'
+            : option.type === 'friends'
+              ? 'Friends'
+              : 'Selected'
+        }
+        isOptionEqualToValue={(option, value) =>
+          option.data.id === value.data.id
+        }
+        value={selectedCache}
+        onChange={(_, value) => setSelected(value.map((v) => v.data))}
         multiple={true}
         inputValue={search}
         limitTags={3}
@@ -145,10 +211,15 @@ function UsersAutocomplete({
           if (value.trim().length > 0) {
             setLoading(true);
             onQueryChange(value);
+          } else {
+            setLoading(false);
+            setSearchCache(
+              friends.map((friend) => ({ type: 'friends', data: friend }))
+            );
           }
         }}
         startDecorator={<AccountGroupIcon />}
-        renderOption={(props: Record<string, unknown>, option) => (
+        renderOption={(props: Record<string, unknown>, { data: option }) => (
           <AutocompleteOption
             {...props}
             key={`${option.id}-${option.nickname}`}
@@ -157,7 +228,7 @@ function UsersAutocomplete({
             alignItems="center"
             spacing={1}
           >
-            <Avatar src={option.avatar} size="sm" />
+            <UserAvatar src={option.avatar} size="sm" />
             <Typography level="body-sm" component="span">
               {option.nickname}
             </Typography>
@@ -178,9 +249,8 @@ type FormValues = Pick<
   participants: UsersModel.Models.IUserInfo[];
 };
 
-export default function NewChatModal(): JSX.Element {
+function _NewChatModal(): JSX.Element {
   const { isOpened, close } = useModal('chat:new-chat');
-  console.log('BOAS');
 
   const form = useForm<FormValues>({
     initialValues: {
@@ -224,7 +294,9 @@ export default function NewChatModal(): JSX.Element {
               !value.endsWith('.png') &&
               !value.endsWith('.jpg') &&
               !value.endsWith('.jpeg') &&
-              !value.endsWith('.gif')
+              !value.endsWith('.gif') &&
+              !value.endsWith('.webp') &&
+              isNaN(parseInt(value))
             )
               return 'Photo should be a valid image url';
             break;
@@ -249,7 +321,7 @@ export default function NewChatModal(): JSX.Element {
         const payload: ChatsModel.DTO.NewChat = {
           authorization,
           authorizationData:
-            authorization === ChatsModel.Models.ChatAccess.Private
+            authorization === ChatsModel.Models.ChatAccess.Protected
               ? authorizationData
               : null,
           name,
@@ -266,7 +338,7 @@ export default function NewChatModal(): JSX.Element {
         setLoading(true);
         const notif = notifications.default('Creating new chat...');
         try {
-          const data = await tunnel.put(
+          const chatId = await tunnel.put(
             ChatsModel.Endpoints.Targets.CreateChat,
             payload
           );
@@ -274,14 +346,7 @@ export default function NewChatModal(): JSX.Element {
             message: 'Chat created successfully!',
             color: 'success',
           });
-          ctx.set(chatsState.chats, (prev) => [
-            ...prev,
-            {
-              ...data,
-              messages: [],
-              authorizationData: null,
-            },
-          ]);
+          ctx.set(chatsState.chats, (prev) => [...prev, chatId]);
           close();
         } catch (e) {
           console.error(e);
@@ -377,33 +442,65 @@ export default function NewChatModal(): JSX.Element {
               )}
             </FormControl>
             <div>
-              <FormControl>
+              <FormControl required>
                 <FormLabel>Group Access</FormLabel>
-                <Checkbox
-                  disabled={loading}
-                  label="Is Private"
-                  variant="outlined"
-                  color="primary"
-                  checked={
-                    form.values.authorization ===
-                    ChatsModel.Models.ChatAccess.Private
+                <Select
+                  required
+                  startDecorator={<ShieldCheckIcon />}
+                  value={form.values.authorization}
+                  onChange={(_, value) =>
+                    form.setFieldValue('authorization', value as any)
                   }
-                  checkedIcon={<LockIcon size="sm" />}
-                  onChange={(ev) =>
-                    form.setFieldValue(
-                      'authorization',
-                      ev.target.checked
-                        ? ChatsModel.Models.ChatAccess.Private
-                        : ChatsModel.Models.ChatAccess.Public
-                    )
-                  }
-                  sx={{ mb: 1 }}
-                />
+                  placeholder="Select one"
+                  style={{
+                    width: '50%',
+                  }}
+                >
+                  <Option value={ChatsModel.Models.ChatAccess.Public}>
+                    <Stack direction="row" spacing={0.5} alignItems="center">
+                      <EarthIcon />
+                      <Typography level="body-md" component="div">
+                        Public
+                      </Typography>
+                    </Stack>
+                    <Tooltip title="Anyone can join" placement="right">
+                      <InformationVariantCircleIcon size="xs" color="neutral" />
+                    </Tooltip>
+                  </Option>
+                  <Option value={ChatsModel.Models.ChatAccess.Protected}>
+                    <Stack direction="row" spacing={0.5} alignItems="center">
+                      <FormTextboxPasswordIcon />
+                      <Typography level="body-md" component="div">
+                        Protected
+                      </Typography>
+                    </Stack>
+                    <Tooltip
+                      title="Still public but requires password to join"
+                      placement="right"
+                    >
+                      <InformationVariantCircleIcon size="xs" color="neutral" />
+                    </Tooltip>
+                  </Option>
+                  <Option value={ChatsModel.Models.ChatAccess.Private}>
+                    <Stack direction="row" spacing={0.5} alignItems="center">
+                      <LockIcon />
+                      <Typography level="body-md" component="div">
+                        Private
+                      </Typography>
+                    </Stack>
+                    <Tooltip
+                      title="Only invited users can join"
+                      placement="right"
+                    >
+                      <InformationVariantCircleIcon size="xs" color="neutral" />
+                    </Tooltip>
+                  </Option>
+                </Select>
               </FormControl>
               <Collapse
                 opened={
                   form.values.authorization ===
-                  ChatsModel.Models.ChatAccess.Private
+                  ChatsModel.Models.ChatAccess.Protected
                 }
               >
                 <PasswordMeterInput
@@ -417,12 +514,16 @@ export default function NewChatModal(): JSX.Element {
                 />
               </Collapse>
             </div>
-            <UsersAutocomplete
-              selected={form.values.participants}
-              setSelected={form.setFieldValue.bind(null, 'participants') as any}
-              error={form.errors.participants}
-              disabled={loading}
-            />
+            <React.Suspense fallback={<CircularProgress />}>
+              <UsersAutocomplete
+                selected={form.values.participants}
+                setSelected={
+                  form.setFieldValue.bind(null, 'participants') as any
+                }
+                error={form.errors.participants}
+                disabled={loading}
+              />
+            </React.Suspense>
           </Stack>
           <DialogActions>
             <Stack direction="row" spacing={2} ml="auto">
@@ -444,3 +545,7 @@ export default function NewChatModal(): JSX.Element {
     </Modal>
   );
 }
+
+const NewChatModal = React.memo(_NewChatModal);
+
+export default NewChatModal;

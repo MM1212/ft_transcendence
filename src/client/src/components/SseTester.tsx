@@ -1,5 +1,4 @@
 import {
-  Avatar,
   Box,
   Button,
   List,
@@ -15,6 +14,7 @@ import { SseModel } from '@typings/models';
 import React from 'react';
 import tunnel from '@lib/tunnel';
 import { atom, useRecoilState } from 'recoil';
+import { UserAvatar } from './AvatarWithStatus';
 
 type Message = SseModel.Models.TestMessage;
 
@@ -36,26 +36,22 @@ export default function SseTester(): JSX.Element {
   );
 
   const submit = React.useCallback(async (message: string) => {
-    await tunnel.post(
-      SseModel.Endpoints.Targets.Test,
-      { message }
-    );
+    await tunnel.post(SseModel.Endpoints.Targets.Test, { message });
   }, []);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-
 
   return React.useMemo(
     () => (
       <Sheet
         variant="soft"
         sx={{
-					height: "fit-content",
-          width: "100%",
+          height: 'fit-content',
+          width: '100%',
           p: 2,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
           borderRadius: (theme) => theme.radius.xs,
         }}
       >
@@ -69,7 +65,7 @@ export default function SseTester(): JSX.Element {
           <Textarea
             placeholder="New Message"
             size="sm"
-            sx={{ mt: 2, width: "100%" }}
+            sx={{ mt: 2, width: '100%' }}
             value={message}
             onChange={(ev) => setMessage(ev.target.value)}
             minRows={2}
@@ -78,16 +74,16 @@ export default function SseTester(): JSX.Element {
             endDecorator={
               <Box
                 sx={{
-                  w: "100%",
-                  display: "flex",
-                  gap: "var(--Textarea-paddingBlock)",
-                  pt: "var(--Textarea-paddingBlock)",
-                  px: "var(--Textarea-paddingBlock)",
-                  borderTop: "1px solid",
-                  borderColor: "divider",
-                  flex: "auto",
-                  justifyContent: "space-between",
-                  alignItems: "center",
+                  w: '100%',
+                  display: 'flex',
+                  gap: 'var(--Textarea-paddingBlock)',
+                  pt: 'var(--Textarea-paddingBlock)',
+                  px: 'var(--Textarea-paddingBlock)',
+                  borderTop: '1px solid',
+                  borderColor: 'divider',
+                  flex: 'auto',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
                 }}
               >
                 <Typography level="body-xs">
@@ -104,11 +100,11 @@ export default function SseTester(): JSX.Element {
             }
           />
         </form>
-        <List style={{ width: "100%" }} size="lg">
+        <List style={{ width: '100%' }} size="lg">
           {messages.map(({ message, user: { name, avatar } }, i) => (
             <ListItem key={i}>
               <ListItemDecorator>
-                <Avatar src={avatar} />
+                <UserAvatar src={avatar} />
               </ListItemDecorator>
               <ListItemContent>
                 <Typography level="title-sm">{name}</Typography>

@@ -7,6 +7,7 @@ import { Session } from '@fastify/secure-session';
 import { IAuthSession } from '@typings/auth/session';
 import UserExtFriends from './ext/Friends';
 import { HttpError } from '@/helpers/decorators/httpError';
+import { AuthModel } from '@typings/api';
 
 class User extends CacheObserver<UsersModel.Models.IUser> {
   public readonly friends: UserExtFriends = new UserExtFriends(this);
@@ -19,7 +20,7 @@ class User extends CacheObserver<UsersModel.Models.IUser> {
 
   public get public(): UsersModel.Models.IUserInfo {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { friends, blocked, chats, storedStatus, ...user } = this.get();
+    const { friends, blocked, chats, storedStatus, tfa, ...user } = this.get();
     return user satisfies UsersModel.Models.IUserInfo;
   }
 
@@ -77,31 +78,45 @@ class User extends CacheObserver<UsersModel.Models.IUser> {
       avatar,
       nickname,
       status,
+      firstLogin,
     }: NestedPartial<UsersModel.Models.IUserInfo> = this.public,
     propagate: boolean = false,
   ): Promise<boolean> {
-    const result = await this.helpers.db.users.update(this.id, {
-      avatar,
-      nickname,
-      storedStatus: status,
-    });
-    if (!result) return false;
-    if (status !== undefined) this.set('status', status);
-    for (const [key, value] of Object.entries(result))
-      this.set(key as keyof UsersModel.Models.IUser, value as any);
-    if (propagate) this.propagate('avatar', 'nickname', 'status');
-    return true;
+    try {
+      const result = await this.helpers.db.users.update(this.id, {
+        avatar,
+        nickname,
+        storedStatus: status,
+        firstLogin,
+      });
+      if (!result) return false;
+      if (status !== undefined) this.set('status', status);
+      for (const [key, value] of Object.entries(result))
+        this.set(key as keyof UsersModel.Models.IUser, value as any);
+      if (propagate) this.propagate('avatar', 'nickname', 'status');
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   /**
    * Syncs the user with all connected clients
    */
-  public propagate(...keys: (keyof UsersModel.Models.IUserInfo)[]): void {
-    const data = { ...this.public };
-    for (const key of keys) delete data[key];
-    this.helpers.sseService.emitToAll<UsersModel.Sse.UserUpdatedEvent>(
+  public propagate(
+    firstKey: keyof UsersModel.Models.IUserInfo,
+    ...keys: (keyof UsersModel.Models.IUserInfo)[]
+  ): void {
+    keys.unshift(firstKey);
+    const data = keys.reduce(
+      (acc, key) => ({ ...acc, [key]: this.get(key) }),
+      {} as Partial<UsersModel.Models.IUserInfo>,
+    );
+
+    this.helpers.sseService.emitWithTarget<UsersModel.Sse.UserUpdatedEvent>(
       UsersModel.Sse.Events.UserUpdated,
-      data,
+      this.id,
+      { id: this.id, ...data },
     );
   }
 
@@ -125,6 +140,13 @@ class UserExtWithSession extends User {
     public readonly session: UserExtSession,
   ) {
     super(data, helpers);
+  }
+
+  public get publicSession(): AuthModel.DTO.Session {
+    return {
+      ...this.session.user.public,
+      tfaEnabled: this.session.auth.tfaEnabled,
+    };
   }
 }
 

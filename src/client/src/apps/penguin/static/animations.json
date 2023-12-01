@@ -1,0 +1,139 @@
+{
+  "idle/down": {
+    "id": 1
+  },
+  "idle/down-left": {
+    "id": 2
+  },
+  "idle/left": {
+    "id": 3
+  },
+  "idle/top-left": {
+    "id": 4
+  },
+  "idle/top": {
+    "id": 5
+  },
+  "idle/top-right": {
+    "id": 6
+  },
+  "idle/right": {
+    "id": 7
+  },
+  "idle/down-right": {
+    "id": 8
+  },
+  "walk/down": {
+    "id": 9,
+    "frames": 8,
+    "speed": 0.3,
+    "loop": true
+  },
+  "walk/down-left": {
+    "id": 10,
+    "frames": 8,
+    "speed": 0.3,
+    "loop": true
+  },
+  "walk/left": {
+    "id": 11,
+    "frames": 8,
+    "speed": 0.3,
+    "loop": true
+  },
+  "walk/top-left": {
+    "id": 12,
+    "frames": 8,
+    "speed": 0.3,
+    "loop": true
+  },
+  "walk/top": {
+    "id": 13,
+    "frames": 8,
+    "speed": 0.3,
+    "loop": true
+  },
+  "walk/top-right": {
+    "id": 14,
+    "frames": 8,
+    "speed": 0.3,
+    "loop": true
+  },
+  "walk/right": {
+    "id": 15,
+    "frames": 8,
+    "speed": 0.3,
+    "loop": true
+  },
+  "walk/down-right": {
+    "id": 16,
+    "frames": 8,
+    "speed": 0.3,
+    "loop": true
+  },
+  "seat/down": {
+    "id": 17
+  },
+  "seat/down-left": {
+    "id": 18
+  },
+  "seat/left": {
+    "id": 19
+  },
+  "seat/top-left": {
+    "id": 20
+  },
+  "seat/top": {
+    "id": 21
+  },
+  "seat/top-right": {
+    "id": 22
+  },
+  "seat/right": {
+    "id": 23
+  },
+  "seat/down-right": {
+    "id": 24
+  },
+  "wave": {
+    "id": 25,
+    "frames": 12,
+    "speed": 0.2,
+    "loop": false,
+    "next": "idle/down"
+  },
+  "dance": {
+    "id": 26,
+    "frames": 193,
+    "speed": 0.3,
+    "loop": true
+  },
+  "snowball/down-left": {
+    "id": 27,
+    "frames": 28,
+    "speed": 0.3,
+    "loop": false,
+    "next": "idle/down-left"
+  },
+  "snowball/top-left": {
+    "id": 28,
+    "frames": 28,
+    "speed": 0.3,
+    "loop": false,
+    "next": "idle/top-left"
+  },
+  "snowball/top-right": {
+    "id": 29,
+    "frames": 28,
+    "speed": 0.3,
+    "loop": false,
+    "next": "idle/top-right"
+  },
+  "snowball/down-right": {
+    "id": 30,
+    "frames": 28,
+    "speed": 0.3,
+    "loop": false,
+    "next": "idle/down-right"
+  }
+}

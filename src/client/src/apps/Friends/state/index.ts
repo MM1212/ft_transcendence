@@ -1,14 +1,14 @@
-import { usersAtom } from "@hooks/user";
-import notifications from "@lib/notifications/hooks";
-import tunnel from "@lib/tunnel";
-import UsersModel from "@typings/models/users";
-import { atom, selector, selectorFamily, waitForAll } from "recoil";
+import { usersAtom } from '@hooks/user';
+import notifications from '@lib/notifications/hooks';
+import tunnel from '@lib/tunnel';
+import UsersModel from '@typings/models/users';
+import { atom, selector, selectorFamily, waitForAll } from 'recoil';
 
 const friendsState = new (class FriendsState {
   friends = atom<number[]>({
-    key: "user/friends",
+    key: 'user/friends',
     default: selector<number[]>({
-      key: "user/friends/default",
+      key: 'user/friends/default',
       get: async () => {
         try {
           return await tunnel.get(
@@ -22,10 +22,17 @@ const friendsState = new (class FriendsState {
       },
     }),
   });
+  friendsExtended = selector<UsersModel.Models.IUserInfo[]>({
+    key: 'user/friends/extended',
+    get: async ({ get }) => {
+      const friends = get(this.friends);
+      return get(waitForAll(friends.map((id) => usersAtom(id)))).filter(Boolean) as UsersModel.Models.IUserInfo[];
+    },
+  });
   blocked = atom<number[]>({
-    key: "user/blocked",
+    key: 'user/blocked',
     default: selector<number[]>({
-      key: "user/blocked/default",
+      key: 'user/blocked/default',
       get: async () => {
         try {
           return await tunnel.get(
@@ -40,7 +47,7 @@ const friendsState = new (class FriendsState {
     }),
   });
   friend = selectorFamily<UsersModel.Models.IUserInfo | null, number>({
-    key: "user/friend",
+    key: 'user/friend',
     get:
       (id) =>
       ({ get }) => {
@@ -50,7 +57,7 @@ const friendsState = new (class FriendsState {
       },
   });
   blockedUser = selectorFamily<UsersModel.Models.IUserInfo | null, number>({
-    key: "user/blockedUser",
+    key: 'user/blockedUser',
     get:
       (id) =>
       ({ get }) => {
@@ -61,7 +68,7 @@ const friendsState = new (class FriendsState {
   });
 
   onlineFriends = selector<number[]>({
-    key: "user/friends/online",
+    key: 'user/friends/online',
     get: ({ get }) => {
       const friends = get(this.friends);
       const users = get(waitForAll(friends.map(usersAtom)));
@@ -74,18 +81,18 @@ const friendsState = new (class FriendsState {
   });
 
   allFriends = selector<number[]>({
-    key: "user/friends/all",
+    key: 'user/friends/all',
     get: ({ get }) => {
       const friends = get(this.friends);
       const users = get(waitForAll(friends.map(usersAtom)));
-      users.sort((a, b) => {
-        const aOnline = a.status !== UsersModel.Models.Status.Offline;
-        const bOnline = b.status !== UsersModel.Models.Status.Offline;
+      [...users].sort((a, b) => {
+        const aOnline = a?.status !== UsersModel.Models.Status.Offline;
+        const bOnline = b?.status !== UsersModel.Models.Status.Offline;
         if (aOnline && !bOnline) return -1;
         if (!aOnline && bOnline) return 1;
         return 0;
       });
-      return users.map((user) => user.id);
+      return users.map((user) => user?.id);
     },
   });
 })();

@@ -15,6 +15,7 @@ import { AuthSessionModule } from './modules/auth/session/session.module';
 import { UsersModule } from './modules/users/users.module';
 import { ChatsModule } from './modules/chats/chats.module';
 import { IS_PROD } from './helpers/constants';
+import { AuthTfaModule } from './modules/auth/2fa/2fa.module';
 import { PongModule } from './modules/pong/pong.module';
 
 @Module({
@@ -38,6 +39,7 @@ import { PongModule } from './modules/pong/pong.module';
       : null,
     Auth42Module,
     AuthSessionModule,
+    AuthTfaModule,
     SseModule,
     UsersModule,
     PrismaModule,

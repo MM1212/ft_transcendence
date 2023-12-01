@@ -57,7 +57,15 @@ const testTheme = extendTheme({
   alpha,
   lighten,
   darken,
-  gradients: {},
+  breakpoints: {
+    values: {
+      xs: 300,
+      sm: 600,
+      md: 960,
+      lg: 1280,
+      xl: 1920,
+    },
+  },
 
   components: {
     JoyButton: {
@@ -93,6 +101,9 @@ const testTheme = extendTheme({
           ...(ownerState.size === 'xxs' && {
             fontSize: '0.50rem',
           }),
+          ...(ownerState.size === 'xl' && {
+            fontSize: theme.fontSize.xl,
+          }),
         }),
       },
     },
@@ -100,13 +111,106 @@ const testTheme = extendTheme({
       defaultProps: {
         placement: 'top',
         arrow: true,
+        variant: 'outlined',
       },
       styleOverrides: {
         root: {
-          boxShadow: 'none',
+          // boxShadow: 'none',
         },
       },
     },
+    JoyMenuItem: {
+      styleOverrides: {
+        root: ({ theme, ownerState }) => ({
+          ...(ownerState.color === 'danger' &&
+            ownerState.variant === 'plain' && {
+              color: theme.palette.danger[400],
+            }),
+          transition: theme.transitions.create(
+            ['background-color', 'transform', 'box-shadow', 'border'],
+            {
+              duration: theme.transitions.duration.shortest,
+            }
+          ),
+        }),
+      },
+    },
+    JoyChip: {
+      styleOverrides: {
+        label: {
+          display: 'inline-flex',
+        },
+      },
+    },
+    MuiSvgIcon: {
+      defaultProps: {
+        viewBox: '0 0 23 23',
+      },
+    },
+    JoyModal: {
+      styleOverrides: {
+        backdrop: ({ theme }) => ({
+          ...(import.meta.env.DEV && {
+            backdropFilter: 'none !important',
+            backgroundColor: alpha(
+              theme.resolveVar('palette-background-level1'),
+              0.5
+            ),
+          }),
+        }),
+      },
+    },
+    JoyDrawer: {
+      styleOverrides: {
+        backdrop: ({ theme }) => ({
+          ...(import.meta.env.DEV && {
+            backdropFilter: 'none !important',
+            backgroundColor: alpha(
+              theme.resolveVar('palette-background-level1'),
+              0.5
+            ),
+          }),
+        }),
+      },
+    },
+    JoyCircularProgress: {
+      defaultProps: {
+        variant: 'plain',
+      },
+    },
+    JoyModalDialog: {
+      styleOverrides: {
+        root: ({ theme, ownerState }) => ({
+          ...(ownerState.maxWidth === 'xs' && {
+            maxWidth: theme.breakpoints.values.xs,
+          }),
+          ...(ownerState.minWidth === 'xs' && {
+            minWidth: theme.breakpoints.values.xs,
+          }),
+        }),
+      },
+    },
+    JoyAvatar: {
+      styleOverrides: {
+        root: ({ theme, ownerState }) => ({
+          ...(ownerState.size === 'xl' && {
+            width: theme.spacing(9),
+            height: theme.spacing(9),
+          }),
+        }),
+      },
+    },
+    JoyMenu: {
+      defaultProps: {
+        placement:"right-start",
+        size:"sm",
+      },
+      styleOverrides: {
+        root: {
+          zIndex: 1300
+        }
+      }
+    }
   },
 });
 
@@ -118,7 +222,6 @@ testTheme.gradients = {
   neutral: `linear-gradient(45deg, ${testTheme.palette.neutral.solidBg}, ${testTheme.palette.neutral.softBg})`,
   background: `linear-gradient(45deg, ${testTheme.vars.palette.background.level1} 0%, ${testTheme.vars.palette.background.surface} 100%)`,
 };
-
 
 export { alpha, lighten, darken };
 export default testTheme;

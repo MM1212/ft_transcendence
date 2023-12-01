@@ -1,7 +1,8 @@
 import { Box, IconButton, Sheet } from "@mui/joy";
-import { Avatar, Stack, Typography } from "@mui/joy";
+import { Stack, Typography } from "@mui/joy";
 import AchivementBar from "./AchievementBar";
 import { useCurrentUser } from "@hooks/user";
+import { UserAvatar } from "@components/AvatarWithStatus";
 
 export default function AchievementHead() {
   const user = useCurrentUser();
@@ -24,7 +25,7 @@ export default function AchievementHead() {
         alignItems="top"
         sx={{ width: "100%" }}
       >
-        <Avatar size="lg" src={user.avatar} />
+        <UserAvatar size="lg" src={user.avatar} />
         <Sheet
           sx={{
             width: "100%",

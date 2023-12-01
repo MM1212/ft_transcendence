@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Logger,
   OnModuleDestroy,
   OnModuleInit,
   Post,
@@ -31,6 +32,7 @@ interface Client {
 
 @Controller('sse')
 export class SseController implements OnModuleInit, OnModuleDestroy {
+  private readonly logger = new Logger(SseController.name);
   private readonly clients: Client[] = [];
   private netHandler: (data: InternalNetPayload) => void;
   constructor(private readonly service: SseService) {}
@@ -57,7 +59,7 @@ export class SseController implements OnModuleInit, OnModuleDestroy {
     @OnConnectionClosed() onClosed: Observable<void>,
   ): Observable<MessageEvent> {
     const user = ctx.user;
-    console.log('New SSE connection from user', user.id);
+    this.logger.verbose(`New SSE connection from user ${user.id}`);
 
     const subject = new ReplaySubject<InternalNetPayload>();
     const observer = subject.asObservable();
@@ -70,7 +72,7 @@ export class SseController implements OnModuleInit, OnModuleDestroy {
     this.clients.push(client);
     onClosed.subscribe({
       complete: () => {
-        console.log('SSE connection closed for user', user.id);
+        this.logger.verbose(`SSE connection closed for user ${user.id}`);
         subject.complete();
         this.clients.splice(this.clients.indexOf(client), 1);
         if (this.clients.some((c) => c.id === user.id)) return;
@@ -88,7 +90,6 @@ export class SseController implements OnModuleInit, OnModuleDestroy {
             type: data.event,
           } as SSE.Models.Event),
         });
-        console.log('SSE Event',event, event.data);
         return event;
       }),
     );

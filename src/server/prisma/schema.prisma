@@ -20,6 +20,7 @@ model User {
   createdAt          DateTime          @default(now()) @map("created_at")
   currentCharacterId Int?              @map("current_character_id")
   storedStatus       Int               @default(1) @map("stored_status")
+  firstLogin         Boolean           @default(true) @map("first_login")
   characters         Character[]
   friends            User[]            @relation("friends")
   friendOf           User[]            @relation("friends")
@@ -27,6 +28,8 @@ model User {
   blockedBy          User[]            @relation("blocked")
   chats              ChatParticipant[]
   notifications      Notification[]
+  tfaEnabled        Boolean           @default(false) @map("tfa_enabled")
+  tfaSecret         String?           @map("tfa_secret")
 
   gamesPlayed MatchHistory[] @relation("match_players")
 
@@ -42,6 +45,7 @@ enum ChatType {
 
 enum ChatAuthorization {
   PUBLIC
+  PROTECTED
   PRIVATE
 }
 
@@ -51,6 +55,12 @@ enum ChatParticipantRole {
   MEMBER
   BANNED
   LEFT
+}
+
+enum ChatParticipantMuteType {
+  NO
+  FOREVER
+  UNTIL
 }
 
 model ChatParticipant {
@@ -64,6 +74,9 @@ model ChatParticipant {
 
   toReadPings Int      @default(0) @map("to_read_pings")
   createdAt   DateTime @default(now()) @map("created_at")
+
+  muted      ChatParticipantMuteType @default(NO) @map("muted")
+  mutedUntil DateTime?               @map("muted_until")
 
   @@unique([chatId, userId], name: "chat_participant_unique")
   @@index([chatId, userId])

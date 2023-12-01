@@ -8,6 +8,8 @@ import StateMounter from '@state/mounter';
 import NotificationsProvider from '@lib/notifications/Provider';
 import moment from 'moment';
 import ErrorBoundary from '@components/ExceptionCatcher';
+import CustomScrollBar from '@theme/scrollBar';
+import { Pixi } from '@hooks/pixiRenderer';
 
 moment.updateLocale('en', {
   relativeTime: {
@@ -28,11 +30,15 @@ moment.updateLocale('en', {
   },
 });
 
+Pixi.Assets.setPreferences({
+  preferWorkers: true,
+});
+
 export default function AppProviders({
   children,
 }: React.PropsWithChildren<{}>): JSX.Element {
   return (
-    <RecoilRoot>
+    <RecoilRoot >
       {/* <DebugObserver /> */}
       <Router>
         <SWRConfig
@@ -54,6 +60,7 @@ export default function AppProviders({
             disableNestedContext
           >
             <CssBaseline />
+            <CustomScrollBar />
             <NotificationsProvider />
             <ErrorBoundary>{children}</ErrorBoundary>
           </CssVarsProvider>

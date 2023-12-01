@@ -1,4 +1,5 @@
 import {
+  AuthModel,
   Endpoint,
   EndpointMethod,
   EndpointMethods,
@@ -10,6 +11,7 @@ import { GroupEnumValues } from '@typings/utils';
 
 namespace UsersModel {
   export namespace Models {
+    export const DEFAULT_AVATAR = "13";
     export enum Status {
       Offline,
       Online,
@@ -24,12 +26,15 @@ namespace UsersModel {
       createdAt: number;
       status: Status;
       storedStatus: Status;
+      firstLogin: boolean;
       friends: number[];
       blocked: number[];
       chats: number[];
+      tfa: AuthModel.Models.TFA;
     }
     export interface IUserInfo
-      extends Omit<IUser, 'friends' | 'blocked' | 'chats' | 'storedStatus'> {}
+      extends Omit<IUser, 'friends' | 'blocked' | 'chats' | 'storedStatus' | 'tfa'> {}
+    
   }
   export namespace DTO {
     export namespace DB {
@@ -40,8 +45,9 @@ namespace UsersModel {
         friendOf: { id: number }[];
         chats: { id: number }[];
         blocked: { id: number }[];
-        blockedBy: { id: number }[];
         storedStatus: Models.Status;
+        tfaEnabled: boolean;
+        tfaSecret: string | null;
       }
       export interface IUserInfo
         extends Omit<Models.IUserInfo, 'createdAt' | 'status'> {
@@ -70,7 +76,7 @@ namespace UsersModel {
       excluseSelf?: boolean;
     }
     export type PatchUser = Partial<
-      Pick<Models.IUserInfo, 'nickname' | 'avatar' | 'status'>
+      Pick<Models.IUserInfo, 'nickname' | 'avatar' | 'status' | 'firstLogin'>
     >;
 
     export interface SseUserUpdate

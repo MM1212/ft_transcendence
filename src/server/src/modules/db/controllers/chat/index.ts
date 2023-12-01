@@ -9,6 +9,20 @@ import { Prisma } from '@prisma/client';
 export class Chats {
   constructor(private readonly prisma: PrismaService) {}
 
+  public formatParticipant<T extends ChatModel.DTO.DB.ChatParticipant | null>(
+    participant: T,
+  ): T extends null
+    ? ChatModel.Models.IChatParticipant | null
+    : ChatModel.Models.IChatParticipant {
+    if (!participant)
+      return null as unknown as ChatModel.Models.IChatParticipant;
+    return {
+      ...participant,
+      createdAt: participant.createdAt.getTime(),
+      mutedUntil: participant.mutedUntil?.getTime() ?? null,
+      typing: false,
+    };
+  }
   public formatChat<T extends ChatModel.DTO.DB.Chat | null>(
     chat: T,
   ): T extends null ? ChatModel.Models.IChat | null : ChatModel.Models.IChat {
@@ -17,11 +31,9 @@ export class Chats {
       ...chat,
       createdAt: chat.createdAt.getTime(),
       authorizationData: chat.authorizationData as JsonObject,
-      participants: chat.participants.map((p) => ({
-        ...p,
-        createdAt: p.createdAt.getTime(),
-      })),
-      messages: chat.messages.map(this.formatChatMessage.bind(this)),
+      participants:
+        chat.participants?.map(this.formatParticipant.bind(this)) ?? [],
+      messages: chat.messages?.map(this.formatChatMessage.bind(this)) ?? [],
     };
   }
   public formatChatMessage<T extends ChatModel.DTO.DB.ChatMessage | null>(
@@ -103,6 +115,12 @@ export class Chats {
           participants: {
             some: {
               userId,
+              role: {
+                notIn: [
+                  ChatModel.Models.ChatParticipantRole.Left,
+                  ChatModel.Models.ChatParticipantRole.Banned,
+                ],
+              },
             },
           },
         },
@@ -122,14 +140,23 @@ export class Chats {
     })) as unknown as ChatModel.Models.IChatParticipant[];
   }
   public async getAllPublicChats(): Promise<ChatModel.Models.IChatInfo[]> {
-    return (await this.prisma.chat.findMany({
-      where: {
-        authorization: ChatModel.Models.ChatAccess.Public,
-      },
-      include: {
-        participants: true,
-      },
-    })) as unknown as ChatModel.Models.IChatInfo[];
+    return (
+      await this.prisma.chat.findMany({
+        where: {
+          authorization: {
+            not: ChatModel.Models.ChatAccess.Private
+          },
+        },
+        include: {
+          participants: true,
+        },
+      })
+    )
+      .map(this.formatChat.bind(this))
+      .map((chat) => ({
+        ...chat,
+        participantsCount: chat.participants.length,
+      }));
   }
   /**
    *
@@ -251,27 +278,62 @@ export class Chats {
   public async updateChatInfo(
     chatId: number,
     data: ChatModel.DTO.DB.UpdateChatInfo,
-  ): Promise<ChatModel.Models.IChat> {
-    return (await this.prisma.chat.update({
-      where: {
-        id: chatId,
-      },
-      data: {
-        ...data,
-        authorizationData: data.authorizationData as JsonObject,
-      },
-    })) as unknown as ChatModel.Models.IChat;
+  ): Promise<ChatModel.Models.IChat | null> {
+    return this.formatChat(
+      await this.prisma.chat.update({
+        where: {
+          id: chatId,
+        },
+        data: {
+          ...data,
+          authorizationData: data.authorizationData as JsonObject,
+        },
+      }),
+    );
   }
   public async updateChatParticipant(
     participantId: number,
-    data: ChatModel.DTO.DB.UpdateParticipant,
+    { mutedUntil, ...data }: ChatModel.DTO.DB.UpdateParticipant,
   ): Promise<Omit<ChatModel.Models.IChatParticipant, 'user'>> {
-    return (await this.prisma.chatParticipant.update({
-      where: {
-        id: participantId,
-      },
-      data,
-    })) as unknown as Omit<ChatModel.Models.IChatParticipant, 'user'>;
+    return this.formatParticipant(
+      await this.prisma.chatParticipant.update({
+        where: {
+          id: participantId,
+        },
+        data: {
+          ...data,
+          ...(mutedUntil && {
+            mutedUntil: new Date(mutedUntil),
+          }),
+        },
+      }),
+    );
+  }
+  public async transferChatOwnership(
+    chatId: number,
+    oldOwnerId: number,
+    newOwnerId: number,
+  ): Promise<boolean> {
+    return !!(await this.prisma.$transaction([
+      this.prisma.chatParticipant.update({
+        where: {
+          chatId,
+          id: oldOwnerId,
+        },
+        data: {
+          role: ChatModel.Models.ChatParticipantRole.Member,
+        },
+      }),
+      this.prisma.chatParticipant.update({
+        where: {
+          chatId,
+          id: newOwnerId,
+        },
+        data: {
+          role: ChatModel.Models.ChatParticipantRole.Owner,
+        },
+      }),
+    ]));
   }
   public async updateChatParticipants(
     chatId: number,
@@ -280,8 +342,8 @@ export class Chats {
       Prisma.ChatParticipantUncheckedUpdateManyInput
     >,
     filter: number[] = [],
-  ): Promise<Omit<ChatModel.Models.IChatParticipant, 'user'>[]> {
-    return (await this.prisma.chatParticipant.updateMany({
+  ): Promise<boolean> {
+    return !!(await this.prisma.chatParticipant.updateMany({
       where: {
         chatId,
         id: {
@@ -289,18 +351,20 @@ export class Chats {
         },
       },
       data,
-    })) as unknown as Omit<ChatModel.Models.IChatParticipant, 'user'>[];
+    }));
   }
   public async updateChatMessage(
     messageId: number,
     data: ChatModel.DTO.DB.UpdateMessage,
   ): Promise<ChatModel.Models.IChatMessage> {
-    return (await this.prisma.chatMessage.update({
-      where: {
-        id: messageId,
-      },
-      data,
-    })) as unknown as ChatModel.Models.IChatMessage;
+    return this.formatChatMessage(
+      await this.prisma.chatMessage.update({
+        where: {
+          id: messageId,
+        },
+        data,
+      }),
+    );
   }
   public async deleteChatMessage(
     messageId: number,

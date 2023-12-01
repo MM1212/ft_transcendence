@@ -4,6 +4,9 @@ import { vector2 } from '@typings/vector';
 
 namespace LobbyModel {
   export namespace Models {
+    export const STAGE_WIDTH = 2624;
+    export const STAGE_HEIGHT = 1476;
+    export const STAGE_ASPECT_RATIO = STAGE_WIDTH / STAGE_HEIGHT;
     export interface IPlayerTransform {
       position: vector2;
       velocity: vector2;
@@ -39,7 +42,8 @@ namespace LobbyModel {
   export namespace Endpoints {
     export enum Targets {
       Connect = '/lobby',
-      StaticBackground = '/lobby.png'
+      StaticBackground = '/assets/lobby.webp',
+      WalkableMask = '/assets/lobby-mask.webp',
     }
     export type All = GroupEndpointTargets<Targets>;
     export interface Registry extends EndpointRegistry {}

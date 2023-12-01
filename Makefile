@@ -13,6 +13,16 @@ DB_FILE = $(SERVER_DIR)/prisma/schema.prisma
 DB_MIGRATE_FILE = $(SERVER_DIR)/prisma/migrations/.schema.prisma
 DB_COMPOSE_FILE = $(PROD_DIR)/docker-compose.yml
 
+IS_LINUX = 1
+ifeq ($(OS), Windows_NT)
+IS_LINUX = 0
+endif
+
+CP = cp
+ifeq ($(IS_LINUX), 0)
+CP = copy
+endif
+
 setup:
 ifeq ($(shell test envs/.tokens.env), 1)
 	$(error Setup the tokens file before setting up everything!)
@@ -53,6 +63,9 @@ endif
 env: envs/.active.env
 
 envs/.active.env: envs/.env.$(MODE) envs/.tokens.env
+ifneq ($(IS_LINUX), 1)
+	$(error This Makefile is only for Linux atm)
+endif
 	cp envs/.env.$(MODE) envs/.env.tmp
 	make generate_session_key
 	make setup_tokens
@@ -63,7 +76,7 @@ envs/.active.env: envs/.env.$(MODE) envs/.tokens.env
 	rm envs/.env.tmp
 
 
-server_dev: db_start
+server_dev:
 	cd $(SERVER_DIR) && pnpm start:dev
 
 client_dev:
@@ -80,10 +93,23 @@ else
 endif
 endif
 
+client_gen_clothing:
+ifndef id
+	$(error id is not set, use `make client_gen_clothing id=<id>`)
+else
+	@cd $(CLIENT_DIR) && node scripts/generate-clothing-item.js $(id)
+endif
+
 db_start:
+ifneq ($(IS_LINUX), 1)
+	$(error This Makefile is only for Linux atm)
+endif
 	docker compose -f $(DB_COMPOSE_FILE) up -d
 
 db_stop:
+ifneq ($(IS_LINUX), 1)
+	$(error This Makefile is only for Linux atm)
+endif
 	docker compose -f $(DB_COMPOSE_FILE) down
 
 db_studio:
@@ -100,8 +126,7 @@ ifndef name
 else
 	cd $(SERVER_DIR) && pnpx prisma migrate dev --name $(name)
 endif
-	cp $(DB_FILE) $(DB_MIGRATE_FILE)
-
+	$(CP) $(DB_FILE) $(DB_MIGRATE_FILE)
 $(DB_FILE):
 
 db_rebuild:
@@ -109,6 +134,7 @@ db_rebuild:
 
 prod_build:
 	$(MAKE) env mode=production
+	$(MAKE) db_migrate name=prod
 	cd $(CLIENT_DIR) && pnpm build
 	cd $(SERVER_DIR) && pnpm build
 	cp -r $(CLIENT_DIR)/dist $(SERVER_DIR)/dist/public
