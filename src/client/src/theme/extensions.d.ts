@@ -16,6 +16,7 @@ declare module '@mui/joy' {
   }
 
   interface TypographySystemOverrides {
+    'title-xs': true;
     'text-xl': true;
     'text-lg': true;
     'text-md': true;

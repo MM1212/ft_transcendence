@@ -75,6 +75,9 @@ const theme = extendTheme({
     text: 'Open Sans',
   },
   typography: {
+    'title-xs': {
+      fontSize: '0.75rem',
+    },
     'text-xl': {
       fontFamily: 'text',
     },
@@ -90,20 +93,6 @@ const theme = extendTheme({
     'text-xs': {
       fontFamily: 'text',
     },
-  },
-  fontSize: {
-    xs: '0.50rem',
-    sm: '0.75rem',
-    md: '0.875rem',
-    lg: '1rem',
-    xl: '1.125rem',
-  },
-  lineHeight: {
-    // xs: '0.625rem',
-    // sm: '0.875rem',
-    // md: '1rem',
-    // lg: '1.125rem',
-    // xl: '1.25rem',
   },
   fontWeight: {
     xs: 500,
