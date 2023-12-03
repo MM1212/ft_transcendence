@@ -39,9 +39,8 @@ const useChat = (chatId: number) => {
       if (selectedChatId === chatId) return;
       ctx.set(chatsState.selectedChatId, chatId);
       navigate(`/messages/${chatId}`);
-      closeAll();
     },
-    [chatId, closeAll]
+    [chatId]
   );
 
   const useIsParticipantBlocked = (participantId: number) =>

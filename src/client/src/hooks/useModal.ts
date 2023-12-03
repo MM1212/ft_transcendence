@@ -42,10 +42,6 @@ export const useModalActions = <T>(id: string) => {
         dismissable: data?.dismissable ?? true,
         ...data,
       } as ModalState<T>);
-      const { contents: isOpened, state } = ctx.snapshot.getLoadable(
-        modalsAtom(id)
-      );
-      if (state === 'hasValue' && isOpened) return;
       ctx.set(modalsAtom(id), true);
       ctx.set(modalsRegistryAtom, (ids) => [...ids, id]);
     },
@@ -59,10 +55,6 @@ export const useModalActions = <T>(id: string) => {
       ) => {
         const data = await ctx.snapshot.getPromise(modalsDataAtom(id));
         if (data?.dismissable === false && !!reason) return;
-        const { contents: isOpened, state } = ctx.snapshot.getLoadable(
-          modalsAtom(id)
-        );
-        if (state === 'hasValue' && !isOpened) return;
         ctx.set(modalsAtom(id), false);
         ctx.set(modalsRegistryAtom, (ids) => ids.filter((i) => i !== id));
       },

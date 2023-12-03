@@ -56,6 +56,10 @@ const useChatManageActions = () => {
           chatsState.selfParticipantByChat(chatId)
         );
         if (!self) throw new Error('You are not in this chat');
+        const participants = await ctx.snapshot.getPromise(
+          chatsState.activeParticipants(chatId)
+        );
+        console.log(participants);
         if (self.role === ChatsModel.Models.ChatParticipantRole.Owner) {
           const confirmed = await confirm({
             content: `
@@ -64,6 +68,18 @@ const useChatManageActions = () => {
           `,
             confirmText: 'Leave',
             confirmColor: 'warning',
+            keepOpen: true,
+          });
+          if (!confirmed) return;
+        }
+
+        if (participants.length === 1) {
+          const confirmed = await confirm({
+            content: `
+              Are you sure you want to leave this chat?
+              This action will delete it as there are no other members.
+          `,
+            confirmText: 'Leave',
           });
           if (!confirmed) return;
         }
@@ -339,7 +355,7 @@ const useChatManageActions = () => {
     openMuteModal,
     nuke,
     sendInviteFromGroup,
-    updateInfo
+    updateInfo,
   };
 };
 
