@@ -1,7 +1,9 @@
 import ChatMessagesLoadingView from '@apps/Chat/views/loading';
+import ChatMessagesSidebarDecoration from '@apps/Chat/views/sidebar';
 import AccountGroupIcon from '@components/icons/AccountGroupIcon';
 import AccountIcon from '@components/icons/AccountIcon';
 import AccountSearchIcon from '@components/icons/AccountSearchIcon';
+import CogIcon from '@components/icons/CogIcon';
 import ControllerIcon from '@components/icons/ControllerIcon';
 import DevToIcon from '@components/icons/DevToIcon';
 import ForumIcon from '@components/icons/ForumIcon';
@@ -79,6 +81,7 @@ const routes: ISidebarRoute[] = [
     exact: false,
     Component: React.lazy(() => import('@apps/Chat/views')),
     FallBackComponent: ChatMessagesLoadingView,
+    endDecoration: <ChatMessagesSidebarDecoration />,
   },
   {
     label: 'Achievements',
@@ -122,7 +125,7 @@ const routes: ISidebarRoute[] = [
             path: '/leaderboard',
             icon: <PodiumIcon />,
             exact: false,
-            Component: React.lazy(() => import('@apps/Leaderboard/views'))
+            Component: React.lazy(() => import('@apps/Leaderboard/views')),
           },
         ],
       },
@@ -145,5 +148,15 @@ if (import.meta.env.DEV) {
     ],
   });
 }
+
+export const endRoutes: ISidebarRoute[] = [
+  {
+    label: 'Settings',
+    path: '/settings',
+    icon: <CogIcon />,
+    exact: false,
+    Component: React.lazy(() => import('@apps/Settings/views')),
+  },
+];
 
 export default routes;

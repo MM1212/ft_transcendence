@@ -253,6 +253,18 @@ const theme = extendTheme({
         }),
       },
     },
+    JoyListItemButton: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          transition: theme.transitions.create(
+            ['background-color', 'box-shadow', 'color', 'border'],
+            {
+              duration: theme.transitions.duration.shortest,
+            }
+          ),
+        }),
+      },
+    },
   },
 });
 
