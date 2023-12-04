@@ -87,6 +87,8 @@ export default function CustomizationPanel() {
         display: 'flex',
         flexDirection: 'column',
         height: '100%',
+        borderLeft: '1px solid',
+        borderColor: 'divider',
       }}
     >
       <CustomizationTop

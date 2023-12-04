@@ -65,9 +65,11 @@ function UserProfile({
   const { open: openUpdateModal } = useUpdateUserModalActions();
   return (
     <Sheet
-      style={{
+      sx={{
         height: '100%',
         width: '45dvh',
+        borderLeft: '1px solid',
+        borderColor: 'divider',
       }}
     >
       <Stack

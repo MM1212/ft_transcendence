@@ -32,6 +32,8 @@ export default function ClothingShowcase(): JSX.Element {
         height: '100%',
         width: '80dvh',
         overflow: 'auto',
+        borderLeft: '1px solid',
+        borderColor: 'divider',
       }}
     >
       <Input

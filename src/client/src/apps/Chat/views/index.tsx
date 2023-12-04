@@ -24,6 +24,8 @@ function _View(): JSX.Element {
         mx: 'auto',
         pt: { xs: 'var(--Header-height)', sm: 0 },
         display: 'grid',
+        borderLeft: '1px solid',
+        borderColor: 'divider',
         gridTemplateColumns: {
           xs: '1fr',
           sm: 'minmax(min-content, min(30%, 40dvh)) 1fr',
