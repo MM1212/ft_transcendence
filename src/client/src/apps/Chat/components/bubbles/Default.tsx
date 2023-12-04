@@ -33,12 +33,12 @@ export default function ChatDefaultMessageBubble({
         sx={{
           color: isSent
             ? 'var(--joy-palette-common-white)'
-            : 'var(--joy-palette-text-primary)',
+            : 'var(--joy-palette-neutral-plainColor)',
           width: 'fit-content',
           whiteSpace: 'pre-wrap',
           wordBreak: 'break-word',
           '& a': {
-            color: 'var(--joy-palette-text-primary)',
+            color: 'inherit',
             textDecoration: 'underline',
           },
         }}

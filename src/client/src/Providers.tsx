@@ -38,7 +38,7 @@ export default function AppProviders({
   children,
 }: React.PropsWithChildren<{}>): JSX.Element {
   return (
-    <RecoilRoot >
+    <RecoilRoot>
       {/* <DebugObserver /> */}
       <Router>
         <SWRConfig
@@ -56,8 +56,6 @@ export default function AppProviders({
           <CssVarsProvider
             theme={theme}
             defaultMode="system"
-            defaultColorScheme="dark"
-            disableNestedContext
           >
             <CssBaseline />
             <CustomScrollBar />

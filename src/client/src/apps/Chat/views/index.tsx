@@ -43,6 +43,8 @@ function _View(): JSX.Element {
               width: '40dvh',
               height: '100%',
               gap: 1,
+              borderLeft: '1px solid',
+              borderColor: 'divider',
             }}
           >
             <EmoticonSadIcon size="lg" />

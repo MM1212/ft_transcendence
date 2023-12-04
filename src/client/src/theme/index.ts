@@ -95,9 +95,9 @@ const theme = extendTheme({
     },
   },
   fontWeight: {
-    xs: 500,
-    sm: 500,
-    md: 500,
+    xs: 400,
+    sm: 400,
+    md: 400,
     lg: 500,
     xl: 600,
   },
@@ -183,28 +183,22 @@ const theme = extendTheme({
     },
     JoyModal: {
       styleOverrides: {
-        backdrop: ({ theme }) => ({
+        backdrop: {
           ...(import.meta.env.DEV && {
             backdropFilter: 'none !important',
-            backgroundColor: alpha(
-              theme.resolveVar('palette-background-level1'),
-              0.5
-            ),
+            backgroundColor: alpha('#171A1C', 0.5),
           }),
-        }),
+        },
       },
     },
     JoyDrawer: {
       styleOverrides: {
-        backdrop: ({ theme }) => ({
+        backdrop: {
           ...(import.meta.env.DEV && {
             backdropFilter: 'none !important',
-            backgroundColor: alpha(
-              theme.resolveVar('palette-background-level1'),
-              0.5
-            ),
+            backgroundColor: alpha('#171A1C', 0.5),
           }),
-        }),
+        },
       },
     },
     JoyCircularProgress: {
