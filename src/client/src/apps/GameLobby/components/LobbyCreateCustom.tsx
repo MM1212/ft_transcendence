@@ -60,7 +60,7 @@ export default function LobbyCreateCustom() {
     >
       {!isCustom ? (
         <>
-          <LobbyPlayerBanner />
+          <LobbyPlayerBanner id={1} />
           <Divider sx={{ mt: 4 }} />
           <Box sx={{ width: "100%", display: "flex", flexDirection: "row" }}>
             <Stack spacing={2} sx={{ display: "flex", mt: 5 }}>

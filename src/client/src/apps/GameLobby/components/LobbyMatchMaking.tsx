@@ -1,7 +1,5 @@
 import { useCurrentUser } from "@hooks/user";
-import {
-  styled,
-} from "@mui/joy";
+import { styled } from "@mui/joy";
 import { useState } from "react";
 import MatchMakingCounter from "./MatchMakingCounter";
 import LobbyPongButton from "./LobbyPongBottom";
@@ -44,7 +42,19 @@ export function LobbyMatchMaking() {
         alignItems: "center",
       }}
     >
-      <LobbyPlayerBanner/>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          height: "100%",
+          width: '100%',
+          alignItems: "center",
+          justifyContent: "space-evenly",
+        }}
+      >
+      <LobbyPlayerBanner id={1} />
+      <LobbyPlayerBanner id={0} />
+      </div>
       <div
         style={{
           display: "flex",
@@ -63,7 +73,10 @@ export function LobbyMatchMaking() {
             }}
             onClick={handleStartMatchmaking}
           >
-            <LobbyPongButton label="Find Match" src='/matchMaking/button1.webp'/>
+            <LobbyPongButton
+              label="Find Match"
+              src="/matchMaking/button1.webp"
+            />
           </FindMatchWrapper>
         )}
       </div>
