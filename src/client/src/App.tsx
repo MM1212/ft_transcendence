@@ -10,6 +10,7 @@ import ImagePreviewView from '@apps/ImagePreview/views';
 import ConfirmationModalView from '@apps/Modals/Confirmation/views';
 import ChatSelectModal from '@apps/Chat/modals/ChatSelectModal';
 import TFALoginPage from '@apps/TFALoginPage/views';
+import Pong from '@views/pong';
 
 const MainRoute = memo(() => {
   return React.useMemo(
@@ -50,6 +51,9 @@ function App() {
           <ConfirmationModalView />
           <ChatSelectModal />
         </AuthRoute>
+        <Route path="/pong">
+          <Pong />
+        </Route>
       </Switch>
     </div>
   );

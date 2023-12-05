@@ -4,9 +4,10 @@ import publicPath from "@utils/public";
 import { LobbyMatchMaking } from "../components/LobbyMatchMaking";
 import LobbyCreateCustom from "../components/LobbyCreateCustom";
 import LobbyPongTabs from "../components/LobbyPongTabs";
+import LobbyJoinCustom from "../components/LobbyJoinCustom";
 // Define your customizations and components
-const label = ["Matchmaking", "Create Custom"];
-const components = [<LobbyMatchMaking key={0} />, <LobbyCreateCustom key={2} />];
+const label = ["Matchmaking", "Create Custom", "Join Custom"];
+const components = [<LobbyMatchMaking key={0} />, <LobbyCreateCustom key={2} />, <LobbyJoinCustom key={3}/>];
 
 // Use LobbyTop component with your customizations and components
 
