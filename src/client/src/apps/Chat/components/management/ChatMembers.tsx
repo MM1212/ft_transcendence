@@ -1,7 +1,5 @@
 import { useSelectedChat } from '@apps/Chat/hooks/useChat';
-import useChatManageActions from '@apps/Chat/hooks/useChatManageActions';
 import useFriend from '@apps/Friends/hooks/useFriend';
-import AvatarWithStatus from '@components/AvatarWithStatus';
 import AccountIcon from '@components/icons/AccountIcon';
 import CrownIcon from '@components/icons/CrownIcon';
 import MessageIcon from '@components/icons/MessageIcon';
@@ -26,10 +24,12 @@ import {
   Typography,
 } from '@mui/joy';
 import ChatsModel from '@typings/models/chat';
-import UsersModel from '@typings/models/users';
 import moment from 'moment';
 import React from 'react';
 import ChatManageMember from './ChatManageMember';
+import { useUser } from '@hooks/user';
+import ChatManageMemberSkeleton from '../skeletons/ChatManageMember';
+import ChatAvatarWithTooltip from '../ChatAvatarWithTooltip';
 
 interface BadgeData {
   color: ColorPaletteProp;
@@ -39,7 +39,6 @@ interface BadgeData {
 
 export interface ChatMemberProps {
   participant: ChatsModel.Models.IChatParticipant;
-  user: UsersModel.Models.IUserInfo;
   manage: boolean;
   isSelf: boolean;
   selfRole: ChatsModel.Models.ChatParticipantRole;
@@ -49,7 +48,6 @@ const Roles = ChatsModel.Models.ChatParticipantRole;
 
 function Member({
   participant,
-  user,
   isSelf,
   manage,
   selfRole,
@@ -94,13 +92,16 @@ function Member({
     return arr;
   }, [isMutedData, participant.role]);
 
+  const user = useUser(participant.userId)!;
   const { goToProfile, goToMessages } = useFriend(user.id);
 
   const closeAndRun = React.useCallback(
-    (cb: () => void) => () => {
-      close();
-      cb();
-    },
+    (cb: () => void | Promise<void>, prev: boolean = true) =>
+      async () => {
+        if (prev) close();
+        await Promise.resolve(cb());
+        if (!prev) close();
+      },
     [close]
   );
   return (
@@ -118,7 +119,12 @@ function Member({
       p={1}
     >
       <Stack direction="row" alignItems="center" spacing={1}>
-        <AvatarWithStatus status={user.status} src={user.avatar} size="lg" />
+        <ChatAvatarWithTooltip
+          user={user}
+          participant={participant}
+          size="lg"
+          tooltipProps={{ placement: 'left-start' }}
+        />
         <Stack spacing={0.1} height="100%" justifyContent="center">
           <Stack direction="row" alignItems="center" spacing={1}>
             <Typography
@@ -164,7 +170,6 @@ function Member({
           <ChatManageMember
             closeAndRun={closeAndRun}
             participant={participant}
-            user={user}
             role={selfRole}
             disabled={isSelf}
             variant={isBanned || left ? 'soft' : undefined}
@@ -193,7 +198,7 @@ function MembersList({
   list,
 }: {
   manage?: boolean;
-  list: Omit<ChatMemberProps, 'manage' | 'isSelf' | 'selfRole'>[];
+  list: ChatsModel.Models.IChatParticipant[];
 }): JSX.Element {
   const self = useSelectedChat().useSelfParticipant();
   return React.useMemo(
@@ -207,15 +212,18 @@ function MembersList({
           gap: (theme) => theme.spacing(0.5),
         }}
       >
-        {list.map(({ participant, user }) => (
-          <Member
-            participant={participant}
-            user={user}
-            manage={manage}
-            key={participant.id}
-            isSelf={self.id === participant.id}
-            selfRole={self.role as ChatsModel.Models.ChatParticipantRole}
-          />
+        {list.map((participant) => (
+          <React.Suspense
+            fallback={<ChatManageMemberSkeleton />}
+            key={`${participant.chatId}-${participant.id}`}
+          >
+            <Member
+              participant={participant}
+              manage={manage}
+              isSelf={self.id === participant.id}
+              selfRole={self.role as ChatsModel.Models.ChatParticipantRole}
+            />
+          </React.Suspense>
         ))}
       </Stack>
     ),
@@ -224,11 +232,12 @@ function MembersList({
 }
 
 function MembersTab({ manage = false }: { manage?: boolean }): JSX.Element {
-  const data = useChatManageActions().useParticipantsData();
+  const { useParticipants } = useSelectedChat();
+  const data = useParticipants();
   const members = React.useMemo(() => {
     return data
-      .filter((d) => {
-        switch (d.participant.role) {
+      .filter((participant) => {
+        switch (participant.role) {
           case Roles.Owner:
           case Roles.Admin:
           case Roles.Member:
@@ -238,21 +247,21 @@ function MembersTab({ manage = false }: { manage?: boolean }): JSX.Element {
         }
       })
       .sort((a, b) => {
-        const aRole = a.participant.role;
-        const bRole = b.participant.role;
+        const aRole = a.role;
+        const bRole = b.role;
         if (aRole === Roles.Owner) return -1;
         if (bRole === Roles.Owner) return 1;
         if (aRole === Roles.Admin && bRole !== Roles.Admin) return -1;
         if (bRole === Roles.Admin && aRole !== Roles.Admin) return 1;
-        return a.participant.createdAt - b.participant.createdAt;
+        return a.createdAt - b.createdAt;
       });
   }, [data]);
 
   const banned = React.useMemo(() => {
-    return data.filter((d) => d.participant.role === Roles.Banned);
+    return data.filter((participant) => participant.role === Roles.Banned);
   }, [data]);
   const left = React.useMemo(() => {
-    return data.filter((d) => d.participant.role === Roles.Left);
+    return data.filter((participant) => participant.role === Roles.Left);
   }, [data]);
 
   return (

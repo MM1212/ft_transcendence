@@ -18,7 +18,7 @@ export default function GameLobby() {
         display: "flex",
         flexDirection: "column",
         height: "100%",
-        backgroundImage: `url(${publicPath('/matchMaking/backgroundLobby.jpg')})`,
+        backgroundImage: `url(${publicPath('/matchMaking/backgroundLobby.webp')})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",

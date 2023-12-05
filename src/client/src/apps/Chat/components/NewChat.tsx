@@ -13,11 +13,12 @@ import {
   AutocompleteOption,
   Avatar,
   Button,
-  Checkbox,
   CircularProgress,
   DialogActions,
   FormHelperText,
+  Option,
   Textarea,
+  Tooltip,
   textareaClasses,
 } from '@mui/joy';
 
@@ -42,24 +43,51 @@ import LockIcon from '@components/icons/LockIcon';
 import friendsState from '@apps/Friends/state';
 import { useDebounce } from '@hooks/lodash';
 import { UserAvatar } from '@components/AvatarWithStatus';
+import InformationVariantCircleIcon from '@components/icons/InformationVariantCircleIcon';
+import ShieldCheckIcon from '@components/icons/ShieldCheckIcon';
+import { Select } from '@mui/joy';
+import EarthIcon from '@components/icons/EarthIcon';
+import InformationSlabCircleIcon from '@components/icons/InformationSlabCircleIcon';
 
-function PasswordMeterInput({ value, onChange, disabled }: any) {
+export function PasswordMeterInput({
+  value,
+  onChange,
+  disabled,
+  updating,
+}: {
+  value: string;
+  onChange: React.ChangeEventHandler<HTMLInputElement>;
+  disabled?: boolean;
+  updating?: boolean;
+}) {
   const minLength = 12;
   return (
     <Stack
       spacing={0.5}
       sx={{
+        mt: 1,
         '--hue': Math.min(value.length * 10, 120),
       }}
     >
-      <Input
-        type="password"
-        placeholder="Type in here…"
-        startDecorator={<FormTextboxPasswordIcon />}
-        value={value}
-        onChange={onChange}
-        disabled={disabled}
-      />
+      <FormControl>
+        <FormLabel required>Password</FormLabel>
+        <Input
+          type="password"
+          placeholder="Type in here…"
+          startDecorator={<FormTextboxPasswordIcon size="sm" />}
+          endDecorator={
+            updating && (
+              <Tooltip title="Leave it blank if you dont want to update">
+                <InformationSlabCircleIcon />
+              </Tooltip>
+            )
+          }
+          value={value}
+          onChange={onChange}
+          disabled={disabled}
+          size="sm"
+        />
+      </FormControl>
       <LinearProgress
         determinate
         size="sm"
@@ -144,8 +172,6 @@ function UsersAutocomplete({
           type: 'friends',
           data: option,
         });
-    console.log(data);
-
     return [...data.values()];
   }, [searchCache, selectedCache, friends]);
 
@@ -295,7 +321,7 @@ function _NewChatModal(): JSX.Element {
         const payload: ChatsModel.DTO.NewChat = {
           authorization,
           authorizationData:
-            authorization === ChatsModel.Models.ChatAccess.Private
+            authorization === ChatsModel.Models.ChatAccess.Protected
               ? authorizationData
               : null,
           name,
@@ -416,33 +442,65 @@ function _NewChatModal(): JSX.Element {
               )}
             </FormControl>
             <div>
-              <FormControl>
+              <FormControl required>
                 <FormLabel>Group Access</FormLabel>
-                <Checkbox
-                  disabled={loading}
-                  label="Is Private"
-                  variant="outlined"
-                  color="primary"
-                  checked={
-                    form.values.authorization ===
-                    ChatsModel.Models.ChatAccess.Private
+                <Select
+                  required
+                  startDecorator={<ShieldCheckIcon />}
+                  value={form.values.authorization}
+                  onChange={(_, value) =>
+                    form.setFieldValue('authorization', value as any)
                   }
-                  checkedIcon={<LockIcon size="xs" />}
-                  onChange={(ev) =>
-                    form.setFieldValue(
-                      'authorization',
-                      ev.target.checked
-                        ? ChatsModel.Models.ChatAccess.Private
-                        : ChatsModel.Models.ChatAccess.Public
-                    )
-                  }
-                  sx={{ mb: 1 }}
-                />
+                  placeholder="Select one"
+                  style={{
+                    width: '50%',
+                  }}
+                >
+                  <Option value={ChatsModel.Models.ChatAccess.Public}>
+                    <Stack direction="row" spacing={0.5} alignItems="center">
+                      <EarthIcon />
+                      <Typography level="body-md" component="div">
+                        Public
+                      </Typography>
+                    </Stack>
+                    <Tooltip title="Anyone can join" placement="right">
+                      <InformationVariantCircleIcon size="xs" color="neutral" />
+                    </Tooltip>
+                  </Option>
+                  <Option value={ChatsModel.Models.ChatAccess.Protected}>
+                    <Stack direction="row" spacing={0.5} alignItems="center">
+                      <FormTextboxPasswordIcon />
+                      <Typography level="body-md" component="div">
+                        Protected
+                      </Typography>
+                    </Stack>
+                    <Tooltip
+                      title="Still public but requires password to join"
+                      placement="right"
+                    >
+                      <InformationVariantCircleIcon size="xs" color="neutral" />
+                    </Tooltip>
+                  </Option>
+                  <Option value={ChatsModel.Models.ChatAccess.Private}>
+                    <Stack direction="row" spacing={0.5} alignItems="center">
+                      <LockIcon />
+                      <Typography level="body-md" component="div">
+                        Private
+                      </Typography>
+                    </Stack>
+                    <Tooltip
+                      title="Only invited users can join"
+                      placement="right"
+                    >
+                      <InformationVariantCircleIcon size="xs" color="neutral" />
+                    </Tooltip>
+                  </Option>
+                </Select>
               </FormControl>
               <Collapse
                 opened={
                   form.values.authorization ===
-                  ChatsModel.Models.ChatAccess.Private
+                  ChatsModel.Models.ChatAccess.Protected
                 }
               >
                 <PasswordMeterInput

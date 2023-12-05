@@ -1,5 +1,4 @@
 import { Module } from "@nestjs/common";
-import { Auth42Module } from "../auth/42/auth.module";
 import { SseModule } from "../sse/sse.module";
 import { DbModule } from "../db";
 import { ChatsService } from "./chats.service";

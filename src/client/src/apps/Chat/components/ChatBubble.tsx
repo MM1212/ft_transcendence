@@ -6,13 +6,13 @@ import ChatsModel from '@typings/models/chat';
 import { useRecoilValue } from 'recoil';
 import chatsState from '@/apps/Chat/state';
 import { sessionAtom, usersAtom } from '@hooks/user/state';
-import AvatarWithStatus from '@components/AvatarWithStatus';
 import moment from 'moment';
 import { Tooltip } from '@mui/joy';
 import useChat from '../hooks/useChat';
 import BlockedBubble from './BlockedBubble';
 import ChatDefaultMessageBubble from './bubbles/Default';
 import ChatEmbedMessage from './bubbles';
+import ChatAvatarWithTooltip from './ChatAvatarWithTooltip';
 
 type ChatBubbleProps = {
   message: ChatsModel.Models.IChatMessage;
@@ -35,6 +35,7 @@ export default function ChatBubble({
     type,
     pending,
     meta,
+    id,
   }: ChatsModel.Models.IChatMessage & { pending?: boolean } =
     messageData; /* useRecoilValue(chatsState.message({ chatId, messageId }))! */
 
@@ -44,7 +45,7 @@ export default function ChatBubble({
   const user = useRecoilValue(usersAtom(author.userId))!;
   const self = useRecoilValue(sessionAtom);
   const isSent = self?.id === user?.id;
-  const { muted: isMuted, blocked: isBlocked } =
+  const { blocked: isBlocked } =
     useChat(chatId).useIsParticipantBlocked(authorId);
   const [showAnyway, setShowAnyway] = React.useState(false);
   const features = React.useMemo(
@@ -61,7 +62,7 @@ export default function ChatBubble({
       ) : (
         <Stack
           direction={isSent ? 'row-reverse' : 'row'}
-          spacing={2}
+          spacing={1}
           sx={
             features.next
               ? {
@@ -71,23 +72,25 @@ export default function ChatBubble({
           }
         >
           {!isSent && (
-            <AvatarWithStatus
-              status={user.status}
-              src={user.avatar}
+            <ChatAvatarWithTooltip
               hide={features.prev}
-              muted={isMuted}
+              user={user}
+              participant={author}
             />
           )}
 
-          <Box sx={{ maxWidth: '60%', minWidth: 'auto' }}>
-            <Stack
-              direction="row"
-              justifyContent={isSent ? 'flex-end' : 'flex-start'}
-              spacing={2}
-              sx={{ mb: 0.25 }}
+          <Box sx={{ maxWidth: '60%', minWidth: '8dvh' }}>
+            <Box
+              display="flex"
+              justifyContent="space-between"
+              mb={0.25}
+              pr={0.25}
+              width="100%"
             >
               {!isSent && !features.prev && (
-                <Typography level="body-xs">{user.nickname}</Typography>
+                <Typography level="body-xs" mr={2}>
+                  {user.nickname}
+                </Typography>
               )}
               {!features.prev && (
                 <Tooltip
@@ -98,22 +101,24 @@ export default function ChatBubble({
                   placement="top"
                   arrow
                 >
-                  <Typography level="body-xs">
+                  <Typography level="body-xs" ml="auto !important">
                     {moment(createdAt).fromNow(true)}
                   </Typography>
                 </Tooltip>
               )}
-            </Stack>
+            </Box>
             <Box
               sx={{
                 position: 'relative',
                 display: 'flex',
                 alignItems: 'center',
+                width: '100%',
                 justifyContent: isSent ? 'flex-end' : 'flex-start',
               }}
             >
               {type === ChatsModel.Models.ChatMessageType.Normal ? (
                 <ChatDefaultMessageBubble
+                  messageId={id}
                   isSent={isSent}
                   features={features}
                   message={message}
@@ -121,6 +126,7 @@ export default function ChatBubble({
                 />
               ) : (
                 <ChatEmbedMessage
+                  messageId={id}
                   isSent={isSent}
                   features={features}
                   message={message}
@@ -137,12 +143,11 @@ export default function ChatBubble({
       showAnyway,
       isSent,
       features,
-      user.status,
-      user.avatar,
-      user.nickname,
-      isMuted,
+      user,
+      author,
       createdAt,
       type,
+      id,
       message,
       pending,
       meta,

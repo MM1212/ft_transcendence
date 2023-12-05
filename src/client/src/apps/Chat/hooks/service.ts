@@ -11,20 +11,19 @@ const useMessagesService = () => {
   const onNewMessage = useRecoilCallback(
     (ctx) => async (ev: ChatsModel.Sse.NewMessageEvent) => {
       const { data } = ev;
-      const chats = [...(await ctx.snapshot.getPromise(chatsState.chats))];
-      const chatIdx = chats.indexOf(data.chatId);
+      const chats = await ctx.snapshot.getPromise(chatsState.chats);
+      if (!chats.includes(data.chatId)) return;
       const selectedChatId = await ctx.snapshot.getPromise(
         chatsState.selectedChatId
       );
-      if (chatIdx === -1) return;
+      if (selectedChatId !== data.chatId)
+        ctx.set(chatsState.selfParticipantByChat(data.chatId), (prev) => ({
+          ...prev,
+          toReadPings: prev.toReadPings + 1,
+        }));
       ctx.set(chatsState.messages(data.chatId), (prev) => {
         if (prev.some((message) => message.id === data.id)) return prev;
         const messages = [data, ...prev];
-        if (selectedChatId !== data.chatId)
-          ctx.set(chatsState.selfParticipantByChat(data.chatId), (prev) => ({
-            ...prev,
-            toReadPings: prev.toReadPings + 1,
-          }));
         return messages;
       });
     },
@@ -142,6 +141,29 @@ const useMessagesService = () => {
     []
   );
 
+  const updateChatInfo = useRecoilCallback(
+    (ctx) => async (ev: ChatsModel.Sse.UpdateChatInfoEvent) => {
+      const {
+        data: { chatId, ...info },
+      } = ev;
+
+      const chats = await ctx.snapshot.getPromise(chatsState.chats);
+      if (!chats.includes(chatId)) return;
+      
+      const { state } = ctx.snapshot.getLoadable(chatsState.chat(chatId));
+      const { isActive } = ctx.snapshot.getInfo_UNSTABLE(
+        chatsState.chat(chatId)
+      );    
+      if (state === 'loading' && !isActive) return;
+
+      ctx.set(chatsState.chat(chatId), (prev) => ({
+        ...prev,
+        ...info,
+      }));
+    },
+    []
+  );
+
   useSseEvent<ChatsModel.Sse.NewMessageEvent>(
     ChatsModel.Sse.Events.NewMessage,
     onNewMessage
@@ -153,6 +175,11 @@ const useMessagesService = () => {
   useSseEvent<ChatsModel.Sse.UpdateParticipantEvent>(
     ChatsModel.Sse.Events.UpdateParticipant,
     updateParticipants
+  );
+
+  useSseEvent<ChatsModel.Sse.UpdateChatInfoEvent>(
+    ChatsModel.Sse.Events.UpdateChatInfo,
+    updateChatInfo
   );
 };
 

@@ -134,6 +134,7 @@ db_rebuild:
 
 prod_build:
 	$(MAKE) env mode=production
+	$(MAKE) db_migrate name=prod
 	cd $(CLIENT_DIR) && pnpm build
 	cd $(SERVER_DIR) && pnpm build
 	cp -r $(CLIENT_DIR)/dist $(SERVER_DIR)/dist/public

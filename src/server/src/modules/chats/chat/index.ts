@@ -3,9 +3,15 @@ import ChatsModel from '@typings/models/chat';
 import { ChatDependencies } from './dependencies';
 import { GroupEnumValues } from '@typings/utils';
 import User from '@/modules/users/user';
-import { ForbiddenException, NotFoundException } from '@nestjs/common';
-import { HttpError } from '@/helpers/decorators/httpError';
+import {
+  ForbiddenException,
+  HttpException,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { isDeepStrictEqual } from 'util';
+import { ChatsService } from '../chats.service';
+import { hash } from '@shared/hash';
 
 class Participant extends CacheObserver<ChatsModel.Models.IChatParticipant> {
   constructor(
@@ -48,7 +54,7 @@ class Participant extends CacheObserver<ChatsModel.Models.IChatParticipant> {
   public isAdmin(): boolean {
     return this.role === ChatsModel.Models.ChatParticipantRole.Admin;
   }
-  public isOP(): boolean {
+  public isOperator(): boolean {
     return this.isOwner() || this.isAdmin();
   }
   public isBanned(): boolean {
@@ -75,6 +81,34 @@ class Participant extends CacheObserver<ChatsModel.Models.IChatParticipant> {
   public get createdAt(): number {
     return this.get('createdAt');
   }
+
+  public get typing(): boolean {
+    return this.get('typing');
+  }
+  private typingTick: NodeJS.Timeout | null = null;
+  public set typing(value: boolean) {
+    if (this.typingTick) clearTimeout(this.typingTick);
+    this.set('typing', value);
+    if (value) {
+      this.typingTick = setTimeout(() => {
+        this.set('typing', false);
+        this.typingTick = null;
+        this.chat.helpers.sseService.emitToTargets<ChatsModel.Sse.UpdateParticipantEvent>(
+          ChatsModel.Sse.Events.UpdateParticipant,
+          this.userId,
+          this.chat.sseTargets,
+          {
+            type: 'update',
+            participantId: this.id,
+            chatId: this.chat.id,
+            participant: {
+              typing: false,
+            },
+          },
+        );
+      }, 6000);
+    }
+  }
 }
 
 interface IChat extends Omit<ChatsModel.Models.IChat, 'participants'> {
@@ -95,12 +129,15 @@ class Chat extends CacheObserver<IChat> {
       data.participants.map((p) => new Participant(p, this)),
     );
   }
+  public get service(): ChatsService {
+    return this.helpers.service;
+  }
   public get public(): ChatsModel.Models.IChatInfo {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { messages, authorizationData, ...chat } = this.get();
+    const { messages, authorizationData, participants, ...chat } = this.get();
     return {
       ...chat,
-      participants: chat.participants.map((p: Participant) => p.public),
+      participantsCount: this.participants.length,
     } satisfies ChatsModel.Models.IChatInfo;
   }
   public get display(): ChatsModel.Models.IChatDisplay {
@@ -139,44 +176,41 @@ class Chat extends CacheObserver<IChat> {
   public get authorization(): GroupEnumValues<ChatsModel.Models.ChatAccess> {
     return this.get('authorization');
   }
+  /*
+   * Protected chats are also "Public"
+   */
   public get isPublic(): boolean {
-    return this.authorization === ChatsModel.Models.ChatAccess.Public;
+    return this.authorization !== ChatsModel.Models.ChatAccess.Private;
   }
   public get isPrivate(): boolean {
     return this.authorization === ChatsModel.Models.ChatAccess.Private;
   }
-  private get sseTargets(): number[] {
-    return this.participants.map((p) => p.userId);
+  public get isProtected(): boolean {
+    return this.authorization === ChatsModel.Models.ChatAccess.Protected;
   }
-
-  public async refresh(): Promise<void> {
-    const data = await this.helpers.db.chats.get(this.id);
-    if (!data)
-      throw new HttpError(
-        `Chat with id ${this.id} was not found in database while refreshing`,
-      );
-    const tmp = this.helpers.db.chats.formatChat(data);
-    this.setTo((prev) => ({
-      ...tmp,
-      messages: prev.messages,
-      participants: tmp.participants.map((p) => new Participant(p, this)),
-    }));
+  public get sseTargets(): number[] {
+    return this.participants.map((p) => p.userId);
   }
 
   public async save(
     {
       name: oldName,
       photo: oldPhoto,
+      topic: oldTopic,
     }: Partial<ChatsModel.Models.IChatInfo> = this.public,
   ): Promise<boolean> {
-    const { name, photo } = await this.helpers.db.chats.updateChatInfo(
-      this.id,
-      {
-        name: oldName,
-        photo: oldPhoto,
-      },
-    );
-    this.setTo((prev) => ({ ...prev, name, photo }));
+    const { name, photo, topic } = !this.isTemporary
+      ? (await this.helpers.db.chats.updateChatInfo(this.id, {
+          name: oldName,
+          photo: oldPhoto,
+          topic: oldTopic,
+        }))!
+      : {
+          name: oldName ?? this.get('name'),
+          photo: oldPhoto ?? this.get('photo'),
+          topic: oldTopic ?? this.get('topic'),
+        };
+    this.setTo((prev) => ({ ...prev, name, photo, topic }));
     return true;
   }
 
@@ -239,7 +273,7 @@ class Chat extends CacheObserver<IChat> {
     if (op instanceof User) {
       const participantOp = this.getParticipantByUserId(op.id);
       if (!participantOp) throw new ForbiddenException();
-      if (!participantOp.isOP())
+      if (!participantOp.isOperator())
         throw new ForbiddenException('Insufficient permissions');
       if (participant.isAdmin() && !participantOp.isOwner())
         throw new ForbiddenException('Insufficient permissions');
@@ -250,12 +284,11 @@ class Chat extends CacheObserver<IChat> {
         await this.transferOwnership(pUser, nextOwner.id);
       }
     }
-    const ok = !!(await this.helpers.db.chats.updateChatParticipant(
-      participantId,
-      {
-        role: ChatsModel.Models.ChatParticipantRole.Left,
-      },
-    ));
+    const ok = this.isTemporary
+      ? true
+      : !!(await this.helpers.db.chats.updateChatParticipant(participantId, {
+          role: ChatsModel.Models.ChatParticipantRole.Left,
+        }));
     if (!ok) return false;
     this.helpers.sseService.emitToTargets<ChatsModel.Sse.UpdateParticipantEvent>(
       ChatsModel.Sse.Events.UpdateParticipant,
@@ -279,6 +312,7 @@ class Chat extends CacheObserver<IChat> {
   public async getMessages(
     cursor: number,
   ): Promise<ChatsModel.Models.IChatMessage[]> {
+    if (this.isTemporary) return this.lastMessages;
     if (cursor === -1) {
       if (this.lastMessages.length < ChatsModel.Models.MAX_MESSAGES_PER_CHAT)
         this.set(
@@ -298,12 +332,14 @@ class Chat extends CacheObserver<IChat> {
   ): Promise<ChatsModel.Models.IChatMessage | null> {
     const cached = this.lastMessages.find((m) => m.id === messageId);
     if (cached) return cached;
+    if (this.isTemporary) return null;
     return await this.helpers.db.chats.getChatMessage(messageId);
   }
 
   public async addMessage(
     author: User,
     data: ChatsModel.DTO.NewMessage,
+    sendToAuthor: boolean = false,
   ): Promise<ChatsModel.Models.IChatMessage> {
     const participant = this.getParticipantByUserId(author.id);
     if (!participant || !participant.isMember()) throw new ForbiddenException();
@@ -327,60 +363,101 @@ class Chat extends CacheObserver<IChat> {
       if (target.friends.isBlocked(author.id))
         throw new ForbiddenException(`You were blocked by ${target.nickname}`);
     }
-    const result = await this.helpers.db.chats.createChatMessage({
-      ...data,
-      authorId: participant.id,
-      chatId: this.id,
-    });
-    await this.helpers.db.chats.updateChatParticipants(
-      this.id,
-      {
-        toReadPings: {
-          increment: 1,
+    const result: ChatsModel.Models.IChatMessage = !this.isTemporary
+      ? await this.helpers.db.chats.createChatMessage({
+          ...data,
+          authorId: participant.id,
+          chatId: this.id,
+        })
+      : ({
+          id: this.lastMessages.length + 1,
+          authorId: participant.id,
+          chatId: this.id,
+          createdAt: Date.now(),
+          message: data.message,
+          type: data.type,
+          meta: data.meta,
+        } satisfies ChatsModel.Models.IChatMessage);
+    !this.isTemporary &&
+      (await this.helpers.db.chats.updateChatParticipants(
+        this.id,
+        {
+          toReadPings: {
+            increment: 1,
+          },
         },
-      },
-      [participant.id],
-    );
+        [participant.id],
+      ));
     this.participants.forEach((p) => {
       if (p.id === participant.id) return;
       p.toReadPings++;
     });
-    console.log(this.get('messages'));
-
     this.set('messages', (prev) => [result, ...prev]);
     if (this.lastMessages.length > ChatsModel.Models.MAX_MESSAGES_PER_CHAT)
       this.set('messages', (prev) =>
         prev.slice(0, ChatsModel.Models.MAX_MESSAGES_PER_CHAT),
       );
-    this.helpers.sseService.emitToTargets<ChatsModel.Sse.NewMessageEvent>(
-      ChatsModel.Sse.Events.NewMessage,
-      author.id,
-      this.sseTargets,
-      result,
-    );
+    if (sendToAuthor)
+      this.helpers.sseService.emitToTargets<ChatsModel.Sse.NewMessageEvent>(
+        ChatsModel.Sse.Events.NewMessage,
+        this.sseTargets,
+        result,
+      );
+    else
+      this.helpers.sseService.emitToTargets<ChatsModel.Sse.NewMessageEvent>(
+        ChatsModel.Sse.Events.NewMessage,
+        author.id,
+        this.sseTargets,
+        result,
+      );
     return result;
   }
 
+  public async addParticipant(user: User): Promise<Participant> {
+    if (this.hasParticipantByUserId(user.id))
+      throw new ForbiddenException('You are already in this chat.');
+    const participantData = await this.helpers.db.chats.createChatParticipant({
+      chatId: this.id,
+      userId: user.id,
+      role: ChatsModel.Models.ChatParticipantRole.Member,
+    });
+    const participant = new Participant(participantData, this);
+    this.helpers.sseService.emitToTargets<ChatsModel.Sse.UpdateParticipantEvent>(
+      ChatsModel.Sse.Events.UpdateParticipant,
+      this.sseTargets,
+      {
+        type: 'add',
+        participantId: participant.id,
+        chatId: this.id,
+        participant: participant.public,
+      },
+    );
+    this.set('participants', (prev) => [...prev, participant]);
+    return participant;
+  }
   public async updateParticipant(
     op: User,
     participantId: number,
-    data: ChatsModel.DTO.UpdateParticipant,
+    data: Partial<ChatsModel.DTO.UpdateParticipant>,
+    member: boolean = true,
   ): Promise<Participant> {
-    const participant = this.getParticipant(participantId, true);
+    const participant = this.getParticipant(participantId, member);
     if (!participant) throw new ForbiddenException();
-    const participantOp = this.getParticipantByUserId(op.id);
+    const participantOp = this.getParticipantByUserId(op.id, member);
     if (!participantOp) throw new ForbiddenException();
-    if (!participantOp.isOP() && participant.userId !== op.id)
+    if (!participantOp.isOperator() && participant.userId !== op.id)
       throw new ForbiddenException();
     const participantData = (Object.keys(data) as (keyof typeof data)[]).reduce(
       (prev, key) => ({ ...prev, [key]: participant.get(key) }),
       {},
     );
     if (isDeepStrictEqual(participantData, data)) return participant;
-    const result = await this.helpers.db.chats.updateChatParticipant(
-      participantId,
-      data,
-    );
+    const result = !this.isTemporary
+      ? await this.helpers.db.chats.updateChatParticipant(participantId, data)
+      : ({
+          ...participant.get(),
+          ...data,
+        } satisfies ChatsModel.Models.IChatParticipant);
     participant.setTo(result);
     this.helpers.sseService.emitToTargets<ChatsModel.Sse.UpdateParticipantEvent>(
       ChatsModel.Sse.Events.UpdateParticipant,
@@ -401,23 +478,26 @@ class Chat extends CacheObserver<IChat> {
     banned: boolean,
   ): Promise<void> {
     const participant = this.getParticipant(participantId, false);
-    console.log(participant);
     if (!participant) throw new NotFoundException();
     if (participant.isBanned() === banned) return;
     const participantOp = this.getParticipantByUserId(op.id);
     if (!participantOp) throw new ForbiddenException();
-    if (!participantOp.isOP())
+    if (!participantOp.isOperator())
       throw new ForbiddenException('Insufficient permissions');
     if (participant.isAdmin() && !participantOp.isOwner())
       throw new ForbiddenException('Insufficient permissions');
-    const result = await this.helpers.db.chats.updateChatParticipant(
-      participantId,
-      {
-        role: banned
-          ? ChatsModel.Models.ChatParticipantRole.Banned
-          : ChatsModel.Models.ChatParticipantRole.Left,
-      },
-    );
+    const result = !this.isTemporary
+      ? await this.helpers.db.chats.updateChatParticipant(participantId, {
+          role: banned
+            ? ChatsModel.Models.ChatParticipantRole.Banned
+            : ChatsModel.Models.ChatParticipantRole.Left,
+        })
+      : ({
+          ...participant.get(),
+          role: banned
+            ? ChatsModel.Models.ChatParticipantRole.Banned
+            : ChatsModel.Models.ChatParticipantRole.Left,
+        } satisfies ChatsModel.Models.IChatParticipant);
     // TODO: notify target that he was banned
     this.helpers.sseService.emitToTargets<ChatsModel.Sse.UpdateParticipantEvent>(
       ChatsModel.Sse.Events.UpdateParticipant,
@@ -452,12 +532,12 @@ class Chat extends CacheObserver<IChat> {
     if (!participantOp) throw new ForbiddenException();
     if (!participantOp.isOwner())
       throw new ForbiddenException('Insufficient permissions');
-    await this.helpers.db.chats.updateChatParticipant(participantOp.id, {
-      role: ChatsModel.Models.ChatParticipantRole.Member,
-    });
-    await this.helpers.db.chats.updateChatParticipant(participantId, {
-      role: ChatsModel.Models.ChatParticipantRole.Owner,
-    });
+    !this.isTemporary &&
+      (await this.helpers.db.chats.transferChatOwnership(
+        this.id,
+        participantOp.id,
+        participantId,
+      ));
     this.helpers.sseService.emitToTargets<ChatsModel.Sse.UpdateParticipantEvent>(
       ChatsModel.Sse.Events.UpdateParticipant,
       this.sseTargets,
@@ -494,19 +574,24 @@ class Chat extends CacheObserver<IChat> {
     if (!participant) throw new NotFoundException();
     const participantOp = this.getParticipantByUserId(op.id);
     if (!participantOp) throw new ForbiddenException();
-    if (!participantOp.isOP())
+    if (!participantOp.isOperator())
       throw new ForbiddenException('Insufficient permissions');
     if (participant.isAdmin() && !participantOp.isOwner())
       throw new ForbiddenException('Insufficient permissions');
-    const result = await this.helpers.db.chats.updateChatParticipant(
-      participantId,
-      {
-        muted: until
-          ? ChatsModel.Models.ChatParticipantMuteType.Until
-          : ChatsModel.Models.ChatParticipantMuteType.Forever,
-        mutedUntil: until ? Date.now() + until : undefined,
-      },
-    );
+    const result = !this.isTemporary
+      ? await this.helpers.db.chats.updateChatParticipant(participantId, {
+          muted: until
+            ? ChatsModel.Models.ChatParticipantMuteType.Until
+            : ChatsModel.Models.ChatParticipantMuteType.Forever,
+          mutedUntil: until ? Date.now() + until : null,
+        })
+      : ({
+          ...participant.get(),
+          muted: until
+            ? ChatsModel.Models.ChatParticipantMuteType.Until
+            : ChatsModel.Models.ChatParticipantMuteType.Forever,
+          mutedUntil: until ? Date.now() + until : null,
+        } satisfies ChatsModel.Models.IChatParticipant);
     participant.setTo(result);
     this.helpers.sseService.emitToTargets<ChatsModel.Sse.UpdateParticipantEvent>(
       ChatsModel.Sse.Events.UpdateParticipant,
@@ -527,7 +612,7 @@ class Chat extends CacheObserver<IChat> {
     if (!participant) throw new ForbiddenException();
     if (!participant.isOwner())
       throw new ForbiddenException('Insufficient permissions');
-    await this.helpers.db.chats.deleteChat(this.id);
+    !this.isTemporary && (await this.helpers.db.chats.deleteChat(this.id));
     this.participants.forEach((p) =>
       this.helpers.sseService.emitToTargets<ChatsModel.Sse.UpdateParticipantEvent>(
         ChatsModel.Sse.Events.UpdateParticipant,
@@ -539,6 +624,110 @@ class Chat extends CacheObserver<IChat> {
           banned: false,
         },
       ),
+    );
+  }
+
+  public async sendInviteToTargets(
+    op: User,
+    _targets: ChatsModel.DTO.SendInviteToTarget[],
+  ): Promise<void> {
+    if (!this.isGroup) throw new ForbiddenException();
+    const participant = this.getParticipantByUserId(op.id);
+    if (!participant) throw new ForbiddenException();
+    if (!this.isPublic && !participant.isOperator())
+      throw new ForbiddenException('Insufficient permissions');
+    const targets: (User | Chat | null)[] = await Promise.all(
+      _targets.map(async (t) => {
+        switch (t.type) {
+          case 'chat':
+            return await this.service.get(t.id);
+          case 'user':
+            return await this.helpers.usersService.get(t.id);
+          default:
+            return null;
+        }
+      }),
+    );
+    if (targets.includes(null)) throw new ForbiddenException('Invalid targets');
+    try {
+      const chats = await Promise.all(
+        targets.map(async (t) => {
+          if (t instanceof Chat) return t;
+          const user = t as User;
+          const [, chat] = await this.service.checkOrCreateDirectChat(op, user);
+          return chat as Chat;
+        }),
+      );
+      await Promise.all(
+        chats.map((chat) => {
+          return chat.addMessage(
+            op,
+            {
+              message: `Invite to ${this.name}`,
+              type: ChatsModel.Models.ChatMessageType.Embed,
+              meta: {
+                type: ChatsModel.Models.Embeds.Type.ChatInvite,
+                chatId: this.id,
+                inviteNonce: Math.floor(Math.random() * 1000000).toString(),
+              },
+            },
+            true,
+          );
+        }),
+      );
+    } catch (e) {
+      if (e instanceof HttpException) throw e;
+      throw new InternalServerErrorException('Failed to send invites');
+    }
+  }
+  public async setTyping(user: User, state: boolean): Promise<void> {
+    const participant = this.getParticipantByUserId(user.id);
+    if (!participant) throw new ForbiddenException();
+    if (!participant.isMember()) throw new ForbiddenException();
+    participant.typing = state;
+    this.helpers.sseService.emitToTargets<ChatsModel.Sse.UpdateParticipantEvent>(
+      ChatsModel.Sse.Events.UpdateParticipant,
+      user.id,
+      this.sseTargets,
+      {
+        type: 'update',
+        participantId: participant.id,
+        chatId: this.id,
+        participant: {
+          typing: state,
+        },
+      },
+    );
+  }
+
+  public async updateInfo(data: ChatsModel.DTO.DB.UpdateChatInfo) {
+    if (data.authorizationData?.password)
+      data.authorizationData.password = hash(
+        data.authorizationData.password,
+      ).toString();
+    const result = !this.isTemporary
+      ? await this.helpers.db.chats.updateChatInfo(this.id, data)
+      : ({
+          ...this.public,
+          ...data,
+        } satisfies ChatsModel.Models.IChatInfo);
+    if (!result)
+      throw new InternalServerErrorException('Failed to update chat info');
+    for (const key of Object.keys(
+      data,
+    ) as (keyof ChatsModel.DTO.DB.UpdateChatInfo)[])
+      this.set(key, result[key] as any);
+    for (const key of Object.keys(result) as (keyof typeof result)[]) {
+      if (data[key as keyof typeof data] === undefined) delete result[key];
+    }
+    delete result['authorizationData'];
+    this.helpers.sseService.emitToTargets<ChatsModel.Sse.UpdateChatInfoEvent>(
+      ChatsModel.Sse.Events.UpdateChatInfo,
+      this.sseTargets,
+      {
+        chatId: this.id,
+        ...(result as ChatsModel.DTO.DB.UpdateChatInfo),
+      },
     );
   }
 }

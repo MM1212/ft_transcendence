@@ -127,18 +127,20 @@ export const lobbyAppAtom = atom<Pixi.Application | null>({
     ({ getPromise, onSet }) => {
       onSet(async (app) => {
         if (!app || app instanceof DefaultValue) return;
-        const tick = async (delta: number) => {
+        /* const tick = async (delta: number) => {
           const players = await getPromise(lobbyPlayersAtom);
 
           for (const player of players) {
             if (!player.layers?.container) continue;
-            player.transform.position.x += player.transform.direction.x * player.transform.speed * delta;
-            player.transform.position.y += player.transform.direction.y * player.transform.speed * delta;
+            player.transform.position.x +=
+              player.transform.direction.x * player.transform.speed * delta;
+            player.transform.position.y +=
+              player.transform.direction.y * player.transform.speed * delta;
 
             player.layers.container.x = player.transform.position.x;
             player.layers.container.y = player.transform.position.y;
           }
-        };
+        }; */
 
         const onMouseMove = async (event: Pixi.FederatedMouseEvent) => {
           const hasInput = await getPromise(enablePlayerInput);
@@ -197,7 +199,7 @@ export const lobbyAppAtom = atom<Pixi.Application | null>({
           });
         };
         // app.ticker.add(tick);
-        app.stage.interactive = true;
+        app.stage.eventMode = 'static';
         app.stage.onmousemove = onMouseMove;
         const onResize = () => {
           if (!app.stage) return;

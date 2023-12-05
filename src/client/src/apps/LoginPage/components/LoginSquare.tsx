@@ -1,5 +1,5 @@
+import { UserAvatar } from '@components/AvatarWithStatus';
 import Link from '@components/Link';
-import Logo from '@apps/Profile/components/Logo';
 import Logo42Icon from '@components/customIcons/Logo42';
 import { buildTunnelEndpoint } from '@hooks/tunnel';
 import { useSession, useSessionActions } from '@hooks/user';
@@ -23,7 +23,7 @@ function LoggedInSquare({ user }: { user: UsersModel.Models.IUserInfo }) {
       <List>
         <ListItem>
           <ListItemDecorator>
-            <Logo />
+            <UserAvatar src={user.avatar} />
           </ListItemDecorator>
           <ListItemContent>
             <Typography level="title-sm">{user.nickname}</Typography>

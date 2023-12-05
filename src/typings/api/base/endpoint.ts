@@ -14,7 +14,7 @@ export interface Endpoint<
   T extends string,
   R = unknown,
   D = unknown,
-  P extends Record<string, unknown> = Record<string, unknown>
+  P extends unknown = unknown
 > {
   method: M;
   type: T;

@@ -16,7 +16,6 @@ import {
   MenuButton,
 } from '@mui/joy';
 import ChatsModel from '@typings/models/chat';
-import UsersModel from '@typings/models/users';
 import React from 'react';
 import { ChatMemberProps } from './ChatMembers';
 import TimelapseIcon from '@components/icons/TimelapseIcon';
@@ -25,21 +24,18 @@ import HandExtendedIcon from '@components/icons/HandExtendedIcon';
 import useChatManageActions from '@apps/Chat/hooks/useChatManageActions';
 import ShieldIcon from '@components/icons/ShieldIcon';
 import KarateIcon from '@components/icons/KarateIcon';
+import { useRecoilCallback } from 'recoil';
+import { usersAtom } from '@hooks/user';
 
 const Roles = ChatsModel.Models.ChatParticipantRole;
 
 interface Props
   extends Omit<ChatMemberProps, 'manage' | 'isSelf' | 'selfRole'> {
   role: ChatsModel.Models.ChatParticipantRole;
-  closeAndRun: (callback: () => any) => () => void;
+  closeAndRun: (callback: () => any, prev?: boolean) => () => void;
 }
 
-function AdminOptions({
-  user,
-  participant,
-  role,
-  closeAndRun,
-}: Props): JSX.Element {
+function AdminOptions({ participant, role, closeAndRun }: Props): JSX.Element {
   const { useIsParticipantMutedComputed } = useSelectedChat();
   const isMutedData = useIsParticipantMutedComputed(participant.id);
   const isMember = participant.role === Roles.Member;
@@ -57,6 +53,17 @@ function AdminOptions({
     transferOwnership,
     openMuteModal,
   } = useChatManageActions();
+
+  const chooseMuteOption = useRecoilCallback(
+    (ctx) => async () => {
+      if (isMutedData.is) return await unmute(participant.id);
+      const user = await ctx.snapshot.getPromise(usersAtom(participant.userId));
+      if (!user) return;
+      openMuteModal(user, participant.id);
+    },
+    [isMutedData.is, openMuteModal, participant.id, participant.userId, unmute]
+  );
+
   return React.useMemo(
     () => (
       <>
@@ -73,7 +80,10 @@ function AdminOptions({
           <MenuOption
             icon={HandExtendedIcon}
             color="warning"
-            onClick={closeAndRun(() => transferOwnership(participant.id))}
+            onClick={closeAndRun(
+              () => transferOwnership(participant.id),
+              false
+            )}
           >
             Transfer Ownership
           </MenuOption>
@@ -85,11 +95,7 @@ function AdminOptions({
                 <MenuOption
                   icon={TimelapseIcon}
                   color="danger"
-                  onClick={() =>
-                    isMutedData.is
-                      ? unmute(participant.id)
-                      : openMuteModal(user, participant.id)
-                  }
+                  onClick={chooseMuteOption}
                 >
                   {isMutedData.is ? 'Unmute' : 'Mute'}
                 </MenuOption>
@@ -123,13 +129,11 @@ function AdminOptions({
       isMember,
       isBanned,
       left,
+      chooseMuteOption,
       isMutedData.is,
       toggleAdmin,
       participant.id,
       transferOwnership,
-      unmute,
-      openMuteModal,
-      user,
       kick,
       unban,
       ban,
@@ -140,16 +144,14 @@ function AdminOptions({
 export default function ChatManageMember({
   disabled = false,
   participant,
-  user,
   role,
   closeAndRun,
   ...props
 }: {
   disabled?: boolean;
   participant: ChatsModel.Models.IChatParticipant;
-  user: UsersModel.Models.IUserInfo;
   role: ChatsModel.Models.ChatParticipantRole;
-  closeAndRun: (callback: () => any) => () => void;
+  closeAndRun: (callback: () => any, prev?: boolean) => () => void;
 } & IconButtonProps): JSX.Element {
   const {
     useIsBlocked,
@@ -158,7 +160,7 @@ export default function ChatManageMember({
     useIsFriend,
     goToMessages,
     goToProfile,
-  } = useFriend(user.id);
+  } = useFriend(participant.userId);
   const isBlocked = useIsBlocked();
   const isFriend = useIsFriend();
   return React.useMemo(
@@ -202,7 +204,6 @@ export default function ChatManageMember({
               <AdminOptions
                 closeAndRun={closeAndRun}
                 participant={participant}
-                user={user}
                 role={role}
               />
             </>
@@ -222,7 +223,6 @@ export default function ChatManageMember({
       block,
       role,
       participant,
-      user,
     ]
   );
 }

@@ -5,9 +5,11 @@ import React from 'react';
 import { useRecoilValue } from 'recoil';
 import { eventCacheAtom } from './store';
 import { mutate } from 'swr';
+import { useIsLoggedIn } from '@hooks/user';
 
 const useSseService = () => {
   const eventCache = useRecoilValue(eventCacheAtom);
+  const isLoggedIn = useIsLoggedIn();
 
   React.useEffect(() => {
     const eventSource = new EventSource(
@@ -37,7 +39,7 @@ const useSseService = () => {
       console.log('SSE connection closed');
       eventSource.close();
     };
-  }, [eventCache]);
+  }, [eventCache, isLoggedIn]);
 };
 
 export default useSseService;

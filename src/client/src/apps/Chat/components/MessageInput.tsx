@@ -1,7 +1,7 @@
 import * as React from 'react';
 import FormControl from '@mui/joy/FormControl';
 import Textarea from '@mui/joy/Textarea';
-import { IconButton, Stack } from '@mui/joy';
+import { FormLabel, IconButton, Stack, Typography } from '@mui/joy';
 import SendIcon from '@components/icons/SendIcon';
 import { useRecoilCallback, useRecoilState } from 'recoil';
 import chatsState from '@/apps/Chat/state';
@@ -13,10 +13,64 @@ import moment from 'moment';
 import TimelapseIcon from '@components/icons/TimelapseIcon';
 import MessageInputBlocked from './MessageInputBlocked';
 import { urlRegex } from './NewChat';
+import { useDebounce, useThrottle } from '@hooks/lodash';
+
+function _ParticipantsTyping({ id }: { id: number; selfId: number }) {
+  const participantNames = useChat(id).useParticipantNamesTyping();
+
+  const [threeDots, setThreeDots] = React.useState('');
+
+  React.useEffect(() => {
+    if (participantNames.length === 0) return;
+    const interval = setInterval(() => {
+      setThreeDots((prev) => {
+        if (prev.length === 3) return '';
+        return prev + '.';
+      });
+    }, 500);
+    return () => clearInterval(interval);
+  }, [participantNames]);
+
+  if (participantNames.length === 0) return null;
+  return (
+    <Typography level="body-xs" color="neutral" position="absolute" mt={0.5} ml={0.5}>
+      {participantNames}
+      {threeDots}
+    </Typography>
+  );
+}
+
+const ParticipantsTyping = React.memo(_ParticipantsTyping);
 
 function MessageInput({ id }: { id: number }) {
   const [input, setInput] = useRecoilState(chatsState.chatsInput(id));
   const formRef = React.useRef<HTMLFormElement>(null);
+
+  const setIsTyping = React.useCallback(
+    async (state: boolean) => {
+      try {
+        await tunnel.put(
+          ChatsModel.Endpoints.Targets.SetTyping,
+          {
+            state,
+          },
+          {
+            chatId: id,
+          }
+        );
+      } catch (e) {
+        console.error(e);
+      }
+    },
+    [id]
+  );
+  const updateToTyping = useThrottle(() => setIsTyping(true), 3000, [
+    setIsTyping,
+  ]);
+  const clearIsTyping = useDebounce(() => setIsTyping(false), 500, [
+    setIsTyping,
+  ]);
+
   const submit = useRecoilCallback(
     (ctx) => async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
@@ -61,6 +115,7 @@ function MessageInput({ id }: { id: number }) {
           ...prev,
         ]);
         setInput('');
+        clearIsTyping();
         const resp = await tunnel.rawPut(
           ChatsModel.Endpoints.Targets.CreateMessage,
           messagePayload,
@@ -84,7 +139,7 @@ function MessageInput({ id }: { id: number }) {
         notifications.error('Could not send message', (e as Error).message);
       }
     },
-    [id, input, setInput]
+    [clearIsTyping, id, input, setInput]
   );
   const inputRef = React.useRef<HTMLTextAreaElement>(null);
   React.useEffect(() => {
@@ -96,6 +151,7 @@ function MessageInput({ id }: { id: number }) {
   const self = useChat(id).useSelfParticipant();
 
   const mutedData = useChat(id).useIsSelfMutedComputed();
+
   return (
     <Stack
       sx={{ px: 2, pb: 3 }}
@@ -106,12 +162,16 @@ function MessageInput({ id }: { id: number }) {
       component="form"
       onSubmit={submit}
       ref={formRef}
+      position="relative"
     >
       <FormControl
         style={{
           flexGrow: 1,
         }}
       >
+        <FormLabel>
+          <ParticipantsTyping id={id} selfId={self.id} />
+        </FormLabel>
         <Textarea
           placeholder={
             !mutedData.is
@@ -123,7 +183,11 @@ function MessageInput({ id }: { id: number }) {
                 }`
           }
           disabled={mutedData.is}
-          onChange={(e) => setInput(e.target.value)}
+          onChange={(e) => {
+            setInput(e.target.value);
+            if (e.target.value.trim().length === 0) clearIsTyping();
+            else updateToTyping();
+          }}
           value={input}
           minRows={1}
           maxRows={10}
@@ -144,6 +208,7 @@ function MessageInput({ id }: { id: number }) {
             }
           }}
           sx={{
+            mt: 1,
             '& textarea:first-of-type': {},
             flexGrow: 1,
           }}

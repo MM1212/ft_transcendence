@@ -30,14 +30,18 @@ export class Users {
     const formatted: UsersModel.Models.IUser = {
       ...user,
     } as unknown as UsersModel.Models.IUser;
+    formatted.tfa = {
+      enabled: user.tfaEnabled,
+      secret: user.tfaSecret ?? undefined,
+    };
+    delete (formatted as any).tfaEnabled;
+    delete (formatted as any).tfaSecret;
     formatted.friends = [
       ...user.friends.map((friend) => friend.id),
       ...user.friendOf.map((friend) => friend.id),
     ];
     delete (formatted as any).friendOf;
-    formatted.blocked = [
-      ...user.blocked.map((blocked) => blocked.id),
-    ];
+    formatted.blocked = [...user.blocked.map((blocked) => blocked.id)];
     delete (formatted as any).blockedBy;
     formatted.chats = user.chats.map((chat) => chat.id);
     formatted.createdAt = user.createdAt.getTime();

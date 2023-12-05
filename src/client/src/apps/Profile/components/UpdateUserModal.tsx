@@ -29,6 +29,7 @@ import { UserAvatar } from '../../../components/AvatarWithStatus';
 import ProfilePictureModal from './ProfilePictureModal';
 import { useUpdateUserModal } from '../hooks/useUpdateUserModal';
 import { useSelectUserAvatarActions } from '../hooks/useUpdateAvatarModal';
+import UpdateUserTFA from './UpdateUserTFA';
 
 type IUser = UsersModel.Models.IUserInfo;
 type State = Pick<IUser, 'avatar' | 'nickname' | 'status'>;
@@ -108,7 +109,7 @@ export default function UpdateUserModal(): JSX.Element {
         }
       );
       close();
-      notifications.success('User updated!');
+      notifications.success('Profile updated!');
     } catch (error) {
       notifications.error('Could not update user', (error as Error).message);
     } finally {
@@ -129,15 +130,17 @@ export default function UpdateUserModal(): JSX.Element {
   }, [input, user]);
 
   const { open: openAvatarModal } = useSelectUserAvatarActions();
-
+  if (!user) return <></>;
   return (
     <>
       <Modal open={isOpened} onClose={close}>
         <ModalDialog>
           <DialogTitle>{header}</DialogTitle>
-          <DialogContent style={{
-            overflow: 'inherit'
-          }}>
+          <DialogContent
+            style={{
+              overflow: 'inherit',
+            }}
+          >
             {body}
             <form
               onSubmit={(event: React.FormEvent<HTMLFormElement>) => {
@@ -145,7 +148,7 @@ export default function UpdateUserModal(): JSX.Element {
                 submitProperties();
               }}
             >
-              <Stack spacing={1} >
+              <Stack spacing={1} alignItems="flex-start">
                 <FormControl>
                   <FormLabel>Nickname</FormLabel>
                   <Input
@@ -169,10 +172,14 @@ export default function UpdateUserModal(): JSX.Element {
                       }
                       color="neutral"
                       sx={{
-                        px: 1
+                        px: 1,
                       }}
                       startDecorator={
-                        <UserAvatar src={input.avatar} size="sm" variant="outlined" />
+                        <UserAvatar
+                          src={input.avatar}
+                          size="sm"
+                          variant="outlined"
+                        />
                       }
                     >
                       Select Avatar
@@ -188,9 +195,6 @@ export default function UpdateUserModal(): JSX.Element {
                         value ?? UsersModel.Models.Status.Offline
                       )
                     }
-                    sx={{
-                      width: '50%',
-                    }}
                   >
                     {statusOptions.map(({ color, label, value }) => (
                       <Option
@@ -213,6 +217,7 @@ export default function UpdateUserModal(): JSX.Element {
                     ))}
                   </Select>
                 </FormControl>
+                <UpdateUserTFA {...user} />
               </Stack>
             </form>
           </DialogContent>

@@ -8,8 +8,8 @@ class SseService implements ISseService {
   get local(): EventEmitter2 {
     return this.emitter;
   }
-  emitWithTarget<T extends SSE.Models.Event, E extends SSE.Models.Events = SSE.Models.Events>(
-    event: E,
+  emitWithTarget<T extends SSE.Models.Event>(
+    event: T['type'],
     source: number,
     data: T['data'],
   ): void {

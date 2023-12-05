@@ -16,6 +16,7 @@ import LobbyModel from '@typings/models/lobby';
 import Vector2D from '@shared/Vector/Vector2D';
 import fs from 'fs';
 import { PNG } from 'pngjs';
+import { Logger } from '@nestjs/common';
 
 @WebSocketGateway({
   namespace: 'api/lobby',
@@ -35,6 +36,7 @@ export class LobbyGateway
   private readonly server: Server;
   readonly players: Lobbies.IPlayer[] = [];
   private readonly walkableAreaMaskBuffer: PNG;
+  private readonly logger = new Logger(LobbyGateway.name);
 
   constructor(private readonly rootService: AppService) {
     const stream = fs.createReadStream('dist/assets/lobby/mask.png');
@@ -58,13 +60,7 @@ export class LobbyGateway
       Math.floor(position.x),
       Math.floor(position.y),
     );
-    const r = (pixel >> 24) & 0xff;
-    const g = (pixel >> 16) & 0xff;
-    const b = (pixel >> 8) & 0xff;
     const a = pixel & 0xff;
-    console.log(
-      `#${[a, r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('')}`,
-    );
     return a !== 0;
   }
   afterInit() {
@@ -88,7 +84,7 @@ export class LobbyGateway
     const playerRef = this.players.find((player) => player.userId === user.id);
     if (playerRef) {
       playerRef.connections.push(client);
-      console.log(
+      this.logger.verbose(
         `LobbyGatewa new client connection ${user.nickname}${user.id}, at ${playerRef.connections.length} connections.`,
       );
     } else {
@@ -105,7 +101,9 @@ export class LobbyGateway
         currentAnimation: 'idle/down',
         connections: [client],
       });
-      console.log(`LobbyGateway client connected ${user.nickname}${user.id}`);
+      this.logger.verbose(
+        `LobbyGateway client connected ${user.nickname} ${user.id}`,
+      );
     }
     client.emit(Lobbies.Packets.Events.LoadData, {
       players: this.players.map((player) => ({ ...player, connections: [] })),
@@ -139,15 +137,9 @@ export class LobbyGateway
         });
       });
     }
-    console.log('LobbyGateway client disconnected');
+    this.logger.log('LobbyGateway client disconnected');
   }
 
-  @SubscribeMessage('message')
-  handleMessage(@MessageBody() data: string): void {
-    console.log('LobbyGateway message received', data);
-
-    this.server.emit('new-message', data);
-  }
   @SubscribeMessage('update-velocity')
   updatePlayerVelocity(
     @MessageBody()
@@ -297,7 +289,6 @@ export class LobbyGateway
     const playerRef = this.players.find((player) => player.userId === user.id);
     if (!playerRef) return client.disconnect(true), void 0;
     playerRef.currentAnimation = data.anim as IPenguinBaseAnimationsTypes;
-    console.log('lobby:update-animation', data.anim, playerRef.userId);
 
     this.players.forEach((player) => {
       player.connections.forEach((con: Socket) => {

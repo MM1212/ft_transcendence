@@ -1,7 +1,15 @@
-import { useRecoilTransaction_UNSTABLE, useRecoilValue } from 'recoil';
+import {
+  useRecoilCallback,
+  useRecoilTransaction_UNSTABLE,
+  useRecoilValue,
+} from 'recoil';
 import chatsState from '../state';
 import ChatsModel from '@typings/models/chat';
 import { navigate } from 'wouter/use-location';
+import tunnel from '@lib/tunnel';
+import { useChatPasswordInputModalActions } from '../modals/ChatPasswordInputModal/hooks/useChatPasswordInputModal';
+import notifications from '@lib/notifications/hooks';
+import { EndpointData } from '@typings/api';
 
 const useChat = (chatId: number) => {
   const useInfo = () => useRecoilValue(chatsState.chatInfo(chatId));
@@ -24,7 +32,9 @@ const useChat = (chatId: number) => {
   const useIsSelected = () => useRecoilValue(chatsState.isChatSelected(chatId));
 
   const goTo = useRecoilTransaction_UNSTABLE(
-    (ctx) => () => {
+    (ctx) => async () => {
+      const selectedChatId = ctx.get(chatsState.selectedChatId);
+      if (selectedChatId === chatId) return;
       ctx.set(chatsState.selectedChatId, chatId);
       navigate(`/messages/${chatId}`);
     },
@@ -45,7 +55,6 @@ const useChat = (chatId: number) => {
       return { is: false };
     if (participant.muted === ChatsModel.Models.ChatParticipantMuteType.Forever)
       return { is: true, type: 'permanent' };
-    console.log(pId, participant.userId, Date.now(), participant.mutedUntil);
 
     if (Date.now() >= participant.mutedUntil!) return { is: false };
     return { is: true, type: 'temporary', until: participant.mutedUntil! };
@@ -54,6 +63,63 @@ const useChat = (chatId: number) => {
     const self = useSelfParticipant();
     return useIsParticipantMutedComputed(self.id);
   };
+  const useParticipantNamesTyping = () =>
+    useRecoilValue(chatsState.participantsWithNameTyping(chatId));
+
+  const { prompt: promptChatPassword } = useChatPasswordInputModalActions();
+  const attemptToJoin = useRecoilCallback(
+    (ctx) =>
+      async (
+        messageData?: EndpointData<ChatsModel.Endpoints.JoinChat>['messageData']
+      ) => {
+        try {
+          const chatInfo = await tunnel.get(
+            ChatsModel.Endpoints.Targets.GetChatInfo,
+            { chatId }
+          );
+          console.log(chatInfo);
+
+          if (chatInfo.type !== ChatsModel.Models.ChatType.Group)
+            throw new Error('Chat is not a group.');
+          let passwordPrompt: string | undefined;
+          switch (chatInfo.authorization) {
+            case ChatsModel.Models.ChatAccess.Protected: {
+              passwordPrompt = await promptChatPassword({
+                chatName: chatInfo.name,
+              });
+              if (!passwordPrompt.trim().length) return;
+              break;
+            }
+          }
+          const { isActive } = ctx.snapshot.getInfo_UNSTABLE(
+            chatsState.chat(chatId)
+          );
+          const chat = await tunnel.post(
+            ChatsModel.Endpoints.Targets.JoinChat,
+            {
+              password: passwordPrompt,
+              messageData,
+              returnChatInfo: isActive,
+            },
+            {
+              chatId,
+            }
+          );
+          if (chat) {
+            ctx.set(chatsState.chat(chatId), {
+              ...chat,
+              authorizationData: null,
+            });
+          }
+          ctx.set(chatsState.chats, (prev) => [...prev, chatId]);
+          navigate(`/messages/${chatId}`);
+          notifications.success('Joined chat', `You joined ${chatInfo.name}`);
+        } catch (e) {
+          notifications.error('Failed to join chat', (e as Error).message);
+        }
+      },
+    [chatId, promptChatPassword]
+  );
 
   return {
     id: chatId,
@@ -75,6 +141,8 @@ const useChat = (chatId: number) => {
     useIsParticipantMutedComputed,
     useIsSelfMutedComputed,
     goTo,
+    useParticipantNamesTyping,
+    attemptToJoin,
   };
 };
 

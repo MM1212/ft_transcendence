@@ -41,8 +41,8 @@ function ChatMessagesImpl({ id }: { id: number }) {
 
   const next = useRecoilCallback(
     (ctx) => async () => {
-      const timestamp = Date.now();
-      console.log(`[${timestamp}] Fetching messages for ${id}`);
+      // const timestamp = Date.now();
+      // console.log(`[${timestamp}] Fetching messages for ${id}`);
 
       const chats = await ctx.snapshot.getPromise(chatsState.chats);
       if (!chats.includes(id)) return;
@@ -54,9 +54,9 @@ function ChatMessagesImpl({ id }: { id: number }) {
         : -1;
       if (isNaN(parseInt(lastMessageId as unknown as string)))
         lastMessageId = -1;
-      console.log(
+      /*  console.log(
         `[${timestamp}] Fetching messages from ${lastMessageId} for ${id}`
-      );
+      ); */
 
       try {
         const messages = await tunnel.get(
@@ -66,13 +66,13 @@ function ChatMessagesImpl({ id }: { id: number }) {
             cursor: lastMessageId,
           }
         );
-        console.log(
+        /* console.log(
           `[${timestamp}] Loaded ${
             messages.length
           } from ${lastMessageId} as cursor to ${
             messages.length ? messages[messages.length - 1]?.id ?? -1 : -1
           }`
-        );
+        ); */
         ctx.set(chatsState.messages(id), (prev) => [...prev, ...messages]);
         if (messages.length < ChatsModel.Models.MAX_MESSAGES_PER_CHAT)
           return setHasMore(false);

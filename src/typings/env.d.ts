@@ -12,6 +12,8 @@ interface ImportMetaEnv {
   readonly BACKEND_42_REDIRECT_URI: string;
   readonly BACKEND_42_LOGIN_URI: string;
   readonly BACKEND_42_REQUEST_TOKEN_URI: string;
+  readonly BACKEND_TFA_ISSUER: string;
+  readonly BACKEND_TFA_SECRET_LENGTH: number;
 
   readonly FRONTEND_PORT: number;
   readonly FRONTEND_HOST: string;

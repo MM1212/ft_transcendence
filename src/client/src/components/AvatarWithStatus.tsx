@@ -1,10 +1,10 @@
 import React from 'react';
-import Badge, { BadgeProps } from '@mui/joy/Badge';
+import Badge, { BadgeProps, badgeClasses } from '@mui/joy/Badge';
 import Avatar, { AvatarProps } from '@mui/joy/Avatar';
 import UsersModel from '@typings/models/users';
 import { userStatusToColor } from '@utils/userStatus';
 import TimelapseIcon from './icons/TimelapseIcon';
-import { Tooltip } from '@mui/joy';
+import { PaletteBackground, Tooltip } from '@mui/joy';
 import { computeUserAvatar } from '@utils/computeAvatar';
 
 type AvatarWithStatusProps = AvatarProps & {
@@ -13,27 +13,39 @@ type AvatarWithStatusProps = AvatarProps & {
   hide?: boolean;
   badgeProps?: BadgeProps;
   muted?: boolean;
+  background?: keyof PaletteBackground;
 };
 
-export function UserAvatar({ src, ...rest }: AvatarProps) {
+export const UserAvatar: React.FC<AvatarProps> = React.forwardRef<
+  HTMLDivElement,
+  AvatarProps
+>(({ src, ...rest }: AvatarProps, ref) => {
   return (
     <Avatar
       size="sm"
       src={src ? computeUserAvatar(src) : undefined}
       {...rest}
+      ref={ref}
     />
   );
-}
+});
 
-export default function AvatarWithStatus({
-  status = UsersModel.Models.Status.Offline,
-  inset = '14%',
-  hide = false,
-  muted = false,
-  src,
-  badgeProps,
-  ...rest
-}: AvatarWithStatusProps) {
+const AvatarWithStatus = React.forwardRef<
+  HTMLDivElement,
+  AvatarWithStatusProps
+>(function AvatarWithStatus(
+  {
+    status = UsersModel.Models.Status.Offline,
+    inset = '14%',
+    hide = false,
+    muted = false,
+    src,
+    badgeProps,
+    background = 'surface',
+    ...rest
+  }: AvatarWithStatusProps,
+  ref
+) {
   const color = React.useMemo(() => userStatusToColor(status), [status]);
   return (
     <div
@@ -41,19 +53,14 @@ export default function AvatarWithStatus({
         position: 'relative',
         visibility: hide ? 'hidden' : 'visible',
       }}
+      ref={ref}
     >
       <Badge
-        slotProps={{
-          badge: {
-            sx: {
-              bgcolor: muted
-                ? 'danger.400'
-                : (theme) => theme.resolveVar(color),
-            },
-          },
-        }}
-        variant="solid"
+        variant={
+          status === UsersModel.Models.Status.Offline ? 'outlined' : 'solid'
+        }
         size="sm"
+        color={muted ? 'danger' : undefined}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
         badgeInset={inset}
         badgeContent={
@@ -63,6 +70,18 @@ export default function AvatarWithStatus({
             </Tooltip>
           ) : undefined
         }
+        sx={{
+          [`--Badge-ringColor`]: (theme) =>
+            theme.getCssVar(`palette-background-${background}`),
+          [`& .${badgeClasses.badge}`]: {
+            ['--variant-borderWidth']: (theme) => theme.spacing(0.25),
+            borderColor: (theme) => theme.getCssVar(color),
+            ...(status !== UsersModel.Models.Status.Offline &&
+              !muted && {
+                bgcolor: (theme) => theme.getCssVar(color),
+              }),
+          },
+        }}
         {...badgeProps}
       >
         <Avatar
@@ -73,4 +92,6 @@ export default function AvatarWithStatus({
       </Badge>
     </div>
   );
-}
+});
+
+export default AvatarWithStatus;

@@ -6,6 +6,8 @@ import {
   InternalServerErrorException,
   NotFoundException,
   Param,
+  ParseArrayPipe,
+  ParseBoolPipe,
   ParseIntPipe,
   Patch,
   Post,
@@ -19,7 +21,7 @@ import HttpCtx from '@/helpers/decorators/httpCtx';
 import { HTTPContext } from '@typings/http';
 import ChatCtx from './decorators/Chat.pipe';
 import Chat from './chat';
-import { InternalEndpointResponse } from '@typings/api';
+import { EndpointData, InternalEndpointResponse } from '@typings/api';
 import { ChatAuth, ChatOPAuth } from './decorators/Role.guard';
 import UserCtx from '../users/decorators/User.pipe';
 import User from '../users/user';
@@ -45,6 +47,13 @@ export class ChatsController {
     @ChatCtx() chat: Chat,
   ): Promise<InternalEndpointResponse<ChatsModel.Endpoints.GetChat>> {
     return chat.display;
+  }
+
+  @Get(Targets.GetChatInfo)
+  async getInfo(
+    @ChatCtx() chat: Chat,
+  ): Promise<InternalEndpointResponse<ChatsModel.Endpoints.GetChatInfo>> {
+    return chat.public;
   }
 
   @Get(Targets.GetChatMessages)
@@ -91,7 +100,7 @@ export class ChatsController {
   async getPublicChats(): Promise<
     InternalEndpointResponse<ChatsModel.Endpoints.GetPublicChats>
   > {
-    return await this.service.publics;
+    return await this.service.getPublicChats();
   }
 
   @Put(Targets.CreateChat)
@@ -113,16 +122,14 @@ export class ChatsController {
     return await chat.addMessage(user, data);
   }
 
-  // @Patch(Targets.UpdateChatInfo)
-  // @ChatOPAuth()
-  // async updateChatInfo(
-  //   @ChatCtx() chat: Chat,
-  //   @Body() data: ChatsModel.DTO.DB.UpdateChatInfo,
-  // ): Promise<InternalEndpointResponse<ChatsModel.Endpoints.UpdateChatInfo>> {
-  //   const [ok, resp] = await chat.updateInfo(data);
-  //   if (!ok) return buildErrorResponse(resp);
-  //   return (resp);
-  // }
+  @Patch(Targets.UpdateChatInfo)
+  @ChatOPAuth()
+  async updateChatInfo(
+    @ChatCtx() chat: Chat,
+    @Body() data: ChatsModel.DTO.DB.UpdateChatInfo,
+  ): Promise<InternalEndpointResponse<ChatsModel.Endpoints.UpdateChatInfo>> {
+    await chat.updateInfo(data);
+  }
 
   @Patch(Targets.UpdateParticipant)
   @ChatAuth()
@@ -235,6 +242,43 @@ export class ChatsController {
   ): Promise<InternalEndpointResponse<ChatsModel.Endpoints.DeleteChat>> {
     await this.service.nukeChat(chat.id, op);
   }
+
+  @Post(Targets.SendInviteToTargets)
+  @ChatAuth()
+  async sendInviteToTargets(
+    @ChatCtx() chat: Chat,
+    @Body(new ParseArrayPipe({ errorHttpStatusCode: 400 }))
+    targets: ChatsModel.DTO.SendInviteToTarget[],
+    @HttpCtx() { user: op }: HTTPContext<true>,
+  ): Promise<
+    InternalEndpointResponse<ChatsModel.Endpoints.SendInviteToTargets>
+  > {
+    await chat.sendInviteToTargets(op, targets);
+  }
+
+  @Put(Targets.SetTyping)
+  @ChatAuth()
+  async setTyping(
+    @ChatCtx() chat: Chat,
+    @Body(
+      'state',
+      new ParseBoolPipe({ errorHttpStatusCode: 400, optional: true }),
+    )
+    state: boolean = true,
+    @HttpCtx() { user }: HTTPContext<true>,
+  ): Promise<InternalEndpointResponse<ChatsModel.Endpoints.SetTyping>> {
+    await chat.setTyping(user, state);
+  }
+
+  @Post(Targets.JoinChat)
+  async joinChat(
+    @ChatCtx() chat: Chat,
+    @HttpCtx() { user }: HTTPContext<true>,
+    @Body() data: EndpointData<ChatsModel.Endpoints.JoinChat> = {},
+  ): Promise<InternalEndpointResponse<ChatsModel.Endpoints.JoinChat>> {
+    await this.service.joinChat(chat.id, user, data);
+    if (data.returnChatInfo) return chat.display;
+  }
 }
 // @Patch(Targets.UpdateMessage)
 // @ChatAuth()
@@ -247,16 +291,6 @@ export class ChatsController {
 //   const [ok, resp] = await chat.updateMessage(messageId, data);
 //   if (!ok) return buildErrorResponse(resp);
 //   return (resp);
-// }
-
-// @Delete(Targets.DeleteChat)
-// @ChatAuth(ChatsModel.Models.ChatParticipantRole.Owner)
-// async delete(
-//   @ChatCtx() chat: Chat,
-// ): Promise<InternalEndpointResponse<ChatsModel.Endpoints.DeleteChat>> {
-//   const ok = await chat.delete();
-//   if (!ok) return buildErrorResponse('Failed to delete chat');
-//   return buildEmptyResponse();
 // }
 
 // @Delete(Targets.DeleteMessage)

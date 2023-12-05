@@ -3,9 +3,33 @@ import Modal from '@mui/joy/Modal';
 import ModalDialog from '@mui/joy/ModalDialog';
 import ModalClose from '@mui/joy/ModalClose';
 import DialogTitle from '@mui/joy/DialogTitle';
-import { Box, Sheet } from '@mui/joy';
+import { Box, Sheet, styled } from '@mui/joy';
 import publicPath from '@utils/public';
 import { useSelectUserAvatar } from '../hooks/useUpdateAvatarModal';
+
+const AvatarDisplay = styled(Sheet, {
+  shouldForwardProp: (prop) => prop !== 'selected',
+})<{ selected: boolean }>(({ selected, theme }) => ({
+  flex: '1 0 15dvh',
+  aspectRatio: '1/1',
+  padding: 0,
+  borderRadius: theme.radius.lg,
+  borderWidth: '.3dvh',
+  borderColor: theme.palette[selected ? 'warning' : 'neutral'][400],
+  boxShadow: theme.shadow.xl,
+  overflow: 'hidden',
+  flexGrow: 0,
+  opacity: selected ? 1 : 0.5,
+  transition: theme.transitions.create('opacity'),
+  WebkitBackfaceVisibility: 'hidden',
+  '&:hover': {
+    cursor: 'pointer',
+    opacity: 0.8,
+  },
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+}));
 
 export default function ProfilePictureModal() {
   const {
@@ -42,38 +66,27 @@ export default function ProfilePictureModal() {
             {assetArray.map((asset, index) => {
               const selected = data.avatar === asset.toString();
               return (
-                <Sheet
+                <AvatarDisplay
                   variant="outlined"
                   color={selected ? 'warning' : 'neutral'}
+                  selected={selected}
                   key={index}
                   onClick={() => selectAsset(asset)}
-                  sx={{
-                    flex: '1 0 15dvh',
-                    aspectRatio: '1/1',
-                    p: 0,
-                    borderRadius: 'xl',
-                    borderWidth: '.3dvh',
-                    borderColor: (theme) =>
-                      theme.palette[selected ? 'warning' : 'neutral'][400],
-                    boxShadow: (theme) => theme.shadow.xl,
-                    overflow: 'hidden',
-                    flexGrow: 0,
-                    backgroundImage: `url(${publicPath(
-                      `/profile/tile${asset.toString().padStart(4, '0')}.webp`
-                    )})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    backgroundRepeat: 'no-repeat',
-                    opacity: selected ? 1 : 0.5,
-                    transition: (theme) => theme.transitions.create('opacity'),
-                    WebkitBackfaceVisibility: 'hidden',
-                    '&:hover': {
-                      cursor: 'pointer',
-                      opacity: 0.8,
-                    },
-                  }}
                   title="Selecting closes the dialog"
-                />
+                >
+                  <img
+                    src={publicPath(
+                      `/profile/tile${asset.toString().padStart(4, '0')}.webp`
+                    )}
+                    alt=""
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      objectPosition: 'center',
+                    }}
+                  />
+                </AvatarDisplay>
               );
             })}
           </Box>

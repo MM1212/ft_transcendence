@@ -11,9 +11,11 @@ import { Avatar } from '@mui/joy';
 import ChatsModel from '@typings/models/chat';
 import moment from 'moment';
 import useChat from '../hooks/useChat';
+import AccountGroupIcon from '@components/icons/AccountGroupIcon';
 
 type ChatListItemProps = {
   id: number;
+  last: boolean;
 };
 
 function ChatListContent({ id }: { id: number }): JSX.Element {
@@ -38,16 +40,18 @@ function ChatListContent({ id }: { id: number }): JSX.Element {
             status={status}
             src={photo ?? undefined}
             size="lg"
-            inset=".5rem"
           />
         ) : (
-          <Avatar src={photo ?? undefined} size="lg" />
+          <Avatar src={photo ?? undefined} size="lg" >
+            <AccountGroupIcon />
+          </Avatar>
         )}
         <Stack spacing={0.25} width="100%">
           <Box
             display="flex"
             justifyContent="space-between"
             alignItems="center"
+            width="25dvh"
           >
             <Typography level="title-sm">{name}</Typography>
             <Stack direction="row" alignItems="center" spacing={1}>
@@ -94,8 +98,7 @@ function ChatListContent({ id }: { id: number }): JSX.Element {
   );
 }
 
-
-function _ChatListItem({ id }: ChatListItemProps) {
+function _ChatListItem({ id, last }: ChatListItemProps) {
   const { goTo, useIsSelected } = useChat(id);
 
   const isSelected = useIsSelected();
@@ -118,10 +121,10 @@ function _ChatListItem({ id }: ChatListItemProps) {
             <ChatListContent id={id} />
           </ListItemButton>
         </ListItem>
-        <ListDivider sx={{ margin: 0 }} />
+        {!last && <ListDivider sx={{ margin: 0 }} />}
       </>
     ),
-    [goTo, id, isSelected]
+    [goTo, id, isSelected, last]
   );
 }
 
