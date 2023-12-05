@@ -15,6 +15,7 @@ import tunnel from "@lib/tunnel";
 import UsersModel from "@typings/models/users";
 import { useRecoilCallback, useSetRecoilState } from "recoil";
 import { roomPlayersTester } from "../state";
+import notifications from "@lib/notifications/hooks";
 export default function AddFriendRoom({
   setOpen,
   open,
@@ -32,30 +33,26 @@ export default function AddFriendRoom({
     (ctx) =>
       async () => {
         const roomPlayers = await ctx.snapshot.getPromise(roomPlayersTester);
-        const userId = parseInt(inputValue, 10);
-        console.log("Room players:", roomPlayers);
-        console.log("Input value in function:", inputValue);
-        
+        const userId = parseInt(inputValue);
         if (!userId) {
           setFeedbackMessage("User ID is required");
           return;
         }
         try {
-          if (roomPlayers.length >= roomSize) {
-            setFeedbackMessage("Room is full");
-            return;
+          if (roomPlayers.length > roomSize) {
+            notifications.error("Room is full");
+            return;   
           }
           if (roomPlayers.includes(parseInt(inputValue, 10))) {
-            setFeedbackMessage("User already in room");
+             notifications.error("User already in room");
             return;
-          }
+          }  
           setRoomPlayers((prevPlayersId) => [...prevPlayersId, userId]);
           setInputValue("");
-          setFeedbackMessage(null);
+          setFeedbackMessage(null);   
           setOpen(false);
         } catch (error) {
-          // Handle errors, you can set an error message in the feedback
-          setFeedbackMessage("Error fetching user");
+          notifications.error("Error fetching user");
         }
       },
     [inputValue, roomSize, setRoomPlayers, setOpen]

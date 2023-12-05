@@ -75,7 +75,7 @@ export default function LobbyCreateCustom() {
                   required
                   placeholder="Enter room name"
                   startDecorator={<LabelIcon />}
-                  endDecorator={<Typography level="body-sm"></Typography>}
+                  endDecorator={<Typography level="body-sm">0/20</Typography>}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                 />
