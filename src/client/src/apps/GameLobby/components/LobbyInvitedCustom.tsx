@@ -6,6 +6,7 @@ import { Divider } from "@mui/joy";
 import { Stack, Typography } from "@mui/joy";
 import UsersModel from "@typings/models/users";
 import { useCurrentUser } from "@hooks/user";
+import React from "react";
 
 export default function LobbyInvitedCustom() {
   const usersSample: (UsersModel.Models.IUserInfo | null)[] = [
@@ -21,9 +22,8 @@ export default function LobbyInvitedCustom() {
       <Stack sx={{ width: "100" }}>
         {usersSample.length > 0 ? (
           usersSample.map((user, index) => (
-            <>
+            <React.Fragment key={index}>
               <Stack
-                key={index}
                 sx={{
                   display: "flex",
                   flexDirection: "row",
@@ -39,7 +39,7 @@ export default function LobbyInvitedCustom() {
                 </IconButton>
               </Stack>
               <Divider sx={{ mb: 2 }} />
-            </>
+            </React.Fragment>
           ))
         ) : (
           <Typography level="body-sm">No pending invites</Typography>

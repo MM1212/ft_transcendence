@@ -27,6 +27,7 @@ export type Registry =
   & AuthModel.Endpoints.Registry
   & UsersModel.Endpoints.Registry
   & ChatModel.Endpoints.Registry
+  & PongModel.Endpoints.Registry
   & {
     [EndpointMethods.Get]: Record<never, never>;
     [EndpointMethods.Post]: Record<never, never>;
