@@ -10,6 +10,7 @@ import ForumIcon from '@components/icons/ForumIcon';
 import HangerIcon from '@components/icons/HangerIcon';
 import HistoryIcon from '@components/icons/HistoryIcon';
 import HomeIcon from '@components/icons/HomeIcon';
+import InboxIcon from '@components/icons/InboxIcon';
 import PlayIcon from '@components/icons/PlayIcon';
 import PodiumIcon from '@components/icons/PodiumIcon';
 import TableTennisIcon from '@components/icons/TableTennisIcon';
@@ -65,23 +66,23 @@ const routes: ISidebarRoute[] = [
         Component: React.lazy(() => import('@apps/Friends/views')),
       },
       {
+        label: 'Messages',
+        path: '/messages/',
+        routePath: '/messages/:chatId*',
+        icon: <ForumIcon />,
+        exact: false,
+        Component: React.lazy(() => import('@apps/Chat/views')),
+        FallBackComponent: ChatMessagesLoadingView,
+        endDecoration: <ChatMessagesSidebarDecoration />,
+      },
+      {
         label: 'Search',
-        path: '/search',
+        path: '/users/search',
         icon: <AccountSearchIcon />,
         exact: false,
-        // Component: React.lazy(() => import('@apps/Search/views')),
+        Component: React.lazy(() => import('@apps/Profile/views/search')),
       },
     ],
-  },
-  {
-    label: 'Messages',
-    path: '/messages/',
-    routePath: '/messages/:chatId*',
-    icon: <ForumIcon />,
-    exact: false,
-    Component: React.lazy(() => import('@apps/Chat/views')),
-    FallBackComponent: ChatMessagesLoadingView,
-    endDecoration: <ChatMessagesSidebarDecoration />,
   },
   {
     label: 'Achievements',
@@ -150,6 +151,13 @@ if (import.meta.env.DEV) {
 }
 
 export const endRoutes: ISidebarRoute[] = [
+  {
+    label: 'Inbox',
+    path: '/inbox',
+    icon: <InboxIcon />,
+    exact: false,
+    // Component: React.lazy(() => import('@apps/Inbox/views')),
+  },
   {
     label: 'Settings',
     path: '/settings',

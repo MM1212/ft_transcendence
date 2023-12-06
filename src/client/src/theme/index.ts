@@ -40,7 +40,7 @@ const theme = extendTheme({
     create: (props, options = {}) => {
       if (!props) return '';
       const {
-        duration = transitionConstants.duration.standard,
+        duration = transitionConstants.duration.shortest,
         easing = transitionConstants.easing.easeInOut,
         delay = 0,
       } = options;

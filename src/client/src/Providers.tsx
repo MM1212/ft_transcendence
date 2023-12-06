@@ -40,30 +40,25 @@ export default function AppProviders({
   return (
     <RecoilRoot>
       {/* <DebugObserver /> */}
-      <Router>
-        <SWRConfig
-          value={{
-            fetcher: (resource, init) =>
-              fetch(resource, init).then((res) => res.json()),
-            onError: console.error,
-            onErrorRetry: (error) => {
-              // Never retry on 404.
-              if (error.status === 404) return;
-            },
-          }}
-        >
-          <StateMounter />
-          <CssVarsProvider
-            theme={theme}
-            defaultMode="system"
-          >
-            <CssBaseline />
-            <CustomScrollBar />
-            <NotificationsProvider />
-            <ErrorBoundary>{children}</ErrorBoundary>
-          </CssVarsProvider>
-        </SWRConfig>
-      </Router>
+      <SWRConfig
+        value={{
+          fetcher: (resource, init) =>
+            fetch(resource, init).then((res) => res.json()),
+          onError: console.error,
+          onErrorRetry: (error) => {
+            // Never retry on 404.
+            if (error.status === 404) return;
+          },
+        }}
+      >
+        <StateMounter />
+        <CssVarsProvider theme={theme} defaultMode="system">
+          <CssBaseline />
+          <CustomScrollBar />
+          <NotificationsProvider />
+          <ErrorBoundary>{children}</ErrorBoundary>
+        </CssVarsProvider>
+      </SWRConfig>
     </RecoilRoot>
   );
 }
