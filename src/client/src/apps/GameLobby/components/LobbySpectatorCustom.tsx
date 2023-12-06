@@ -1,13 +1,12 @@
 import { UserAvatar } from "@components/AvatarWithStatus";
-import BookMarkerIcon from "@components/icons/BookMarkerIcon";
-import BookmarkRemoveIcon from "@components/icons/BookmarkRemoveIcon";
-import CloseIcon from "@components/icons/CloseIcon";
 import KarateIcon from "@components/icons/KarateIcon";
 import { useUser } from "@hooks/user";
-import { IconButton, Sheet } from "@mui/joy";
+import { IconButton } from "@mui/joy";
 import { Divider } from "@mui/joy";
 import { Stack, Typography } from "@mui/joy";
 import UsersModel from "@typings/models/users";
+import { useRecoilValue } from "recoil";
+import pongGamesState from "../state";
 
 export default function LobbyInvitedCustom() {
   const usersSample: (UsersModel.Models.IUserInfo | null)[] = [
@@ -17,7 +16,8 @@ export default function LobbyInvitedCustom() {
     useUser(4) ?? null,
     useUser(5) ?? null,
   ];
-
+  const spectatorsList = useRecoilValue(pongGamesState.isInLobby);
+  
   return (
     <>
       <Stack sx={{ width: "100" }}>

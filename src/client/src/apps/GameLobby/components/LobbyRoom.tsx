@@ -6,16 +6,15 @@ import { alpha } from '@theme';
 import LobbyPongTabs from './LobbyPongTabs';
 import LobbyInvitedCustom from './LobbyInvitedCustom';
 import LobbySpectatorCustom from './LobbySpectatorCustom';
-import { useRecoilCallback, useRecoilState, useRecoilValue } from 'recoil';
+import { useRecoilCallback, useRecoilValue } from 'recoil';
 import { useCurrentUser } from '@hooks/user';
-import React, { useEffect } from 'react';
-// import AddFriendRoom from "./AddFriendRoom";
 import { FindMatchWrapper } from './LobbyMatchMaking';
 import LobbyPongButton from './LobbyPongBottom';
 import pongGamesState from '../state';
 import notifications from '@lib/notifications/hooks';
 import tunnel from '@lib/tunnel';
 import PongModel from '@typings/models/pong';
+import React from 'react';
 
 export default function LobbyRoom() {
   const customTabs = ['Invited', 'Spectators'];
@@ -29,7 +28,6 @@ export default function LobbyRoom() {
   const user = useCurrentUser();
   const [open, setOpen] = React.useState(false);
 
-  const teamSizeInt = parseInt('4');
   const handleStartMatch = () => {
     console.log('start match');
   };
