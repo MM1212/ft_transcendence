@@ -15,7 +15,7 @@ export default function GameLobby() {
   return (
     <Sheet
       sx={{
-        width: "80dvh",
+        width: "90dvh",
         display: "flex",
         flexDirection: "column",
         height: "100%",

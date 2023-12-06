@@ -48,11 +48,10 @@ export function LobbyMatchMaking() {
           flexDirection: "row",
           height: "100%",
           width: '100%',
-          alignItems: "center",
-          justifyContent: "space-evenly",
+          justifyContent: "space-around",
         }}
       >
-      <LobbyPlayerBanner id={1} />
+      <LobbyPlayerBanner id={user.id} />
       <LobbyPlayerBanner id={0} />
       </div>
       <div
