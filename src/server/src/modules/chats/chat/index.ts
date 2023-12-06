@@ -301,6 +301,13 @@ class Chat extends CacheObserver<IChat> {
       },
     );
     participant.set('role', ChatsModel.Models.ChatParticipantRole.Left);
+    if (op instanceof User) {
+      (await participant.user)?.alerts.send(
+        'neutral',
+        this.name,
+        'You were removed from this chat',
+      );
+    }
     return true;
   }
   public get lastMessages(): ChatsModel.Models.IChatMessage[] {

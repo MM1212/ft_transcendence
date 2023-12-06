@@ -22,7 +22,7 @@ const USER_EXT_QUERY = Prisma.validator<Prisma.UserSelect>()({
 export class Users {
   constructor(private readonly prisma: PrismaService) {}
 
-  private formatUser<
+  public formatUser<
     T extends UsersModel.DTO.DB.IUser | null,
     U = T extends null ? null : UsersModel.Models.IUser,
   >(user: T): U {
@@ -46,6 +46,7 @@ export class Users {
     formatted.chats = user.chats.map((chat) => chat.id);
     formatted.createdAt = user.createdAt.getTime();
     formatted.status = UsersModel.Models.Status.Offline;
+    formatted.connected = false;
     return formatted as unknown as U;
   }
 

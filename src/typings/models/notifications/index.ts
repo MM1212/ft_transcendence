@@ -1,4 +1,4 @@
-import { Endpoint, EndpointMethods, GetEndpoint } from '@typings/api';
+import { Endpoint, EndpointMethods, GetEndpoint, SseModel } from '@typings/api';
 import { GroupEnumValues } from '@typings/utils';
 
 namespace NotificationsModel {
@@ -21,7 +21,8 @@ namespace NotificationsModel {
   }
   export namespace DTO {
     export namespace DB {
-      export interface Notification extends Omit<Models.Notification, 'data' | 'createdAt'> {
+      export interface Notification
+        extends Omit<Models.Notification, 'data' | 'createdAt'> {
         data: any;
         createdAt: Date;
       }
@@ -36,6 +37,15 @@ namespace NotificationsModel {
     }
 
     export interface DoAction extends Record<string, unknown> {}
+
+    export interface Alert {
+      variant?: 'solid' | 'soft' | 'outlined' | 'plain';
+      color?: 'success' | 'primary' | 'warning' | 'danger' | 'neutral';
+      invertedColors?: boolean;
+      title: string;
+      message: string;
+      duration?: number;
+    }
   }
   export namespace Endpoints {
     export enum Targets {
@@ -107,7 +117,12 @@ namespace NotificationsModel {
     }
   }
   export namespace Sse {
-    export enum Events {}
+    export enum Events {
+      SendAlert = 'notifications.send-alert',
+    }
+
+    export interface SendAlertEvent
+      extends SseModel.Models.Event<DTO.Alert, Events.SendAlert> {}
   }
 }
 
