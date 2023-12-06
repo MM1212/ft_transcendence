@@ -18,6 +18,14 @@ import { PongLobbyService } from './ponglobby.service';
 
 const Targets = PongModel.Endpoints.Targets;
 
+class NewLobbyDataDto implements EndpointData<PongModel.Endpoints.NewLobby> {
+  password: string | null = null;
+  name!: string;
+  spectators!: PongModel.Models.LobbySpectatorVisibility;
+  lobbyType!: PongModel.Models.LobbyType;
+  gameType!: PongModel.Models.LobbyGameType;
+}
+
 @Auth()
 @Controller()
 export class PongLobbyController {
@@ -26,8 +34,10 @@ export class PongLobbyController {
   @Put(Targets.NewLobby)
   async newLobby(
     @HttpCtx() ctx: HTTPContext<true>,
-    @Body() body: EndpointData<PongModel.Endpoints.NewLobby>,
+    @Body() body: NewLobbyDataDto,
   ): Promise<InternalEndpointResponse<PongModel.Endpoints.NewLobby>> {
+    console.log();
+    
     const newLobby = await this.service.createLobby(ctx.user, body);
     return newLobby.interface;
   }
@@ -50,6 +60,30 @@ export class PongLobbyController {
   ): Promise<InternalEndpointResponse<PongModel.Endpoints.JoinLobby>> {    
     const lobby = await this.service.joinLobby(ctx.user, body.lobbyId, body.password);
     return lobby.interface;
+  }
+
+  @Post(Targets.ChangeTeam)
+  async changeTeam(
+    @HttpCtx() ctx: HTTPContext<true>,
+    @Body() body: EndpointData<PongModel.Endpoints.ChangeTeam>,
+  ): Promise<InternalEndpointResponse<PongModel.Endpoints.ChangeTeam>> {
+    await this.service.changeTeam(ctx.user.id, body.teamId, body.teamPosition, body.lobbyId);
+  }
+
+  @Post(Targets.ChangeOwner)
+  async changeOwner(
+    @HttpCtx() ctx: HTTPContext<true>,
+    @Body() body: EndpointData<PongModel.Endpoints.ChangeOwner>,
+  ): Promise<InternalEndpointResponse<PongModel.Endpoints.ChangeOwner>> {
+    await this.service.changeOwner(ctx.user.id, body.lobbyId, body.ownerToBe);
+  }
+
+  @Post(Targets.JoinSpectators)
+  async joinSpectators(
+    @HttpCtx() ctx: HTTPContext<true>,
+    @Body() body: EndpointData<PongModel.Endpoints.JoinSpectators>,
+  ): Promise<InternalEndpointResponse<PongModel.Endpoints.JoinSpectators>> {
+    await this.service.joinSpectators(ctx.user, body.lobbyId);
   }
 
   @Get(Targets.GetSessionLobby)

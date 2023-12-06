@@ -11,6 +11,30 @@ export default function LobbbyCustomMatchPlayers({
   leftTeam: PongModel.Models.ITeam;
   rightTeam: PongModel.Models.ITeam;
 }) {
+  const [leftPlayer1, leftPlayer2] = leftTeam.players as (
+    | PongModel.Models.ILobbyParticipant
+    | undefined
+  )[];
+  const [rightPlayer1, rightPlayer2] = rightTeam.players as (
+    | PongModel.Models.ILobbyParticipant
+    | undefined
+  )[];
+  const leftTopPlayer =
+    leftPlayer1?.teamPosition === PongModel.Models.TeamPosition.Top
+      ? leftPlayer1
+      : leftPlayer2;
+  const leftBottomPlayer =
+    leftPlayer1?.teamPosition === PongModel.Models.TeamPosition.Bottom
+      ? leftPlayer1
+      : leftPlayer2;
+  const rightTopPlayer =
+    rightPlayer1?.teamPosition === PongModel.Models.TeamPosition.Top
+      ? rightPlayer1
+      : rightPlayer2;
+  const rightBottomPlayer =
+    rightPlayer1?.teamPosition === PongModel.Models.TeamPosition.Bottom
+      ? rightPlayer1
+      : rightPlayer2;
   return (
     <>
       <Stack
@@ -29,8 +53,17 @@ export default function LobbbyCustomMatchPlayers({
           <LobbyGameTypography sx={{ mb: 2, border: 'unset' }} level="title-lg">
             Team 1
           </LobbyGameTypography>
-          <LobbyPlayerPlaceholder id={leftTeam.players[0]?.id} position={2} />
-          <LobbyPlayerPlaceholder id={leftTeam.players[1]?.id} position={2} />
+          <LobbyPlayerPlaceholder
+            id={leftTopPlayer?.id}
+            teamId={PongModel.Models.TeamSide.Left}
+            teamPosition={PongModel.Models.TeamPosition.Top}
+          />
+          <LobbyPlayerPlaceholder
+            id={leftBottomPlayer?.id}
+            teamId={PongModel.Models.TeamSide.Left}
+            teamPosition={PongModel.Models.TeamPosition.Bottom}
+            warnForPositionShift={leftBottomPlayer && !leftTopPlayer}
+          />
         </Box>
         <Box sx={{ width: '20%' }}></Box>
         <Box
@@ -45,8 +78,17 @@ export default function LobbbyCustomMatchPlayers({
           <LobbyGameTypography sx={{ mb: 2, border: 'unset' }} level="title-lg">
             Team 2
           </LobbyGameTypography>
-          <LobbyPlayerPlaceholder id={rightTeam.players[0]?.id} position={2} />
-          <LobbyPlayerPlaceholder id={rightTeam.players[1]?.id} position={2} />
+          <LobbyPlayerPlaceholder
+            id={rightTopPlayer?.id}
+            teamId={PongModel.Models.TeamSide.Right}
+            teamPosition={PongModel.Models.TeamPosition.Top}
+          />
+          <LobbyPlayerPlaceholder
+            id={rightBottomPlayer?.id}
+            teamId={PongModel.Models.TeamSide.Right}
+            teamPosition={PongModel.Models.TeamPosition.Bottom}
+            warnForPositionShift={rightBottomPlayer && !rightTopPlayer}
+          />
         </Box>
       </Stack>
     </>

@@ -9,17 +9,22 @@ const useLobbyService = () => {
       const { data } = ev;
       const lobby = await ctx.snapshot.getPromise(pongGamesState.gameLobby);
       if (!lobby || lobby.id !== data.id) return;
-      console.log('NEW LOBBY', lobby);
-      ctx.set(pongGamesState.gameLobby, (prev) =>
-        !prev
-          ? null
-          : {
-              ...prev,
-              ownerId: data.ownerId,
-              teams: data.teams,
-              spectators: data.spectators,
-            }
-      );
+      ctx.set(pongGamesState.gameLobby, (prev) => {
+        if (!prev) return prev;
+        console.log('NEW LOBBY', {
+          ...prev,
+          ownerId: data.ownerId,
+          teams: data.teams,
+          spectators: data.spectators,
+        });
+
+        return {
+          ...prev,
+          ownerId: data.ownerId,
+          teams: data.teams,
+          spectators: data.spectators,
+        };
+      });
     },
     []
   );

@@ -35,24 +35,78 @@ export class PongLobbyService {
   }
 
   public async getAllLobbies(): Promise<PongModel.Models.ILobbyInfoDisplay[]> {
-    return Array.from(this.games.values()).map(lobby => lobby.infoDisplay);
+    return Array.from(this.games.values()).map((lobby) => lobby.infoDisplay);
   }
 
-  public async joinLobby(user: User, lobbyId: number, password: string | null): Promise<PongLobby> {
+  public async changeTeam(
+    userId: number,
+    teamId: PongModel.Models.TeamSide,
+    teamPosition: number,
+    lobbyId: number,
+  ): Promise<void> {
+    if (!this.usersInGames.has(userId))
+      throw new ForbiddenException('User is not in a lobby/game');
+    if (lobbyId !== this.usersInGames.get(userId))
+      throw new ForbiddenException('User is not in the specified lobby');
+    const lobby = this.games.get(lobbyId);
+    if (!lobby) throw new Error('Could not find lobby');
+    if (lobby.changeTeam(userId, teamId, teamPosition))
+      lobby.syncParticipants();
+    else throw new ForbiddenException('Could not change team');
+  }
+
+  public async changeOwner(
+    userId: number,
+    lobbyId: number,
+    ownerToBeId: number,
+  ): Promise<void> {
+    if (!this.usersInGames.has(userId))
+      throw new ForbiddenException('User is not in a lobby/game');
+    if (lobbyId !== this.usersInGames.get(userId))
+      throw new ForbiddenException('User is not in the specified lobby');
+    console.log(ownerToBeId, this.usersInGames);
+      if (!this.usersInGames.has(ownerToBeId))
+      throw new ForbiddenException('Owner to be is not in a lobby/game');
+    if (lobbyId !== this.usersInGames.get(ownerToBeId))
+      throw new ForbiddenException('Owner to be is not in the specified lobby');
+    const lobby = this.games.get(lobbyId);
+    if (!lobby) throw new Error('Could not find lobby');
+    if (lobby.changeOwner(userId, ownerToBeId)) lobby.syncParticipants();
+    else throw new ForbiddenException('Could not change owner');
+  }
+
+  public async joinLobby(
+    user: User,
+    lobbyId: number,
+    password: string | null,
+  ): Promise<PongLobby> {
     if (this.usersInGames.has(user.id))
       throw new ForbiddenException('User is already in a lobby/game');
     const lobby = this.games.get(lobbyId);
     if (!lobby) throw new ForbiddenException('Lobby does not exist');
-    // check authorization
-    // check game status
+    if (lobby.status !== PongModel.Models.LobbyStatus.Waiting)
+      throw new ForbiddenException('Lobby is not available for joining');
+    lobby.verifyAuthorization(password);
     const newUser = new PongLobbyParticipant(user, lobby);
     this.usersInGames.set(newUser.id, lobby.id);
     lobby.syncParticipants();
     return lobby;
   }
 
-  public async leaveLobby(user: User): Promise<PongModel.Models.ILobby>{
-    console.log(this.usersInGames, user.id)
+  // only used inside the lobby screen
+  public async joinSpectators(user: User, lobbyId: number): Promise<void> {
+    if (!this.usersInGames.has(user.id))
+      throw new ForbiddenException('User is not in a lobby/game');
+    if (this.usersInGames.get(user.id) !== lobbyId)
+      throw new ForbiddenException('User is not in the specified lobby');
+    const lobby = this.games.get(lobbyId);
+    if (!lobby) throw new ForbiddenException('Lobby does not exist');
+    if (lobby.joinSpectators(user.id)) lobby.syncParticipants();
+    else throw new ForbiddenException('Could not join spectators');
+  }
+
+  public async leaveLobby(user: User): Promise<PongModel.Models.ILobby> {
+    console.log(this.usersInGames, user.id);
     if (!this.usersInGames.has(user.id))
       throw new Error('User is not in a lobby/game');
     const lobby = this.games.get(this.usersInGames.get(user.id)!);
@@ -76,7 +130,10 @@ export class PongLobbyService {
     const lobby = new PongLobby(this.deps, body, this.lobbyId);
     this.games.set(this.lobbyId, lobby);
     const newUser = new PongLobbyParticipant(user, lobby);
-    lobby.setPrivileges(newUser, PongModel.Models.LobbyParticipantPrivileges.Owner);
+    lobby.setPrivileges(
+      newUser,
+      PongModel.Models.LobbyParticipantPrivileges.Owner,
+    );
     this.usersInGames.set(newUser.id, this.lobbyId);
     console.log(
       `Lobby-${lobby.id}: ${lobby.name} created by ${newUser.nickname}`,

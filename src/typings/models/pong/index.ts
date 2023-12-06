@@ -58,6 +58,10 @@ namespace PongModel {
       Left,
       Right,
     }
+    export enum TeamPosition {
+      Top,
+      Bottom,
+    }
 
     export type IGameKeyTypes = 'up' | 'down' | 'boost' | 'shoot';
     export type IGamekeys = Record<IGameKeyTypes, string>;
@@ -90,6 +94,7 @@ namespace PongModel {
       keys: IGamekeys;
       paddleTexture: string;
       specialPower: GroupEnumValues<LobbyParticipantSpecialPowerType>;
+      teamPosition: number;
     }
     export interface ILobby {
       id: number;
@@ -138,7 +143,6 @@ namespace PongModel {
         Models.ILobbyUpdateParticipantsEvent,
         Events.UpdateLobbyParticipants
       > {}
-      
   }
 
   export namespace DTO {
@@ -147,11 +151,15 @@ namespace PongModel {
 
   export namespace Endpoints {
     export enum Targets {
+      // PUT
       NewLobby = '/pong/lobby',
       LeaveLobby = '/pong/lobby/leave',
-
+      //POST
       JoinLobby = '/pong/lobby/join',
-
+      ChangeTeam = '/pong/lobby/team',
+      ChangeOwner = '/pong/lobby/owner',
+      JoinSpectators = '/pong/lobby/spectators',
+      //GET
       GetSessionLobby = '/pong/lobby/session',
       GetAllLobbies = '/pong/lobby/all',
 
@@ -172,6 +180,7 @@ namespace PongModel {
     }
     export type All = GroupEndpointTargets<Targets>;
 
+    /* PUT methods */
     export interface NewLobby
       extends Endpoint<
         EndpointMethods.Put,
@@ -196,6 +205,7 @@ namespace PongModel {
         }
       > {}
 
+    /* POST methods */
     export interface JoinLobby
       extends Endpoint<
         EndpointMethods.Post,
@@ -206,6 +216,36 @@ namespace PongModel {
           password: string | null;
         }
       > {}
+
+    export interface ChangeTeam
+      extends Endpoint<
+        EndpointMethods.Post,
+        Targets.ChangeTeam,
+        undefined,
+        {
+          teamId: Models.TeamSide;
+          teamPosition: number;
+          lobbyId: number;
+        }
+      > {}
+
+    export interface ChangeOwner
+      extends Endpoint<
+        EndpointMethods.Post,
+        Targets.ChangeOwner,
+        undefined,
+        { lobbyId: number; ownerToBe: number }
+      > {}
+
+    export interface JoinSpectators
+      extends Endpoint<
+        EndpointMethods.Post,
+        Targets.JoinSpectators,
+        undefined,
+        { lobbyId: number }
+      > {}
+
+    /* GET methods */
 
     export interface GetSessionLobby
       extends GetEndpoint<Targets.GetSessionLobby, Models.ILobby> {}
@@ -230,6 +270,9 @@ namespace PongModel {
       };
       [EndpointMethods.Post]: {
         [Targets.JoinLobby]: JoinLobby;
+        [Targets.JoinSpectators]: JoinSpectators;
+        [Targets.ChangeTeam]: ChangeTeam;
+        [Targets.ChangeOwner]: ChangeOwner;
       };
     }
   }
