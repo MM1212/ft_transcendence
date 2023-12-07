@@ -27,10 +27,9 @@ model User {
   blocked            User[]            @relation("blocked")
   blockedBy          User[]            @relation("blocked")
   chats              ChatParticipant[]
-  games              GameParticipant? // add lobby id ??
   notifications      Notification[]
-  tfaEnabled         Boolean           @default(false) @map("tfa_enabled")
-  tfaSecret          String?           @map("tfa_secret")
+  tfaEnabled        Boolean           @default(false) @map("tfa_enabled")
+  tfaSecret         String?           @map("tfa_secret")
 
   gamesPlayed MatchHistory[] @relation("match_players")
 
@@ -181,68 +180,4 @@ model MatchHistory {
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("matches_history")
-}
-
-// ------------- PONG LOBBY MODELS ----------------- 
-enum LobbyType {
-  SINGLE
-  DOUBLE
-  CUSTOM
-}
-
-enum LobbyParticipantPositionOrder {
-  FRONT
-  BACK
-}
-
-enum LobbyParticipantSpecialPowerType {
-  BUBBLE
-  SPARK
-  ICE
-  FIRE
-  GHOST
-  NONE
-}
-
-enum TeamSide {
-  LEFT_SIDE
-  RIGHT_SIDE
-}
-
-model GameParticipant {
-  id           Int                              @id @default(autoincrement())
-  user         User                             @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId       Int                              @unique @map("user_id")
-  game         Game                             @relation(fields: [gameId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  gameId       Int                              @map("lobby_id")
-  specialPower LobbyParticipantSpecialPowerType @default(NONE) @map("special_power")
-  PongTeam     PongTeam?                        @relation(fields: [pongTeamId], references: [id])
-  pongTeamId   TeamSide                         @map("pong_team_id")
-
-  @@unique([gameId, userId], name: "pong_lobby_participant_unique")
-  @@index([gameId, userId])
-  @@map("pong_game_participants")
-}
-
-model PongTeam {
-  players     GameParticipant[]
-  score       Int               @default(0)
-  id          TeamSide          @id @default(LEFT_SIDE) @map("team_side")
-  PongLobby   Game?             @relation(fields: [pongLobbyId], references: [id])
-  pongLobbyId Int?
-  winner      Boolean           @default(false)
-}
-
-model Game {
-  id              Int               @id @default(autoincrement())
-  name            String            @default("Pong Lobby")
-  lobbyType       LobbyType         @default(SINGLE)
-  gameType        String            @map("game_type") // With or without special powers
-  teams           PongTeam[]
-  winnerId        Int?              @map("winner_id")
-  start           DateTime?         @map("start_at")
-  end             DateTime?         @map("end_at")
-  GameParticipant GameParticipant[]
-
-  @@map("pong")
 }

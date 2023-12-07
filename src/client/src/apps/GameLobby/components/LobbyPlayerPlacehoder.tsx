@@ -5,14 +5,16 @@ import RobotIcon from '@components/icons/RobotIcon';
 import SwapHorizontalBoldIcon from '@components/icons/SwapHorizontalBoldIcon';
 import { useUser } from '@hooks/user';
 import tunnel from '@lib/tunnel';
-import { Badge, Box, Divider, IconButton, Tooltip } from '@mui/joy';
+import { Badge, Box, Chip, Divider, IconButton, Tooltip } from '@mui/joy';
 import { Typography } from '@mui/joy';
 import { Stack } from '@mui/joy';
 import PongModel from '@typings/models/pong';
-import { useRecoilCallback } from 'recoil';
+import { useRecoilCallback, useRecoilValue } from 'recoil';
 import pongGamesState from '../state';
 import AlertIcon from '@components/icons/AlertIcon';
 import InformationVariantCircleIcon from '@components/icons/InformationVariantCircleIcon';
+import CrownIcon from '@components/icons/CrownIcon';
+import LobbyGameTypography from './LobbyGameTypography';
 
 export default function LobbyPlayerPlaceholder({
   id,
@@ -26,11 +28,10 @@ export default function LobbyPlayerPlaceholder({
   warnForPositionShift?: boolean;
 }) {
   const user = useUser(id!);
-
+  const lobby = useRecoilValue(pongGamesState.gameLobby);
   const handleChangeTeam = useRecoilCallback(
     (ctx) => async () => {
       try {
-        const lobby = await ctx.snapshot.getPromise(pongGamesState.gameLobby);
         if (lobby === null || teamPosition === undefined) return;
         await tunnel.post(PongModel.Endpoints.Targets.ChangeTeam, {
           teamId,
@@ -42,7 +43,7 @@ export default function LobbyPlayerPlaceholder({
         console.log(err);
       }
     },
-    [teamId, teamPosition]
+    [teamId, teamPosition, lobby]
   );
 
   const handleChangeOwner = useRecoilCallback(
@@ -59,13 +60,14 @@ export default function LobbyPlayerPlaceholder({
         console.log(err);
       }
     },
-    []
+    [id]
   );
+  if (lobby === null) return null;
 
   return (
     <>
       <Divider />
-      <Stack display="flex" flexDirection="row" sx={{ pt: 2, pb: 2 }}>
+      <Stack display="flex" flexDirection="row" alignItems="center" sx={{ py: 2 }}>
         <Badge
           badgeInset="14%"
           color="warning"
@@ -81,20 +83,31 @@ export default function LobbyPlayerPlaceholder({
           }
           invisible={!warnForPositionShift}
         >
-          <UserAvatar
-            color="warning"
-            variant="soft"
-            src={user?.avatar}
-            sx={{ width: 50, height: 50 }}
-          />
+        <UserAvatar
+          color="warning"
+          variant="soft"
+          src={user?.avatar}
+          sx={{ width: 50, height: 50 }}
+        />
         </Badge>
         <Box
           display="flex"
           flexDirection="column"
           justifyContent="center"
-          sx={{ pl: '20px' }}
+          sx={{ pl: 2 }}
         >
-          <Typography color={user?.id  ? 'danger' : 'neutral'} level="body-lg">{user?.nickname}</Typography>
+          <Box display="flex" gap={1} alignItems="center">
+            <LobbyGameTypography level="body-lg">
+              {user?.nickname}
+            </LobbyGameTypography>
+            {user?.id === lobby?.ownerId && (
+              <Tooltip title="Sensei 🥋">
+                <Chip color="warning" variant="plain" size="sm">
+                  <CrownIcon size="sm" fontSize="sm" />
+                </Chip>
+              </Tooltip>
+            )}
+          </Box>
           <Typography level="body-sm">Rank Placeholder</Typography>
         </Box>
         {!id ? (
@@ -102,7 +115,6 @@ export default function LobbyPlayerPlaceholder({
             <IconButton
               color="warning"
               variant="plain"
-              size="lg"
               sx={{
                 marginLeft: 'auto',
                 borderRadius: 'xl',
@@ -114,7 +126,6 @@ export default function LobbyPlayerPlaceholder({
             <IconButton
               color="warning"
               variant="plain"
-              size="lg"
               sx={{
                 borderRadius: 'xl',
               }}
@@ -122,19 +133,21 @@ export default function LobbyPlayerPlaceholder({
               <RobotIcon />
             </IconButton>
           </>
-        ) : (
-          <IconButton
-            color="warning"
-            variant="plain"
-            size="lg"
-            sx={{
-              borderRadius: 'xl',
-            }}
-            onClick={handleChangeOwner}
-          >
-            <RobotIcon />
-          </IconButton>
-        )}
+        ) : user?.id !== lobby?.ownerId ? (
+          <Tooltip title="Change Game Master">
+            <IconButton
+              color="warning"
+              variant="plain"
+              sx={{
+                borderRadius: 'xl',
+                marginLeft: 'auto',
+              }}
+              onClick={handleChangeOwner}
+            >
+              <CrownIcon />
+            </IconButton>
+          </Tooltip>
+        ) : null}
       </Stack>
       <Divider />
     </>

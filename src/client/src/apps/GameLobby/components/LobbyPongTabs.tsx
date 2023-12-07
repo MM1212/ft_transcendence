@@ -11,7 +11,7 @@ const LobbyTop: React.FC<LobbyTopProps> = ({ tabLabel, reactComponents }) => {
     <Tabs
       aria-label="Scrollable tabs"
       defaultValue={0}
-      sx={{ justifyContent:'center', backgroundColor: "unset", width: "100%"}}
+      sx={{ height: '100%', display: 'flex', justifyContent:'center', backgroundColor: "unset", width: "100%"}}
     >
       <TabList >
         {tabLabel.map((nameTab, index) => (
@@ -21,7 +21,7 @@ const LobbyTop: React.FC<LobbyTopProps> = ({ tabLabel, reactComponents }) => {
         ))}
       </TabList>
       {reactComponents.map((component, index) => (
-        <TabPanel  key={index} value={index}>
+        <TabPanel  key={index} value={index} style={{flexGrow: 1}}>
           {component}
         </TabPanel>
       ))}

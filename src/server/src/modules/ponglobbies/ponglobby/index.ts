@@ -298,7 +298,7 @@ export class PongLobby implements PongModel.Models.ILobby {
     currOwner.privileges = PongModel.Models.LobbyParticipantPrivileges.None;
     newOwner.privileges = PongModel.Models.LobbyParticipantPrivileges.Owner;
     this.ownerId = ownerToBeId;
-
+    console.log("NEW OWNER : ", newOwner.nickname);
     return true;
   }
 

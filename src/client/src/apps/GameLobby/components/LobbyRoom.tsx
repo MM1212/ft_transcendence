@@ -19,12 +19,13 @@ import LogoutIcon from '@components/icons/LogoutIcon';
 import AccountPlusIcon from '@components/icons/AccountPlusIcon';
 
 export default function LobbyRoom() {
-  const customTabs = ['Invited', 'Spectators'];
+  const customTabs = ['Chat', 'Invited', 'Spectators'];
   const lobby = useRecoilValue(pongGamesState.gameLobby)!;
   const components = [
-    <LobbyInviteSpectate key={0} type="No pending invites" usersId={[]} />,
+    <LobbyInviteSpectate key={0} type="No pending Messages" usersId={[]} />,
+    <LobbyInviteSpectate key={1} type="No pending invites" usersId={[]} />,
     <LobbyInviteSpectate
-      key={1}
+      key={2}
       type="No Spectators"
       usersId={lobby.spectators.map((user) => user.id)}
     />,
@@ -69,14 +70,13 @@ export default function LobbyRoom() {
 
   if (user === null) return null;
   return (
-    <>
       <div
         style={{
-          marginBottom: 80,
           display: 'flex',
           alignItems: 'left',
           width: '100%',
           flexDirection: 'column',
+          height: '100%',
         }}
       >
         <Typography
@@ -130,7 +130,11 @@ export default function LobbyRoom() {
             {lobby.name}
           </LobbyGameTypography>
           <ShurikenIcon size="xs" sx={{ ml: 1, mr: 1, mt: 0.7 }} />
-          {<LobbyGameTypography level="body-sm">{leftTeam.players.length}v{rightTeam.players.length}</LobbyGameTypography>}
+          {
+            <LobbyGameTypography level="body-sm">
+              {leftTeam.players.length}v{rightTeam.players.length}
+            </LobbyGameTypography>
+          }
         </Stack>
         <Stack
           sx={{
@@ -138,6 +142,7 @@ export default function LobbyRoom() {
             flexDirection: 'column',
             width: '100%',
             mt: 10,
+            flexGrow: 1,
           }}
         >
           <LobbbyCustomMatchPlayers leftTeam={leftTeam} rightTeam={rightTeam} />
@@ -155,8 +160,6 @@ export default function LobbyRoom() {
           <Stack
             overflow="auto"
             sx={{
-              width: 300,
-              height: 250,
               borderRadius: 'md',
               backgroundColor: (theme) =>
                 alpha(theme.resolveVar('palette-background-surface'), 0.5),
@@ -168,6 +171,7 @@ export default function LobbyRoom() {
           <FindMatchWrapper
             sx={{
               position: 'relative',
+              mt: 'auto !important',
             }}
             onClick={handleStartMatch}
           >
@@ -178,6 +182,5 @@ export default function LobbyRoom() {
           </FindMatchWrapper>
         </Stack>
       </div>
-    </>
   );
 }
