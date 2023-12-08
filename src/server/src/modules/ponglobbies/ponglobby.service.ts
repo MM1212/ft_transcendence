@@ -65,7 +65,7 @@ export class PongLobbyService {
     if (lobbyId !== this.usersInGames.get(userId))
       throw new ForbiddenException('User is not in the specified lobby');
     console.log(ownerToBeId, this.usersInGames);
-      if (!this.usersInGames.has(ownerToBeId))
+    if (!this.usersInGames.has(ownerToBeId))
       throw new ForbiddenException('Owner to be is not in a lobby/game');
     if (lobbyId !== this.usersInGames.get(ownerToBeId))
       throw new ForbiddenException('Owner to be is not in the specified lobby');
@@ -75,6 +75,39 @@ export class PongLobbyService {
     else throw new ForbiddenException('Could not change owner');
   }
 
+  public async ready(userId: number, lobbyId: number): Promise<void> {
+    if (!this.usersInGames.has(userId))
+      throw new ForbiddenException('User is not in a lobby/game');
+    if (lobbyId !== this.usersInGames.get(userId))
+      throw new ForbiddenException('User is not in the specified lobby');
+    const lobby = this.games.get(lobbyId);
+    if (!lobby) throw new Error('Could not find lobby');
+    if (lobby.ready(userId)) lobby.syncParticipants();
+    else throw new ForbiddenException('Could not ready');
+  }
+
+  public async kick(
+    userId: number,
+    lobbyId: number,
+    userToKickId: number,
+  ): Promise<void> {
+    if (!this.usersInGames.has(userId))
+      throw new ForbiddenException('User is not in a lobby/game');
+    if (lobbyId !== this.usersInGames.get(userId))
+      throw new ForbiddenException('User is not in the specified lobby');
+    const lobby = this.games.get(lobbyId);
+    if (!lobby) throw new Error('Could not find lobby');
+    if (lobby.kick(userId, userToKickId)) {
+      this.usersInGames.delete(userToKickId);
+      lobby.sendToParticipant(
+        userToKickId,
+        PongModel.Sse.Events.Kick,
+        null,
+      );
+      lobby.syncParticipants();
+    } else throw new ForbiddenException('Could not kick');
+  }
+  
   public async joinLobby(
     user: User,
     lobbyId: number,
@@ -112,6 +145,7 @@ export class PongLobbyService {
     const lobby = this.games.get(this.usersInGames.get(user.id)!);
     if (!lobby) throw new Error('User is in a non-existent lobby/game');
     lobby.removePlayer(user.id);
+    lobby.syncParticipants();
     this.usersInGames.delete(user.id);
     if (lobby.nPlayers === 0 && lobby.spectators.length === 0) {
       this.games.delete(lobby.id);

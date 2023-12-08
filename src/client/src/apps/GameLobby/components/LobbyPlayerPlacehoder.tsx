@@ -15,59 +15,39 @@ import AlertIcon from '@components/icons/AlertIcon';
 import InformationVariantCircleIcon from '@components/icons/InformationVariantCircleIcon';
 import CrownIcon from '@components/icons/CrownIcon';
 import LobbyGameTypography from './LobbyGameTypography';
+import {
+  ChangeOwnerButton,
+  AddBotButton,
+  ChangeTeamButton,
+  KickParticipantButton,
+} from './LobbyParticipantButtons';
+import CheckIcon from '@components/icons/CheckIcon';
 
 export default function LobbyPlayerPlaceholder({
   id,
   teamId,
   teamPosition,
+  ready,
   warnForPositionShift = false,
 }: {
   id: number | undefined;
   teamId: PongModel.Models.TeamSide;
   teamPosition: number | undefined;
+  ready: boolean | undefined;
   warnForPositionShift?: boolean;
 }) {
   const user = useUser(id!);
-  const lobby = useRecoilValue(pongGamesState.gameLobby);
-  const handleChangeTeam = useRecoilCallback(
-    (ctx) => async () => {
-      try {
-        if (lobby === null || teamPosition === undefined) return;
-        await tunnel.post(PongModel.Endpoints.Targets.ChangeTeam, {
-          teamId,
-          teamPosition,
-          lobbyId: lobby.id,
-        });
-        console.log('change team success');
-      } catch (err) {
-        console.log(err);
-      }
-    },
-    [teamId, teamPosition, lobby]
-  );
-
-  const handleChangeOwner = useRecoilCallback(
-    (ctx) => async () => {
-      try {
-        const lobby = await ctx.snapshot.getPromise(pongGamesState.gameLobby);
-        if (lobby === null) return;
-        await tunnel.post(PongModel.Endpoints.Targets.ChangeOwner, {
-          lobbyId: lobby.id,
-          ownerToBe: id!,
-        });
-        console.log('change owner success');
-      } catch (err) {
-        console.log(err);
-      }
-    },
-    [id]
-  );
-  if (lobby === null) return null;
-
+  const lobbyOwner = useRecoilValue(pongGamesState.lobbyOwner);
+  if (lobbyOwner === null) return null;
   return (
     <>
       <Divider />
-      <Stack display="flex" flexDirection="row" alignItems="center" sx={{ py: 2 }}>
+      <Stack
+        display="flex"
+        flexDirection="row"
+        alignItems="center"
+        sx={{ py: 2 }}
+      >
         <Badge
           badgeInset="14%"
           color="warning"
@@ -83,12 +63,14 @@ export default function LobbyPlayerPlaceholder({
           }
           invisible={!warnForPositionShift}
         >
-        <UserAvatar
-          color="warning"
-          variant="soft"
-          src={user?.avatar}
-          sx={{ width: 50, height: 50 }}
-        />
+          <UserAvatar
+            color={ready ? 'success' : 'warning'}
+            variant="soft"
+            src={!ready ? user?.avatar : undefined}
+            sx={{ width: 50, height: 50 }}
+          >
+            {ready ? <CheckIcon /> : undefined}
+          </UserAvatar>
         </Badge>
         <Box
           display="flex"
@@ -100,7 +82,7 @@ export default function LobbyPlayerPlaceholder({
             <LobbyGameTypography level="body-lg">
               {user?.nickname}
             </LobbyGameTypography>
-            {user?.id === lobby?.ownerId && (
+            {user?.id === lobbyOwner && (
               <Tooltip title="Sensei 🥋">
                 <Chip color="warning" variant="plain" size="sm">
                   <CrownIcon size="sm" fontSize="sm" />
@@ -110,44 +92,19 @@ export default function LobbyPlayerPlaceholder({
           </Box>
           <Typography level="body-sm">Rank Placeholder</Typography>
         </Box>
-        {!id ? (
-          <>
-            <IconButton
-              color="warning"
-              variant="plain"
-              sx={{
-                marginLeft: 'auto',
-                borderRadius: 'xl',
-              }}
-              onClick={handleChangeTeam}
-            >
-              <SwapHorizontalBoldIcon />
-            </IconButton>
-            <IconButton
-              color="warning"
-              variant="plain"
-              sx={{
-                borderRadius: 'xl',
-              }}
-            >
-              <RobotIcon />
-            </IconButton>
-          </>
-        ) : user?.id !== lobby?.ownerId ? (
-          <Tooltip title="Change Game Master">
-            <IconButton
-              color="warning"
-              variant="plain"
-              sx={{
-                borderRadius: 'xl',
-                marginLeft: 'auto',
-              }}
-              onClick={handleChangeOwner}
-            >
-              <CrownIcon />
-            </IconButton>
-          </Tooltip>
-        ) : null}
+        <Box display="flex" alignItems="center" gap={1} ml="auto">
+          {!id ? (
+            <>
+              <AddBotButton />
+              <ChangeTeamButton teamId={teamId} teamPosition={teamPosition} />
+            </>
+          ) : (
+            <>
+              <ChangeOwnerButton id={id} ownerId={lobbyOwner} />
+              <KickParticipantButton id={id} ownerId={lobbyOwner} />
+            </>
+          )}
+        </Box>
       </Stack>
       <Divider />
     </>

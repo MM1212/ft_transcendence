@@ -86,6 +86,22 @@ export class PongLobbyController {
     await this.service.joinSpectators(ctx.user, body.lobbyId);
   }
 
+  @Post(Targets.Ready)
+  async ready(
+    @HttpCtx() ctx: HTTPContext<true>,
+    @Body() body: EndpointData<PongModel.Endpoints.Ready>,
+  ): Promise<InternalEndpointResponse<PongModel.Endpoints.Ready>> {
+    await this.service.ready(ctx.user.id, body.lobbyId);
+  }
+
+  @Post(Targets.Kick)
+  async kick(
+    @HttpCtx() ctx: HTTPContext<true>,
+    @Body() body: EndpointData<PongModel.Endpoints.Kick>,
+  ): Promise<InternalEndpointResponse<PongModel.Endpoints.Kick>> {
+    await this.service.kick(ctx.user.id, body.lobbyId, body.userId);
+  }
+
   @Get(Targets.GetSessionLobby)
   async getSessionLobby(
     @HttpCtx() ctx: HTTPContext<true>,

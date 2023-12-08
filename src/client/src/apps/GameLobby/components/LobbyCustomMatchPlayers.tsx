@@ -57,11 +57,13 @@ export default function LobbbyCustomMatchPlayers({
             id={leftTopPlayer?.id}
             teamId={PongModel.Models.TeamSide.Left}
             teamPosition={PongModel.Models.TeamPosition.Top}
+            ready={leftTopPlayer?.status === PongModel.Models.LobbyStatus.Ready}
           />
           <LobbyPlayerPlaceholder
             id={leftBottomPlayer?.id}
             teamId={PongModel.Models.TeamSide.Left}
             teamPosition={PongModel.Models.TeamPosition.Bottom}
+            ready={leftBottomPlayer?.status === PongModel.Models.LobbyStatus.Ready}
             warnForPositionShift={leftBottomPlayer && !leftTopPlayer}
           />
         </Box>
@@ -82,11 +84,13 @@ export default function LobbbyCustomMatchPlayers({
             id={rightTopPlayer?.id}
             teamId={PongModel.Models.TeamSide.Right}
             teamPosition={PongModel.Models.TeamPosition.Top}
+            ready={rightTopPlayer?.status === PongModel.Models.LobbyStatus.Ready}
           />
           <LobbyPlayerPlaceholder
             id={rightBottomPlayer?.id}
             teamId={PongModel.Models.TeamSide.Right}
             teamPosition={PongModel.Models.TeamPosition.Bottom}
+            ready={rightBottomPlayer?.status === PongModel.Models.LobbyStatus.Ready}
             warnForPositionShift={rightBottomPlayer && !rightTopPlayer}
           />
         </Box>

@@ -4,7 +4,6 @@ import User from '@/modules/users/user';
 import { GroupEnumValues } from '@typings/utils';
 import { ForbiddenException } from '@nestjs/common';
 import { hash } from '@shared/hash';
-import { TeamSide } from '@prisma/client';
 
 /* ---- LOBBY PARTICIPANT ---- */
 
@@ -142,6 +141,9 @@ export class PongLobby implements PongModel.Models.ILobby {
     } else {
       team.players.splice(team.players.indexOf(player), 1);
     }
+    console.log(
+      `Lobby-${this.id}: ${player.nickname} left. (Was in team ${teamSide})`,
+    );
   }
 
   private get allInLobby(): PongModel.Models.ILobbyParticipant[] {
@@ -163,9 +165,15 @@ export class PongLobby implements PongModel.Models.ILobby {
     );
   }
 
-  public removePlayer(userId: number): void {
-    // team or spectator
-    // if owner change ownership
+  public sendToParticipant(
+    userId: number,
+    event: PongModel.Sse.Events,
+    data: unknown,
+  ): void {
+    this.helpers.sseService.emitToTargets(event, [userId], data);
+  }
+
+  private removeFromLobby(userId: number): void {
     if (this.spectators.some((player) => player.id === userId)) {
       const player = this.spectators.find((player) => player.id === userId)!;
       this.removePlayerFromSpectator(player);
@@ -176,19 +184,26 @@ export class PongLobby implements PongModel.Models.ILobby {
       this.removePlayerFromTeam(userId);
       this.nPlayers--;
     }
-    if (this.ownerId === userId) {
-      // does this work?
-      const newOwner =
-        this.teams[0].players[0] ||
-        this.teams[1].players[0] ||
-        this.spectators[0];
-      if (newOwner) {
-        console.log('NEW OWNER : ', newOwner);
-        this.ownerId = newOwner.id;
-        newOwner.privileges = PongModel.Models.LobbyParticipantPrivileges.Owner;
-      }
+  }
+
+  private assignNewOwner(): void {
+    // does this work?
+    const newOwner =
+      this.teams[0].players[0] ||
+      this.teams[1].players[0] ||
+      this.spectators[0];
+    if (newOwner) {
+      console.log('NEW OWNER : ', newOwner);
+      this.ownerId = newOwner.id;
+      newOwner.privileges = PongModel.Models.LobbyParticipantPrivileges.Owner;
     }
-    this.syncParticipants();
+  }
+
+  public removePlayer(userId: number): void {
+    this.removeFromLobby(userId);
+    if (this.ownerId === userId) {
+      this.assignNewOwner();
+    }
   }
 
   public setPrivileges(
@@ -230,6 +245,14 @@ export class PongLobby implements PongModel.Models.ILobby {
     };
   }
 
+  public kick(userId: number, userToKickId: number): boolean {
+    if (this.ownerId !== userId) return false;
+    const player = this.getPlayerFromBoth(userToKickId);
+    if (!player) return false;
+    this.removeFromLobby(userToKickId);
+    return true;
+  }
+
   public joinSpectators(userId: number): boolean {
     const player = this.getPlayerFromTeam(userId);
     if (!player) return false;
@@ -255,6 +278,18 @@ export class PongLobby implements PongModel.Models.ILobby {
     return true;
   }
 
+  public ready(userId: number): boolean {
+    if (this.status !== PongModel.Models.LobbyStatus.Waiting) return false;
+    const player = this.getPlayerFromBoth(userId);
+    if (!player) return false;
+    player.status =
+      player.status === PongModel.Models.LobbyStatus.Ready
+        ? PongModel.Models.LobbyStatus.Waiting
+        : PongModel.Models.LobbyStatus.Ready;
+    console.log('new status: ', player.status);
+    return true;
+  }
+
   public changeTeam(
     userId: number,
     teamId: PongModel.Models.TeamSide,
@@ -264,7 +299,7 @@ export class PongLobby implements PongModel.Models.ILobby {
     // if player check if can join team by teamId and position free
     const player = this.getPlayerFromBoth(userId);
     if (!player) return false;
-  
+
     if (!this.positionCheckAvailable(teamPosition, teamId)) return false;
     if (player.role === PongModel.Models.LobbyParticipantRole.Spectator) {
       this.removePlayerFromSpectator(player);
@@ -298,7 +333,7 @@ export class PongLobby implements PongModel.Models.ILobby {
     currOwner.privileges = PongModel.Models.LobbyParticipantPrivileges.None;
     newOwner.privileges = PongModel.Models.LobbyParticipantPrivileges.Owner;
     this.ownerId = ownerToBeId;
-    console.log("NEW OWNER : ", newOwner.nickname);
+    console.log('NEW OWNER : ', newOwner.nickname);
     return true;
   }
 

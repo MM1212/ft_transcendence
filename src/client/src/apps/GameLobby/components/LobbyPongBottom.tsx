@@ -2,6 +2,7 @@ import { Typography } from "@mui/joy";
 import publicPath from "@utils/public";
 
 export default function LobbyPongButton({ label, src } : { label: string, src: string }) {
+  
   return (
     <>
       <img
