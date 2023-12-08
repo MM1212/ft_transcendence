@@ -202,8 +202,8 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
       this.allInLobby.map((player) => player.id),
       {
         id: this.id,
-        teams: this.teams,
-        spectators: this.spectators,
+        teams: this.interface.teams,
+        spectators: this.interface.spectators,
         ownerId: this.ownerId,
       },
     );
