@@ -26,6 +26,8 @@ class NewLobbyDataDto implements EndpointData<PongModel.Endpoints.NewLobby> {
   gameType!: PongModel.Models.LobbyGameType;
 }
 
+
+
 @Auth()
 @Controller()
 export class PongLobbyController {

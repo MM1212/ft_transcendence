@@ -14,7 +14,7 @@ import User from '../users/user';
 @Injectable()
 export class PongLobbyService {
   private readonly games: Map<number, PongLobby> = new Map();
-  private readonly usersInGames: Map<number, number> = new Map(); // userId, lobbyId
+  public readonly usersInGames: Map<number, number> = new Map(); // userId, lobbyId
   private lobbyId = 0;
 
   constructor(private readonly deps: PongLobbyDependencies) {
@@ -65,13 +65,13 @@ export class PongLobbyService {
     if (lobbyId !== this.usersInGames.get(userId))
       throw new ForbiddenException('User is not in the specified lobby');
     console.log(ownerToBeId, this.usersInGames);
-      if (!this.usersInGames.has(ownerToBeId))
+    if (!this.usersInGames.has(ownerToBeId))
       throw new ForbiddenException('Owner to be is not in a lobby/game');
     if (lobbyId !== this.usersInGames.get(ownerToBeId))
       throw new ForbiddenException('Owner to be is not in the specified lobby');
     const lobby = this.games.get(lobbyId);
     if (!lobby) throw new Error('Could not find lobby');
-    if (lobby.changeOwner(userId, ownerToBeId)) lobby.syncParticipants();
+    if (await lobby.changeOwner(userId, ownerToBeId)) lobby.syncParticipants();
     else throw new ForbiddenException('Could not change owner');
   }
 
@@ -89,6 +89,7 @@ export class PongLobbyService {
     lobby.verifyAuthorization(password);
     const newUser = new PongLobbyParticipant(user, lobby);
     this.usersInGames.set(newUser.id, lobby.id);
+    await lobby.chat.addParticipant(newUser.user);
     lobby.syncParticipants();
     return lobby;
   }
@@ -105,7 +106,7 @@ export class PongLobbyService {
     else throw new ForbiddenException('Could not join spectators');
   }
 
-  public async leaveLobby(user: User): Promise<PongModel.Models.ILobby> {
+  public async leaveLobby(user: User): Promise<PongLobby> {
     console.log(this.usersInGames, user.id);
     if (!this.usersInGames.has(user.id))
       throw new Error('User is not in a lobby/game');
@@ -114,6 +115,7 @@ export class PongLobbyService {
     lobby.removePlayer(user.id);
     this.usersInGames.delete(user.id);
     if (lobby.nPlayers === 0 && lobby.spectators.length === 0) {
+      await lobby.delete();
       this.games.delete(lobby.id);
       console.log(`Lobby-${lobby.id}: ${lobby.name} deleted`);
     }
@@ -127,16 +129,12 @@ export class PongLobbyService {
     if (!body) throw new Error('Body is empty');
     if (this.usersInGames.has(user.id))
       throw new Error('User is already in a lobby/game');
-    const lobby = new PongLobby(this.deps, body, this.lobbyId);
+    const lobby = await new PongLobby(this.deps, body, this.lobbyId, user);
     this.games.set(this.lobbyId, lobby);
-    const newUser = new PongLobbyParticipant(user, lobby);
-    lobby.setPrivileges(
-      newUser,
-      PongModel.Models.LobbyParticipantPrivileges.Owner,
-    );
-    this.usersInGames.set(newUser.id, this.lobbyId);
     console.log(
-      `Lobby-${lobby.id}: ${lobby.name} created by ${newUser.nickname}`,
+      `Lobby-${lobby.id}: ${lobby.name} created by ${
+        (await lobby.owner).nickname
+      }`,
     );
     this.lobbyId++;
     return lobby;

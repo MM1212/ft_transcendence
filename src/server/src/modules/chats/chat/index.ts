@@ -423,11 +423,23 @@ class Chat extends CacheObserver<IChat> {
   public async addParticipant(user: User): Promise<Participant> {
     if (this.hasParticipantByUserId(user.id))
       throw new ForbiddenException('You are already in this chat.');
-    const participantData = await this.helpers.db.chats.createChatParticipant({
-      chatId: this.id,
-      userId: user.id,
-      role: ChatsModel.Models.ChatParticipantRole.Member,
-    });
+    const participantData = !this.isTemporary
+      ? await this.helpers.db.chats.createChatParticipant({
+          chatId: this.id,
+          userId: user.id,
+          role: ChatsModel.Models.ChatParticipantRole.Member,
+        })
+      : ({
+          id: user.id,
+          chatId: this.id,
+          userId: user.id,
+          role: ChatsModel.Models.ChatParticipantRole.Member,
+          createdAt: Date.now(),
+          toReadPings: 0,
+          muted: ChatsModel.Models.ChatParticipantMuteType.No,
+          mutedUntil: null,
+          typing: false,
+        } satisfies ChatsModel.Models.IChatParticipant);
     const participant = new Participant(participantData, this);
     this.helpers.sseService.emitToTargets<ChatsModel.Sse.UpdateParticipantEvent>(
       ChatsModel.Sse.Events.UpdateParticipant,

@@ -16,6 +16,7 @@ import LobbyInviteSpectate from './LobbyInviteSpectate';
 import LogoutIcon from '@components/icons/LogoutIcon';
 import AccountPlusIcon from '@components/icons/AccountPlusIcon';
 import LobbyPongCustomMatchTabs from './LobbyPongCustomMatchTabs';
+import EyeArrowRightIcon from '@components/icons/EyeArrowRightIcon';
 
 export default function LobbyRoom() {
   const customTabs = ['Chat', 'Invited', 'Spectators'];
@@ -89,38 +90,38 @@ export default function LobbyRoom() {
       >
         DOJO PONG CUSTOM MATCH
       </Typography>
-      <ButtonGroup sx={{ ml: 'auto' }} variant="plain">
+      <Stack sx={{ ml: 'auto' }} direction="row" spacing={1}>
         <Button
           onClick={handleJoinSpectators}
           type="submit"
-          size="lg"
           color="warning"
-          startDecorator={<LogoutIcon />}
+          variant="plain"
+          startDecorator={<EyeArrowRightIcon />}
           sx={{ justifyContent: 'flex-end' }}
         >
-          Join Spectators
-        </Button>
-        <Button
-          onClick={handleLeaveLobby}
-          type="submit"
-          size="lg"
-          color="warning"
-          startDecorator={<LogoutIcon />}
-          sx={{ justifyContent: 'flex-end' }}
-        >
-          Leave
+          Spectate
         </Button>
         <Button
           onClick={() => setOpen(true)}
           type="submit"
-          size="lg"
           color="warning"
+          variant="plain"
           startDecorator={<AccountPlusIcon />}
           sx={{ justifyContent: 'flex-end' }}
         >
           Invite
         </Button>
-      </ButtonGroup>
+        <Button
+          onClick={handleLeaveLobby}
+          type="submit"
+          color="warning"
+          variant="plain"
+          startDecorator={<LogoutIcon />}
+          sx={{ justifyContent: 'flex-end' }}
+        >
+          Leave
+        </Button>
+      </Stack>
       {/* <AddFriendRoom open={open} setOpen={setOpen} roomSize={teamSizeInt} /> */}
       <Stack sx={{ display: 'flex', flexDirection: 'row' }}>
         <LobbyGameTypography level="body-sm">{lobby.name}</LobbyGameTypography>

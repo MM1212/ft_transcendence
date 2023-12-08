@@ -68,6 +68,8 @@ function _ChatSelectModal(): JSX.Element {
       data.push(
         ...chats
           .filter((chat) => {
+            if (chat.type === ChatsModel.Models.ChatType.Temp)
+              return false;
             if (exclude.some((e) => e.type === 'chat' && e.id === chat.id))
               return false;
             if (
