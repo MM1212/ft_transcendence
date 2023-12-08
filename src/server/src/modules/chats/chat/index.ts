@@ -146,7 +146,7 @@ class Chat extends CacheObserver<IChat> {
     return {
       ...chat,
       participants: participants.map((p: Participant) => p.public),
-      messages: this.lastMessage ? [this.lastMessage] : [],
+      messages: this.lastMessage && !this.isTemporary ? [this.lastMessage] : [],
     } satisfies ChatsModel.Models.IChatDisplay;
   }
   public get id(): number {
