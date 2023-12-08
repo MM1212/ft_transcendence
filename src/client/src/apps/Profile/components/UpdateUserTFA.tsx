@@ -300,6 +300,7 @@ export default function UpdateUserTFA(
               mt={1}
               direction={user.tfaEnabled ? 'column' : 'row'}
               alignItems="center"
+              justifyContent="space-between"
             >
               <Typography level="title-md">
                 Status:{' '}

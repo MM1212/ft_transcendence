@@ -48,7 +48,7 @@ export default function MessagesPaneHeader() {
         )}
         <Stack>
           <Stack direction="row" alignItems="center" spacing={1}>
-            <Typography fontWeight="lg" fontSize="lg" component="h2" noWrap>
+            <Typography level="title-md" fontWeight="lg">
               {name}
             </Typography>
             {topic && (

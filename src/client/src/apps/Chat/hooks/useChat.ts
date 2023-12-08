@@ -30,6 +30,8 @@ const useChat = (chatId: number) => {
   const useSelf = () => useRecoilValue(chatsState.chat(chatId));
   const useType = () => useRecoilValue(chatsState.chatType(chatId));
   const useIsSelected = () => useRecoilValue(chatsState.isChatSelected(chatId));
+  const { prompt: promptChatPassword, closeAll } =
+    useChatPasswordInputModalActions();
 
   const goTo = useRecoilTransaction_UNSTABLE(
     (ctx) => async () => {
@@ -66,7 +68,6 @@ const useChat = (chatId: number) => {
   const useParticipantNamesTyping = () =>
     useRecoilValue(chatsState.participantsWithNameTyping(chatId));
 
-  const { prompt: promptChatPassword } = useChatPasswordInputModalActions();
   const attemptToJoin = useRecoilCallback(
     (ctx) =>
       async (
@@ -113,12 +114,13 @@ const useChat = (chatId: number) => {
           }
           ctx.set(chatsState.chats, (prev) => [...prev, chatId]);
           navigate(`/messages/${chatId}`);
+          closeAll();
           notifications.success('Joined chat', `You joined ${chatInfo.name}`);
         } catch (e) {
           notifications.error('Failed to join chat', (e as Error).message);
         }
       },
-    [chatId, promptChatPassword]
+    [chatId, promptChatPassword, closeAll]
   );
 
   return {

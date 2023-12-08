@@ -21,7 +21,7 @@ export class UsersService {
     const user = await this.get(userId);
     if (!user) return;
     this.logger.log(`User ${user.nickname}[${user.id}] connected`);
-    user.set('status', user.get('storedStatus'));
+    user.set('status', user.get('storedStatus')).set('connected', true);
     user.propagate('status');
   }
   @OnEvent('sse.disconnected')
@@ -29,7 +29,9 @@ export class UsersService {
     const user = await this.get(userId);
     if (!user) return;
     this.logger.log(`User ${user.nickname}[${user.id}] disconnected`);
-    user.set('status', UsersModel.Models.Status.Offline);
+    user
+      .set('status', UsersModel.Models.Status.Offline)
+      .set('connected', false);
     user.propagate('status');
   }
 

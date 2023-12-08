@@ -2,8 +2,6 @@ import { Box, Button, ButtonGroup, Stack, Typography } from '@mui/joy';
 import LobbyGameTypography from './LobbyGameTypography';
 import ShurikenIcon from '@components/icons/ShurikenIcon';
 import LobbbyCustomMatchPlayers from './LobbyCustomMatchPlayers';
-import { alpha } from '@theme';
-import LobbyPongTabs from './LobbyPongTabs';
 import { useRecoilCallback, useRecoilValue } from 'recoil';
 import { useCurrentUser } from '@hooks/user';
 import React from 'react';

@@ -31,8 +31,6 @@ export default function ChatsPane() {
   return (
     <Sheet
       sx={{
-        borderRight: '1px solid',
-        borderColor: 'divider',
         height: '100%',
         overflowY: 'auto',
         width: '35dvh',
