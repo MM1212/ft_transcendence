@@ -20,7 +20,9 @@ const chatsState = new (class MessagesState {
     default: selector<number[]>({
       key: 'chats/selector',
       get: async () => {
-        return await tunnel.get(Targets.GetSessionChats);
+        const chats = await tunnel.get(Targets.GetSessionChats);
+        console.log('downloaded chats', chats);
+        return chats;
       },
     }),
   });
@@ -38,7 +40,13 @@ const chatsState = new (class MessagesState {
     key: 'chatIds',
     get: ({ get }) => {
       const search = get(this.searchFilter).toLowerCase();
-      let chats = get(waitForAll(get(this.chats).map(this.chatInfo)));
+      let chats = get(
+        waitForAll(
+          get(this.allChats)
+            .filter((chat) => chat.type !== ChatsModel.Models.ChatType.Temp)
+            .map((c) => this.chatInfo(c.id))
+        )
+      );
       if (search.trim().length)
         chats = chats.filter((c) => {
           const { lastMessage, name } = c;
@@ -96,8 +104,7 @@ const chatsState = new (class MessagesState {
           )) as ChatsModel.Models.IChat;
           chat.authorizationData = null;
           return chat;
-        }
-        catch (e) {
+        } catch (e) {
           return null as any;
         }
       },
@@ -137,6 +144,31 @@ const chatsState = new (class MessagesState {
           ...prev,
           participants: newValue,
         }));
+      },
+  });
+  activeParticipants = selectorFamily<
+    ChatsModel.Models.IChatParticipant[],
+    number
+  >({
+    key: 'chatActiveParticipants',
+    cachePolicy_UNSTABLE: {
+      eviction: 'most-recent',
+    },
+    get:
+      (id) =>
+      ({ get }) => {
+        const chat = get(this.chat(id));
+        return (
+          chat?.participants.filter((p) => {
+            switch (p.role) {
+              case ChatsModel.Models.ChatParticipantRole.Banned:
+              case ChatsModel.Models.ChatParticipantRole.Left:
+                return false;
+              default:
+                return true;
+            }
+          }) ?? []
+        );
       },
   });
   participant = selectorFamily<
@@ -189,7 +221,10 @@ const chatsState = new (class MessagesState {
       (id) =>
       ({ set }, newValue) => {
         if (newValue instanceof DefaultValue) return;
-        set(this.participant({ chatId: id, participantId: newValue.id }), newValue);
+        set(
+          this.participant({ chatId: id, participantId: newValue.id }),
+          newValue
+        );
       },
   });
   isParticipantBlocked = selectorFamily<
@@ -350,7 +385,7 @@ const chatsState = new (class MessagesState {
       (id) =>
       ({ get }) => {
         const chat = get(this.chat(id));
-        if (!chat) return {deleted: true} as any;
+        if (!chat) return { deleted: true } as any;
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { messages, participants, authorizationData, ...info } = chat;
         const self = get(sessionAtom);
@@ -372,7 +407,9 @@ const chatsState = new (class MessagesState {
           )
             (info as ISelectedChatInfo).lastMessageAuthorName = 'You';
         } else {
-          (info as ISelectedChatInfo).participantCount = participants.length;
+          (info as ISelectedChatInfo).participantCount = get(
+            this.activeParticipants(id)
+          ).length;
           if (chat.messages[0]) {
             const lastMessageParticipant = participants.find(
               (p) => p.id === chat.messages[0]?.authorId
@@ -399,17 +436,19 @@ const chatsState = new (class MessagesState {
       ({ get }) => {
         const chat = get(this.chat(id));
         if (chat.type !== ChatsModel.Models.ChatType.Group) return '';
+        const participants = get(this.activeParticipants(id));
         const self = get(sessionAtom);
-        const first4 = chat.participants
+        const first4 = participants
           .filter((p) => p.userId !== self?.id)
           .slice(0, 4);
         const users = get(waitForAll(first4.map((p) => usersAtom(p.userId))));
         const names = (
           users.filter(Boolean) as UsersModel.Models.IUserInfo[]
         ).map((p) => p.nickname);
+        names.push('You');
         let str = names.join(', ');
-        if (first4.length < chat.participants.length - 1)
-          str += ` and ${chat.participants.length - 1 - first4.length} more`;
+        if (first4.length < participants.length - 1)
+          str += ` and ${participants.length - 1 - first4.length} more`;
         return str;
       },
   });

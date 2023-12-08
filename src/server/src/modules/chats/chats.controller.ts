@@ -170,12 +170,7 @@ export class ChatsController {
     @ChatCtx() chat: Chat,
     @HttpCtx() { user }: HTTPContext<true>,
   ): Promise<InternalEndpointResponse<ChatsModel.Endpoints.LeaveChat>> {
-    const participant = chat.getParticipantByUserId(user.id);
-    if (!participant)
-      throw new InternalServerErrorException(
-        'Participant validated but not found',
-      );
-    await chat.removeParticipant(participant.id);
+    await this.service.leaveChat(chat.id, user);
   }
   @Delete(Targets.DeleteParticipant)
   @ChatOPAuth()

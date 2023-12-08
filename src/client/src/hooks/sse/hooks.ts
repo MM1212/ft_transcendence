@@ -1,7 +1,7 @@
 import { SseModel } from '@typings/api/models';
 import React from 'react';
-import { useRecoilCallback } from 'recoil';
-import { eventCacheAtom } from './store';
+import { useRecoilCallback, useRecoilValue } from 'recoil';
+import { eventCacheAtom, sseConnectedAtom } from './store';
 
 export interface SseHook {
   on<T, E extends string>(
@@ -67,5 +67,8 @@ const useSseEvent = <T extends SseModel.Models.Event<unknown, string>>(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [callback, event, off, on, ...(deps ?? [])]);
 };
+
+export const useIsSseConnected = (): boolean =>
+  useRecoilValue(sseConnectedAtom);
 
 export { useSse, useSseEvent };

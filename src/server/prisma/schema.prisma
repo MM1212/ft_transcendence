@@ -28,8 +28,8 @@ model User {
   blockedBy          User[]            @relation("blocked")
   chats              ChatParticipant[]
   notifications      Notification[]
-  tfaEnabled        Boolean           @default(false) @map("tfa_enabled")
-  tfaSecret         String?           @map("tfa_secret")
+  tfaEnabled         Boolean           @default(false) @map("tfa_enabled")
+  tfaSecret          String?           @map("tfa_secret")
 
   gamesPlayed MatchHistory[] @relation("match_players")
 
@@ -119,16 +119,24 @@ model ChatMessage {
   @@map("chat_messages")
 }
 
-model Notification {
-  id        Int       @id @default(autoincrement())
-  type      String
-  meta      Json?     @default("{}")
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId    Int       @map("user_id")
-  createdAt DateTime  @default(now()) @map("created_at")
-  readAt    DateTime? @map("read_at")
+enum NotificationTypes {
+  PERMANENT
+  TEMPORARY
+}
 
-  @@index([userId])
+model Notification {
+  id        Int               @id @default(autoincrement())
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId    Int               @map("user_id")
+  title     String
+  message   String
+  type      NotificationTypes @default(PERMANENT)
+  tag       String
+  data      Json              @default("{}")
+  read      Boolean           @default(false)
+  createdAt DateTime          @default(now()) @map("created_at")
+
+  @@index([userId, tag])
   @@map("notifications")
 }
 

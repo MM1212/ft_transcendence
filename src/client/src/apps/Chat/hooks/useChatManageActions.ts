@@ -6,7 +6,10 @@ import UsersModel from '@typings/models/users';
 import notifications from '@lib/notifications/hooks';
 import tunnel from '@lib/tunnel';
 import { useConfirmationModalActions } from '@apps/Modals/Confirmation/hooks';
-import { useChatSelectModalActions } from '../modals/ChatSelectModal/hooks/useChatSelectModal';
+import {
+  ChatSelectedData,
+  useChatSelectModalActions,
+} from '../modals/ChatSelectModal/hooks/useChatSelectModal';
 import { useChatInfoEditModalActions } from '../modals/ChatInfoEdit/hooks/useChatInfoEditModal';
 
 const useChatManageActions = () => {
@@ -56,6 +59,10 @@ const useChatManageActions = () => {
           chatsState.selfParticipantByChat(chatId)
         );
         if (!self) throw new Error('You are not in this chat');
+        const participants = await ctx.snapshot.getPromise(
+          chatsState.activeParticipants(chatId)
+        );
+        console.log(participants);
         if (self.role === ChatsModel.Models.ChatParticipantRole.Owner) {
           const confirmed = await confirm({
             content: `
@@ -64,6 +71,18 @@ const useChatManageActions = () => {
           `,
             confirmText: 'Leave',
             confirmColor: 'warning',
+            keepOpen: true,
+          });
+          if (!confirmed) return;
+        }
+
+        if (participants.length === 1) {
+          const confirmed = await confirm({
+            content: `
+              Are you sure you want to leave this chat?
+              This action will delete it as there are no other members.
+          `,
+            confirmText: 'Leave',
           });
           if (!confirmed) return;
         }
@@ -306,6 +325,27 @@ const useChatManageActions = () => {
     },
     [select]
   );
+
+  const sendInviteToTargets = useRecoilCallback(
+    (ctx) => async (targets: ChatSelectedData[]) => {
+      try {
+        const chatId = await ctx.snapshot.getPromise(chatsState.selectedChatId);
+        if (chatId === -1)
+          throw new Error('You must select a chat before inviting a user');
+        await tunnel.post(
+          ChatsModel.Endpoints.Targets.SendInviteToTargets,
+          targets,
+          {
+            chatId,
+          }
+        );
+        notifications.success('Invites sent!');
+      } catch (e) {
+        notifications.error('Failed to send invites', (e as Error).message);
+      }
+    },
+    []
+  );
   const { close } = useChatInfoEditModalActions();
 
   const updateInfo = useRecoilCallback(
@@ -339,7 +379,8 @@ const useChatManageActions = () => {
     openMuteModal,
     nuke,
     sendInviteFromGroup,
-    updateInfo
+    sendInviteToTargets,
+    updateInfo,
   };
 };
 

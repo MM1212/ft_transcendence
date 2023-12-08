@@ -11,6 +11,7 @@ import {
 } from '@mui/joy';
 import React from 'react';
 import PongModel from '@typings/models/pong';
+import { Box } from '@mui/joy';
 
 export function LobbySettings() {
   const lobby = useRecoilValue(pongGamesState.gameLobby)!;
@@ -169,22 +170,16 @@ export function LobbySettings() {
       </Select>
       <Typography>Currrent Keys: </Typography>
 
-      <Typography>
-        Up: {`  `}
-        <KeyDisplayer keycode={player.keys.up} />
-      </Typography>
-      <Typography>
-        Down: {`  `}
-        <KeyDisplayer keycode={player.keys.down} />
-      </Typography>
-      <Typography>
-        Shoot: {`  `}
-        <KeyDisplayer keycode={player.keys.shoot} />
-      </Typography>
-      <Typography>
-        Boost: {`  `}
-        <KeyDisplayer keycode={player.keys.boost} />
-      </Typography>
+      <Box display="flex" gap={3} justifyContent="space-evenly">
+        {Object.keys(player.keys).map((key, i) => (
+          <Typography textTransform="capitalize" key={i}>
+            {key}:{' '}
+            <KeyDisplayer
+              keycode={player.keys[key as keyof typeof player.keys]}
+            />
+          </Typography>
+        ))}
+      </Box>
     </>
   );
 }

@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import HttpCtx from '@/helpers/decorators/httpCtx';
 import { HTTPContext } from '@typings/http';
-import { Endpoint, EndpointData, InternalEndpointResponse } from '@typings/api';
+import { EndpointData, InternalEndpointResponse } from '@typings/api';
 import { PongLobbyService } from './ponglobby.service';
 
 const Targets = PongModel.Endpoints.Targets;
@@ -25,6 +25,8 @@ class NewLobbyDataDto implements EndpointData<PongModel.Endpoints.NewLobby> {
   lobbyType!: PongModel.Models.LobbyType;
   gameType!: PongModel.Models.LobbyGameType;
 }
+
+
 
 @Auth()
 @Controller()

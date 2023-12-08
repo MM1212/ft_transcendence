@@ -301,6 +301,13 @@ class Chat extends CacheObserver<IChat> {
       },
     );
     participant.set('role', ChatsModel.Models.ChatParticipantRole.Left);
+    if (op instanceof User) {
+      (await participant.user)?.alerts.send(
+        'neutral',
+        this.name,
+        'You were removed from this chat',
+      );
+    }
     return true;
   }
   public get lastMessages(): ChatsModel.Models.IChatMessage[] {
@@ -416,11 +423,23 @@ class Chat extends CacheObserver<IChat> {
   public async addParticipant(user: User): Promise<Participant> {
     if (this.hasParticipantByUserId(user.id))
       throw new ForbiddenException('You are already in this chat.');
-    const participantData = await this.helpers.db.chats.createChatParticipant({
-      chatId: this.id,
-      userId: user.id,
-      role: ChatsModel.Models.ChatParticipantRole.Member,
-    });
+    const participantData = !this.isTemporary
+      ? await this.helpers.db.chats.createChatParticipant({
+          chatId: this.id,
+          userId: user.id,
+          role: ChatsModel.Models.ChatParticipantRole.Member,
+        })
+      : ({
+          id: user.id,
+          chatId: this.id,
+          userId: user.id,
+          role: ChatsModel.Models.ChatParticipantRole.Member,
+          createdAt: Date.now(),
+          toReadPings: 0,
+          muted: ChatsModel.Models.ChatParticipantMuteType.No,
+          mutedUntil: null,
+          typing: false,
+        } satisfies ChatsModel.Models.IChatParticipant);
     const participant = new Participant(participantData, this);
     this.helpers.sseService.emitToTargets<ChatsModel.Sse.UpdateParticipantEvent>(
       ChatsModel.Sse.Events.UpdateParticipant,
@@ -607,11 +626,13 @@ class Chat extends CacheObserver<IChat> {
       },
     );
   }
-  public async nuke(op: User): Promise<void> {
-    const participant = this.getParticipantByUserId(op.id);
-    if (!participant) throw new ForbiddenException();
-    if (!participant.isOwner())
-      throw new ForbiddenException('Insufficient permissions');
+  public async nuke(op?: User): Promise<void> {
+    if (op) {
+      const participant = this.getParticipantByUserId(op.id);
+      if (!participant) throw new ForbiddenException();
+      if (!participant.isOwner())
+        throw new ForbiddenException('Insufficient permissions');
+    }
     !this.isTemporary && (await this.helpers.db.chats.deleteChat(this.id));
     this.participants.forEach((p) =>
       this.helpers.sseService.emitToTargets<ChatsModel.Sse.UpdateParticipantEvent>(

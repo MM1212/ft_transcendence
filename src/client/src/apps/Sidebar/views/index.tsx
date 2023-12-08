@@ -22,7 +22,10 @@ function SidebarContent(): JSX.Element {
           overflow: 'auto',
           width: 'fit-content',
           transition: (theme) => theme.transitions.create('width'),
+          border: '1px solid',
+          borderColor: 'divider',
         }}
+        variant='outlined'
       >
         <Sheet
           sx={{
@@ -33,8 +36,8 @@ function SidebarContent(): JSX.Element {
             display: 'flex',
             flexDirection: 'column',
             gap: 2,
-            borderRight: '1px solid',
-            borderColor: 'divider',
+            // borderRight: '1px solid',
+            // borderColor: 'divider',
           }}
         >
           <SidebarRoutes />

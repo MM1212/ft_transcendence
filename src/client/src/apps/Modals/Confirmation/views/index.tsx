@@ -26,13 +26,22 @@ export default function ConfirmationModalView(): JSX.Element {
       confirmText = 'Confirm',
       onCancel,
       onConfirm,
+      keepOpen = false,
     },
     isOpened,
   } = useConfirmationModal();
   const [loading, setLoading] = React.useState(false);
 
+  const handleClose = async (
+    _event?: {} | undefined,
+    reason?: 'backdropClick' | 'escapeKeyDown' | 'closeClick'
+  ) => {
+    await close(_event, reason);
+    onCancel?.();
+  };
+
   return (
-    <Modal open={isOpened} onClose={close}>
+    <Modal open={isOpened} onClose={handleClose}>
       <ModalDialog role="alertdialog" maxWidth="sm">
         <DialogTitle>
           <HeaderIcon />
@@ -48,7 +57,7 @@ export default function ConfirmationModalView(): JSX.Element {
               setLoading(true);
               await Promise.resolve(onConfirm());
               setLoading(false);
-              close();
+              if (!keepOpen) await close();
             }}
           >
             {confirmText}
@@ -58,10 +67,7 @@ export default function ConfirmationModalView(): JSX.Element {
               color={cancelColor}
               variant={cancelVariant}
               disabled={loading}
-              onClick={() => {
-                close();
-                onCancel?.();
-              }}
+              onClick={handleClose}
             >
               {cancelText}
             </Button>

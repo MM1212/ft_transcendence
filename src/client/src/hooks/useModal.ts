@@ -3,6 +3,7 @@ import {
   atomFamily,
   selector,
   useRecoilCallback,
+  useRecoilTransaction_UNSTABLE,
   useRecoilValue,
 } from 'recoil';
 
@@ -41,10 +42,6 @@ export const useModalActions = <T>(id: string) => {
         dismissable: data?.dismissable ?? true,
         ...data,
       } as ModalState<T>);
-      const { contents: isOpened, state } = ctx.snapshot.getLoadable(
-        modalsAtom(id)
-      );
-      if (state === 'hasValue' && isOpened) return;
       ctx.set(modalsAtom(id), true);
       ctx.set(modalsRegistryAtom, (ids) => [...ids, id]);
     },
@@ -58,15 +55,19 @@ export const useModalActions = <T>(id: string) => {
       ) => {
         const data = await ctx.snapshot.getPromise(modalsDataAtom(id));
         if (data?.dismissable === false && !!reason) return;
-        const { contents: isOpened, state } = ctx.snapshot.getLoadable(
-          modalsAtom(id)
-        );
-        if (state === 'hasValue' && !isOpened) return;
         ctx.set(modalsAtom(id), false);
         ctx.set(modalsRegistryAtom, (ids) => ids.filter((i) => i !== id));
       },
     [id]
   );
+
+  const closeAll = useRecoilTransaction_UNSTABLE((ctx) => () => {
+    const modals = [...ctx.get(modalsRegistryAtom)];
+    ctx.set(modalsRegistryAtom, []);
+    modals.forEach((modalId) => {
+      ctx.set(modalsAtom(modalId), false);
+    });
+  });
   const toggle = useRecoilCallback(
     (ctx) => async (data?: T) => {
       const isOpened = await ctx.snapshot.getPromise(modalsAtom(id));
@@ -85,7 +86,7 @@ export const useModalActions = <T>(id: string) => {
     },
     [id]
   );
-  return { open, close, toggle, getData };
+  return { open, close, toggle, getData, closeAll };
 };
 
 export type ModalState<T> = T & {

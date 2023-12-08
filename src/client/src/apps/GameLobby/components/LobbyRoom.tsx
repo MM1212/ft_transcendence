@@ -1,12 +1,10 @@
-import { Button, ButtonGroup, Stack, Typography } from '@mui/joy';
+import { Box, Button, Stack, Typography } from '@mui/joy';
 import LobbyGameTypography from './LobbyGameTypography';
 import ShurikenIcon from '@components/icons/ShurikenIcon';
 import LobbbyCustomMatchPlayers from './LobbyCustomMatchPlayers';
-import { alpha } from '@theme';
-import LobbyPongTabs from './LobbyPongTabs';
-import { useRecoilCallback, useRecoilState, useRecoilValue } from 'recoil';
-import { useCurrentUser, useUser } from '@hooks/user';
-import React, { useEffect, useState } from 'react';
+import { useRecoilCallback, useRecoilValue } from 'recoil';
+import { useCurrentUser } from '@hooks/user';
+import React from 'react';
 // import AddFriendRoom from "./AddFriendRoom";
 import { FindMatchWrapper } from './LobbyMatchMaking';
 import LobbyPongButton from './LobbyPongBottom';
@@ -14,24 +12,14 @@ import pongGamesState from '../state';
 import notifications from '@lib/notifications/hooks';
 import tunnel from '@lib/tunnel';
 import PongModel from '@typings/models/pong';
-import LobbyInviteSpectate from './LobbyInviteSpectate';
 import LogoutIcon from '@components/icons/LogoutIcon';
 import AccountPlusIcon from '@components/icons/AccountPlusIcon';
+import LobbyPongCustomMatchTabs from './LobbyPongCustomMatchTabs';
+import EyeArrowRightIcon from '@components/icons/EyeArrowRightIcon';
 import { LobbySettings } from './LobbySettings';
 
 export default function LobbyRoom() {
-  const customTabs = ['Chat', 'Invited', 'Spectators', 'Settings'];
   const lobby = useRecoilValue(pongGamesState.gameLobby)!;
-  const components = [
-    <LobbyInviteSpectate key={0} type="No pending Messages" usersId={[]} />,
-    <LobbyInviteSpectate key={1} type="No pending invites" usersId={[]} />,
-    <LobbyInviteSpectate
-      key={2}
-      type="No Spectators"
-      usersId={lobby.spectators.map((user) => user.id)}
-    />,
-    <LobbySettings key={3}/>
-  ];
   const [leftTeam, rightTeam] = lobby.teams;
 
   const user = useCurrentUser();
@@ -41,11 +29,11 @@ export default function LobbyRoom() {
     .concat(lobby.spectators)
     .find((player) => player.id === user?.id);
 
-  const handleStartMatch = useRecoilCallback((ctx) => async () => {
+  const handleStartMatch = useRecoilCallback(() => async () => {
     console.log('start match');
   });
 
-  const handleReady = useRecoilCallback((ctx) => async () => {
+  const handleReady = React.useCallback(async () => {
     try {
       await tunnel.post(PongModel.Endpoints.Targets.Ready, {
         lobbyId: lobby.id,
@@ -53,7 +41,7 @@ export default function LobbyRoom() {
     } catch (error) {
       console.log('Failed to ready up');
     }
-  });
+  }, [lobby.id]);
 
   const handleLeaveLobby = useRecoilCallback((ctx) => async () => {
     const notif = notifications.default('Leaving lobby...');
@@ -74,7 +62,7 @@ export default function LobbyRoom() {
     }
   });
 
-  const handleJoinSpectators = useRecoilCallback((ctx) => async () => {
+  const handleJoinSpectators = React.useCallback(async () => {
     try {
       await tunnel.post(PongModel.Endpoints.Targets.JoinSpectators, {
         lobbyId: lobby.id,
@@ -82,26 +70,25 @@ export default function LobbyRoom() {
     } catch {
       console.log('Failed to join spectators');
     }
-  });
+  }, [lobby.id]);
 
   if (user === null) return null;
   if (player === undefined) return null;
   return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'left',
-        width: '100%',
-        flexDirection: 'column',
-        height: '100%',
-      }}
+    <Box
+      display="flex"
+      justifyContent="space-evenly"
+      alignItems="flex-start"
+      width="100%"
+      height="100%"
+      flexDirection="column"
+      gap={2}
     >
       <Typography
         variant="outlined"
         color="warning"
         level="title-lg"
         sx={{
-          mt: 2,
           dispaly: 'flex',
           alignItems: 'left',
           border: 'unset',
@@ -109,37 +96,37 @@ export default function LobbyRoom() {
       >
         DOJO PONG CUSTOM MATCH
       </Typography>
-      <ButtonGroup sx={{ ml: 'auto' }} variant="plain">
+      <Stack sx={{ ml: 'auto' }} direction="row" spacing={1}>
         <Button
           onClick={handleJoinSpectators}
           type="submit"
-          size="lg"
           color="warning"
-          startDecorator={<LogoutIcon />}
+          variant="plain"
+          startDecorator={<EyeArrowRightIcon />}
           sx={{ justifyContent: 'flex-end' }}
         >
-          Join Spectators
-        </Button>
-        <Button
-          onClick={handleLeaveLobby}
-          type="submit"
-          size="lg"
-          color="warning"
-          startDecorator={<LogoutIcon />}
-          sx={{ justifyContent: 'flex-end' }}
-        >
-          Leave
+          Spectate
         </Button>
         <Button
           type="submit"
-          size="lg"
           color="warning"
+          variant="plain"
           startDecorator={<AccountPlusIcon />}
           sx={{ justifyContent: 'flex-end' }}
         >
           Invite
         </Button>
-      </ButtonGroup>
+        <Button
+          onClick={handleLeaveLobby}
+          type="submit"
+          color="warning"
+          variant="plain"
+          startDecorator={<LogoutIcon />}
+          sx={{ justifyContent: 'flex-end' }}
+        >
+          Leave
+        </Button>
+      </Stack>
       {/* <AddFriendRoom open={open} setOpen={setOpen} roomSize={teamSizeInt} /> */}
       <Stack sx={{ display: 'flex', flexDirection: 'row' }}>
         <LobbyGameTypography level="body-sm">{lobby.name}</LobbyGameTypography>
@@ -150,70 +137,44 @@ export default function LobbyRoom() {
           </LobbyGameTypography>
         }
       </Stack>
-      <Stack
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          width: '100%',
-          mt: 10,
-          flexGrow: 1,
-        }}
-      >
-        <LobbbyCustomMatchPlayers leftTeam={leftTeam} rightTeam={rightTeam} />
-      </Stack>
-      <Stack
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          width: '100%',
-          mt: 10,
-        }}
-      >
-        <Stack
-          overflow="auto"
+      <LobbbyCustomMatchPlayers leftTeam={leftTeam} rightTeam={rightTeam} />
+      <Box display="flex" width="100%" flexGrow={1} mt={2} gap={8}>
+        <LobbyPongCustomMatchTabs />
+        <Box flex={1}>
+          <LobbySettings key={3} />
+        </Box>
+      </Box>
+      {user?.id === lobby.ownerId ? (
+        <FindMatchWrapper
           sx={{
-            borderRadius: 'md',
-            backgroundColor: (theme) =>
-              alpha(theme.resolveVar('palette-background-surface'), 0.5),
-            mb: 10,
+            position: 'relative',
+            m: 'auto!important',
           }}
+          onClick={handleStartMatch}
         >
-          <LobbyPongTabs tabLabel={customTabs} reactComponents={components} />
-        </Stack>
-        {user?.id === lobby.ownerId ? (
-          <FindMatchWrapper
-            sx={{
-              position: 'relative',
-              mt: 'auto !important',
-            }}
-            onClick={handleStartMatch}
-          >
-            <LobbyPongButton
-              label="Start Match"
-              src="/matchMaking/button1.webp"
-            />
-          </FindMatchWrapper>
-        ) : (
-          <FindMatchWrapper
-            sx={{
-              position: 'relative',
-              mt: 'auto !important',
-            }}
-            onClick={handleReady}
-          >
-            <LobbyPongButton
-              label={
-                player.status === PongModel.Models.LobbyStatus.Ready
-                  ? 'Ready'
-                  : 'Not Ready'
-              }
-              src="/matchMaking/button1.webp"
-            />
-          </FindMatchWrapper>
-        )}
-      </Stack>
-    </div>
+          <LobbyPongButton
+            label="Start Match"
+            src="/matchMaking/button1.webp"
+          />
+        </FindMatchWrapper>
+      ) : (
+        <FindMatchWrapper
+          sx={{
+            position: 'relative',
+            m: 'auto!important',
+          }}
+          onClick={handleReady}
+        >
+          <LobbyPongButton
+            label={
+              player.status === PongModel.Models.LobbyStatus.Ready
+                ? 'Ready'
+                : 'Not Ready'
+            }
+            src="/matchMaking/button1.webp"
+          />
+        </FindMatchWrapper>
+      )}
+    </Box>
   );
 }

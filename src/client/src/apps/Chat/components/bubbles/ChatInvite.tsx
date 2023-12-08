@@ -41,16 +41,18 @@ function _InviteSkeleton(): JSX.Element {
 }
 
 const InviteSkeleton = React.memo(_InviteSkeleton);
-
+const brokenInvitesCache = new Set<number>();
 function _ChatEmbedChatInviteBubble({
   embed,
   ...props
 }: IChatEmbedAttachmentsBubbleProps) {
   const { data, error, isLoading } =
     useTunnelEndpoint<ChatsModel.Endpoints.GetChatInfo>(
-      ChatsModel.Endpoints.Targets.GetChatInfo,
+      brokenInvitesCache.has(embed.chatId)
+        ? null
+        : ChatsModel.Endpoints.Targets.GetChatInfo,
       { chatId: embed.chatId },
-      { revalidateOnFocus: false }
+      { revalidateOnFocus: false, shouldRetryOnError: false }
     );
   const { attemptToJoin: _attemptToJoin } = useChat(embed.chatId);
   const chats = useRecoilValue(chatsState.chats);
@@ -59,6 +61,9 @@ function _ChatEmbedChatInviteBubble({
     [embed.chatId, chats]
   );
   const deleted = !!error || !data || data.status === 'error';
+  React.useEffect(() => {
+    if (deleted) brokenInvitesCache.add(embed.chatId);
+  }, [deleted, embed.chatId]);
   const chat = !error && data?.status === 'ok' ? data.data : undefined;
   const [loading, setLoading] = React.useState(false);
   const attemptToJoin = React.useCallback(async () => {
@@ -148,16 +153,18 @@ function _ChatEmbedChatInviteBubble({
                   : `${chat?.participantsCount} members`}
               </Typography>
             </Stack>
-            <Button
-              variant={joined ? 'plain' : 'soft'}
-              color="primary"
-              sx={{ ml: 'auto' }}
-              onClick={attemptToJoin}
-              disabled={deleted}
-              loading={loading}
-            >
-              {joined ? 'Joined' : 'Join'}
-            </Button>
+            {!deleted && (
+              <Button
+                variant={joined ? 'plain' : 'soft'}
+                color="primary"
+                sx={{ ml: 'auto' }}
+                onClick={attemptToJoin}
+                disabled={deleted}
+                loading={loading}
+              >
+                {joined ? 'Joined' : 'Join'}
+              </Button>
+            )}
           </Stack>
         </>
       )}

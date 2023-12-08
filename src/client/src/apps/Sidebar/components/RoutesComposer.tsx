@@ -13,12 +13,13 @@ import routes, {
   ISidebarNestedRoute,
   ISidebarRoute,
   ISidebarSingleRoute,
+  endRoutes,
 } from '../routes';
 import Link from '@components/Link';
 import { Router, useRoute } from 'wouter';
 import React from 'react';
 
-function SidebarSingleRoute({
+export function SidebarSingleRoute({
   icon,
   label,
   path,
@@ -27,20 +28,23 @@ function SidebarSingleRoute({
 }: ISidebarSingleRoute): JSX.Element {
   const [matches] = useRoute(routePath ?? path);
 
-  return React.useMemo(() => (
-    <ListItem>
-      <ListItemButton component={Link} href={path} selected={matches}>
-        {icon}
-        <ListItemContent>
-          <Typography level="title-sm">{label}</Typography>
-        </ListItemContent>
-        {endDecoration}
-      </ListItemButton>
-    </ListItem>
-  ), [endDecoration, icon, label, matches, path]);
+  return React.useMemo(
+    () => (
+      <ListItem>
+        <ListItemButton component={Link} href={path} selected={matches}>
+          {icon}
+          <ListItemContent>
+            <Typography level="title-sm">{label}</Typography>
+          </ListItemContent>
+          {endDecoration}
+        </ListItemButton>
+      </ListItem>
+    ),
+    [endDecoration, icon, label, matches, path]
+  );
 }
 
-function SidebarNestedRoute({
+export function SidebarNestedRoute({
   icon,
   label,
   children,
@@ -115,6 +119,10 @@ export default function SidebarRoutes(): JSX.Element {
         }}
       >
         {routes.map((route, i) => (
+          <SidebarRoute key={i} {...route} />
+        ))}
+        <Box sx={{ flexGrow: 1 }} />
+        {endRoutes.map((route, i) => (
           <SidebarRoute key={i} {...route} />
         ))}
       </List>

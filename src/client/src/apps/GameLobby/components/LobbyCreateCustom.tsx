@@ -72,7 +72,7 @@ export default function LobbyCreateCustom() {
         });
 
         ctx.set(pongGamesState.gameLobby, lobby);
-        
+
         console.log(lobby);
       } catch (error) {
         notifications.error('Failed to create lobby', (error as Error).message);
@@ -178,22 +178,26 @@ export default function LobbyCreateCustom() {
                         .value as PongModel.Models.LobbySpectatorVisibility
                     )
                   }
+                  color="warning"
                 >
                   <Stack spacing={5} sx={{ mt: 2 }}>
                     <Radio
                       value={PongModel.Models.LobbySpectatorVisibility.All}
                       size="sm"
                       label="All"
+                      color="warning"
                     />
                     <Radio
                       value={PongModel.Models.LobbySpectatorVisibility.Friends}
                       size="sm"
                       label="Friends Only"
+                      color="warning"
                     />
                     <Radio
                       value={PongModel.Models.LobbySpectatorVisibility.None}
                       size="sm"
                       label="None"
+                      color="warning"
                     />
                   </Stack>
                 </RadioGroup>
@@ -202,9 +206,12 @@ export default function LobbyCreateCustom() {
           </Box>
           <Button
             sx={{ width: '25%', mt: 5 }}
+            fullWidth
             type="submit"
             variant="outlined"
             onClick={handleCreateRoom}
+            loading={loading}
+            color="warning"
           >
             Create
           </Button>

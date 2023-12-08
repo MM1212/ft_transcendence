@@ -1,28 +1,97 @@
-import { TabPanel } from "@mui/joy";
-import { Tab, TabList, Tabs } from "@mui/joy";
+import { TabPanel } from '@mui/joy';
+import { Tab, TabList, Tabs } from '@mui/joy';
+import { LobbyMatchMaking } from './LobbyMatchMaking';
+import LobbyCreateCustom from './LobbyCreateCustom';
+import LobbyJoinCustom from './LobbyJoinCustom';
+import { useParams } from 'wouter';
+import { navigate } from 'wouter/use-location';
+import React from 'react';
+import Link from '@components/Link';
+import { useRecoilValue } from 'recoil';
+import pongGamesState from '../state';
 
-interface LobbyTopProps {
-  tabLabel: string[];
-  reactComponents: JSX.Element[];
-}
+const tabs: {
+  value: string;
+  label: string;
+  disableIfInLobby?: boolean;
+  component: React.ComponentType;
+}[] = [
+  {
+    value: 'queue',
+    label: 'Matchmaking',
+    component: LobbyMatchMaking,
+    disableIfInLobby: true,
+  },
+  {
+    value: 'create',
+    label: 'Create Custom',
+    component: LobbyCreateCustom,
+  },
+  {
+    value: 'public',
+    label: 'Join Custom',
+    component: LobbyJoinCustom,
+    disableIfInLobby: true,
+  },
+  {
+    value: 'ongoing',
+    label: 'Active Games',
+    component: () => <div>Ongoing</div>,
+    disableIfInLobby: true,
+  },
+];
 
-const LobbyTop: React.FC<LobbyTopProps> = ({ tabLabel, reactComponents }) => {
+function LobbyTop() {
+  const { tabId } = useParams<{ tabId: string }>();
+  const inLobby = useRecoilValue(pongGamesState.isInLobby);
+  const actualTabs = React.useMemo(
+    () => tabs.filter((tab) => !tab.disableIfInLobby || !inLobby),
+    [inLobby]
+  );
+  React.useEffect(() => {
+    console.log(tabId);
+
+    if (!actualTabs.some((tab) => tab.value === tabId))
+      navigate(`${actualTabs[0].value}`, { replace: true });
+  }, [actualTabs, tabId]);
+
   return (
     <Tabs
-      aria-label="Scrollable tabs"
-      defaultValue={0}
-      sx={{ height: '100%', display: 'flex', justifyContent:'center', backgroundColor: "unset", width: "100%"}}
+      value={tabId ?? 'queue'}
+      sx={{
+        height: '100%',
+        display: 'flex',
+        justifyContent: 'center',
+        backgroundColor: 'unset',
+        width: '100%',
+      }}
+      color="warning"
     >
-      <TabList >
-        {tabLabel.map((nameTab, index) => (
-          <Tab  key={index} sx={{ flex: "none"}}>
-            {nameTab}
+      <TabList
+        style={{
+          borderRadius: 0,
+          // '[data-first-child]': {
+          //   borderRadius: 0
+          // }
+        }}
+        tabFlex={1}
+        color="warning"
+      >
+        {tabs.map((tab, index) => (
+          <Tab
+            disabled={tab.disableIfInLobby && inLobby}
+            value={tab.value}
+            key={index}
+            component={Link}
+            to={`/pong/play/${tab.value}`}
+          >
+            {tab.label}
           </Tab>
         ))}
       </TabList>
-      {reactComponents.map((component, index) => (
-        <TabPanel  key={index} value={index} style={{flexGrow: 1}}>
-          {component}
+      {actualTabs.map(({ value: path, component: Component }, index) => (
+        <TabPanel key={index} value={path} sx={{ overflow: 'auto' }}>
+          {<Component />}
         </TabPanel>
       ))}
     </Tabs>

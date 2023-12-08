@@ -109,6 +109,7 @@ namespace PongModel {
       nPlayers: number;
       teams: [ITeam, ITeam];
       spectators: ILobbyParticipant[];
+      chatId: number;
     }
 
     export interface ILobbyInfoDisplay

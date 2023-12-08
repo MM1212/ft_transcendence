@@ -27,8 +27,14 @@ import MessageIcon from '@components/icons/MessageIcon';
 import UserMenuOptions from '../components/UserMenuOptions';
 import AccountPlusIcon from '@components/icons/AccountPlusIcon';
 
-function OtherOptions({ userId, friend }: { userId: number; friend: boolean }) {
-  const { goToMessages } = useFriend(userId);
+function OtherOptions({
+  user,
+  friend,
+}: {
+  user: UsersModel.Models.IUserInfo;
+  friend: boolean;
+}) {
+  const { goToMessages } = useFriend(user.id);
   return (
     <ButtonGroup size="sm" variant="outlined">
       <Button
@@ -48,7 +54,7 @@ function OtherOptions({ userId, friend }: { userId: number; friend: boolean }) {
           <DotsVerticalIcon />
         </MenuButton>
         <Menu variant="outlined" sx={{ zIndex: 1300 }}>
-          <UserMenuOptions userId={userId} />
+          <UserMenuOptions user={user} />
         </Menu>
       </Dropdown>
     </ButtonGroup>
@@ -65,9 +71,11 @@ function UserProfile({
   const { open: openUpdateModal } = useUpdateUserModalActions();
   return (
     <Sheet
-      style={{
+      sx={{
         height: '100%',
         width: '45dvh',
+        borderLeft: '1px solid',
+        borderColor: 'divider',
       }}
     >
       <Stack
@@ -114,7 +122,7 @@ function UserProfile({
           )}
           <Typography level="h2">{user.nickname}</Typography>
           {affiliation !== 'me' && (
-            <OtherOptions userId={user.id} friend={affiliation === 'friend'} />
+            <OtherOptions user={user} friend={affiliation === 'friend'} />
           )}
         </Stack>
         <Divider />

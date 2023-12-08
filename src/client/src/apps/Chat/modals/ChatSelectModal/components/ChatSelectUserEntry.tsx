@@ -1,10 +1,11 @@
 import { ChatSelectEntryProps } from '../state/types';
 import ChatSelectEntryWrapper from './EntryWrapper';
-import {Stack, Typography } from '@mui/joy';
+import { Stack, Typography } from '@mui/joy';
 import { useUser } from '@hooks/user';
 import { UserAvatar } from '@components/AvatarWithStatus';
 import CircleIcon from '@components/icons/CircleIcon';
 import { userStatusToColor, userStatusToString } from '@utils/userStatus';
+import ProfileTooltip from '@components/ProfileTooltip';
 
 export default function ChatSelectUserEntry(
   props: ChatSelectEntryProps
@@ -14,7 +15,9 @@ export default function ChatSelectUserEntry(
 
   return (
     <ChatSelectEntryWrapper {...props}>
-      <UserAvatar src={user.avatar} size="md" />
+      <ProfileTooltip user={user} placement="left-start">
+        <UserAvatar src={user.avatar} size="md" />
+      </ProfileTooltip>
       <Stack spacing={0.1} height="100%" justifyContent="center" flexGrow={1}>
         <Typography level="title-sm">{user.nickname}</Typography>
         <Stack direction="row" spacing={0.5} alignItems="center">
