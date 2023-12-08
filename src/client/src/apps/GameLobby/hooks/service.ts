@@ -4,7 +4,7 @@ import pongGamesState from '../state';
 import { useSseEvent } from '@hooks/sse';
 
 const useLobbyService = () => {
-  const onLeaveLobbyEvent = useRecoilCallback(
+  const onUpdateLobbyEvent = useRecoilCallback(
     (ctx) => async (ev: PongModel.Sse.UpdateLobbyParticipantEvent) => {
       const { data } = ev;
       const lobby = await ctx.snapshot.getPromise(pongGamesState.gameLobby);
@@ -28,9 +28,21 @@ const useLobbyService = () => {
     },
     []
   );
+
+  const onKickEvent = useRecoilCallback(
+    (ctx) => async () => {
+      const lobby = await ctx.snapshot.getPromise(pongGamesState.gameLobby);
+      if (!lobby) return;
+      ctx.set(pongGamesState.gameLobby, null);
+    }, []
+  )
+  useSseEvent<PongModel.Sse.Kick>(
+    PongModel.Sse.Events.Kick,
+    onKickEvent
+  );
   useSseEvent<PongModel.Sse.UpdateLobbyParticipantEvent>(
     PongModel.Sse.Events.UpdateLobbyParticipants,
-    onLeaveLobbyEvent
+    onUpdateLobbyEvent
   );
 };
 

@@ -25,6 +25,14 @@ const pongGamesState = new (class GamesState {
       return get(this.gameLobby) !== null;
     },
   });
+  lobbyOwner = selector<number | null>({
+    key: 'lobbyOwner',
+    get: ({ get }) => {
+      const lobby = get(this.gameLobby);
+      if (!lobby) return null;
+      return lobby.ownerId;
+    },
+  });
 })();
 
 export default pongGamesState;

@@ -1,4 +1,4 @@
-import { Box, Button, ButtonGroup, Stack, Typography } from '@mui/joy';
+import { Box, Button, Stack, Typography } from '@mui/joy';
 import LobbyGameTypography from './LobbyGameTypography';
 import ShurikenIcon from '@components/icons/ShurikenIcon';
 import LobbbyCustomMatchPlayers from './LobbyCustomMatchPlayers';
@@ -12,32 +12,37 @@ import pongGamesState from '../state';
 import notifications from '@lib/notifications/hooks';
 import tunnel from '@lib/tunnel';
 import PongModel from '@typings/models/pong';
-import LobbyInviteSpectate from './LobbyInviteSpectate';
 import LogoutIcon from '@components/icons/LogoutIcon';
 import AccountPlusIcon from '@components/icons/AccountPlusIcon';
 import LobbyPongCustomMatchTabs from './LobbyPongCustomMatchTabs';
 import EyeArrowRightIcon from '@components/icons/EyeArrowRightIcon';
+import { LobbySettings } from './LobbySettings';
 
 export default function LobbyRoom() {
-  const customTabs = ['Chat', 'Invited', 'Spectators'];
   const lobby = useRecoilValue(pongGamesState.gameLobby)!;
-  const components = [
-    <LobbyInviteSpectate key={0} type="No pending Messages" usersId={[]} />,
-    <LobbyInviteSpectate key={1} type="No pending invites" usersId={[]} />,
-    <LobbyInviteSpectate
-      key={2}
-      type="No Spectators"
-      usersId={lobby.spectators.map((user) => user.id)}
-    />,
-  ];
   const [leftTeam, rightTeam] = lobby.teams;
 
   const user = useCurrentUser();
-  const [open, setOpen] = React.useState(false);
 
-  const handleStartMatch = () => {
+  const player = leftTeam.players
+    .concat(rightTeam.players)
+    .concat(lobby.spectators)
+    .find((player) => player.id === user?.id);
+
+  const handleStartMatch = useRecoilCallback(() => async () => {
     console.log('start match');
-  };
+  });
+
+  const handleReady = React.useCallback(async () => {
+    try {
+      await tunnel.post(PongModel.Endpoints.Targets.Ready, {
+        lobbyId: lobby.id,
+      });
+    } catch (error) {
+      console.log('Failed to ready up');
+    }
+  }, [lobby.id]);
+
   const handleLeaveLobby = useRecoilCallback((ctx) => async () => {
     const notif = notifications.default('Leaving lobby...');
     try {
@@ -57,7 +62,7 @@ export default function LobbyRoom() {
     }
   });
 
-  const handleJoinSpectators = useRecoilCallback((ctx) => async () => {
+  const handleJoinSpectators = React.useCallback(async () => {
     try {
       await tunnel.post(PongModel.Endpoints.Targets.JoinSpectators, {
         lobbyId: lobby.id,
@@ -65,9 +70,10 @@ export default function LobbyRoom() {
     } catch {
       console.log('Failed to join spectators');
     }
-  });
+  }, [lobby.id]);
 
   if (user === null) return null;
+  if (player === undefined) return null;
   return (
     <Box
       display="flex"
@@ -102,7 +108,6 @@ export default function LobbyRoom() {
           Spectate
         </Button>
         <Button
-          onClick={() => setOpen(true)}
           type="submit"
           color="warning"
           variant="plain"
@@ -135,18 +140,41 @@ export default function LobbyRoom() {
       <LobbbyCustomMatchPlayers leftTeam={leftTeam} rightTeam={rightTeam} />
       <Box display="flex" width="100%" flexGrow={1} mt={2} gap={8}>
         <LobbyPongCustomMatchTabs />
-        <Box flex={1}>Settings</Box>
+        <Box flex={1}>
+          <LobbySettings key={3} />
+        </Box>
       </Box>
-      <FindMatchWrapper
-        sx={{
-          position: 'relative',
-          mt: 'auto !important',
-          alignSelf: 'center',
-        }}
-        onClick={handleStartMatch}
-      >
-        <LobbyPongButton label="Start Match" src="/matchMaking/button1.webp" />
-      </FindMatchWrapper>
+      {user?.id === lobby.ownerId ? (
+        <FindMatchWrapper
+          sx={{
+            position: 'relative',
+            m: 'auto!important',
+          }}
+          onClick={handleStartMatch}
+        >
+          <LobbyPongButton
+            label="Start Match"
+            src="/matchMaking/button1.webp"
+          />
+        </FindMatchWrapper>
+      ) : (
+        <FindMatchWrapper
+          sx={{
+            position: 'relative',
+            m: 'auto!important',
+          }}
+          onClick={handleReady}
+        >
+          <LobbyPongButton
+            label={
+              player.status === PongModel.Models.LobbyStatus.Ready
+                ? 'Ready'
+                : 'Not Ready'
+            }
+            src="/matchMaking/button1.webp"
+          />
+        </FindMatchWrapper>
+      )}
     </Box>
   );
 }

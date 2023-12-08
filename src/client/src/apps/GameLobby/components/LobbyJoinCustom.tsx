@@ -1,4 +1,4 @@
-import { useRecoilCallback, useRecoilValue } from 'recoil';
+import { useRecoilCallback } from 'recoil';
 import pongGamesState from '../state';
 import { useTunnelEndpoint } from '@hooks/tunnel';
 import PongModel from '@typings/models/pong';

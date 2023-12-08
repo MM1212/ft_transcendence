@@ -1,4 +1,4 @@
-import { Box, Typography } from '@mui/joy';
+import { Box } from '@mui/joy';
 import { Stack } from '@mui/joy';
 import LobbyPlayerPlaceholder from './LobbyPlayerPlacehoder';
 import LobbyGameTypography from './LobbyGameTypography';
@@ -36,12 +36,7 @@ export default function LobbbyCustomMatchPlayers({
       ? rightPlayer1
       : rightPlayer2;
   return (
-    <Stack
-      direction="row"
-      width="100%"
-      alignItems="center"
-      alignSelf="center"
-    >
+    <Stack direction="row" width="100%" alignItems="center" alignSelf="center">
       <Box width="100%">
         <LobbyGameTypography sx={{ mb: 2, border: 'unset' }} level="title-lg">
           Team 1
@@ -50,12 +45,16 @@ export default function LobbbyCustomMatchPlayers({
           id={leftTopPlayer?.id}
           teamId={PongModel.Models.TeamSide.Left}
           teamPosition={PongModel.Models.TeamPosition.Top}
+          ready={leftTopPlayer?.status === PongModel.Models.LobbyStatus.Ready}
         />
         <LobbyPlayerPlaceholder
           id={leftBottomPlayer?.id}
           teamId={PongModel.Models.TeamSide.Left}
           teamPosition={PongModel.Models.TeamPosition.Bottom}
           warnForPositionShift={leftBottomPlayer && !leftTopPlayer}
+          ready={
+            leftBottomPlayer?.status === PongModel.Models.LobbyStatus.Ready
+          }
         />
       </Box>
       <Box width="20%"></Box>
@@ -72,12 +71,16 @@ export default function LobbbyCustomMatchPlayers({
           id={rightTopPlayer?.id}
           teamId={PongModel.Models.TeamSide.Right}
           teamPosition={PongModel.Models.TeamPosition.Top}
+          ready={rightTopPlayer?.status === PongModel.Models.LobbyStatus.Ready}
         />
         <LobbyPlayerPlaceholder
           id={rightBottomPlayer?.id}
           teamId={PongModel.Models.TeamSide.Right}
           teamPosition={PongModel.Models.TeamPosition.Bottom}
           warnForPositionShift={rightBottomPlayer && !rightTopPlayer}
+          ready={
+            rightBottomPlayer?.status === PongModel.Models.LobbyStatus.Ready
+          }
         />
       </Box>
     </Stack>

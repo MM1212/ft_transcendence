@@ -185,6 +185,9 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
     } else {
       team.players.splice(team.players.indexOf(player), 1);
     }
+    console.log(
+      `Lobby-${this.id}: ${player.nickname} left. (Was in team ${teamSide})`,
+    );
   }
 
   private get allInLobby(): PongModel.Models.ILobbyParticipant[] {
@@ -206,9 +209,15 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
     );
   }
 
-  public async removePlayer(userId: number): Promise<void> {
-    // team or spectator
-    // if owner change ownership
+  public sendToParticipant(
+    userId: number,
+    event: PongModel.Sse.Events,
+    data: unknown,
+  ): void {
+    this.helpers.sseService.emitToTargets(event, [userId], data);
+  }
+
+  private async removeFromLobby(userId: number): Promise<void> {
     if (this.spectators.some((player) => player.id === userId)) {
       const player = this.spectators.find((player) => player.id === userId)!;
       this.removePlayerFromSpectator(player);
@@ -220,18 +229,25 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
       this.nPlayers--;
     }
     await this.chat.removeParticipant(userId);
-    if (this.ownerId === userId) {
-      // does this work?
-      const newOwner =
-        this.teams[0].players[0] ||
-        this.teams[1].players[0] ||
-        this.spectators[0];
-      if (newOwner) {
-        console.log('NEW OWNER : ', newOwner);
-        await this.setAsOwner(this.getPlayerFromBoth(newOwner.id)!);
-      }
+  }
+
+  private async assignNewOwner() {
+    // does this work?
+    const newOwner =
+      this.teams[0].players[0] ||
+      this.teams[1].players[0] ||
+      this.spectators[0];
+    if (newOwner) {
+      console.log('NEW OWNER : ', newOwner);
+      await this.setAsOwner(this.getPlayerFromBoth(newOwner.id)!);
     }
-    this.syncParticipants();
+  }
+
+  public async removePlayer(userId: number) {
+    await this.removeFromLobby(userId);
+    if (this.ownerId === userId) {
+      await this.assignNewOwner();
+    }
   }
 
   public async setAsOwner(player: PongLobbyParticipant) {
@@ -277,6 +293,14 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
     };
   }
 
+  public async kick(userId: number, userToKickId: number): Promise<boolean> {
+    if (this.ownerId !== userId) return false;
+    const player = this.getPlayerFromBoth(userToKickId);
+    if (!player) return false;
+    await this.removeFromLobby(userToKickId);
+    return true;
+  }
+
   public joinSpectators(userId: number): boolean {
     const player = this.getPlayerFromTeam(userId);
     if (!player) return false;
@@ -299,6 +323,18 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
         this.teams[teamId].players[0].teamPosition === teamPosition)
     )
       return false;
+    return true;
+  }
+
+  public ready(userId: number): boolean {
+    if (this.status !== PongModel.Models.LobbyStatus.Waiting) return false;
+    const player = this.getPlayerFromBoth(userId);
+    if (!player) return false;
+    player.status =
+      player.status === PongModel.Models.LobbyStatus.Ready
+        ? PongModel.Models.LobbyStatus.Waiting
+        : PongModel.Models.LobbyStatus.Ready;
+    console.log('new status: ', player.status);
     return true;
   }
 

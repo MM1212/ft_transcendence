@@ -8,7 +8,7 @@ import { PongLobbyDependencies } from './ponglobby/dependencies';
 import { DbService } from '../db';
 import { UsersService } from '../users/users.service';
 import PongModel from '@typings/models/pong';
-import { EndpointData } from '@typings/api';
+import { ChatModel, EndpointData } from '@typings/api';
 import User from '../users/user';
 
 @Injectable()
@@ -75,6 +75,35 @@ export class PongLobbyService {
     else throw new ForbiddenException('Could not change owner');
   }
 
+  public async ready(userId: number, lobbyId: number): Promise<void> {
+    if (!this.usersInGames.has(userId))
+      throw new ForbiddenException('User is not in a lobby/game');
+    if (lobbyId !== this.usersInGames.get(userId))
+      throw new ForbiddenException('User is not in the specified lobby');
+    const lobby = this.games.get(lobbyId);
+    if (!lobby) throw new Error('Could not find lobby');
+    if (lobby.ready(userId)) lobby.syncParticipants();
+    else throw new ForbiddenException('Could not ready');
+  }
+
+  public async kick(
+    userId: number,
+    lobbyId: number,
+    userToKickId: number,
+  ): Promise<void> {
+    if (!this.usersInGames.has(userId))
+      throw new ForbiddenException('User is not in a lobby/game');
+    if (lobbyId !== this.usersInGames.get(userId))
+      throw new ForbiddenException('User is not in the specified lobby');
+    const lobby = this.games.get(lobbyId);
+    if (!lobby) throw new Error('Could not find lobby');
+    if (await lobby.kick(userId, userToKickId)) {
+      this.usersInGames.delete(userToKickId);
+      lobby.sendToParticipant(userToKickId, PongModel.Sse.Events.Kick, null);
+      lobby.syncParticipants();
+    } else throw new ForbiddenException('Could not kick');
+  }
+
   public async joinLobby(
     user: User,
     lobbyId: number,
@@ -90,6 +119,15 @@ export class PongLobbyService {
     const newUser = new PongLobbyParticipant(user, lobby);
     this.usersInGames.set(newUser.id, lobby.id);
     await lobby.chat.addParticipant(newUser.user);
+    await lobby.chat.addMessage(
+      newUser.user,
+      {
+        message: 'joined the lobby',
+        meta: {},
+        type: ChatModel.Models.ChatMessageType.Normal,
+      },
+      false,
+    );
     lobby.syncParticipants();
     return lobby;
   }
@@ -112,7 +150,8 @@ export class PongLobbyService {
       throw new Error('User is not in a lobby/game');
     const lobby = this.games.get(this.usersInGames.get(user.id)!);
     if (!lobby) throw new Error('User is in a non-existent lobby/game');
-    lobby.removePlayer(user.id);
+    await lobby.removePlayer(user.id);
+    lobby.syncParticipants();
     this.usersInGames.delete(user.id);
     if (lobby.nPlayers === 0 && lobby.spectators.length === 0) {
       await lobby.delete();

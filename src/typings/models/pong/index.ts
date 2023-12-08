@@ -131,12 +131,15 @@ namespace PongModel {
       extends Pick<ILobby, 'id' | 'teams' | 'spectators' | 'ownerId'> {
       ownerId: number;
     }
+
+    export interface ILobbyKickParticipantEvent extends ILobby {}
   }
 
   export namespace Sse {
     export enum Events {
       NewLobby = 'pong.new-lobby',
       UpdateLobbyParticipants = 'pong.update-lobby-participants',
+      Kick = 'pong.kick-participant',
     }
 
     export interface UpdateLobbyParticipantEvent
@@ -144,6 +147,11 @@ namespace PongModel {
         Models.ILobbyUpdateParticipantsEvent,
         Events.UpdateLobbyParticipants
       > {}
+    
+    export interface Kick extends SseModel.Models.Event<
+      Models.ILobbyKickParticipantEvent,
+      Events.Kick
+    > {}
   }
 
   export namespace DTO {
@@ -160,6 +168,8 @@ namespace PongModel {
       ChangeTeam = '/pong/lobby/team',
       ChangeOwner = '/pong/lobby/owner',
       JoinSpectators = '/pong/lobby/spectators',
+      Ready = '/pong/lobby/ready',
+      Kick = '/pong/lobby/kick',
       //GET
       GetSessionLobby = '/pong/lobby/session',
       GetAllLobbies = '/pong/lobby/all',
@@ -246,6 +256,27 @@ namespace PongModel {
         { lobbyId: number }
       > {}
 
+    export interface Ready
+      extends Endpoint<
+        EndpointMethods.Post,
+        Targets.Ready,
+        undefined,
+        {
+          lobbyId: number;
+        }
+      > {}
+
+    export interface Kick
+      extends Endpoint<
+        EndpointMethods.Post,
+        Targets.Kick,
+        undefined,
+        {
+          lobbyId: number;
+          userId: number;
+        }
+      > {}
+
     /* GET methods */
 
     export interface GetSessionLobby
@@ -274,6 +305,8 @@ namespace PongModel {
         [Targets.JoinSpectators]: JoinSpectators;
         [Targets.ChangeTeam]: ChangeTeam;
         [Targets.ChangeOwner]: ChangeOwner;
+        [Targets.Ready]: Ready;
+        [Targets.Kick]: Kick;
       };
     }
   }
