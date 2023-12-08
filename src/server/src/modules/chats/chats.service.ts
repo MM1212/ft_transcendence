@@ -138,7 +138,7 @@ export class ChatsService {
     ];
   }
 
-  public async nukeChat(id: number, op: User): Promise<void> {
+  public async nukeChat(id: number, op?: User): Promise<void> {
     const chat = await this.get(id);
     if (!chat) return;
     await chat.nuke(op);
@@ -153,10 +153,15 @@ export class ChatsService {
       throw new ForbiddenException('You are banned from this chat.');
     if (participant.role !== ChatsModel.Models.ChatParticipantRole.Left)
       throw new InternalServerErrorException('Invalid participant role.');
-    await chat.updateParticipant(op, participant.id, {
-      role: ChatsModel.Models.ChatParticipantRole.Member,
-      toReadPings: 0,
-    }, false);
+    await chat.updateParticipant(
+      op,
+      participant.id,
+      {
+        role: ChatsModel.Models.ChatParticipantRole.Member,
+        toReadPings: 0,
+      },
+      false,
+    );
   }
   public async joinChat(
     id: number,
@@ -198,5 +203,17 @@ export class ChatsService {
     if (chat.isDirect)
       throw new ForbiddenException('You cannot join a direct chat.');
     await chat.addParticipant(op);
+  }
+
+  async leaveChat(id: number, user: User): Promise<void> {
+    const chat = await this.get(id);
+    if (!chat) throw new BadRequestException('Chat does not exist.');
+    const participant = chat.getParticipantByUserId(user.id);
+    if (!participant)
+      throw new InternalServerErrorException(
+        'Participant validated but not found',
+      );
+    await chat.removeParticipant(participant.id);
+    if (chat.participants.length === 0) await this.nukeChat(chat.id);
   }
 }

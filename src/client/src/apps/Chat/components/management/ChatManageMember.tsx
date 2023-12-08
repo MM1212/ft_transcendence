@@ -52,6 +52,7 @@ function AdminOptions({ participant, role, closeAndRun }: Props): JSX.Element {
     unban,
     transferOwnership,
     openMuteModal,
+    sendInviteToTargets,
   } = useChatManageActions();
 
   const chooseMuteOption = useRecoilCallback(
@@ -90,6 +91,19 @@ function AdminOptions({ participant, role, closeAndRun }: Props): JSX.Element {
         )}
         {(isMember || isSelfOwner) && (
           <>
+            {left && !isBanned && (
+              <MenuOption
+                icon={AccountPlusIcon}
+                color="warning"
+                onClick={() =>
+                  sendInviteToTargets([
+                    { type: 'user', id: participant.userId },
+                  ])
+                }
+              >
+                Invite Back
+              </MenuOption>
+            )}
             {!isBanned && !left && (
               <>
                 <MenuOption
@@ -108,6 +122,7 @@ function AdminOptions({ participant, role, closeAndRun }: Props): JSX.Element {
                 </MenuOption>
               </>
             )}
+
             <MenuOption
               icon={CloseOctagonOutlineIcon}
               color="danger"
@@ -127,13 +142,15 @@ function AdminOptions({ participant, role, closeAndRun }: Props): JSX.Element {
       isAdmin,
       closeAndRun,
       isMember,
-      isBanned,
       left,
+      isBanned,
       chooseMuteOption,
       isMutedData.is,
       toggleAdmin,
       participant.id,
+      participant.userId,
       transferOwnership,
+      sendInviteToTargets,
       kick,
       unban,
       ban,

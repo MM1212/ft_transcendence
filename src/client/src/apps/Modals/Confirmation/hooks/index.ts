@@ -13,6 +13,7 @@ export interface ConfirmationModalState<T = unknown> {
   cancelVariant?: VariantProp;
   cancelText?: React.ReactNode;
   data?: T;
+  keepOpen?: boolean; // keep open after confirm, useful for chaining
   onConfirm: () => any;
   onCancel?: () => void;
 }

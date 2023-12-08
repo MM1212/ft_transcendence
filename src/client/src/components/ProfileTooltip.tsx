@@ -20,6 +20,7 @@ import { computeUserAvatar } from '@utils/computeAvatar';
 // @ts-expect-error not typed
 import ColorThief from 'colorthief';
 import { darken } from '@theme';
+import { selectorFamily, useRecoilValue, useRecoilValueLoadable } from 'recoil';
 
 export interface IProfileTooltipProps {
   user: UsersModel.Models.IUserInfo;
@@ -30,6 +31,21 @@ export interface IProfileTooltipProps {
 }
 const colorThief = new ColorThief();
 
+const cacheSelector = selectorFamily<string, string>({
+  key: 'avatar-color',
+  get: (url) => async () =>
+    await new Promise((r) =>
+      colorThief.getColorFromUrl(
+        computeUserAvatar(url),
+        (color: number[]) => r(`rgb(${color.join(',')})`),
+        undefined
+      )
+    ),
+  cachePolicy_UNSTABLE: {
+    eviction: 'most-recent',
+  },
+});
+
 function ProfileTooltipContent({
   user,
   badges,
@@ -38,17 +54,11 @@ function ProfileTooltipContent({
   badges?: React.ReactNode[];
 }) {
   const { goToMessages, goToProfile } = useFriend(user.id);
-  const [averageAvatarColor, setAverageAvatarColor] = React.useState<
-    string | undefined
-  >();
+  const { contents: averageAvatarColor, state } = useRecoilValueLoadable(
+    cacheSelector(user.avatar)
+  );
+  console.log(averageAvatarColor);
 
-  React.useEffect(() => {
-    colorThief.getColorFromUrl(
-      computeUserAvatar(user.avatar),
-      (color: number[]) => setAverageAvatarColor(`rgb(${color.join(',')})`),
-      undefined
-    );
-  }, [user.avatar]);
   return (
     <Box
       display="flex"
@@ -81,12 +91,12 @@ function ProfileTooltipContent({
             width: '100%',
             position: 'absolute',
             height: '3rem',
-            backgroundImage: theme =>  {
-              const color = averageAvatarColor ?? theme.resolveVar('palette-neutral-400');
-              return `linear-gradient(45deg, ${darken(
-                color,
-                0.4
-              )}, ${color})`
+            backgroundImage: (theme) => {
+              const color =
+                state === 'hasValue'
+                  ? averageAvatarColor
+                  : theme.resolveVar('palette-neutral-400');
+              return `linear-gradient(45deg, ${darken(color, 0.4)}, ${color})`;
             },
             top: 0,
             left: 0,
@@ -99,7 +109,7 @@ function ProfileTooltipContent({
           variant="outlined"
           inset="16%"
           sx={{
-            borderWidth: (theme) => theme.spacing(0.25),
+            borderWidth: (theme) => theme.spacing(0.5),
             borderColor: 'background.level1',
           }}
           background="level1"
@@ -138,24 +148,24 @@ function ProfileTooltipContent({
         />
         <Stack spacing={0.25}>
           <Typography
-            level="title-sm"
+            level="title-xs"
             textTransform="uppercase"
             fontWeight={600}
-            fontSize=".5rem"
           >
             Member since
           </Typography>
-          <Typography level="body-xs" fontSize=".25rem">
+          <Typography level="body-xs">
             {moment(user.createdAt).format('MMM Do YYYY')}
           </Typography>
         </Stack>
-        <Stack mt="auto" spacing={1} direction="row" alignItems="center">
+        <Box mt="auto" gap={1} display="flex" alignItems="center">
           <Button
             variant="outlined"
             color="neutral"
             startDecorator={<AccountIcon />}
             size="sm"
             onClick={goToProfile}
+            fullWidth
           >
             Profile
           </Button>
@@ -165,10 +175,11 @@ function ProfileTooltipContent({
             startDecorator={<MessageIcon size="sm" />}
             size="sm"
             onClick={goToMessages}
+            fullWidth
           >
             Message
           </Button>
-        </Stack>
+        </Box>
       </Sheet>
     </Box>
   );

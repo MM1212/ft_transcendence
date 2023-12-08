@@ -8,19 +8,22 @@ import { IAuthSession } from '@typings/auth/session';
 import UserExtFriends from './ext/Friends';
 import { HttpError } from '@/helpers/decorators/httpError';
 import { AuthModel } from '@typings/api';
+import UserExtAlerts from './ext/Alerts';
 
 class User extends CacheObserver<UsersModel.Models.IUser> {
   public readonly friends: UserExtFriends = new UserExtFriends(this);
+  public readonly alerts: UserExtAlerts = new UserExtAlerts(this);
   constructor(
     data: UsersModel.Models.IUser,
-    public readonly helpers: UserDependencies,
+    private readonly helpers: UserDependencies,
   ) {
     super(data);
   }
 
   public get public(): UsersModel.Models.IUserInfo {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { friends, blocked, chats, storedStatus, tfa, ...user } = this.get();
+    const { friends, blocked, chats, storedStatus, tfa, connected, ...user } =
+      this.get();
     return user satisfies UsersModel.Models.IUserInfo;
   }
 
@@ -49,20 +52,8 @@ class User extends CacheObserver<UsersModel.Models.IUser> {
     return this.get('status');
   }
 
-  public get isOnline(): boolean {
-    return this.status === UsersModel.Models.Status.Online;
-  }
-
-  public get isOffline(): boolean {
-    return this.status === UsersModel.Models.Status.Offline;
-  }
-
-  public get isAway(): boolean {
-    return this.status === UsersModel.Models.Status.Away;
-  }
-
-  public get isBusy(): boolean {
-    return this.status === UsersModel.Models.Status.Busy;
+  public get isConnected(): boolean {
+    return this.get('connected');
   }
 
   public async refresh(): Promise<void> {

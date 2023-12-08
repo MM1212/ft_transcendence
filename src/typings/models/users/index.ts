@@ -11,7 +11,7 @@ import { GroupEnumValues } from '@typings/utils';
 
 namespace UsersModel {
   export namespace Models {
-    export const DEFAULT_AVATAR = "13";
+    export const DEFAULT_AVATAR = '13';
     export enum Status {
       Offline,
       Online,
@@ -31,10 +31,13 @@ namespace UsersModel {
       blocked: number[];
       chats: number[];
       tfa: AuthModel.Models.TFA;
+      connected: boolean;
     }
     export interface IUserInfo
-      extends Omit<IUser, 'friends' | 'blocked' | 'chats' | 'storedStatus' | 'tfa'> {}
-    
+      extends Omit<
+        IUser,
+        'friends' | 'blocked' | 'chats' | 'storedStatus' | 'tfa' | 'connected'
+      > {}
   }
   export namespace DTO {
     export namespace DB {
