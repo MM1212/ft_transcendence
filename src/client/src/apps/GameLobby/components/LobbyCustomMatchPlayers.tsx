@@ -36,61 +36,50 @@ export default function LobbbyCustomMatchPlayers({
       ? rightPlayer1
       : rightPlayer2;
   return (
-    <>
-      <Stack
-        sx={{
-          flexDirection: 'row',
-          display: 'flex',
-          width: '100%',
-        }}
+    <Stack
+      direction="row"
+      width="100%"
+      alignItems="center"
+      alignSelf="center"
+    >
+      <Box width="100%">
+        <LobbyGameTypography sx={{ mb: 2, border: 'unset' }} level="title-lg">
+          Team 1
+        </LobbyGameTypography>
+        <LobbyPlayerPlaceholder
+          id={leftTopPlayer?.id}
+          teamId={PongModel.Models.TeamSide.Left}
+          teamPosition={PongModel.Models.TeamPosition.Top}
+        />
+        <LobbyPlayerPlaceholder
+          id={leftBottomPlayer?.id}
+          teamId={PongModel.Models.TeamSide.Left}
+          teamPosition={PongModel.Models.TeamPosition.Bottom}
+          warnForPositionShift={leftBottomPlayer && !leftTopPlayer}
+        />
+      </Box>
+      <Box width="20%"></Box>
+      <Box
+        display="flex"
+        justifyContent="left"
+        flexDirection="column"
+        width="100%"
       >
-        <Box
-          sx={{
-            width: '100%',
-            height: '100%',
-          }}
-        >
-          <LobbyGameTypography sx={{ mb: 2, border: 'unset' }} level="title-lg">
-            Team 1
-          </LobbyGameTypography>
-          <LobbyPlayerPlaceholder
-            id={leftTopPlayer?.id}
-            teamId={PongModel.Models.TeamSide.Left}
-            teamPosition={PongModel.Models.TeamPosition.Top}
-          />
-          <LobbyPlayerPlaceholder
-            id={leftBottomPlayer?.id}
-            teamId={PongModel.Models.TeamSide.Left}
-            teamPosition={PongModel.Models.TeamPosition.Bottom}
-            warnForPositionShift={leftBottomPlayer && !leftTopPlayer}
-          />
-        </Box>
-        <Box sx={{ width: '20%' }}></Box>
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'left',
-            flexDirection: 'column',
-            width: '100%',
-            height: '100%',
-          }}
-        >
-          <LobbyGameTypography sx={{ mb: 2, border: 'unset' }} level="title-lg">
-            Team 2
-          </LobbyGameTypography>
-          <LobbyPlayerPlaceholder
-            id={rightTopPlayer?.id}
-            teamId={PongModel.Models.TeamSide.Right}
-            teamPosition={PongModel.Models.TeamPosition.Top}
-          />
-          <LobbyPlayerPlaceholder
-            id={rightBottomPlayer?.id}
-            teamId={PongModel.Models.TeamSide.Right}
-            teamPosition={PongModel.Models.TeamPosition.Bottom}
-            warnForPositionShift={rightBottomPlayer && !rightTopPlayer}
-          />
-        </Box>
-      </Stack>
-    </>
+        <LobbyGameTypography sx={{ mb: 2, border: 'unset' }} level="title-lg">
+          Team 2
+        </LobbyGameTypography>
+        <LobbyPlayerPlaceholder
+          id={rightTopPlayer?.id}
+          teamId={PongModel.Models.TeamSide.Right}
+          teamPosition={PongModel.Models.TeamPosition.Top}
+        />
+        <LobbyPlayerPlaceholder
+          id={rightBottomPlayer?.id}
+          teamId={PongModel.Models.TeamSide.Right}
+          teamPosition={PongModel.Models.TeamPosition.Bottom}
+          warnForPositionShift={rightBottomPlayer && !rightTopPlayer}
+        />
+      </Box>
+    </Stack>
   );
 }

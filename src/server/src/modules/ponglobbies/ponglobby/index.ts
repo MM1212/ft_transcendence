@@ -4,7 +4,6 @@ import User from '@/modules/users/user';
 import { GroupEnumValues } from '@typings/utils';
 import { ForbiddenException } from '@nestjs/common';
 import { hash } from '@shared/hash';
-import { TeamSide } from '@prisma/client';
 
 /* ---- LOBBY PARTICIPANT ---- */
 

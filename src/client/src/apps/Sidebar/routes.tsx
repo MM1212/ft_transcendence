@@ -105,7 +105,8 @@ const routes: ISidebarRoute[] = [
         children: [
           {
             label: 'Play',
-            path: '/',
+            path: '/play/queue',
+            routePath: '/play/:tabId*',
             icon: <PlayIcon />,
             exact: false,
             Component: React.lazy(() => import('@apps/GameLobby/views')),
@@ -122,7 +123,7 @@ const routes: ISidebarRoute[] = [
             path: '/leaderboard',
             icon: <PodiumIcon />,
             exact: false,
-            Component: React.lazy(() => import('@apps/Leaderboard/views'))
+            Component: React.lazy(() => import('@apps/Leaderboard/views')),
           },
         ],
       },
