@@ -17,13 +17,19 @@ import AccountPlusIcon from '@components/icons/AccountPlusIcon';
 import LobbyPongCustomMatchTabs from './LobbyPongCustomMatchTabs';
 import EyeArrowRightIcon from '@components/icons/EyeArrowRightIcon';
 import { LobbySettings } from './LobbySettings';
+import { useModalActions } from '@hooks/useModal';
+import {
+  ChatSelectedData,
+  useChatSelectModalActions,
+} from '@apps/Chat/modals/ChatSelectModal/hooks/useChatSelectModal';
 
 export default function LobbyRoom() {
   const lobby = useRecoilValue(pongGamesState.gameLobby)!;
   const [leftTeam, rightTeam] = lobby.teams;
 
   const user = useCurrentUser();
-
+  //const {open} = useModalActions(LobbyInviteId)
+  const { select: selectInvites } = useChatSelectModalActions();
   const player = leftTeam.players
     .concat(rightTeam.players)
     .concat(lobby.spectators)
@@ -72,6 +78,36 @@ export default function LobbyRoom() {
     }
   }, [lobby.id]);
 
+  const handleInviteList = React.useCallback(async () => {
+    try {
+      const selected = await selectInvites({
+        body: 'Invite to Lobby:',
+        includeDMs: true,
+        multiple: true,
+        exclude: lobby.teams[0].players
+          .concat(lobby.teams[1].players)
+          .concat(lobby.spectators)
+          .map<ChatSelectedData>((player) => ({
+            type: 'user',
+            id: player.id,
+          }))
+          .concat(
+            lobby.invited.map<ChatSelectedData>((id) => ({
+              type: 'user',
+              id,
+            }))
+          ),
+      });
+      if (selected.length === 0) return;
+      await tunnel.post(PongModel.Endpoints.Targets.Invite, {
+        lobbyId: lobby.id,
+        data: selected,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }, [lobby.id, lobby.invited, lobby.spectators, lobby.teams, selectInvites]);
+
   if (user === null) return null;
   if (player === undefined) return null;
   return (
@@ -113,6 +149,7 @@ export default function LobbyRoom() {
           variant="plain"
           startDecorator={<AccountPlusIcon />}
           sx={{ justifyContent: 'flex-end' }}
+          onClick={handleInviteList}
         >
           Invite
         </Button>

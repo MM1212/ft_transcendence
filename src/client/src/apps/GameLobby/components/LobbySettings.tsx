@@ -7,11 +7,13 @@ import {
   Option,
   Select,
   SelectOption,
+  Stack,
   Typography,
 } from '@mui/joy';
 import React from 'react';
 import PongModel from '@typings/models/pong';
 import { Box } from '@mui/joy';
+import { useCurrentUser } from '@hooks/user';
 
 export function LobbySettings() {
   const lobby = useRecoilValue(pongGamesState.gameLobby)!;
@@ -19,9 +21,15 @@ export function LobbySettings() {
     { value: 1, label: 'POWERS' },
     { value: 2, label: 'CLASSIC' },
   ];
-  const player = lobby.teams[0].players
-    .concat(lobby.teams[1].players)
-    .find((player) => player.id === 1);
+  const self = useCurrentUser();
+  const player = React.useMemo(
+    () =>
+      lobby.teams[0].players
+        .concat(lobby.teams[1].players)
+        .concat(lobby.spectators)
+        .find((player) => player.id === self?.id),
+    [lobby, self?.id]
+  );
 
   const ballTexture = [
     {
@@ -64,15 +72,13 @@ export function LobbySettings() {
     }
 
     return (
-      <React.Fragment>
-        <ListItemDecorator>
-          <Avatar
-            size="sm"
-            src={ballTexture.find((o) => o.value === option.value)?.src}
-          />
-        </ListItemDecorator>
-        {option.label}
-      </React.Fragment>
+      <Stack direction="row" alignItems="center" spacing={1} width="100%">
+        <Avatar
+          size="sm"
+          src={ballTexture.find((o) => o.value === option.value)?.src}
+        />
+        <Typography>{option.label}</Typography>
+      </Stack>
     );
   }
   function renderValue2(option: SelectOption<number> | null) {
@@ -81,15 +87,13 @@ export function LobbySettings() {
     }
 
     return (
-      <React.Fragment>
-        <ListItemDecorator>
-          <Avatar
-            size="sm"
-            src={backgroundTexture.find((o) => o.value === option.value)?.src}
-          />
-        </ListItemDecorator>
-        {option.label}
-      </React.Fragment>
+      <Stack direction="row" alignItems="center" spacing={1} width="100%">
+        <Avatar
+          size="sm"
+          src={backgroundTexture.find((o) => o.value === option.value)?.src}
+        />
+        <Typography>{option.label}</Typography>
+      </Stack>
     );
   }
 
@@ -108,21 +112,7 @@ export function LobbySettings() {
         ))}
       </Select>
       <Typography>Ball Texture:</Typography>
-      <Select
-        defaultValue={1}
-        slotProps={{
-          listbox: {
-            sx: {
-              '--ListItemDecorator-size': '44px',
-            },
-          },
-        }}
-        sx={{
-          '--ListItemDecorator-size': '44px',
-          minWidth: 240,
-        }}
-        renderValue={renderValue}
-      >
+      <Select defaultValue={1} renderValue={renderValue}>
         {ballTexture.map((option, index) => (
           <React.Fragment key={option.value}>
             {index !== 0 ? (
@@ -130,7 +120,7 @@ export function LobbySettings() {
             ) : null}
             <Option value={option.value}>
               <ListItemDecorator>
-                <Avatar src={option.src} />
+                <Avatar size="sm" src={option.src} />
               </ListItemDecorator>
               {option.label}
             </Option>
@@ -139,21 +129,7 @@ export function LobbySettings() {
       </Select>
 
       <Typography>Background Texture:</Typography>
-      <Select
-        defaultValue={1}
-        slotProps={{
-          listbox: {
-            sx: {
-              '--ListItemDecorator-size': '44px',
-            },
-          },
-        }}
-        sx={{
-          '--ListItemDecorator-size': '44px',
-          minWidth: 240,
-        }}
-        renderValue={renderValue2}
-      >
+      <Select defaultValue={1} renderValue={renderValue2}>
         {backgroundTexture.map((option, index) => (
           <React.Fragment key={option.value}>
             {index !== 0 ? (
@@ -161,7 +137,7 @@ export function LobbySettings() {
             ) : null}
             <Option value={option.value}>
               <ListItemDecorator>
-                <Avatar src={option.src} />
+                <Avatar size="sm" src={option.src} />
               </ListItemDecorator>
               {option.label}
             </Option>

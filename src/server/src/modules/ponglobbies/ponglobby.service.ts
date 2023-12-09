@@ -2,6 +2,7 @@ import {
   ForbiddenException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { PongLobby, PongLobbyParticipant } from './ponglobby';
 import { PongLobbyDependencies } from './ponglobby/dependencies';
@@ -22,7 +23,12 @@ export class PongLobbyService {
     this.deps.service = this;
   }
 
-  public async getLobby(user: User): Promise<PongLobby> {
+  public async getLobby(id: number): Promise<PongLobby> {
+    const lobby = this.games.get(id);
+    if (!lobby) throw new NotFoundException('Lobby does not exist');
+    return lobby;
+  }
+  public async getLobbyByUser(user: User): Promise<PongLobby> {
     if (!this.usersInGames.has(user.id))
       throw new ForbiddenException('User is not in a lobby/game');
     const lobbyId = this.usersInGames.get(user.id)!;
@@ -86,6 +92,58 @@ export class PongLobbyService {
     else throw new ForbiddenException('Could not ready');
   }
 
+  public async invite(
+    user: User,
+    data: PongModel.Endpoints.ChatSelectedData[],
+    lobbyId?: number,
+  ): Promise<PongLobby> {
+    let lobby: PongLobby;
+    if (!lobbyId && !this.usersInGames.has(user.id))
+      lobby = await this.createLobby(user, {
+        password: null,
+        name: 'We Friends Playing Pong',
+        spectators: PongModel.Models.LobbySpectatorVisibility.All,
+        lobbyType: PongModel.Models.LobbyType.Custom,
+        gameType: PongModel.Models.LobbyGameType.Powers,
+      });
+    else
+      lobby =
+        lobbyId !== undefined
+          ? this.games.get(lobbyId)!
+          : await this.getLobbyByUser(user);
+    if (
+      lobby.authorization !== PongModel.Models.LobbyAccess.Public &&
+      lobby.ownerId !== user.id
+    )
+      throw new ForbiddenException('User is not authorized to invite');
+    // if (!lobbyId) {
+    //   if (this.usersInGames.has(user.id))
+    //     throw new Error('User is not in a lobby/game');
+    //   lobby = await this.createLobby(user, {
+    //     password: null,
+    //     name: 'We Friends Playing Pong',
+    //     spectators: PongModel.Models.LobbySpectatorVisibility.All,
+    //     lobbyType: PongModel.Models.LobbyType.Custom,
+    //     gameType: PongModel.Models.LobbyGameType.Powers,
+    //   });
+    // } else {
+    //   if (
+    //     !this.usersInGames.has(user.id) &&
+    //     lobbyId !== this.usersInGames.get(user.id)
+    //   )
+    //     throw new Error('User is not in the specified lobby');
+    //   lobby = await this.getLobby(user);
+    //   if (
+    //     lobby.authorization !== PongModel.Models.LobbyAccess.Public &&
+    //     lobby.ownerId !== user.id
+    //   )
+    //     throw new ForbiddenException('User is not authorized to invite');
+    // }
+    await lobby.invite(user, data);
+    lobby.updateInvited();
+    return lobby;
+  }
+
   public async kick(
     userId: number,
     lobbyId: number,
@@ -118,6 +176,8 @@ export class PongLobbyService {
     lobby.verifyAuthorization(password);
     const newUser = new PongLobbyParticipant(user, lobby);
     this.usersInGames.set(newUser.id, lobby.id);
+    lobby.invited = lobby.invited.filter((id) => id !== newUser.id);
+    lobby.updateInvited();
     await lobby.chat.addParticipant(newUser.user);
     await lobby.chat.addMessage(
       newUser.user,
@@ -170,6 +230,7 @@ export class PongLobbyService {
       throw new Error('User is already in a lobby/game');
     const lobby = await new PongLobby(this.deps, body, this.lobbyId, user);
     this.games.set(this.lobbyId, lobby);
+    // this.usersInGames.set(user.id, lobby.id); THIS IS IN LOBBY CONSTRUCTOR
     console.log(
       `Lobby-${lobby.id}: ${lobby.name} created by ${
         (await lobby.owner).nickname

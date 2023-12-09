@@ -36,6 +36,21 @@ const useLobbyService = () => {
       ctx.set(pongGamesState.gameLobby, null);
     }, []
   )
+
+  const onInviteEvent = useRecoilCallback(
+    (ctx) => async (ev: PongModel.Sse.UpdateLobbyInvited) => {
+    const lobby = await ctx.snapshot.getPromise(pongGamesState.gameLobby);
+    if (!lobby) return;
+    ctx.set(pongGamesState.gameLobby, (prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        invited: ev.data.invited,
+      };
+    });
+  }, []);
+
+
   useSseEvent<PongModel.Sse.Kick>(
     PongModel.Sse.Events.Kick,
     onKickEvent
@@ -43,6 +58,10 @@ const useLobbyService = () => {
   useSseEvent<PongModel.Sse.UpdateLobbyParticipantEvent>(
     PongModel.Sse.Events.UpdateLobbyParticipants,
     onUpdateLobbyEvent
+  );
+  useSseEvent<PongModel.Sse.UpdateLobbyInvited>(
+    PongModel.Sse.Events.UpdateLobbyInvited,
+    onInviteEvent
   );
 };
 

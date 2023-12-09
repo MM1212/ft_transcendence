@@ -109,6 +109,7 @@ namespace PongModel {
       nPlayers: number;
       teams: [ITeam, ITeam];
       spectators: ILobbyParticipant[];
+      invited: number[];
       chatId: number;
     }
 
@@ -133,12 +134,15 @@ namespace PongModel {
     }
 
     export interface ILobbyKickParticipantEvent extends ILobby {}
+
+    export interface ILobbyUpdateInvitedEvent extends Pick<ILobby, 'invited'> {}
   }
 
   export namespace Sse {
     export enum Events {
       NewLobby = 'pong.new-lobby',
       UpdateLobbyParticipants = 'pong.update-lobby-participants',
+      UpdateLobbyInvited = 'pong.update-lobby-invited',
       Kick = 'pong.kick-participant',
     }
 
@@ -147,11 +151,18 @@ namespace PongModel {
         Models.ILobbyUpdateParticipantsEvent,
         Events.UpdateLobbyParticipants
       > {}
-    
-    export interface Kick extends SseModel.Models.Event<
-      Models.ILobbyKickParticipantEvent,
-      Events.Kick
-    > {}
+
+    export interface Kick
+      extends SseModel.Models.Event<
+        Models.ILobbyKickParticipantEvent,
+        Events.Kick
+      > {}
+
+    export interface UpdateLobbyInvited
+      extends SseModel.Models.Event<
+        Models.ILobbyUpdateInvitedEvent,
+        Events.UpdateLobbyInvited
+      > {}
   }
 
   export namespace DTO {
@@ -170,9 +181,11 @@ namespace PongModel {
       JoinSpectators = '/pong/lobby/spectators',
       Ready = '/pong/lobby/ready',
       Kick = '/pong/lobby/kick',
+      Invite = '/pong/lobby/invite',
       //GET
       GetSessionLobby = '/pong/lobby/session',
       GetAllLobbies = '/pong/lobby/all',
+      GetLobby = '/pong/lobby/:id',
 
       // existed before
       Connect = '/pong',
@@ -277,6 +290,22 @@ namespace PongModel {
         }
       > {}
 
+    export interface ChatSelectedData {
+      id: number;
+      type: string;
+    }
+
+    export interface Invite
+      extends Endpoint<
+        EndpointMethods.Post,
+        Targets.Invite,
+        Models.ILobby,
+        {
+          lobbyId?: number;
+          data: ChatSelectedData[];
+        }
+      > {}
+
     /* GET methods */
 
     export interface GetSessionLobby
@@ -291,10 +320,14 @@ namespace PongModel {
         }
       > {}
 
+    export interface GetLobby
+      extends GetEndpoint<Targets.GetLobby, Models.ILobbyInfoDisplay | null> {}
+
     export interface Registry extends EndpointRegistry {
       [EndpointMethods.Get]: {
         [Targets.GetSessionLobby]: GetSessionLobby;
         [Targets.GetAllLobbies]: GetAllLobbies;
+        [Targets.GetLobby]: GetLobby;
       };
       [EndpointMethods.Put]: {
         [Targets.NewLobby]: NewLobby;
@@ -307,6 +340,7 @@ namespace PongModel {
         [Targets.ChangeOwner]: ChangeOwner;
         [Targets.Ready]: Ready;
         [Targets.Kick]: Kick;
+        [Targets.Invite]: Invite;
       };
     }
   }

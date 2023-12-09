@@ -1,6 +1,8 @@
+import { usersAtom } from '@hooks/user';
 import tunnel from '@lib/tunnel';
 import PongModel from '@typings/models/pong';
-import { atom, selector } from 'recoil';
+import UsersModel from '@typings/models/users';
+import { atom, selector, waitForAll } from 'recoil';
 
 const Targets = PongModel.Endpoints.Targets;
 
@@ -16,7 +18,7 @@ const pongGamesState = new (class GamesState {
         } catch (e) {
           return null;
         }
-      }
+      },
     }),
   });
   isInLobby = selector<boolean>({

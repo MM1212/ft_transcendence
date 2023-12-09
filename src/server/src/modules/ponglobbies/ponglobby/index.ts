@@ -89,6 +89,8 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
     },
   ];
   public spectators: PongLobbyParticipant[] = [];
+  public invited: number[] = [];
+  
   public readonly chat: Chat;
 
   public get service(): PongLobbyService {
@@ -196,6 +198,57 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
       .concat(this.spectators);
   }
 
+  public updateInvited(): void {
+    this.helpers.sseService.emitToTargets<PongModel.Sse.UpdateLobbyInvited>(
+      PongModel.Sse.Events.UpdateLobbyInvited,
+      this.allInLobby.map((player) => player.id),
+      {
+        invited: this.invited,
+      },
+    );
+  }
+
+  public async invite(
+    user: User,
+    data: PongModel.Endpoints.ChatSelectedData[],
+  ): Promise<void> {
+    const allPlayers = this.allInLobby;
+
+    for (const i in data) {
+      if (data[i].type === 'user') {
+        if (allPlayers.some((player) => player.id === data[i].id)) continue;
+        if (this.invited.some((player) => player === data[i].id)) continue;
+        this.invited.push(data[i].id);
+        const target = await this.helpers.usersService.get(data[i].id);
+        if (!target) continue;
+        const [, chat] =
+          await this.helpers.chatsService.checkOrCreateDirectChat(user, target);
+        if (!chat) continue;
+        await chat.addMessage(user, {
+          type: ChatsModel.Models.ChatMessageType.Embed,
+          message: 'Pong Invite',
+          meta: {
+            type: ChatsModel.Models.Embeds.Type.GameInvite,
+            lobbyId: this.id,
+          },
+        });
+      }
+      if (data[i].type === 'chat') {
+        const chat = await this.helpers.chatsService.get(data[i].id);
+        if (!chat) continue;
+        if (chat.type !== ChatsModel.Models.ChatType.Group) continue;
+        chat.addMessage(user, {
+          type: ChatsModel.Models.ChatMessageType.Embed,
+          message: 'Pong Invite',
+          meta: {
+            type: ChatsModel.Models.Embeds.Type.GameInvite,
+            lobbyId: this.id,
+          },
+        });
+      }
+    }
+  }
+
   public syncParticipants(): void {
     this.helpers.sseService.emitToTargets<PongModel.Sse.UpdateLobbyParticipantEvent>(
       PongModel.Sse.Events.UpdateLobbyParticipants,
@@ -275,6 +328,7 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
         ),
       })) as [PongModel.Models.ITeam, PongModel.Models.ITeam],
       spectators: this.spectators.map((player) => player.interface),
+      invited: this.invited,
       chatId: this.chat.id,
     };
   }

@@ -6,7 +6,9 @@ import {
   Controller,
   DefaultValuePipe,
   Get,
+  Param,
   ParseBoolPipe,
+  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -26,7 +28,7 @@ class NewLobbyDataDto implements EndpointData<PongModel.Endpoints.NewLobby> {
   gameType!: PongModel.Models.LobbyGameType;
 }
 
-
+// ADICIONAR NONCE
 
 @Auth()
 @Controller()
@@ -39,7 +41,7 @@ export class PongLobbyController {
     @Body() body: NewLobbyDataDto,
   ): Promise<InternalEndpointResponse<PongModel.Endpoints.NewLobby>> {
     console.log();
-    
+
     const newLobby = await this.service.createLobby(ctx.user, body);
     return newLobby.interface;
   }
@@ -49,7 +51,7 @@ export class PongLobbyController {
     @HttpCtx() ctx: HTTPContext<true>,
     @Body() body: EndpointData<PongModel.Endpoints.LeaveLobby>,
   ): Promise<InternalEndpointResponse<PongModel.Endpoints.LeaveLobby>> {
-    const lobby = await this.service.getLobby(ctx.user);
+    const lobby = await this.service.getLobbyByUser(ctx.user);
     if (lobby.id !== body.lobbyId)
       throw new BadRequestException('Lobby ID does not match');
     await this.service.leaveLobby(ctx.user);
@@ -59,8 +61,12 @@ export class PongLobbyController {
   async joinLobby(
     @HttpCtx() ctx: HTTPContext<true>,
     @Body() body: EndpointData<PongModel.Endpoints.JoinLobby>,
-  ): Promise<InternalEndpointResponse<PongModel.Endpoints.JoinLobby>> {    
-    const lobby = await this.service.joinLobby(ctx.user, body.lobbyId, body.password);
+  ): Promise<InternalEndpointResponse<PongModel.Endpoints.JoinLobby>> {
+    const lobby = await this.service.joinLobby(
+      ctx.user,
+      body.lobbyId,
+      body.password,
+    );
     return lobby.interface;
   }
 
@@ -69,7 +75,12 @@ export class PongLobbyController {
     @HttpCtx() ctx: HTTPContext<true>,
     @Body() body: EndpointData<PongModel.Endpoints.ChangeTeam>,
   ): Promise<InternalEndpointResponse<PongModel.Endpoints.ChangeTeam>> {
-    await this.service.changeTeam(ctx.user.id, body.teamId, body.teamPosition, body.lobbyId);
+    await this.service.changeTeam(
+      ctx.user.id,
+      body.teamId,
+      body.teamPosition,
+      body.lobbyId,
+    );
   }
 
   @Post(Targets.ChangeOwner)
@@ -104,11 +115,20 @@ export class PongLobbyController {
     await this.service.kick(ctx.user.id, body.lobbyId, body.userId);
   }
 
+  @Post(Targets.Invite)
+  async invite(
+    @HttpCtx() ctx: HTTPContext<true>,
+    @Body() body: EndpointData<PongModel.Endpoints.Invite>,
+  ): Promise<InternalEndpointResponse<PongModel.Endpoints.Invite>> {
+    const lobby = await this.service.invite(ctx.user, body.data, body.lobbyId);
+    return lobby.interface;
+  }
+
   @Get(Targets.GetSessionLobby)
   async getSessionLobby(
     @HttpCtx() ctx: HTTPContext<true>,
   ): Promise<InternalEndpointResponse<PongModel.Endpoints.GetSessionLobby>> {
-    const lobby = await this.service.getLobby(ctx.user);
+    const lobby = await this.service.getLobbyByUser(ctx.user);
     return lobby.interface;
   }
 
@@ -123,5 +143,15 @@ export class PongLobbyController {
         ? lobby.status === PongModel.Models.LobbyStatus.Playing
         : lobby.status !== PongModel.Models.LobbyStatus.Playing,
     );
+  }
+
+  @Get(Targets.GetLobby)
+  async getLobby(
+    @Param('id', new ParseIntPipe({ errorHttpStatusCode: 400 })) id: number,
+  ): Promise<InternalEndpointResponse<PongModel.Endpoints.GetLobby>> {
+    console.log(id, typeof id);
+    
+    const lobby = await this.service.getLobby(id);
+    return lobby.infoDisplay;
   }
 }

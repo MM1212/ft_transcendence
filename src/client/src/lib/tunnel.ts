@@ -19,7 +19,7 @@ class APITunnel implements ITunnel {
       this.buildUrl(
         uri.replace(/:(\w+)/g, (_, key) => {
           const value = params[key];
-          if (!value)
+          if (value === undefined || value === null)
             throw new Error(`Missing parameter '${key}' for endpoint '${uri}'`);
           delete params[key];
           return `${value}`;

@@ -27,7 +27,7 @@ export default function LobbyPongCustomMatchTabs(): JSX.Element {
         <GameLobbyChat />
       </TabPanel>
       <TabPanel value={1}>
-        <LobbyInviteSpectate type="No Pending Invites" usersId={[]} />
+        <LobbyInviteSpectate type="No Pending Invites" usersId={lobby.invited} />
       </TabPanel>
       <TabPanel value={2}>
         <LobbyInviteSpectate
