@@ -29,7 +29,8 @@
 
 ## Running
 
-*most of these commands need to be in seperate terminals*
+_most of these commands need to be in seperate terminals_
+
 - `make client_dev` to run the client in development mode
 - `make server_dev` to run the server in development mode
 - `make db_studio` to see the database in the browser
@@ -49,3 +50,11 @@
 - Run `make db_generate` to generate the database schema
 - Run `make db_migrate` to apply the changes to the database
 - Run `make db_studio` to see the database in the browser
+
+### Generate Clothing
+
+- Browse through dev/clothing-showcase or search directly in this [archive](https://cparchives.miraheze.org/wiki/Clothing)
+- After having the clothId, confirm if it is a \_back asset or not
+- Run the command `make client_gen_clothing id=<clothId> [back=true]` to generate the clothing
+- To test, add to the bought list in [this file](src\client\src\apps\Customization\state.ts)
+  - If you're unsure about the category, try to check it [here](https://clubpenguinrewritten.fandom.com/wiki/Club_Penguin_Rewritten_Wiki)
