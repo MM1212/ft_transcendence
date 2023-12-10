@@ -96,46 +96,69 @@ export default function ClothingShowcase(): JSX.Element {
                   display: 'flex',
                   justifyContent: 'center',
                   alignItems: 'center',
+                  position: 'relative',
+                  width: 500,
+                  height: 500,
                 }}
               >
+                <img
+                  src={`https://media.cplegacy.net/assets/media/clothing/paper/${clothId}_back.webp`}
+                  alt={`Clothing ${clothId}`}
+                  style={{
+                    backgroundColor: 'cyan',
+                    width: 2000,
+                  }}
+                />
                 <img
                   src={`https://media.cplegacy.net/assets/media/clothing/paper/${clothId}.webp`}
                   alt={`Clothing ${clothId}`}
                   style={{
-                    width: 500,
-                    height: 500,
-                    flex: 1,
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
                   }}
                   onError={() => skip && setClothId((prev) => prev + 1)}
                   onLoad={() => setSkip(false)}
                 />
               </Sheet>
-              <Sheet
-                variant="outlined"
-                sx={{
-                  p: 1,
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
-              >
-                <img
-                  src={`https://media.cplegacy.net/assets/media/clothing/icon/${clothId}.webp`}
-                  alt={`Clothing ${clothId}`}
-                  style={{
-                    width: 100,
-                    height: 100,
-                    aspectRatio: 1,
+              <Stack spacing={1}>
+                <Sheet
+                  variant="outlined"
+                  sx={{
+                    p: 1,
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
                   }}
-                />
-              </Sheet>
+                ></Sheet>
+                <Sheet
+                  variant="outlined"
+                  sx={{
+                    p: 1,
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
+                >
+                  <img
+                    src={`https://media.cplegacy.net/assets/media/clothing/icon/${clothId}.webp`}
+                    alt={`Clothing ${clothId}`}
+                    style={{
+                      backgroundColor: 'cyan',
+                      width: 100,
+                      aspectRatio: 1,
+                    }}
+                  />
+                </Sheet>
+              </Stack>
             </Stack>
             <img
               src={`https://media.cplegacy.net/assets/media/clothing/sprites/${clothId}-0.webp`}
               alt={`Clothing ${clothId}`}
               style={{
+                backgroundColor: 'cyan',
                 width: 'auto',
-                height: 'auto',
                 flex: 2,
               }}
             />

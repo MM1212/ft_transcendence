@@ -18,6 +18,7 @@
     "[typescript]": {
       "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
+    "typescript.preferences.preferTypeOnlyAutoImports": true,
     "editor.formatOnSaveMode": "modifications",
     "files.exclude": {
       "node_modules": true,
