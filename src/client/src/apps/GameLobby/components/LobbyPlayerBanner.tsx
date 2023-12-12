@@ -42,17 +42,11 @@ export default function LobbyPlayerBanner({ id }: { id: number }) {
               position: "absolute",
               marginTop: "7dvh",
               zIndex: 1,
- 
             })}
             color="warning"
             variant="outlined"
           >
-            <PlusIcon
-              sx={{ width: 35, height: 35,    
-                "&:hover": {
-                color: "warning",
-                },}}
-            />
+            <PlusIcon sx={{ width: 35, height: 35 }} />
           </UserAvatar>
         </IconButton>
       ) : (

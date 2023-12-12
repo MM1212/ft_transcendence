@@ -21,12 +21,14 @@ export type All =
   | LobbyModel.Endpoints.All
   | ChatModel.Endpoints.All
   | UsersModel.Endpoints.All
+  | PongModel.Endpoints.All
   | NotificationsModel.Endpoints.All;
 
 export type Registry = SseModel.Endpoints.Registry &
   AuthModel.Endpoints.Registry &
   UsersModel.Endpoints.Registry &
   ChatModel.Endpoints.Registry &
+  PongModel.Endpoints.Registry &
   NotificationsModel.Endpoints.Registry & {
     [EndpointMethods.Get]: Record<never, never>;
     [EndpointMethods.Post]: Record<never, never>;

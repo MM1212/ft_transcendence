@@ -22,7 +22,6 @@ export const FindMatchWrapper = styled("div")(({ theme }) => ({
     },
   },
 }));
-
 export function LobbyMatchMaking() {
   const [isMatchmakingStarted, setIsMatchmakingStarted] = useState(false);
   const user = useCurrentUser();

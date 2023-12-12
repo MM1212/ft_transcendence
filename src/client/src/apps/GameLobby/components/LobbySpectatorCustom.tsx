@@ -1,28 +1,20 @@
 import { UserAvatar } from "@components/AvatarWithStatus";
 import KarateIcon from "@components/icons/KarateIcon";
-import { useUser } from "@hooks/user";
 import { IconButton } from "@mui/joy";
 import { Divider } from "@mui/joy";
 import { Stack, Typography } from "@mui/joy";
-import UsersModel from "@typings/models/users";
 import { useRecoilValue } from "recoil";
 import pongGamesState from "../state";
 
 export default function LobbyInvitedCustom() {
-  const usersSample: (UsersModel.Models.IUserInfo | null)[] = [
-    useUser(1) ?? null,
-    useUser(2) ?? null,
-    useUser(3) ?? null,
-    useUser(4) ?? null,
-    useUser(5) ?? null,
-  ];
-  const spectatorsList = useRecoilValue(pongGamesState.isInLobby);
-  
+
+  const spectatorsList = useRecoilValue(pongGamesState.gameLobby);
+  if (spectatorsList === null) return null;
   return (
     <>
       <Stack sx={{ width: "100" }}>
-        {usersSample.length > 0 ? (
-          usersSample.map((user, index) => (
+        {spectatorsList?.spectators.length > 0 ? (
+          spectatorsList?.spectators.map((user, index) => (
             <>
               <Stack
                 key={index}
