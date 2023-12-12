@@ -109,7 +109,8 @@ const routes: ISidebarRoute[] = [
         children: [
           {
             label: 'Play',
-            path: '/',
+            path: '/play/queue',
+            routePath: '/play/:tabId*',
             icon: <PlayIcon />,
             exact: false,
             Component: React.lazy(() => import('@apps/GameLobby/views')),

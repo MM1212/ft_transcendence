@@ -1,9 +1,7 @@
-import { UserAvatar } from "@components/AvatarWithStatus";
-import PlusIcon from "@components/icons/PlusIcon";
-import { useUser } from "@hooks/user";
-import { IconButton } from "@mui/joy";
-import { Typography } from "@mui/joy";
-import publicPath from "@utils/public";
+import { UserAvatar } from '@components/AvatarWithStatus';
+import { useCurrentUser, useUser } from '@hooks/user';
+import { Box, Stack, Typography } from '@mui/joy';
+import publicPath from '@utils/public';
 
 export default function LobbyPlayerBanner({ id }: { id: number }) {
   const handleInviteFriend = () => {};
@@ -11,83 +9,48 @@ export default function LobbyPlayerBanner({ id }: { id: number }) {
   return (
     <div
       style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        marginTop: "3dvh",
-        position: "relative",
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        marginTop: '3dvh',
+        position: 'relative',
       }}
     >
-      {id === 0 ? (
-        <IconButton
-          onClick={handleInviteFriend}
-          color="neutral"
-          variant="plain"
-          size="lg"
+      <Stack position="absolute" mt={8} spacing={2}>
+        <UserAvatar
           sx={(theme) => ({
             width: theme.spacing(17),
             height: theme.spacing(17),
-            position: "absolute",
-            marginTop: "7dvh",
             zIndex: 1,
-            "&:hover": {
-              backgroundColor: "unset",
-            },
           })}
-        >
-          <UserAvatar
-            sx={(theme) => ({
-              width: theme.spacing(17),
-              height: theme.spacing(17),
-              position: "absolute",
-              marginTop: "7dvh",
-              zIndex: 1,
-            })}
-            color="warning"
-            variant="outlined"
-          >
-            <PlusIcon sx={{ width: 35, height: 35 }} />
-          </UserAvatar>
-        </IconButton>
-      ) : (
-        <>
-          <UserAvatar
-            sx={(theme) => ({
-              width: theme.spacing(17),
-              height: theme.spacing(17),
-              position: "absolute",
-              marginTop: "7dvh",
-              zIndex: 1,
-              "&:hover": {
-                backgroundColor: "",
-              },
-            })}
-            variant="outlined"
-            src={user?.avatar}
-          />
-          <Typography
-            textAlign="center"
-            sx={{ position: "absolute", bottom: "50%" }}
-          >
-            {user?.nickname}
-          </Typography>
-          <img
-            src={publicPath("/matchMaking/matchMakingFrame.webp")}
-            alt="Matchmaking Frame"
-            width="300"
-            height="500"
-          />
-        </>
-      )}
+          variant="outlined"
+          src={user?.avatar}
+        />
+        <Typography textAlign="center">{user.nickname}</Typography>
+      </Stack>
+      <img
+        src={publicPath('/matchMaking/matchMakingFrame.webp')}
+        alt="Matchmaking Frame"
+        style={{
+          width: '30dvh',
+        }}
+      />
       <div
         style={{
-          position: "absolute",
-          display: "flex",
-          flexDirection: "column",
-          marginTop: "auto",
-          bottom: "15%",
+          position: 'absolute',
+          display: 'flex',
+          flexDirection: 'column',
+          marginTop: 'auto',
+          bottom: '15%',
         }}
-      ></div>
+      >
+        <img
+          src={publicPath('/matchMaking/paddleFrame.webp')}
+          alt="Matchmaking Frame"
+          width="200"
+          height="50"
+        ></img>
+      </div>
     </div>
   );
 }

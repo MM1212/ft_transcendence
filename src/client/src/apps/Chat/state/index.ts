@@ -20,7 +20,9 @@ const chatsState = new (class MessagesState {
     default: selector<number[]>({
       key: 'chats/selector',
       get: async () => {
-        return await tunnel.get(Targets.GetSessionChats);
+        const chats = await tunnel.get(Targets.GetSessionChats);
+        console.log('downloaded chats', chats);
+        return chats;
       },
     }),
   });
@@ -38,7 +40,13 @@ const chatsState = new (class MessagesState {
     key: 'chatIds',
     get: ({ get }) => {
       const search = get(this.searchFilter).toLowerCase();
-      let chats = get(waitForAll(get(this.chats).map(this.chatInfo)));
+      let chats = get(
+        waitForAll(
+          get(this.allChats)
+            .filter((chat) => chat.type !== ChatsModel.Models.ChatType.Temp)
+            .map((c) => this.chatInfo(c.id))
+        )
+      );
       if (search.trim().length)
         chats = chats.filter((c) => {
           const { lastMessage, name } = c;

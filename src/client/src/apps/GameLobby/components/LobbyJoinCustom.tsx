@@ -1,4 +1,4 @@
-import { useRecoilCallback, useRecoilValue } from 'recoil';
+import { useRecoilCallback } from 'recoil';
 import pongGamesState from '../state';
 import { useTunnelEndpoint } from '@hooks/tunnel';
 import PongModel from '@typings/models/pong';
@@ -8,6 +8,7 @@ import { useUser } from '@hooks/user';
 import AvatarWithStatus from '@components/AvatarWithStatus';
 import ProfileTooltip from '@components/ProfileTooltip';
 import tunnel from '@lib/tunnel';
+import { navigate } from 'wouter/use-location';
 
 function LobbyEntry(lobby: PongModel.Models.ILobbyInfoDisplay) {
   const owner = useUser(lobby.ownerId);
@@ -22,12 +23,13 @@ function LobbyEntry(lobby: PongModel.Models.ILobbyInfoDisplay) {
           }
         );
         if (lobbyJoined === null) return;
+        navigate('/pong/play/create', { replace: true });
         ctx.set(pongGamesState.gameLobby, lobbyJoined);
       } catch (error) {
         console.log(error);
       }
     },
-    []
+    [lobby.id]
   );
   if (owner === null) return null;
   return (

@@ -12,8 +12,8 @@ import { SseModel, AuthModel, ChatModel } from '@typings/api/models';
 import LobbyModel from '@typings/models/lobby';
 import UsersModel from '@typings/models/users';
 import { EndpointMethods } from './base/endpoint';
-import PongModel from '@typings/models/pong';
 import NotificationsModel from '@typings/models/notifications';
+import PongModel from '@typings/models/pong';
 
 export type All =
   | SseModel.Endpoints.All
@@ -21,8 +21,8 @@ export type All =
   | LobbyModel.Endpoints.All
   | ChatModel.Endpoints.All
   | UsersModel.Endpoints.All
-  | PongModel.Endpoints.All
-  | NotificationsModel.Endpoints.All;
+  | NotificationsModel.Endpoints.All
+  | PongModel.Endpoints.All;
 
 export type Registry = SseModel.Endpoints.Registry &
   AuthModel.Endpoints.Registry &

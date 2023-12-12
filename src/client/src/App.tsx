@@ -11,6 +11,7 @@ import ConfirmationModalView from '@apps/Modals/Confirmation/views';
 import ChatSelectModal from '@apps/Chat/modals/ChatSelectModal';
 import TFALoginPage from '@apps/TFALoginPage/views';
 import Pong from '@views/pong';
+import SseWarning from '@hooks/sse/Warning';
 
 const MainRoute = memo(() => {
   return React.useMemo(
@@ -55,6 +56,7 @@ function App() {
           <Pong />
         </Route>
       </Switch>
+      <SseWarning />
     </div>
   );
 }

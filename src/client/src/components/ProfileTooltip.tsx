@@ -20,7 +20,7 @@ import { computeUserAvatar } from '@utils/computeAvatar';
 // @ts-expect-error not typed
 import ColorThief from 'colorthief';
 import { darken } from '@theme';
-import { selectorFamily, useRecoilValue, useRecoilValueLoadable } from 'recoil';
+import { selectorFamily, useRecoilValueLoadable } from 'recoil';
 
 export interface IProfileTooltipProps {
   user: UsersModel.Models.IUserInfo;
