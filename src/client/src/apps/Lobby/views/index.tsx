@@ -54,6 +54,7 @@ export default function Lobby() {
         const viewport = app.stage.getChildByName('viewport') as Viewport;
         if (isSelf) {
           player.layers.container.name = 'self';
+           viewport.scale.set(0.1);
           viewport.follow(player.layers.container);
         }
         viewport.addChild(player.layers.container);
@@ -331,11 +332,7 @@ export default function Lobby() {
         maxWidth: LobbyModel.Models.STAGE_WIDTH,
         maxHeight: LobbyModel.Models.STAGE_HEIGHT,
       });
-      viewport.center = new Pixi.Point(
-        LobbyModel.Models.STAGE_WIDTH / 2,
-        LobbyModel.Models.STAGE_HEIGHT / 2
-      );
-      viewport.scale.set(0.1);
+      viewport.moveCenter(LobbyModel.Models.STAGE_WIDTH / 2, 0);
 
       app.stage.sortableChildren = true;
       const backgroundTex = await Pixi.Texture.fromURL(

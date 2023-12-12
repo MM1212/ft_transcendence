@@ -282,12 +282,14 @@ const chatsState = new (class MessagesState {
     get: ({ get }) => {
       const self = get(sessionAtom);
       const chats = get(this.allChats);
-      return chats.reduce((acc, chat) => {
-        const participant = chat.participants.find(
-          (p) => p.userId === self?.id
-        );
-        return acc + (participant?.toReadPings ?? 0);
-      }, 0);
+      return chats
+        .filter((c) => c.type !== ChatsModel.Models.ChatType.Temp)
+        .reduce((acc, chat) => {
+          const participant = chat.participants.find(
+            (p) => p.userId === self?.id
+          );
+          return acc + (participant?.toReadPings ?? 0);
+        }, 0);
     },
   });
   messageByIdx = selectorFamily<
