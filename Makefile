@@ -93,11 +93,14 @@ else
 endif
 endif
 
+ifeq ($(back), true)
+BACK_PAPER_FLAG="--back-paper"
+endif
 client_gen_clothing:
 ifndef id
 	$(error id is not set, use `make client_gen_clothing id=<id>`)
 else
-	@cd $(CLIENT_DIR) && node scripts/generate-clothing-item.js $(id)
+	@cd $(CLIENT_DIR) && node scripts/generate-clothing-item.js $(id) $(BACK_PAPER_FLAG)
 endif
 
 db_start:

@@ -3,9 +3,14 @@ import UserExtSession from '.';
 import { HttpError } from '@/helpers/decorators/httpError';
 import { AuthModel } from '@typings/api';
 import speakeasy from '@levminer/speakeasy';
+import { UserDependencies } from '../../dependencies';
 
 class UserExtSessionAuth {
   constructor(private readonly session: UserExtSession) {}
+  private get helpers(): UserDependencies {
+    // @ts-expect-error session is not undefined
+    return this.session.user.helpers;
+  }
   public get raw(): Auth.Token {
     if (!this.session.loggedIn)
       throw new HttpError('User is not logged in; User#auth#data');
@@ -41,7 +46,7 @@ class UserExtSessionAuth {
     secret: string | undefined = this.tfaSecret,
   ): Promise<boolean> {
     if (!secret) return false;
-    
+
     return speakeasy.totp.verify({
       secret,
       encoding: 'base32',
@@ -51,7 +56,7 @@ class UserExtSessionAuth {
 
   async enableTfa(secret: string): Promise<void> {
     const user = this.session.user;
-    await user.helpers.db.users.update(user.id, {
+    await this.helpers.db.users.update(user.id, {
       tfaEnabled: true,
       tfaSecret: secret,
     });
@@ -59,7 +64,7 @@ class UserExtSessionAuth {
   }
   async disableTfa(): Promise<void> {
     const user = this.session.user;
-    await user.helpers.db.users.update(user.id, {
+    await this.helpers.db.users.update(user.id, {
       tfaEnabled: false,
       tfaSecret: null,
     });

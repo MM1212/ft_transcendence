@@ -1,5 +1,5 @@
 import publicPath from '@utils/public';
-import { atom, selectorFamily } from 'recoil';
+import { atom, selector, selectorFamily } from 'recoil';
 
 export type InventoryCategory =
   | 'head'
@@ -21,7 +21,7 @@ export const inventoryAtom = atom<IInventory>({
     bought: {
       head: [1397, 401, 490, 497, 1277, 1950, 1968, 1970, 1973, 1998, 21012],
       face: [110, 138, 139],
-      neck: [195, 168, 194, 316],
+      neck: [195, 168, 194, 316, 3041, 3186],
       body: [258, 205, 212, 231, 4572, 35130],
       hand: [321, 343, 220, 321, 5210],
       feet: [374, 383, 6006],
@@ -37,6 +37,18 @@ export const inventoryAtom = atom<IInventory>({
       color: 6,
     },
   },
+});
+
+export const backClothingItemsAtom = atom<number[]>({
+  key: 'customization/back/clothing',
+  default: selector<number[]>({
+    key: 'customization/back/clothing/default',
+    get: async () => {
+      return fetch(publicPath('/penguin/paper/back_clothing.json')).then((r) =>
+        r.json()
+      );
+    },
+  }),
 });
 
 export const inventoryBoughtCategoryItems = selectorFamily<

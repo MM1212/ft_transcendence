@@ -2,6 +2,7 @@ import { useSocket } from '@hooks/socket';
 import { buildTunnelEndpoint } from '@hooks/tunnel';
 import React from 'react';
 import { Pixi, usePixiRenderer } from '@hooks/pixiRenderer';
+import { Viewport } from 'pixi-viewport';
 import { Lobbies } from '@typings/lobby';
 import { useRecoilCallback } from 'recoil';
 import {
@@ -40,23 +41,31 @@ export default function Lobby() {
   );
 
   const initSprite = useRecoilCallback(
-    (ctx) => async (app: Pixi.Application, player: InitdPlayer) => {
-      player.nickNameText.x = 0;
-      player.nickNameText.y = 10;
-      player.nickNameText.anchor.set(0.5, -0.5);
-      player.nickNameText.zIndex = 999;
-      player.layers.container.addChild(player.nickNameText);
-      // player.layers.container.scale.set(2);
-      app.stage.addChild(player.layers.container);
+    (ctx) =>
+      async (app: Pixi.Application, player: InitdPlayer, isSelf: boolean) => {
+        player.nickNameText.x = 0;
+        player.nickNameText.y = 10;
+        player.nickNameText.anchor.set(0.5, -0.5);
+        player.nickNameText.zIndex = 999;
+        player.layers.container.x = player.transform.position.x;
+        player.layers.container.y = player.transform.position.y;
+        player.layers.container.addChild(player.nickNameText);
 
-      await switchToAnimation(
-        player,
-        player.currentAnimation,
-        await ctx.snapshot.getPromise(inventoryAtom),
-        ctx.snapshot,
-        true
-      );
-    },
+        const viewport = app.stage.getChildByName('viewport') as Viewport;
+        if (isSelf) {
+          player.layers.container.name = 'self';
+          viewport.follow(player.layers.container);
+        }
+        viewport.addChild(player.layers.container);
+
+        await switchToAnimation(
+          player,
+          player.currentAnimation,
+          await ctx.snapshot.getPromise(inventoryAtom),
+          ctx.snapshot,
+          true
+        );
+      },
     []
   );
   const loadPenguin = useRecoilCallback(
@@ -193,7 +202,9 @@ export default function Lobby() {
           };
         })
       );
-      players.forEach((player) => initSprite(app, player));
+      players.forEach((player) =>
+        initSprite(app, player, player.userId === self.id)
+      );
       ctx.set(lobbyPlayersAtom, players);
     },
     [initSprite, loadPenguin]
@@ -218,7 +229,7 @@ export default function Lobby() {
         fill: '#fef08a',
         fontWeight: 'bold',
       });
-      initSprite(app, player as InitdPlayer);
+      initSprite(app, player as InitdPlayer, false);
       ctx.set(lobbyPlayersAtom, (prev) => [...prev, player]);
     },
     [initSprite, loadPenguin]
@@ -305,6 +316,27 @@ export default function Lobby() {
     (ctx) => async (app: Pixi.Application) => {
       console.log('lobby mounted');
 
+      const viewport = new Viewport({
+        screenWidth: window.innerWidth,
+        screenHeight: window.innerHeight,
+        worldWidth: LobbyModel.Models.STAGE_WIDTH,
+        worldHeight: LobbyModel.Models.STAGE_HEIGHT,
+        events: app.renderer.events,
+        ticker: app.ticker,
+        disableOnContextMenu: true,
+      });
+      viewport.name = 'viewport';
+      viewport.clamp({ direction: 'all' });
+      viewport.clampZoom({
+        maxWidth: LobbyModel.Models.STAGE_WIDTH,
+        maxHeight: LobbyModel.Models.STAGE_HEIGHT,
+      });
+      viewport.center = new Pixi.Point(
+        LobbyModel.Models.STAGE_WIDTH / 2,
+        LobbyModel.Models.STAGE_HEIGHT / 2
+      );
+      viewport.scale.set(0.1);
+
       app.stage.sortableChildren = true;
       const backgroundTex = await Pixi.Texture.fromURL(
         LobbyModel.Endpoints.Targets.StaticBackground
@@ -314,7 +346,8 @@ export default function Lobby() {
       background.x = 0;
       background.y = 0;
 
-      app.stage.addChild(background);
+      viewport.addChild(background);
+      app.stage.addChild(viewport);
 
       // const walkableMaskTex = await Pixi.Texture.fromURL(
       //   LobbyModel.Endpoints.Targets.WalkableMask
@@ -347,7 +380,7 @@ export default function Lobby() {
           align: 'center',
           fill: '#fef08a',
         });
-        initSprite(app, player as InitdPlayer);
+        initSprite(app, player as InitdPlayer, player.userId === self.id);
       }
       app.ticker.maxFPS = 60;
       app.ticker.minFPS = 60;

@@ -25,7 +25,7 @@ interface ICustTop {
   setPenguinClothes: React.Dispatch<
     React.SetStateAction<Record<InventoryCategory, Pixi.Sprite>>
   >;
-  updateCloth: (piece: InventoryCategory, id: number) => void;
+  updateCloth: (piece: InventoryCategory, id: number) => Promise<void>;
 }
 
 function CustomizationRender({
@@ -62,16 +62,13 @@ function CustomizationRender({
       paperFixtures.position.set(0, 0);
 
       const clothes = await loadClothes();
+      paperContainer.sortableChildren = true;
       paperContainer.addChild(
         paperBelly,
         paperFixtures,
-        ...Object.values<Pixi.Sprite>(clothes).sort((a, b) => {
-          return (
-            penguinClothingPriority[String(a.name) as InventoryCategory] -
-            penguinClothingPriority[String(b.name) as InventoryCategory]
-          );
-        })
+        ...Object.values<Pixi.Sprite>(clothes)
       );
+      paperContainer.sortChildren();
       paperContainer.position.set(app.screen.width / 2, app.screen.height / 2);
       app.stage.addChild(paperContainer);
       return () => {
@@ -94,7 +91,7 @@ function CustomizationRender({
     onAppMount,
     React.useMemo(
       () => ({
-        backgroundColor: bgColor,
+        backgroundColor: 'white',
       }),
       [bgColor]
     )

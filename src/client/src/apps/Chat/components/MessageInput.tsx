@@ -33,7 +33,13 @@ function _ParticipantsTyping({ id }: { id: number; selfId: number }) {
 
   if (participantNames.length === 0) return null;
   return (
-    <Typography level="body-xs" color="neutral" position="absolute" mt={0.5} ml={0.5}>
+    <Typography
+      level="body-xs"
+      color="neutral"
+      position="absolute"
+      mt={0.5}
+      ml={0.5}
+    >
       {participantNames}
       {threeDots}
     </Typography>
@@ -99,9 +105,14 @@ function MessageInput({ id }: { id: number }) {
             ...message
               .match(new RegExp(urlRegex, 'g'))!
               .map((url) => url.trim())
+              .filter(url => /(jpg|png|gif|jpeg|webp|webm)/g.test(url.slice(url.lastIndexOf('.') + 1)))
               .filter((url, i, arr) => arr.indexOf(url) === i)
           );
           urlRegex.lastIndex = 0;
+          if (messagePayload.meta.urls!.length === 0) {
+            messagePayload.type = ChatsModel.Models.ChatMessageType.Normal;
+            messagePayload.meta = {};
+          }
         }
         ctx.set(chatsState.messages(chat.id), (prev) => [
           {

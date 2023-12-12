@@ -57,8 +57,8 @@ class SseService implements ISseService {
         break;
     }
   }
-  emitToAll<T extends SSE.Models.Event, E = T['type']>(
-    event: E,
+  emitToAll<T extends SSE.Models.Event>(
+    event: T['type'],
     data: T['data'],
   ): void {
     const eventName = `net.${event}`;
@@ -66,6 +66,13 @@ class SseService implements ISseService {
       event: eventName,
       data,
     });
+  }
+  emitTo<T extends SSE.Models.Event>(
+    event: T['type'],
+    source: number,
+    data: T['data'],
+  ): void {
+    return this.emitToTargets<T>(event, [source], data);
   }
 }
 

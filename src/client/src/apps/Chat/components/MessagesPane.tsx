@@ -198,6 +198,8 @@ export default function MessagesPane() {
         display: 'flex',
         flexDirection: 'column',
         backgroundColor: 'background.level1',
+        borderLeft: '1px solid',
+        borderColor: 'divider',
       }}
     >
       <React.Suspense fallback={<></>}>

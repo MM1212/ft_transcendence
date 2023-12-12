@@ -301,6 +301,13 @@ class Chat extends CacheObserver<IChat> {
       },
     );
     participant.set('role', ChatsModel.Models.ChatParticipantRole.Left);
+    if (op instanceof User) {
+      (await participant.user)?.alerts.send(
+        'neutral',
+        this.name,
+        'You were removed from this chat',
+      );
+    }
     return true;
   }
   public get lastMessages(): ChatsModel.Models.IChatMessage[] {
@@ -607,11 +614,13 @@ class Chat extends CacheObserver<IChat> {
       },
     );
   }
-  public async nuke(op: User): Promise<void> {
-    const participant = this.getParticipantByUserId(op.id);
-    if (!participant) throw new ForbiddenException();
-    if (!participant.isOwner())
-      throw new ForbiddenException('Insufficient permissions');
+  public async nuke(op?: User): Promise<void> {
+    if (op) {
+      const participant = this.getParticipantByUserId(op.id);
+      if (!participant) throw new ForbiddenException();
+      if (!participant.isOwner())
+        throw new ForbiddenException('Insufficient permissions');
+    }
     !this.isTemporary && (await this.helpers.db.chats.deleteChat(this.id));
     this.participants.forEach((p) =>
       this.helpers.sseService.emitToTargets<ChatsModel.Sse.UpdateParticipantEvent>(

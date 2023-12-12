@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   ColorPaletteProp,
   DialogActions,
@@ -7,6 +8,7 @@ import {
   Option,
   Select,
   Typography,
+  useColorScheme,
 } from '@mui/joy';
 import {
   DialogContent,
@@ -30,6 +32,9 @@ import ProfilePictureModal from './ProfilePictureModal';
 import { useUpdateUserModal } from '../hooks/useUpdateUserModal';
 import { useSelectUserAvatarActions } from '../hooks/useUpdateAvatarModal';
 import UpdateUserTFA from './UpdateUserTFA';
+import CogIcon from '@components/icons/CogIcon';
+import WhiteBalanceSunnyIcon from '@components/icons/WhiteBalanceSunnyIcon';
+import WeatherNightIcon from '@components/icons/WeatherNightIcon';
 
 type IUser = UsersModel.Models.IUserInfo;
 type State = Pick<IUser, 'avatar' | 'nickname' | 'status'>;
@@ -49,15 +54,68 @@ const statusOptions = [
   value: UsersModel.Models.Status;
 }[];
 
+const OptionDecorator = memo(function OptionDecorator({
+  label,
+  icon,
+}: {
+  label: React.ReactNode;
+  icon: React.ReactNode;
+}): JSX.Element {
+  return (
+    <Stack direction="row" spacing={1} alignItems="center">
+      {icon}
+      <Typography level="body-md">{label}</Typography>
+    </Stack>
+  );
+});
+
 const StatusIndicator = memo(function StatusIndicator({
   label,
   color,
 }: (typeof statusOptions)[number]): JSX.Element {
   return (
-    <Stack direction="row" spacing={1} alignItems="center">
-      <CircleIcon size="xs" color={color} />
-      <Typography>{label}</Typography>
-    </Stack>
+    <OptionDecorator
+      label={label}
+      icon={<CircleIcon color={color} size="xs" />}
+    />
+  );
+});
+
+const ColorSchemeToggle = memo(function ColorSchemeToggle(): JSX.Element {
+  const { mode, setMode } = useColorScheme();
+  return (
+    <FormControl>
+      <FormLabel>Color Scheme</FormLabel>
+      <Select value={mode} onChange={(_, value) => value && setMode(value)}>
+        <Option
+          value="system"
+          label={
+            <OptionDecorator label="System" icon={<CogIcon size="sm" />} />
+          }
+        >
+          <OptionDecorator label="System" icon={<CogIcon size="sm" />} />
+        </Option>
+        <Option
+          value="light"
+          label={
+            <OptionDecorator label="System" icon={<CogIcon size="sm" />} />
+          }
+        >
+          <OptionDecorator
+            label="Light"
+            icon={<WhiteBalanceSunnyIcon size="sm" />}
+          />
+        </Option>
+        <Option
+          value="dark"
+          label={
+            <OptionDecorator label="System" icon={<CogIcon size="sm" />} />
+          }
+        >
+          <OptionDecorator label="Dark" icon={<WeatherNightIcon size="sm" />} />
+        </Option>
+      </Select>
+    </FormControl>
   );
 });
 
@@ -186,37 +244,45 @@ export default function UpdateUserModal(): JSX.Element {
                     </Button>
                   </Stack>
                 </FormControl>
-                <FormControl>
-                  <FormLabel>Status</FormLabel>
-                  <Select
-                    value={input.status}
-                    onChange={(_, value) =>
-                      updateProperty('status')(
-                        value ?? UsersModel.Models.Status.Offline
-                      )
-                    }
-                  >
-                    {statusOptions.map(({ color, label, value }) => (
-                      <Option
-                        value={value}
-                        label={
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  width="100%"
+                >
+                  <FormControl>
+                    <FormLabel>Status</FormLabel>
+                    <Select
+                      value={input.status}
+                      onChange={(_, value) =>
+                        updateProperty('status')(
+                          value ?? UsersModel.Models.Status.Offline
+                        )
+                      }
+                    >
+                      {statusOptions.map(({ color, label, value }) => (
+                        <Option
+                          value={value}
+                          label={
+                            <StatusIndicator
+                              color={color}
+                              label={label}
+                              value={value}
+                            />
+                          }
+                          key={value}
+                        >
                           <StatusIndicator
                             color={color}
                             label={label}
                             value={value}
                           />
-                        }
-                        key={value}
-                      >
-                        <StatusIndicator
-                          color={color}
-                          label={label}
-                          value={value}
-                        />
-                      </Option>
-                    ))}
-                  </Select>
-                </FormControl>
+                        </Option>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  <ColorSchemeToggle />
+                </Box>
                 <UpdateUserTFA {...user} />
               </Stack>
             </form>

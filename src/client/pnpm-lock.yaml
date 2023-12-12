@@ -11,9 +11,12 @@ dependencies:
   '@emotion/styled':
     specifier: ^11.11.0
     version: 11.11.0(@emotion/react@11.11.1)(@types/react@18.2.38)(react@18.2.0)
-  '@fontsource/inter':
-    specifier: ^5.0.15
-    version: 5.0.15
+  '@fontsource/open-sans':
+    specifier: ^5.0.17
+    version: 5.0.17
+  '@fontsource/poppins':
+    specifier: ^5.0.8
+    version: 5.0.8
   '@mantine/form':
     specifier: ^7.2.2
     version: 7.2.2(react@18.2.0)
@@ -44,6 +47,9 @@ dependencies:
   moment:
     specifier: ^2.29.4
     version: 2.29.4
+  pixi-viewport:
+    specifier: ^5.0.2
+    version: 5.0.2
   pixi.js:
     specifier: ^7.3.2
     version: 7.3.2(@pixi/utils@7.3.2)
@@ -581,8 +587,12 @@ packages:
     resolution: {integrity: sha512-OfX7E2oUDYxtBvsuS4e/jSn4Q9Qb6DzgeYtsAdkPZ47znpoNsMgZw0+tVijiv3uGNR6dgNlty6r9rzIzHjtd/A==}
     dev: false
 
-  /@fontsource/inter@5.0.15:
-    resolution: {integrity: sha512-/IoWYEXl8lqJEx50JqNPT+bI4VNwxb/bg2oOfvG8PiEsDsmHRFvWBVHlohBNn1+QdBf+KbAjU/gb4vlGOSsVWw==}
+  /@fontsource/open-sans@5.0.17:
+    resolution: {integrity: sha512-4mIAJ/1B9pltG7NhxqReeu46L1+j/eAgwWmvjXh+FhsgcgsboQDrfn9wtUP2PWB7/JrMA4Hd9N/4qAN6kJSdyg==}
+    dev: false
+
+  /@fontsource/poppins@5.0.8:
+    resolution: {integrity: sha512-P8owfYWluoUY5Nyzk4gT/L6LmLmseP6ezFWhj6VBUa5pRIdnCvNJpoQ6i/vhekjtJOfqX6nKlB+LCttoUl2GQQ==}
     dev: false
 
   /@humanwhocodes/config-array@0.11.13:
@@ -3414,6 +3424,10 @@ packages:
     resolution: {integrity: sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==}
     engines: {node: '>=8.6'}
     dev: true
+
+  /pixi-viewport@5.0.2:
+    resolution: {integrity: sha512-U77KnCTl81xEgxEQRFEuI7MYVySWwCVkA41EnM8KiOYwgVOwdBUa7318O+u61IOnTwnoYLzaihy/kpoONKU13Q==}
+    dev: false
 
   /pixi.js@7.3.2(@pixi/utils@7.3.2):
     resolution: {integrity: sha512-GJickUrT3UcBInGT1CU6cv2oktCdocE5QM74CD3t+weiJPPWIzleNlp7zrBR5QIDdU6bEO8CUgUXH2Y9QvlCMw==}

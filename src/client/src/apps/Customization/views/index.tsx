@@ -4,7 +4,9 @@ import CustomizationTop from '../components/CustomizationTop';
 import CustomizationBottom from '../components/CustomizationBottom';
 import {
   InventoryCategory,
+  backClothingItemsAtom,
   inventoryAtom,
+  penguinClothingPriority,
   penguinColorPalette,
 } from '../state';
 import { useRecoilCallback } from 'recoil';
@@ -23,6 +25,7 @@ export default function CustomizationPanel() {
   const loadClothes = useRecoilCallback(
     (ctx) => async () => {
       const inventory = await ctx.snapshot.getPromise(inventoryAtom);
+      const backClothing = await ctx.snapshot.getPromise(backClothingItemsAtom);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { color, ...selected } = inventory.selected;
       const clothingAssets = (
@@ -30,15 +33,17 @@ export default function CustomizationPanel() {
       )
         .map((clothPiece) => {
           const clothId = inventory.selected[clothPiece as InventoryCategory];
+          const backItem = backClothing.includes(clothId);
           const sprite = Pixi.Sprite.from(
             clothId === -1
               ? Pixi.Texture.EMPTY
               : publicPath(`/penguin/clothing/${clothId}/paper.webp`)
           );
+          sprite.zIndex = backItem ? -1 : penguinClothingPriority[clothPiece];
           sprite.name = clothPiece;
           sprite.anchor.set(0.5);
           sprite.position.set(0, 0);
-          sprite.scale.set(0.72);
+          sprite.scale.set(backItem ? 0.92 :0.73);
           return sprite;
         })
         .reduce(
@@ -64,14 +69,19 @@ export default function CustomizationPanel() {
     [penguinBelly]
   );
   const updateCloth = useRecoilCallback(
-    (ctx) => (piece: InventoryCategory, id: number) => {
+    (ctx) => async (piece: InventoryCategory, id: number) => {
       if (piece === 'color') return updatePenguinColor(piece, id);
+      const backItems = await ctx.snapshot.getPromise(backClothingItemsAtom);
       if (id === -1) {
         penguinClothes[piece].texture = Pixi.Texture.EMPTY;
       } else
         penguinClothes[piece].texture = Pixi.Texture.from(
           publicPath(`/penguin/clothing/${id}/paper.webp`)
         );
+      penguinClothes[piece].zIndex = backItems.includes(id)
+        ? -1
+        : penguinClothingPriority[piece];
+      penguinClothes[piece].scale.set(backItems.includes(id) ? 0.92 : 0.73);
       ctx.set(inventoryAtom, (prev) => ({
         ...prev,
         selected: { ...prev.selected, [piece]: id },
@@ -87,6 +97,8 @@ export default function CustomizationPanel() {
         display: 'flex',
         flexDirection: 'column',
         height: '100%',
+        borderLeft: '1px solid',
+        borderColor: 'divider',
       }}
     >
       <CustomizationTop
