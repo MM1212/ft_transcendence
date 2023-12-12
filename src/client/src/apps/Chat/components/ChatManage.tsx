@@ -20,6 +20,18 @@ import MenuOption from '@components/menu/MenuOption';
 import NukeIcon from '@components/icons/NukeIcon';
 import AccountMultiplePlusIcon from '@components/icons/AccountMultiplePlusIcon';
 import { useChatInfoEditModalActions } from '../modals/ChatInfoEdit/hooks/useChatInfoEditModal';
+import { MenuItem } from '@mui/joy';
+import { ListItemDecorator } from '@mui/joy';
+import TableTennisIcon from '@components/icons/TableTennisIcon';
+import PongModel from '@typings/models/pong';
+import tunnel from '@lib/tunnel';
+import { useRecoilCallback, useRecoilValue } from 'recoil';
+import pongGamesState from '@apps/GameLobby/state';
+import { ChatSelectedData } from '../modals/ChatSelectModal/hooks/useChatSelectModal';
+import { ChatModel } from '@typings/models';
+import { sessionAtom } from '@hooks/user';
+import chatsState from '../state';
+import notifications from '@lib/notifications/hooks';
 
 function DirectOptions({ self }: { self: ChatsModel.Models.IChatParticipant }) {
   const participants = useSelectedChat().useParticipants();
@@ -42,6 +54,9 @@ function DirectOptions({ self }: { self: ChatsModel.Models.IChatParticipant }) {
       },
     [navigate]
   );
+
+  const {inviteToPongLobby} = useChatManageActions();
+
   return (
     <>
       <MenuOption icon={AccountIcon} onClick={goToProfile}>
@@ -50,6 +65,12 @@ function DirectOptions({ self }: { self: ChatsModel.Models.IChatParticipant }) {
       <MenuOption icon={AccountMultiplePlusIcon} onClick={sendInviteFromDM}>
         Invite to Group
       </MenuOption>
+      <MenuItem onClick={() => inviteToPongLobby(self.chatId)}>
+        <ListItemDecorator>
+          <TableTennisIcon />
+        </ListItemDecorator>
+        Invite to Pong
+      </MenuItem>
       {isFriend ? (
         <MenuOption
           icon={AccountRemoveIcon}
@@ -87,6 +108,9 @@ function GroupOptions({
   const { useModal, leave, nuke, sendInviteFromGroup } = useChatManageActions();
   const { open: openMembersModal } = useModal();
   const { open: openChatInfoEditModal } = useChatInfoEditModalActions();
+
+  const {inviteToPongLobby} = useChatManageActions();
+
   return (
     <>
       {(isPublic || isAdmin) && (
@@ -102,7 +126,7 @@ function GroupOptions({
           <MenuOption
             icon={FileDocumentEditIcon}
             onClick={() => {
-              openChatInfoEditModal({chatId: self.chatId})
+              openChatInfoEditModal({ chatId: self.chatId });
             }}
           >
             Edit
@@ -113,6 +137,12 @@ function GroupOptions({
           >
             Manage Members
           </MenuOption>
+          <MenuItem onClick={() => inviteToPongLobby(self.chatId)}>
+            <ListItemDecorator>
+              <TableTennisIcon />
+            </ListItemDecorator>
+            Invite to Pong
+          </MenuItem>
         </>
       ) : (
         <MenuOption icon={AccountGroupIcon} onClick={() => openMembersModal()}>

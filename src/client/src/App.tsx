@@ -12,6 +12,7 @@ import ChatSelectModal from '@apps/Chat/modals/ChatSelectModal';
 import TFALoginPage from '@apps/TFALoginPage/views';
 import Pong from '@views/pong';
 import SseWarning from '@hooks/sse/Warning';
+import ChatPasswordInputModalView from '@apps/Chat/modals/ChatPasswordInputModal';
 
 const MainRoute = memo(() => {
   return React.useMemo(
@@ -51,6 +52,7 @@ function App() {
           <ImagePreviewView />
           <ConfirmationModalView />
           <ChatSelectModal />
+          <ChatPasswordInputModalView />
         </AuthRoute>
         <Route path="/pong">
           <Pong />

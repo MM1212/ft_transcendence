@@ -40,8 +40,6 @@ export class PongLobbyController {
     @HttpCtx() ctx: HTTPContext<true>,
     @Body() body: NewLobbyDataDto,
   ): Promise<InternalEndpointResponse<PongModel.Endpoints.NewLobby>> {
-    console.log();
-
     const newLobby = await this.service.createLobby(ctx.user, body);
     return newLobby.interface;
   }
@@ -66,6 +64,7 @@ export class PongLobbyController {
       ctx.user,
       body.lobbyId,
       body.password,
+      body.nonce,
     );
     return lobby.interface;
   }
@@ -120,8 +119,17 @@ export class PongLobbyController {
     @HttpCtx() ctx: HTTPContext<true>,
     @Body() body: EndpointData<PongModel.Endpoints.Invite>,
   ): Promise<InternalEndpointResponse<PongModel.Endpoints.Invite>> {
+    console.log(body);
     const lobby = await this.service.invite(ctx.user, body.data, body.lobbyId);
     return lobby.interface;
+  }
+
+  @Post(Targets.KickInvited)
+  async kickInvited(
+    @HttpCtx() ctx: HTTPContext<true>,
+    @Body() body: EndpointData<PongModel.Endpoints.KickInvited>,
+  ): Promise<InternalEndpointResponse<PongModel.Endpoints.KickInvited>> {
+    await this.service.kickInvited(ctx.user.id, body.lobbyId, body.userId);
   }
 
   @Get(Targets.GetSessionLobby)
@@ -148,10 +156,12 @@ export class PongLobbyController {
   @Get(Targets.GetLobby)
   async getLobby(
     @Param('id', new ParseIntPipe({ errorHttpStatusCode: 400 })) id: number,
+    @Query('nonce', new ParseIntPipe({ errorHttpStatusCode: 400 })) nonce: number,
   ): Promise<InternalEndpointResponse<PongModel.Endpoints.GetLobby>> {
     console.log(id, typeof id);
     
     const lobby = await this.service.getLobby(id);
+    if (lobby.nonce !== nonce) throw new BadRequestException('Nonce does not match');
     return lobby.infoDisplay;
   }
 }

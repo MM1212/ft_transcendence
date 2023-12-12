@@ -182,6 +182,7 @@ namespace PongModel {
       Ready = '/pong/lobby/ready',
       Kick = '/pong/lobby/kick',
       Invite = '/pong/lobby/invite',
+      KickInvited = '/pong/lobby/kick-invited',
       //GET
       GetSessionLobby = '/pong/lobby/session',
       GetAllLobbies = '/pong/lobby/all',
@@ -237,6 +238,7 @@ namespace PongModel {
         Models.ILobby,
         {
           lobbyId: number;
+          nonce?: number;
           password: string | null;
         }
       > {}
@@ -290,6 +292,17 @@ namespace PongModel {
         }
       > {}
 
+    export interface KickInvited
+      extends Endpoint<
+        EndpointMethods.Post,
+        Targets.KickInvited,
+        undefined,
+        {
+          lobbyId: number;
+          userId: number;
+        }
+      > {}
+
     export interface ChatSelectedData {
       id: number;
       type: string;
@@ -321,7 +334,14 @@ namespace PongModel {
       > {}
 
     export interface GetLobby
-      extends GetEndpoint<Targets.GetLobby, Models.ILobbyInfoDisplay | null> {}
+      extends GetEndpoint<
+        Targets.GetLobby,
+        Models.ILobbyInfoDisplay | null,
+        {
+          id: number;
+          nonce: number;
+        }
+      > {}
 
     export interface Registry extends EndpointRegistry {
       [EndpointMethods.Get]: {
@@ -341,6 +361,7 @@ namespace PongModel {
         [Targets.Ready]: Ready;
         [Targets.Kick]: Kick;
         [Targets.Invite]: Invite;
+        [Targets.KickInvited]: KickInvited;
       };
     }
   }

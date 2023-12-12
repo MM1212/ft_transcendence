@@ -15,6 +15,7 @@ import tunnel from '@lib/tunnel';
 import notifications from '@lib/notifications/hooks';
 import { navigate } from 'wouter/use-location';
 import TableTennisIcon from '@components/icons/TableTennisIcon';
+import { useChatPasswordInputModalActions } from '@apps/Chat/modals/ChatPasswordInputModal/hooks/useChatPasswordInputModal';
 
 interface IChatEmbedAttachmentsBubbleProps
   extends ChatDefaultMessageBubbleProps {
@@ -45,17 +46,17 @@ function _InviteSkeleton(): JSX.Element {
 }
 
 const InviteSkeleton = React.memo(_InviteSkeleton);
-const brokenInvitesCache = new Set<number>();
+const brokenInvitesCache = new Set<string>();
 function _ChatEmbedGameInviteBubble({
   embed,
   ...props
 }: IChatEmbedAttachmentsBubbleProps) {
   const { data, error, isLoading } =
     useTunnelEndpoint<PongModel.Endpoints.GetLobby>(
-      brokenInvitesCache.has(embed.lobbyId)
+      brokenInvitesCache.has(`${embed.lobbyId}.${embed.nonce}`)
         ? null
         : PongModel.Endpoints.Targets.GetLobby,
-      { id: embed.lobbyId },
+      { id: embed.lobbyId, nonce: embed.nonce },
       { revalidateOnFocus: false, shouldRetryOnError: false }
     );
 
@@ -72,8 +73,10 @@ function _ChatEmbedGameInviteBubble({
   const deleted = !isLoading && (!!error || !data || data.status === 'error');
 
   React.useEffect(() => {
-    if (deleted) brokenInvitesCache.add(embed.lobbyId);
-  }, [deleted, embed.lobbyId]);
+    if (deleted) brokenInvitesCache.add(`${embed.lobbyId}.${embed.nonce}`);
+  }, [deleted, embed.lobbyId, embed.nonce]);
+
+  const { prompt } = useChatPasswordInputModalActions();
 
   const lobby = !error && data?.status === 'ok' ? data.data : undefined;
   const [loading, setLoading] = React.useState(false);
@@ -83,21 +86,33 @@ function _ChatEmbedGameInviteBubble({
       if (!lobby) return;
       try {
         setLoading(true);
+        let pass: string | null = null;
+        if (lobby.authorization === PongModel.Models.LobbyAccess.Protected) {
+          pass = await prompt({
+            chatName: lobby.name,
+          });
+          if (!pass) {
+            setLoading(false);
+            return;
+          }
+        }
         const lobbyJoined = await tunnel.post(
           PongModel.Endpoints.Targets.JoinLobby,
           {
             lobbyId: lobby.id,
-            password: null,
+            nonce: embed.nonce,
+            password: pass,
           }
         );
         ctx.set(pongGamesState.gameLobby, lobbyJoined);
         navigate('/pong/play/create');
-        setLoading(false);
       } catch (error) {
         notifications.error('Failed to join lobby', (error as Error).message);
+      } finally {
+        setLoading(false);
       }
     },
-    [joined, lobby]
+    [joined, lobby, embed.nonce, prompt]
   );
 
   return (
@@ -109,7 +124,7 @@ function _ChatEmbedGameInviteBubble({
         gap: '0.5rem',
         minWidth: '35dvh',
       }}
-      mainColor='warning'
+      mainColor="warning"
     >
       {isLoading ? (
         <InviteSkeleton />

@@ -97,6 +97,8 @@ export function LobbySettings() {
     );
   }
 
+  // Options need to be set according to the values of the player loaded from the DB
+
   if (player === undefined) return null;
   if (lobby === null) return null;
   return (

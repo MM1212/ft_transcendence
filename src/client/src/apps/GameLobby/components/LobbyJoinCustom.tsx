@@ -9,27 +9,41 @@ import AvatarWithStatus from '@components/AvatarWithStatus';
 import ProfileTooltip from '@components/ProfileTooltip';
 import tunnel from '@lib/tunnel';
 import { navigate } from 'wouter/use-location';
+import { useChatPasswordInputModalActions } from '@apps/Chat/modals/ChatPasswordInputModal/hooks/useChatPasswordInputModal';
+import notifications from '@lib/notifications/hooks';
+import LockIcon from '@components/icons/LockIcon';
 
 function LobbyEntry(lobby: PongModel.Models.ILobbyInfoDisplay) {
   const owner = useUser(lobby.ownerId);
+
+  const { prompt } = useChatPasswordInputModalActions();
+
   const handleJoinGame = useRecoilCallback(
     (ctx) => async () => {
       try {
+        let pass: string | null = null;
+        if (lobby.authorization === PongModel.Models.LobbyAccess.Protected) {
+          console.log('prompting for password');
+          pass = await prompt({
+            chatName: lobby.name,
+          });
+          if (!pass) return;
+        }
         const lobbyJoined = await tunnel.post(
           PongModel.Endpoints.Targets.JoinLobby,
           {
             lobbyId: lobby.id,
-            password: null,
+            password: pass,
           }
         );
         if (lobbyJoined === null) return;
         navigate('/pong/play/create', { replace: true });
         ctx.set(pongGamesState.gameLobby, lobbyJoined);
       } catch (error) {
-        console.log(error);
+        notifications.error('Failed to join lobby', (error as Error).message);
       }
     },
-    [lobby.id]
+    [lobby.id, lobby.authorization, lobby.name, prompt]
   );
   if (owner === null) return null;
   return (
@@ -60,7 +74,8 @@ function LobbyEntry(lobby: PongModel.Models.ILobbyInfoDisplay) {
     >
       <Stack spacing={0.25}>
         <Typography level="title-sm">Lobby Name</Typography>
-        <Typography level="body-sm">{lobby.name}</Typography>
+        <Typography level="body-sm"
+        endDecorator={lobby.authorization === PongModel.Models.LobbyAccess.Protected && <LockIcon size="xs" />}>{lobby.name}</Typography>
       </Stack>
       <Stack spacing={0.25}>
         <Typography level="title-sm">Owner</Typography>

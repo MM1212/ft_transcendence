@@ -90,8 +90,9 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
   ];
   public spectators: PongLobbyParticipant[] = [];
   public invited: number[] = [];
-  
+
   public readonly chat: Chat;
+  public readonly nonce: number = Math.floor(Math.random() * 1000000);
 
   public get service(): PongLobbyService {
     return this.helpers.service;
@@ -216,35 +217,49 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
 
     for (const i in data) {
       if (data[i].type === 'user') {
+        console.log(data[i]);
         if (allPlayers.some((player) => player.id === data[i].id)) continue;
         if (this.invited.some((player) => player === data[i].id)) continue;
         this.invited.push(data[i].id);
         const target = await this.helpers.usersService.get(data[i].id);
+        console.log(target);
         if (!target) continue;
         const [, chat] =
           await this.helpers.chatsService.checkOrCreateDirectChat(user, target);
         if (!chat) continue;
-        await chat.addMessage(user, {
-          type: ChatsModel.Models.ChatMessageType.Embed,
-          message: 'Pong Invite',
-          meta: {
-            type: ChatsModel.Models.Embeds.Type.GameInvite,
-            lobbyId: this.id,
+        console.log(chat);
+        console.log(user.id + ' invited ' + target.id);
+        await chat.addMessage(
+          user,
+          {
+            type: ChatsModel.Models.ChatMessageType.Embed,
+            message: 'Pong Invite',
+            meta: {
+              type: ChatsModel.Models.Embeds.Type.GameInvite,
+              lobbyId: this.id,
+              nonce: this.nonce,
+            },
           },
-        });
+          true,
+        );
       }
       if (data[i].type === 'chat') {
         const chat = await this.helpers.chatsService.get(data[i].id);
         if (!chat) continue;
         if (chat.type !== ChatsModel.Models.ChatType.Group) continue;
-        chat.addMessage(user, {
-          type: ChatsModel.Models.ChatMessageType.Embed,
-          message: 'Pong Invite',
-          meta: {
-            type: ChatsModel.Models.Embeds.Type.GameInvite,
-            lobbyId: this.id,
+        chat.addMessage(
+          user,
+          {
+            type: ChatsModel.Models.ChatMessageType.Embed,
+            message: 'Pong Invite',
+            meta: {
+              type: ChatsModel.Models.Embeds.Type.GameInvite,
+              lobbyId: this.id,
+              nonce: this.nonce,
+            },
           },
-        });
+          true,
+        );
       }
     }
   }
@@ -286,21 +301,18 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
 
   private async assignNewOwner() {
     // does this work?
-    const newOwner =
-      this.teams[0].players[0] ||
-      this.teams[1].players[0] ||
-      this.spectators[0];
+    const newOwner = this.allInLobby.find((p) => p.id !== this.ownerId)
     if (newOwner) {
       console.log('NEW OWNER : ', newOwner);
-      await this.setAsOwner(this.getPlayerFromBoth(newOwner.id)!);
+      await this.setAsOwner(newOwner as PongLobbyParticipant);
     }
   }
 
   public async removePlayer(userId: number) {
-    await this.removeFromLobby(userId);
     if (this.ownerId === userId) {
       await this.assignNewOwner();
     }
+    await this.removeFromLobby(userId);
   }
 
   public async setAsOwner(player: PongLobbyParticipant) {
@@ -319,7 +331,7 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
       spectatorVisibility: this.spectatorVisibility,
       status: this.status,
       authorization: this.authorization,
-      authorizationData: this.authorizationData,
+      authorizationData: null,
       nPlayers: this.nPlayers,
       teams: this.teams.map((team) => ({
         ...team,
@@ -352,6 +364,15 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
     const player = this.getPlayerFromBoth(userToKickId);
     if (!player) return false;
     await this.removeFromLobby(userToKickId);
+    return true;
+  }
+
+  public async kickInvited(userId: number, userToKickId: number): Promise<boolean> {
+    console.log("OWNER ID: " + this.ownerId + " USER ID: " + userId + " USER TO KICK ID: " + userToKickId);
+    console.log(this.invited);
+    if (this.ownerId !== userId) return false;
+    if (!this.invited.some((id) => id === userToKickId)) return false;
+    this.invited = this.invited.filter((id) => id !== userToKickId);
     return true;
   }
 
