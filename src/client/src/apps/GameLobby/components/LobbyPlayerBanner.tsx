@@ -1,11 +1,11 @@
 import { UserAvatar } from '@components/AvatarWithStatus';
-import { useCurrentUser, useUser } from '@hooks/user';
+import { useCurrentUser } from '@hooks/user';
 import { Box, Stack, Typography } from '@mui/joy';
 import publicPath from '@utils/public';
 
-export default function LobbyPlayerBanner({ id }: { id: number }) {
-  const handleInviteFriend = () => {};
-  const user = useUser(id);
+export default function LobbyPlayerBanner() {
+  const user = useCurrentUser();
+  if (user === null) return;
   return (
     <div
       style={{
