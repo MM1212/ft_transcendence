@@ -51,7 +51,7 @@ export function LobbyMatchMaking() {
         }}
       >
       <LobbyPlayerBanner id={user.id} />
-      <LobbyPlayerBanner id={0} />
+      <LobbyPlayerBanner id={undefined} />
       </div>
       <div
         style={{
