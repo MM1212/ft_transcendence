@@ -18,11 +18,14 @@ const useSseService = () => {
         withCredentials: true,
       }
     );
-    eventSource.onopen = () =>
+    eventSource.onopen = () => {
       mutate(buildTunnelEndpoint(AuthModel.Endpoints.Targets.Session));
+      console.log('SSE connection opened');
+    }
     eventSource.addEventListener('close', () =>
-      console.log('SSE connection closed')
+      console.warn('SSE connection closed')
     );
+    eventSource.addEventListener('error', console.error);
     eventSource.addEventListener('message', (raw: MessageEvent<string>) => {
       console.log(raw);
       const { data } = raw;

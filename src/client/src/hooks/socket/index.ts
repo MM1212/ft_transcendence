@@ -9,13 +9,13 @@ export const useSocket = (url: string) => {
     ? 'connected'
     : 'disconnected';
 
-  const useMounter = () => {
+  const useMounter = (connect: boolean = true) => {
     React.useEffect(() => {
-      sock.connect();
+      if (connect) sock.connect();
       return () => {
         sock.disconnect();
       };
-    }, []);
+    }, [connect]);
   };
 
   const emit = React.useCallback(
@@ -35,7 +35,7 @@ export const useSocket = (url: string) => {
       return () => {
         sock.off(event, handler as (...args: unknown[]) => void);
       };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [event, handler, ...deps]);
   };
 
