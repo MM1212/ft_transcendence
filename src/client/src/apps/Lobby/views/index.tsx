@@ -18,7 +18,7 @@ import {
 } from '@/apps/Lobby/state';
 import { useKeybindsToggle } from '@hooks/keybinds';
 import LobbyModel from '@typings/models/lobby';
-import { sessionAtom, usersAtom } from '@hooks/user';
+import { sessionAtom, useIsLoggedIn, usersAtom } from '@hooks/user';
 import ChatBox from '@apps/Lobby/components/InGameChat';
 import {
   inventoryAtom,
@@ -40,6 +40,8 @@ export default function Lobby() {
     buildTunnelEndpoint(LobbyModel.Endpoints.Targets.Connect)
   );
 
+  const isLoggedIn = useIsLoggedIn();
+
   const initSprite = useRecoilCallback(
     (ctx) =>
       async (app: Pixi.Application, player: InitdPlayer, isSelf: boolean) => {
@@ -54,6 +56,7 @@ export default function Lobby() {
         const viewport = app.stage.getChildByName('viewport') as Viewport;
         if (isSelf) {
           player.layers.container.name = 'self';
+          viewport.scale.set(0.1);
           viewport.follow(player.layers.container);
         }
         viewport.addChild(player.layers.container);
@@ -306,7 +309,7 @@ export default function Lobby() {
     updatePlayersTransform
   );
 
-  useMounter();
+  useMounter(isLoggedIn);
 
   useListener('connect', () => console.log('connected'));
   useListener('disconnect', () => console.log('disconnected'));
@@ -323,7 +326,6 @@ export default function Lobby() {
         worldHeight: LobbyModel.Models.STAGE_HEIGHT,
         events: app.renderer.events,
         ticker: app.ticker,
-        disableOnContextMenu: true,
       });
       viewport.name = 'viewport';
       viewport.clamp({ direction: 'all' });
@@ -331,11 +333,7 @@ export default function Lobby() {
         maxWidth: LobbyModel.Models.STAGE_WIDTH,
         maxHeight: LobbyModel.Models.STAGE_HEIGHT,
       });
-      viewport.center = new Pixi.Point(
-        LobbyModel.Models.STAGE_WIDTH / 2,
-        LobbyModel.Models.STAGE_HEIGHT / 2
-      );
-      viewport.scale.set(0.1);
+      viewport.moveCenter(LobbyModel.Models.STAGE_WIDTH / 2, 0);
 
       app.stage.sortableChildren = true;
       const backgroundTex = await Pixi.Texture.fromURL(

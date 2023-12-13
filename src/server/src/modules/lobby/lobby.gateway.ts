@@ -9,7 +9,7 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { Server, Socket } from 'socket.io';
+import { Server } from 'socket.io';
 import { Lobbies } from '@typings/lobby';
 import { IPenguinBaseAnimationsTypes } from '@typings/penguin';
 import LobbyModel from '@typings/models/lobby';
@@ -17,6 +17,10 @@ import Vector2D from '@shared/Vector/Vector2D';
 import fs from 'fs';
 import { PNG } from 'pngjs';
 import { Logger } from '@nestjs/common';
+import { ClientSocket } from '@typings/ws';
+import { AuthGatewayGuard } from '../auth/guards/auth-gateway.guard';
+import GatewayUser from '@/helpers/decorators/gatewayCtx';
+import User from '../users/user';
 
 @WebSocketGateway({
   namespace: 'api/lobby',
@@ -28,8 +32,8 @@ import { Logger } from '@nestjs/common';
 export class LobbyGateway
   implements
     OnGatewayInit<Server>,
-    OnGatewayConnection<Socket>,
-    OnGatewayDisconnect<Socket>,
+    OnGatewayConnection<ClientSocket>,
+    OnGatewayDisconnect<ClientSocket>,
     Lobbies.ILobby
 {
   @WebSocketServer()
@@ -38,7 +42,10 @@ export class LobbyGateway
   private readonly walkableAreaMaskBuffer: PNG;
   private readonly logger = new Logger(LobbyGateway.name);
 
-  constructor(private readonly rootService: AppService) {
+  constructor(
+    private readonly rootService: AppService,
+    private authGuard: AuthGatewayGuard,
+  ) {
     const stream = fs.createReadStream('dist/assets/lobby/mask.png');
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const instance = this;
@@ -66,21 +73,12 @@ export class LobbyGateway
   afterInit() {
     setInterval(() => this.onTick(), 1000 / 60);
   }
-  handleConnection(
-    @ConnectedSocket()
-    client: Socket,
-  ): void {
-    if (!client.handshake.headers.cookie)
+  async handleConnection(client: ClientSocket): Promise<void> {
+    if (!(await this.authGuard.canActivate(client)))
       return client.disconnect(true), void 0;
-    // parse session cookie
-    // get user from session
-    const app = this.rootService.app.getHttpAdapter().getInstance();
-    const sessionId = app.parseCookie(client.handshake.headers.cookie).session;
-    const session = app.decodeSecureSession(sessionId);
-    if (!session || !session.get('user'))
-      return client.disconnect(true), void 0;
-    const user = session.get('user')!;
-    if (!user.loggedIn) return client.disconnect(true), void 0;
+
+    const { user } = client.data;
+
     const playerRef = this.players.find((player) => player.userId === user.id);
     if (playerRef) {
       playerRef.connections.push(client);
@@ -112,25 +110,25 @@ export class LobbyGateway
     const player = this.players.find((player) => player.userId === user.id);
     this.players.forEach((p) => {
       if (p.userId === user.id) return;
-      p.connections.forEach((con: Socket) => {
+      p.connections.forEach((con: ClientSocket) => {
         con.emit(Lobbies.Packets.Events.NewPlayer, {
           player: { ...player, connections: [] },
         } as Lobbies.Packets.NewPlayer);
       });
     });
   }
-  handleDisconnect(@ConnectedSocket() client: Socket) {
+  handleDisconnect(@ConnectedSocket() client: ClientSocket) {
     const playerRef = this.players.find((player) =>
-      player.connections.find((con: Socket) => con.id === client.id),
+      player.connections.find((con: ClientSocket) => con.id === client.id),
     );
     if (!playerRef) return;
     playerRef.connections = playerRef.connections.filter(
-      (con: Socket) => con.id !== client.id,
+      (con: ClientSocket) => con.id !== client.id,
     );
     if (playerRef.connections.length === 0) {
       this.players.splice(this.players.indexOf(playerRef), 1);
       this.players.forEach((player) => {
-        player.connections.forEach((con: Socket) => {
+        player.connections.forEach((con: ClientSocket) => {
           con.emit(Lobbies.Packets.Events.RemovePlayer, {
             id: playerRef.userId,
           } as Lobbies.Packets.RemovePlayer);
@@ -152,19 +150,9 @@ export class LobbyGateway
       pressed: boolean;
       anim: IPenguinBaseAnimationsTypes;
     },
-    @ConnectedSocket() client: Socket,
+    @ConnectedSocket() client: ClientSocket,
+    @GatewayUser() user: User,
   ) {
-    if (!client.handshake.headers.cookie)
-      return client.disconnect(true), void 0;
-    // parse session cookie
-    // get user from session
-    const app = this.rootService.app.getHttpAdapter().getInstance();
-    const sessionId = app.parseCookie(client.handshake.headers.cookie).session;
-    const session = app.decodeSecureSession(sessionId);
-    if (!session || !session.get('user'))
-      return client.disconnect(true), void 0;
-    const user = session.get('user')!;
-    if (!user.loggedIn) return client.disconnect(true), void 0;
     const playerRef = this.players.find((player) => player.userId === user.id);
     if (!playerRef) return client.disconnect(true), void 0;
     switch (key) {
@@ -183,7 +171,7 @@ export class LobbyGateway
     }
     playerRef.currentAnimation = anim;
     this.players.forEach((player) => {
-      player.connections.forEach((con: Socket) => {
+      player.connections.forEach((con: ClientSocket) => {
         con.emit(Lobbies.Packets.Events.UpdatePlayersTransform, {
           players: [
             {
@@ -233,7 +221,7 @@ export class LobbyGateway
     this.moved.clear();
     if (payload.players.length > 0) {
       this.players.forEach((player) => {
-        player.connections.forEach((con: Socket) => {
+        player.connections.forEach((con: ClientSocket) => {
           con.emit(Lobbies.Packets.Events.UpdatePlayersTransform, payload);
         });
       });
@@ -242,25 +230,17 @@ export class LobbyGateway
     // }
   }
   @SubscribeMessage('lobby:toggle-dance')
-  toggleDance(@ConnectedSocket() client: Socket) {
-    if (!client.handshake.headers.cookie)
-      return client.disconnect(true), void 0;
-    // parse session cookie
-    // get user from session
-    const app = this.rootService.app.getHttpAdapter().getInstance();
-    const sessionId = app.parseCookie(client.handshake.headers.cookie).session;
-    const session = app.decodeSecureSession(sessionId);
-    if (!session || !session.get('user'))
-      return client.disconnect(true), void 0;
-    const user = session.get('user')!;
-    if (!user.loggedIn) return client.disconnect(true), void 0;
+  toggleDance(
+    @ConnectedSocket() client: ClientSocket,
+    @GatewayUser() user: User,
+  ) {
     const playerRef = this.players.find((player) => player.userId === user.id);
     if (!playerRef) return client.disconnect(true), void 0;
     playerRef.currentAnimation = playerRef.currentAnimation.includes('dance')
       ? 'idle/down'
       : 'dance';
     this.players.forEach((player) => {
-      player.connections.forEach((con: Socket) => {
+      player.connections.forEach((con: ClientSocket) => {
         con.emit(Lobbies.Packets.Events.UpdatePlayersTransform, {
           players: [
             {
@@ -274,24 +254,17 @@ export class LobbyGateway
   }
 
   @SubscribeMessage('lobby:update-animation')
-  throwSnowball(@ConnectedSocket() client: Socket, @MessageBody() data: any) {
-    if (!client.handshake.headers.cookie)
-      return client.disconnect(true), void 0;
-    // parse session cookie
-    // get user from session
-    const app = this.rootService.app.getHttpAdapter().getInstance();
-    const sessionId = app.parseCookie(client.handshake.headers.cookie).session;
-    const session = app.decodeSecureSession(sessionId);
-    if (!session || !session.get('user'))
-      return client.disconnect(true), void 0;
-    const user = session.get('user')!;
-    if (!user.loggedIn) return client.disconnect(true), void 0;
+  throwSnowball(
+    @ConnectedSocket() client: ClientSocket,
+    @MessageBody() data: any,
+    @GatewayUser() user: User,
+  ) {
     const playerRef = this.players.find((player) => player.userId === user.id);
     if (!playerRef) return client.disconnect(true), void 0;
     playerRef.currentAnimation = data.anim as IPenguinBaseAnimationsTypes;
 
     this.players.forEach((player) => {
-      player.connections.forEach((con: Socket) => {
+      player.connections.forEach((con: ClientSocket) => {
         con.emit(Lobbies.Packets.Events.UpdatePlayersTransform, {
           players: [
             {
