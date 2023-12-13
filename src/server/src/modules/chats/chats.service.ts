@@ -60,9 +60,15 @@ export class ChatsService {
   }
   public async getAllByUserId(userId: number): Promise<Chat[]> {
     const chats = await this.db.chats.getChatsIdsForUserId(userId);
-    return (await Promise.all(chats.map((chatId) => this.get(chatId)))).filter(
-      Boolean,
-    ) as Chat[];
+    // gatter temp chats
+    const tempChats = [...this.chats.values()].filter(
+      (chat) => chat.isTemporary && chat.hasParticipantByUserId(userId),
+    );
+    return (
+      (await Promise.all(chats.map((chatId) => this.get(chatId)))).filter(
+        Boolean,
+      ) as Chat[]
+    ).concat(tempChats);
   }
   public async create(
     data: ChatsModel.DTO.NewChat,
@@ -88,7 +94,29 @@ export class ChatsService {
         data.authorizationData.password,
       ).toString();
     }
-    const chatData = await this.db.chats.createChat(data);
+    data.type ??= ChatsModel.Models.ChatType.Group;
+    const chatData =
+      data.type !== ChatsModel.Models.ChatType.Temp
+        ? await this.db.chats.createChat(data)
+        : (() => {
+            const chatId = hash((data as unknown as { id: string }).id);
+            return {
+              ...data,
+              id: chatId,
+              createdAt: Date.now(),
+              participants: data.participants.map((p) => ({
+                ...p,
+                chatId,
+                id: p.userId,
+                createdAt: Date.now(),
+                toReadPings: 0,
+                muted: ChatsModel.Models.ChatParticipantMuteType.No,
+                mutedUntil: null,
+                typing: false,
+              })),
+              messages: [],
+            } satisfies ChatsModel.Models.IChat;
+          })();
     const chat = this.build(chatData);
     if (!propagate) return chat;
     if (author)
@@ -105,6 +133,13 @@ export class ChatsService {
         { chatId: chat.id },
       );
     return chat;
+  }
+  public async createTemporary(
+    data: ChatsModel.DTO.NewChat & { id: string },
+    author?: User,
+    propagate: boolean = true,
+  ): Promise<Chat> {
+    return await this.create(data, author, propagate);
   }
 
   public async checkOrCreateDirectChat(

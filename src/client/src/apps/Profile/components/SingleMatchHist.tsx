@@ -12,13 +12,6 @@ export default function SingleMatchHist() {
           width: '100%',
           p: 2,
           borderRadius: (theme) => theme.radius.md,
-          transition: (theme) =>
-            theme.transitions.create('background-color', {
-              duration: theme.transitions.duration.shortest,
-            }),
-          '&:hover': {
-            backgroundColor: (theme) => theme.palette.background.level1,
-          },
         }}
       >
         <Stack

@@ -41,6 +41,7 @@ export const useSocket = (url: string) => {
 
   return {
     status,
+    socket: sock,
     connected: sock.connected,
     useMounter,
     emit,

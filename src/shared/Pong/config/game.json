@@ -1,0 +1,44 @@
+{
+    "canvas": {
+        "width": 800,
+        "height": 600,
+        "fieldHexColor": "#000000"
+    },
+
+    "p1": {
+        "name": "Player 1",
+        "hexColor": "#ff0000",
+        "specialPower": "Bubble",
+        "paddleSkin": "../../paddle.png"
+    },
+
+    "p2": {
+        "name": "Player 2",
+        "hexColor": "#0000ff",
+        "specialPower": "Fire",
+        "paddleSkin": "../../paddle.png"
+    },
+
+    "p3": {
+        "name": "Player 3",
+        "hexColor": "#00ff00",
+        "specialPower": "Fire",
+        "paddleSkin": "../../paddle.png"
+    },
+
+    "p4": {
+        "name": "Player 4",
+        "hexColor": "#ffff00",
+        "specialPower": "Fire",
+        "paddleSkin": "../../paddle.png"
+    },
+    
+    "ball": {
+        "name": "Bolinha",
+        "hexColor": "#ffffff",
+        "color": "#00ff00",
+        "skin": "../../Ball.png",
+        "diameter": 32,
+        "vertices": 8
+    }
+}

@@ -18,6 +18,7 @@
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
     "moduleResolution": "NodeNext",
+    "resolveJsonModule": true,
     "types": ["../typings/env", "./typings/session"],
     "paths": {
       "@typings/*": ["../typings/*", "./typings/*"],
