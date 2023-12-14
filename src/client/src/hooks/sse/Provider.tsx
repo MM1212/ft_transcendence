@@ -20,12 +20,14 @@ const useSseService = () => {
       }
     );
     eventSource.onopen = () => {
+      setSseIsConnected(true);
       mutate(buildTunnelEndpoint(AuthModel.Endpoints.Targets.Session));
-      console.log('SSE connection opened');
-    }
-    eventSource.addEventListener('close', () =>
-      console.warn('SSE connection closed')
-    );
+    };
+    eventSource.onerror = () => setSseIsConnected(false);
+    eventSource.addEventListener('close', () => {
+      setSseIsConnected(false);
+      console.log('SSE connection closed');
+    });
     eventSource.addEventListener('error', console.error);
     eventSource.addEventListener('message', (raw: MessageEvent<string>) => {
       console.log(raw);
