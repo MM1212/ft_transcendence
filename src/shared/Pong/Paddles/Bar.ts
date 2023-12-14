@@ -3,7 +3,6 @@ import { BarPolygon } from '../Collisions/Polygon';
 import { Vector2D } from '../utils/Vector';
 import { Mana } from './Mana';
 import { Energy } from './Energy';
-import { SpecialPowerType } from '../SpecialPowers/SpecialPower';
 import { SpecialPower } from '../SpecialPowers/SpecialPower';
 import { Shooter } from '../SpecialPowers/Shooter';
 
@@ -16,11 +15,13 @@ import { Ghost } from '../SpecialPowers/Ghost';
 import { paddleConfig } from '../config/configInterface';
 import { Game } from '../Game';
 
+import PongModel from '../../../typings/models/pong/index'
+
 export abstract class Bar extends GameObject {
 
     protected mana: Mana;
     protected energy: Energy;
-    protected specialPowerType: SpecialPowerType;
+    protected specialPowerType: PongModel.Models.LobbyParticipantSpecialPowerType | undefined = undefined;
     public power: SpecialPower | undefined = undefined;
 
     public shooter: Shooter | undefined = undefined;

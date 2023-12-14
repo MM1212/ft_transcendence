@@ -22,11 +22,12 @@ import {
   ChatSelectedData,
   useChatSelectModalActions,
 } from '@apps/Chat/modals/ChatSelectModal/hooks/useChatSelectModal';
+import { OpenGameModal } from '@apps/GamePong/PongModal';
 
 export default function LobbyRoom() {
   const lobby = useRecoilValue(pongGamesState.gameLobby)!;
   const [leftTeam, rightTeam] = lobby.teams;
-
+  const isPlaying = useRecoilValue(pongGamesState.isPlaying);
   const user = useCurrentUser();
   //const {open} = useModalActions(LobbyInviteId)
   const { select: selectInvites } = useChatSelectModalActions();
@@ -36,7 +37,15 @@ export default function LobbyRoom() {
     .find((player) => player.id === user?.id);
 
   const handleStartMatch = useRecoilCallback(() => async () => {
-    console.log('start match');
+    try {
+      await tunnel.post(PongModel.Endpoints.Targets.StartGame, {
+        lobbyId: lobby.id,
+      });
+      notifications.success('Game is starting soon!');
+    } catch {
+      console.log('Failed to start game');
+      notifications.error('Failed to start game');
+    }
   });
 
   const handleReady = React.useCallback(async () => {
@@ -212,6 +221,7 @@ export default function LobbyRoom() {
           />
         </FindMatchWrapper>
       )}
+      <OpenGameModal isPlaying={isPlaying}></OpenGameModal>
     </Box>
   );
 }

@@ -35,6 +35,14 @@ const pongGamesState = new (class GamesState {
       return lobby.ownerId;
     },
   });
+  isPlaying = selector<boolean>({
+    key: 'isPlaying',
+    get: ({ get }) => {
+      const lobby = get(this.gameLobby);
+      if (!lobby) return false;
+      return lobby.status === PongModel.Models.LobbyStatus.Playing;
+    },
+  });
 })();
 
 export default pongGamesState;

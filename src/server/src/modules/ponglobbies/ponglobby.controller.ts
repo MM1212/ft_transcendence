@@ -33,7 +33,9 @@ class NewLobbyDataDto implements EndpointData<PongModel.Endpoints.NewLobby> {
 @Auth()
 @Controller()
 export class PongLobbyController {
-  constructor(private readonly service: PongLobbyService) {}
+  constructor(
+    private readonly service: PongLobbyService,
+  ) {}
 
   @Put(Targets.NewLobby)
   async newLobby(
@@ -49,10 +51,18 @@ export class PongLobbyController {
     @HttpCtx() ctx: HTTPContext<true>,
     @Body() body: EndpointData<PongModel.Endpoints.LeaveLobby>,
   ): Promise<InternalEndpointResponse<PongModel.Endpoints.LeaveLobby>> {
-    const lobby = await this.service.getLobbyByUser(ctx.user);
+    const lobby = this.service.getLobbyByUser(ctx.user);
     if (lobby.id !== body.lobbyId)
       throw new BadRequestException('Lobby ID does not match');
     await this.service.leaveLobby(ctx.user);
+  }
+
+  @Post(Targets.StartGame)
+  async startGame(
+    @HttpCtx() ctx: HTTPContext<true>,
+    @Body() body: EndpointData<PongModel.Endpoints.StartGame>,
+  ): Promise<InternalEndpointResponse<PongModel.Endpoints.StartGame>> {
+    await this.service.startGame(ctx.user.id, body.lobbyId);
   }
 
   @Post(Targets.JoinLobby)
@@ -136,7 +146,7 @@ export class PongLobbyController {
   async getSessionLobby(
     @HttpCtx() ctx: HTTPContext<true>,
   ): Promise<InternalEndpointResponse<PongModel.Endpoints.GetSessionLobby>> {
-    const lobby = await this.service.getLobbyByUser(ctx.user);
+    const lobby = this.service.getLobbyByUser(ctx.user);
     return lobby.interface;
   }
 
@@ -156,12 +166,14 @@ export class PongLobbyController {
   @Get(Targets.GetLobby)
   async getLobby(
     @Param('id', new ParseIntPipe({ errorHttpStatusCode: 400 })) id: number,
-    @Query('nonce', new ParseIntPipe({ errorHttpStatusCode: 400 })) nonce: number,
+    @Query('nonce', new ParseIntPipe({ errorHttpStatusCode: 400 }))
+    nonce: number,
   ): Promise<InternalEndpointResponse<PongModel.Endpoints.GetLobby>> {
     console.log(id, typeof id);
-    
+
     const lobby = await this.service.getLobby(id);
-    if (lobby.nonce !== nonce) throw new BadRequestException('Nonce does not match');
+    if (lobby.nonce !== nonce)
+      throw new BadRequestException('Nonce does not match');
     return lobby.infoDisplay;
   }
 }

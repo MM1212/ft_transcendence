@@ -18,7 +18,6 @@ export class PongLobbyService {
   public readonly usersInGames: Map<number, number> = new Map(); // userId, lobbyId
   private lobbyId = 0;
 
-
   constructor(private readonly deps: PongLobbyDependencies) {
     // @ts-expect-error - circular dependency
     this.deps.service = this;
@@ -29,7 +28,7 @@ export class PongLobbyService {
     if (!lobby) throw new NotFoundException('Lobby does not exist');
     return lobby;
   }
-  public async getLobbyByUser(user: User): Promise<PongLobby> {
+  public getLobbyByUser(user: User): PongLobby {
     if (!this.usersInGames.has(user.id))
       throw new ForbiddenException('User is not in a lobby/game');
     const lobbyId = this.usersInGames.get(user.id)!;
@@ -42,6 +41,26 @@ export class PongLobbyService {
   }
   public async getAllLobbies(): Promise<PongModel.Models.ILobbyInfoDisplay[]> {
     return Array.from(this.games.values()).map((lobby) => lobby.infoDisplay);
+  }
+
+  public async startGame(userId: number, lobbyId: number): Promise<PongLobby> {
+    if (!this.usersInGames.has(userId))
+      throw new ForbiddenException('User is not in a lobby/game');
+    if (lobbyId !== this.usersInGames.get(userId))
+      throw new ForbiddenException('User is not in the specified lobby');
+    const lobby = this.games.get(lobbyId);
+    if (!lobby) throw new Error('Could not find lobby');
+    if (lobby.ownerId !== userId)
+      throw new ForbiddenException('User is not the owner of the lobby');
+    if (lobby.status !== PongModel.Models.LobbyStatus.Waiting)
+      throw new ForbiddenException('Lobby is not available for starting');
+    if (lobby.nPlayers < 2)
+      throw new ForbiddenException('Lobby does not have enough players');
+    if (await lobby.startGame(userId)) {
+      lobby.syncParticipants();
+      lobby.emitGameStart();
+      return lobby;
+    } else throw new ForbiddenException('Could not start game');
   }
 
   public async changeTeam(
@@ -110,7 +129,7 @@ export class PongLobbyService {
       lobby =
         lobbyId !== undefined
           ? this.games.get(lobbyId)!
-          : await this.getLobbyByUser(user);
+          : this.getLobbyByUser(user);
     if (
       // remove the line under when implementing password protection
       lobby.authorization !== PongModel.Models.LobbyAccess.Public &&
@@ -121,7 +140,7 @@ export class PongLobbyService {
     lobby.updateInvited();
     return lobby;
   }
-  
+
   public async kick(
     userId: number,
     lobbyId: number,
@@ -166,7 +185,8 @@ export class PongLobbyService {
       throw new ForbiddenException('User is already in a lobby/game');
     const lobby = this.games.get(lobbyId);
     if (!lobby) throw new ForbiddenException('Lobby does not exist');
-    if (nonce && lobby.nonce !== nonce) throw new ForbiddenException('Nonce is invalid');
+    if (nonce && lobby.nonce !== nonce)
+      throw new ForbiddenException('Nonce is invalid');
     if (lobby.status !== PongModel.Models.LobbyStatus.Waiting)
       throw new ForbiddenException('Lobby is not available for joining');
     lobby.verifyAuthorization(password);

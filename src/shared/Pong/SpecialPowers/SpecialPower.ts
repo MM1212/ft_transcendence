@@ -3,8 +3,6 @@ import { Vector2D } from '../utils/Vector';
 import { BallPolygon } from '../Collisions/Polygon';
 import { Bar } from '../Paddles/Bar';
 
-export type SpecialPowerType = 'Spark' | 'Bubble' | 'Ice' | 'Fire' | 'Ghost' | undefined;
-
 export abstract class SpecialPower extends GameObject {
     protected shooterObject: Bar;
 

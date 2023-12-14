@@ -2,6 +2,7 @@ import PongModel from '@typings/models/pong';
 import { useRecoilCallback } from 'recoil';
 import pongGamesState from '../state';
 import { useSseEvent } from '@hooks/sse';
+import { OpenGameModal } from '@apps/GamePong/PongModal';
 
 const useLobbyService = () => {
   const onUpdateLobbyEvent = useRecoilCallback(
@@ -50,6 +51,23 @@ const useLobbyService = () => {
     });
   }, []);
 
+  const onStartEvent = useRecoilCallback(
+    (ctx) => async (ev: PongModel.Sse.Start) => {
+      const lobby = await ctx.snapshot.getPromise(pongGamesState.gameLobby);
+      if (!lobby) return;
+      if (lobby.id !== ev.data.id) return;
+      ctx.set(pongGamesState.gameLobby, (prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          status: ev.data.status,
+        };
+      });
+      console.log('START EVENT', ev.data);
+      // navigate (?)
+      // open modal
+    }, []);
+
 
   useSseEvent<PongModel.Sse.Kick>(
     PongModel.Sse.Events.Kick,
@@ -62,6 +80,10 @@ const useLobbyService = () => {
   useSseEvent<PongModel.Sse.UpdateLobbyInvited>(
     PongModel.Sse.Events.UpdateLobbyInvited,
     onInviteEvent
+  );
+  useSseEvent<PongModel.Sse.Start>(
+    PongModel.Sse.Events.Start,
+    onStartEvent
   );
 };
 

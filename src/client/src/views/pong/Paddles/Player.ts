@@ -1,6 +1,5 @@
 import * as PIXI from 'pixi.js';
 import { Vector2D } from '../utils/Vector';
-import { SpecialPowerType } from '@shared/Pong/SpecialPowers/SpecialPower';
 import { UIGame } from '../Game';
 import { UIMana } from './Mana';
 import { UIEnergy } from './Energy';
@@ -9,6 +8,7 @@ import { Player } from '@shared/Pong/Paddles/Player';
 import { UIBar } from './Bar';
 import { UIEffect } from '../SpecialPowers/Effect';
 import { UIGameObject } from '../GameObject';
+import PongModel from '@typings/models/pong';
 
 export interface KeyControls {
   up: string;
@@ -34,7 +34,7 @@ export class UIPlayer extends Player {
     public keys: KeyControls,
     tag: string,
     public direction: Vector2D,
-    public specialPower: SpecialPowerType,
+    public specialPower: PongModel.Models.LobbyParticipantSpecialPowerType,
     private uigame: UIGame
   ) {
     super(x, y, keys, tag, direction, specialPower, uigame);
@@ -88,7 +88,7 @@ export class UIPlayer extends Player {
   }
 
   createPower(
-    specialPower: SpecialPowerType,
+    specialPower: PongModel.Models.LobbyParticipantSpecialPowerType,
     center: Vector2D,
     direction: number,
     shooter: UIBar,

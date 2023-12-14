@@ -7,6 +7,8 @@ import { hash } from '@shared/hash';
 import Chat from '@/modules/chats/chat';
 import ChatsModel from '@typings/models/chat';
 import { PongLobbyService } from '../ponglobby.service';
+import { read } from 'fs';
+import { ServerGame } from '@/modules/ponggame/pong';
 
 /* ---- LOBBY PARTICIPANT ---- */
 
@@ -93,9 +95,15 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
 
   public readonly chat: Chat;
   public readonly nonce: number = Math.floor(Math.random() * 1000000);
+  public gameUUId: string | null = null;
 
   public get service(): PongLobbyService {
     return this.helpers.service;
+  }
+
+  public get game(): ServerGame {
+    if (!this.gameUUId) throw new Error('Game not started');
+    return this.helpers.gameService.getGame(this.gameUUId)!;
   }
 
   constructor(
@@ -145,6 +153,48 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
       });
   }
 
+  public emitGameStart(): void {
+    this.helpers.sseService.emitToTargets<PongModel.Sse.Start>(
+      PongModel.Sse.Events.Start,
+      this.allInLobby.map((player) => player.id),
+      {
+        id: this.id,
+        status: this.status,
+      },
+    );
+  }
+
+  public async startGame(userId: number): Promise<boolean> {
+    const player = this.getPlayerFromTeam(userId);
+    if (this.teams[0].players.length === 0) return false;
+    if (this.teams[1].players.length === 0) return false;
+    if (player !== undefined)
+      player.status = PongModel.Models.LobbyStatus.Ready;
+    if (
+      this.allPlayers.some(
+        (player) => player.status !== PongModel.Models.LobbyStatus.Ready,
+      )
+    ) {
+      console.log('NOT ALL READY');
+      player!.status = PongModel.Models.LobbyStatus.Waiting;
+      return false;
+    }
+    this.allPlayers.forEach((player) => {
+      player.status = PongModel.Models.LobbyStatus.Playing;
+    });
+    this.teams.forEach((team) => {
+      team.score = 0;
+      if (team.players.length === 1)
+        team.players[0].teamPosition = PongModel.Models.TeamPosition.Top;
+    });
+    console.log('ALL READY');
+    this.status = PongModel.Models.LobbyStatus.Playing;
+
+    const game = await this.helpers.gameService.initGameSession(this);
+    this.gameUUId = game.UUID;
+    return true;
+  }
+
   public get owner(): Promise<User> {
     return this.helpers.usersService.get(this.ownerId) as Promise<User>;
   }
@@ -191,6 +241,10 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
     console.log(
       `Lobby-${this.id}: ${player.nickname} left. (Was in team ${teamSide})`,
     );
+  }
+
+  private get allPlayers(): PongModel.Models.ILobbyParticipant[] {
+    return this.teams[0].players.concat(this.teams[1].players);
   }
 
   private get allInLobby(): PongModel.Models.ILobbyParticipant[] {
@@ -301,7 +355,7 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
 
   private async assignNewOwner() {
     // does this work?
-    const newOwner = this.allInLobby.find((p) => p.id !== this.ownerId)
+    const newOwner = this.allInLobby.find((p) => p.id !== this.ownerId);
     if (newOwner) {
       console.log('NEW OWNER : ', newOwner);
       await this.setAsOwner(newOwner as PongLobbyParticipant);
@@ -367,8 +421,18 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
     return true;
   }
 
-  public async kickInvited(userId: number, userToKickId: number): Promise<boolean> {
-    console.log("OWNER ID: " + this.ownerId + " USER ID: " + userId + " USER TO KICK ID: " + userToKickId);
+  public async kickInvited(
+    userId: number,
+    userToKickId: number,
+  ): Promise<boolean> {
+    console.log(
+      'OWNER ID: ' +
+        this.ownerId +
+        ' USER ID: ' +
+        userId +
+        ' USER TO KICK ID: ' +
+        userToKickId,
+    );
     console.log(this.invited);
     if (this.ownerId !== userId) return false;
     if (!this.invited.some((id) => id === userToKickId)) return false;

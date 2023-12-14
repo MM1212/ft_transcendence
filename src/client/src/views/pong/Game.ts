@@ -21,7 +21,6 @@ import {
   MULTIPLAYER_START_POS,
   WINDOWSIZE_X,
   WINDOWSIZE_Y,
-  score,
 } from '@shared/Pong/main';
 
 import { UIBot } from './Paddles/Bot';
@@ -33,6 +32,7 @@ import { UIGhost } from './SpecialPowers/Ghost';
 import { UIIce } from './SpecialPowers/Ice';
 import { UISpark } from './SpecialPowers/Spark';
 import { UIEffect } from './SpecialPowers/Effect';
+import PongModel from '@typings/models/pong';
 
 type Powers = UIBubble | UIFire | UIGhost | UIIce | UISpark;
 
@@ -50,21 +50,23 @@ export class UIGame extends Game {
   constructor(
     public readonly socket: Socket,
     container: HTMLDivElement,
-    gameConfig: IGameConfig
+    gameConfig: PongModel.Models.IGameConfig
   ) {
     super(WINDOWSIZE_X, WINDOWSIZE_Y);
 
-    this.roomId = gameConfig.roomId;
+    this.roomId = gameConfig.UUID;
 
+    // need to add background tex
+    // Black hardcoded for now
     this.app = new PIXI.Application({
-      background: gameConfig.backgroundColor,
+      background: "#000000",
       antialias: true, // smooth edge rendering
       width: WINDOWSIZE_X,
       height: WINDOWSIZE_Y,
     });
-    this.app.renderer.background.color = gameConfig.backgroundColor;
+    this.app.renderer.background.color = "#000000";
 
-    drawLines(gameConfig.lineColor, this.app);
+    drawLines(0xFFFFFF, this.app);
 
     this.drawPlayers(gameConfig);
 
@@ -242,7 +244,7 @@ export class UIGame extends Game {
     super.shutdown();
   }
 
-  private drawPlayers(gameConfig: IGameConfig) {
+  private drawPlayers(gameConfig: PongModel.Models.IGameConfig) {
     const p1Conf = gameConfig.teams[0].players[0];
     const p2Conf = gameConfig.teams[1].players[0];
 

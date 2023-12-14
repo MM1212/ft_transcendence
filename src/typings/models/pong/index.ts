@@ -113,6 +113,34 @@ namespace PongModel {
       chatId: number;
     }
 
+    export interface IPlayerConfig {
+      tag: string,
+      teamId: number,
+      type: "player" | "bot",
+      keys?: IGamekeys,
+      specialPower: LobbyParticipantSpecialPowerType,
+      paddleTexture: string,
+      positionOrder: "back" | "front",
+      userId: number,
+      avatar: string,
+      nickname: string,
+      connected: boolean,
+    }
+
+    export interface IGameTeam {
+      players: IPlayerConfig[];
+      score: number;
+      id: TeamSide;
+    }
+    export interface IGameConfig {
+      UUID: string;
+      teams: [IGameTeam, IGameTeam];
+      spectators: number[];
+      nPlayers: number;
+      //backgroundTexture: string;
+      //ballTexture: string
+    }
+
     export interface ILobbyInfoDisplay
       extends Pick<
         ILobby,
@@ -136,6 +164,8 @@ namespace PongModel {
     export interface ILobbyKickParticipantEvent extends ILobby {}
 
     export interface ILobbyUpdateInvitedEvent extends Pick<ILobby, 'invited'> {}
+
+    export interface IStartGameEvent extends Pick<ILobby, 'id' | 'status'> {}
   }
 
   export namespace Sse {
@@ -144,6 +174,7 @@ namespace PongModel {
       UpdateLobbyParticipants = 'pong.update-lobby-participants',
       UpdateLobbyInvited = 'pong.update-lobby-invited',
       Kick = 'pong.kick-participant',
+      Start = 'pong.start',
     }
 
     export interface UpdateLobbyParticipantEvent
@@ -163,6 +194,17 @@ namespace PongModel {
         Models.ILobbyUpdateInvitedEvent,
         Events.UpdateLobbyInvited
       > {}
+
+    export interface Start
+      extends SseModel.Models.Event<Models.IStartGameEvent, Events.Start> {}
+  }
+
+  export namespace Socket {
+    export enum Events {
+      UpdateConnectedPlayers = 'update-connected-players',
+      SetUIGame = 'set-ui-game',
+    }
+
   }
 
   export namespace DTO {
@@ -183,6 +225,7 @@ namespace PongModel {
       Kick = '/pong/lobby/kick',
       Invite = '/pong/lobby/invite',
       KickInvited = '/pong/lobby/kick-invited',
+      StartGame = '/pong/lobby/start',
       //GET
       GetSessionLobby = '/pong/lobby/session',
       GetAllLobbies = '/pong/lobby/all',
@@ -319,6 +362,16 @@ namespace PongModel {
         }
       > {}
 
+    export interface StartGame
+      extends Endpoint<
+        EndpointMethods.Post,
+        Targets.StartGame,
+        undefined,
+        {
+          lobbyId: number;
+        }
+      > {}
+
     /* GET methods */
 
     export interface GetSessionLobby
@@ -362,6 +415,7 @@ namespace PongModel {
         [Targets.Kick]: Kick;
         [Targets.Invite]: Invite;
         [Targets.KickInvited]: KickInvited;
+        [Targets.StartGame]: StartGame;
       };
     }
   }

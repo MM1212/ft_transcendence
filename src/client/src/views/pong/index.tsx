@@ -1,23 +1,19 @@
-import { useSocket } from "@hooks/socket";
-import { buildTunnelEndpoint } from "@hooks/tunnel";
-import PongModel from "@typings/models/pong";
+import { useSocket } from '@hooks/socket';
+import { buildTunnelEndpoint } from '@hooks/tunnel';
+import PongModel from '@typings/models/pong';
 // add textures
 const Targets = PongModel.Endpoints.Targets;
-import { UIGame } from "./Game";
-import React from "react";
+import { UIGame } from './Game';
+import React from 'react';
 import {
   ETeamSide,
   IGameConfig,
   IPlayerConfig,
-} from "@shared/Pong/config/configInterface";
-import { Input } from "@mui/joy";
-import { UIPlayer } from "./Paddles/Player";
-import { UIGameObject } from "./GameObject";
-import { UIBall } from "./Ball";
-
-
-
-
+} from '@shared/Pong/config/configInterface';
+import { Input } from '@mui/joy';
+import { UIPlayer } from './Paddles/Player';
+import { UIGameObject } from './GameObject';
+import { UIBall } from './Ball';
 
 //export const FireAnim = new Promise<PIXI.Texture[]>((resolve) => {
 //  const FireballFolderPath = buildTunnelEndpoint(Targets.FireballAnimDict);
@@ -41,43 +37,42 @@ import { UIBall } from "./Ball";
 //  );
 //}).catch(console.error);
 
-
 const defaultKeyControls = {
-  up: "w",
-  down: "s",
-  boost: "a",
-  shoot: "q",
+  up: 'w',
+  down: 's',
+  boost: 'a',
+  shoot: 'q',
 };
 
- const defaultPlayerConfig: IPlayerConfig = {
-  tag: "",
+const defaultPlayerConfig: IPlayerConfig = {
+  tag: '',
   teamId: 0,
-  type: "player",
+  type: 'player',
   keys: defaultKeyControls,
-  specialPower: "Ghost",
+  specialPower: 'Ghost',
   paddleTexture: Targets.PaddleTexture1,
   paddleColor: 0xffffff,
-  positionOrder: "back",
-  userId: "",
+  positionOrder: 'back',
+  userId: '',
   ready: false,
   connected: false,
 };
 
- const defaultLeftTeamConfig = {
+const defaultLeftTeamConfig = {
   id: ETeamSide.Left,
   players: [],
   score: 0,
 };
- const defaultRightTeamConfig = {
+const defaultRightTeamConfig = {
   id: ETeamSide.Right,
   players: [],
   score: 0,
 };
 
- const defaultGameConfig: IGameConfig = {
-  roomId: "",
+const defaultGameConfig: IGameConfig = {
+  roomId: '',
   teams: [defaultLeftTeamConfig, defaultRightTeamConfig],
-  partyOwnerId: "",
+  partyOwnerId: '',
   spectators: [],
   backgroundColor: 0x000000,
   lineColor: 0xffffff,
@@ -116,28 +111,28 @@ export default function Pong() {
   const [myPlayerConfig, setMyPlayerConfig] =
     React.useState<IPlayerConfig>(defaultPlayerConfig);
 
-  const [input, setInput] = React.useState<string>("1");
+  const [input, setInput] = React.useState<string>('1');
 
-  const [owner, setOwner] = React.useState<string>("name");
+  const [owner, setOwner] = React.useState<string>('name');
 
   const parentRef = React.useRef<HTMLDivElement>(null);
 
   useListener(
-    "update-config-changes",
+    'update-config-changes',
     (data: IGameConfig) => {
       setGameConfig(data);
     },
     []
   );
 
-  useListener("STARTGAME", (data: IGameConfig) => {
+  useListener('STARTGAME', (data: IGameConfig) => {
     if (!parentRef.current) return;
     console.log(`!!!`);
     setGame(new UIGame(socket, parentRef.current, data));
   });
-  
+
   useListener(
-    "STARTMOVING",
+    'STARTMOVING',
     () => {
       if (!parentRef.current) return;
       if (game?.delta) return;
@@ -148,8 +143,8 @@ export default function Pong() {
   );
 
   useListener(
-    "movements",
-    (data: {tag: string;position: number[];}[]) => {
+    'movements',
+    (data: { tag: string; position: number[] }[]) => {
       game?.handleMovements(data);
     },
     [game]
@@ -160,57 +155,83 @@ export default function Pong() {
 
   useListener(
     'create-power',
-    (data: {
-      tag: string;
-      powertag: string;
-    }) => {
+    (data: { tag: string; powertag: string }) => {
       const player = game?.getObjectByTag(data.tag) as UIPlayer;
-      let power
-      if (player) power = player?.createPower(player.specialPower, player.getCenter, player.direction.x, player, data.powertag)
+      let power;
+      if (player)
+        power = player?.createPower(
+          player.specialPower,
+          player.getCenter,
+          player.direction.x,
+          player,
+          data.powertag
+        );
       if (power) {
-        game?.add(power)
+        game?.add(power);
       }
     },
     [game]
-  )
+  );
 
-  useListener('shoot-power', (data: {tag: string
-  }) => {
-    const player = game?.getObjectByTag(data.tag) as UIPlayer;
-    if (player) player.shootPower()
-  } , [game]
-)
+  useListener(
+    'shoot-power',
+    (data: { tag: string }) => {
+      const player = game?.getObjectByTag(data.tag) as UIPlayer;
+      if (player) player.shootPower();
+    },
+    [game]
+  );
 
-  useListener('shooter-update', (data: {tag: string, line: {start: number[], end: number[]}}) => {
-    const player = game?.getObjectByTag(data.tag) as UIPlayer;
-    if (player) player.updateShooter(data.line)
-  }, [game]
-  )
+  useListener(
+    'shooter-update',
+    (data: { tag: string; line: { start: number[]; end: number[] } }) => {
+      const player = game?.getObjectByTag(data.tag) as UIPlayer;
+      if (player) player.updateShooter(data.line);
+    },
+    [game]
+  );
 
-  useListener('remove-power', (data: {tag: string[]}) => {
-    data.tag.forEach((tag) => {
-      const object = game?.getObjectByTag(tag)
-      if (object) game?.handleRemovePower(object);
-    })
-  }, [game])
+  useListener(
+    'remove-power',
+    (data: { tag: string[] }) => {
+      data.tag.forEach((tag) => {
+        const object = game?.getObjectByTag(tag);
+        if (object) game?.handleRemovePower(object);
+      });
+    },
+    [game]
+  );
 
-  useListener('effect-create-remove', (data: {tag: string, effectName: string | undefined, option: number}[]) => {
-    data.forEach((effect) => {
-      console.log(effect.tag + " has " + effect.effectName + " " + effect.option)
-      const object = game?.getObjectByTag(effect.tag);
-      if (object) game?.handleEffect(object, effect.effectName, effect.option);
-    })
-  }, [game])
+  useListener(
+    'effect-create-remove',
+    (
+      data: { tag: string; effectName: string | undefined; option: number }[]
+    ) => {
+      data.forEach((effect) => {
+        console.log(
+          effect.tag + ' has ' + effect.effectName + ' ' + effect.option
+        );
+        const object = game?.getObjectByTag(effect.tag);
+        if (object)
+          game?.handleEffect(object, effect.effectName, effect.option);
+      });
+    },
+    [game]
+  );
 
-  useListener('score-update', (data: {teamId: number, score: [number, number], scale: number}) => {
-    console.log(data.scale)
-    game?.updateScore(data.teamId, data.score, data.scale)
-  }, [game])
+  useListener(
+    'score-update',
+    (data: { teamId: number; score: [number, number]; scale: number }) => {
+      console.log(data.scale);
+      game?.updateScore(data.teamId, data.score, data.scale);
+    },
+    [game]
+  );
 
   const createRoom = React.useCallback(() => {
-    socket.emit("create-room", { game: gameConfig, player: myPlayerConfig });
+    socket.emit('create-room', { game: gameConfig, player: myPlayerConfig });
     socket.once(
-      "create-room",
+      'create-room',
       (error: string, data: IGameConfig | undefined) => {
         if (data == undefined) {
           alert(error);
@@ -225,8 +246,8 @@ export default function Pong() {
   }, [socket, gameConfig, myPlayerConfig, setGameConfig, setMyPlayerConfig]);
 
   const joinRoom = React.useCallback(() => {
-    socket.emit("join-room", { roomId: input, player: myPlayerConfig });
-    socket.once("join-room", (error: string, data: IGameConfig | undefined) => {
+    socket.emit('join-room', { roomId: input, player: myPlayerConfig });
+    socket.once('join-room', (error: string, data: IGameConfig | undefined) => {
       if (!parentRef.current) return;
       if (data == undefined) {
         alert(error);
@@ -239,8 +260,8 @@ export default function Pong() {
   }, [socket, input, myPlayerConfig, setGameConfig, setMyPlayerConfig]);
 
   const joinTeam = React.useCallback(() => {
-    socket.emit("join-team");
-    socket.once("join-team", (error: string, data: IGameConfig | undefined) => {
+    socket.emit('join-team');
+    socket.once('join-team', (error: string, data: IGameConfig | undefined) => {
       if (data == undefined) {
         alert(error);
       } else {
@@ -252,23 +273,23 @@ export default function Pong() {
   }, [socket]);
 
   const readyPlayer = React.useCallback(() => {
-    socket.emit("ready-player");
+    socket.emit('ready-player');
     socket.once(
-      "ready-player",
+      'ready-player',
       (error: string, data: IGameConfig | undefined) => {
         if (data == undefined) {
           alert(error);
         } else {
           setGameConfig(data);
-          console.log("READY");
+          console.log('READY');
         }
       }
     );
   }, [socket]);
 
   const getRooms = React.useCallback(() => {
-    socket.emit("get-rooms");
-    socket.once("get-rooms", (error: string, rooms: string[] | undefined) => {
+    socket.emit('get-rooms');
+    socket.once('get-rooms', (error: string, rooms: string[] | undefined) => {
       if (rooms == undefined) {
         alert(error);
       } else {
@@ -278,9 +299,9 @@ export default function Pong() {
   }, [socket]);
 
   const leaveRoom = React.useCallback(() => {
-    socket.emit("leave-room", input);
+    socket.emit('leave-room', input);
     socket.once(
-      "leave-room",
+      'leave-room',
       (error: string, data: IGameConfig | undefined) => {
         if (data == undefined) {
           alert(error);
@@ -296,9 +317,9 @@ export default function Pong() {
   }, [socket, game, input]);
 
   const switchPosition = React.useCallback(() => {
-    socket.emit("switch-position", input);
+    socket.emit('switch-position', input);
     socket.once(
-      "switch-position",
+      'switch-position',
       (error: string, data: IGameConfig | undefined) => {
         if (data == undefined) {
           alert(error);
@@ -310,9 +331,9 @@ export default function Pong() {
   }, [socket, input]);
 
   const startGame = React.useCallback(() => {
-    socket.emit("start-game", game?.roomId);
+    socket.emit('start-game', game?.roomId);
     socket.once(
-      "start-game",
+      'start-game',
       (error: string, data: IGameConfig | undefined) => {
         if (!parentRef.current) return;
         if (data == undefined) {
@@ -323,9 +344,9 @@ export default function Pong() {
   }, [socket, parentRef, game?.roomId]);
 
   const switchTeam = React.useCallback(() => {
-    socket.emit("switch-team", input);
+    socket.emit('switch-team', input);
     socket.once(
-      "switch-team",
+      'switch-team',
       (error: string, data: IGameConfig | undefined) => {
         if (data == undefined) {
           alert(error);
@@ -337,9 +358,9 @@ export default function Pong() {
   }, [socket, input]);
 
   const switchPartyOwner = React.useCallback(() => {
-    socket.emit("switch-party-owner", owner);
+    socket.emit('switch-party-owner', owner);
     socket.once(
-      "switch-party-owner",
+      'switch-party-owner',
       (error: string, data: IGameConfig | undefined) => {
         if (data == undefined) {
           alert(error);
@@ -351,15 +372,15 @@ export default function Pong() {
   }, [socket, owner]);
 
   const joinSpectators = React.useCallback(() => {
-    socket.emit("join-spectator");
+    socket.emit('join-spectator');
     socket.once(
-      "join-spectators",
+      'join-spectators',
       (error: string, data: IGameConfig | undefined) => {
         if (data == undefined) {
           alert(error);
         } else {
           setGameConfig(data);
-          console.log("SPECTATOR");
+          console.log('SPECTATOR');
         }
       }
     );
@@ -382,7 +403,7 @@ export default function Pong() {
       </h3>
       <h1>Team 2</h1>
       <h3>
-        P1: {`${gameConfig?.teams[1]?.players[0]?.userId}`} || Ready:
+        parentRef P1: {`${gameConfig?.teams[1]?.players[0]?.userId}`} || Ready:
         {`${gameConfig?.teams[1]?.players[0]?.ready}`}
       </h3>
       <h3>
@@ -398,10 +419,10 @@ export default function Pong() {
 
       <div
         style={{
-          display: "flex",
-          flexWrap: "wrap",
-          width: "50%",
-          gap: ".2rem",
+          display: 'flex',
+          flexWrap: 'wrap',
+          width: '50%',
+          gap: '.2rem',
         }}
       >
         <button onClick={createRoom}>Create Room</button>
