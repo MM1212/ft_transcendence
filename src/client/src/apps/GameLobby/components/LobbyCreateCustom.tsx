@@ -1,69 +1,125 @@
 import {
-  Avatar,
   Button,
   Divider,
   FormControl,
   FormHelperText,
   FormLabel,
   Input,
-  Option,
   RadioGroup,
-  Select,
   Sheet,
-} from "@mui/joy";
-import { Stack } from "@mui/joy";
-import React from "react";
-import LobbyPlayerBanner from "./LobbyPlayerBanner";
-import LabelIcon from "@components/icons/LabelIcon";
-import { Typography } from "@mui/joy";
-import { Box } from "@mui/joy";
-import { Radio } from "@mui/joy";
-import LobbyRoom from "./LobbyRoom";
-import LobbyGameTypography from "./LobbyGameTypography";
+} from '@mui/joy';
+import { Stack } from '@mui/joy';
+import React from 'react';
+import LobbyPlayerBanner from './LobbyPlayerBanner';
+import LabelIcon from '@components/icons/LabelIcon';
+import { Typography } from '@mui/joy';
+import { Box } from '@mui/joy';
+import { Radio } from '@mui/joy';
+import LobbyRoom from './LobbyRoom';
+import LobbyGameTypography from './LobbyGameTypography';
+import tunnel from '@lib/tunnel';
+import PongModel from '@typings/models/pong';
+import notifications from '@lib/notifications/hooks';
+import { useRecoilCallback, useRecoilValue } from 'recoil';
+import pongGamesState from '../state';
 
 export default function LobbyCreateCustom() {
-  // Create a logic that first inputs the user to create a costum or to join an existing room
-  const [name, setName] = React.useState<string>("");
-  const [teamSize, setTeamSize] = React.useState<string | null>("2");
-  const [password, setPassword] = React.useState<string>("");
-  const [spectators, setSpectators] = React.useState<string>("all");
+  // Create a logic that first inputs the user to create a custom or to join an existing room
+  const [name, setName] = React.useState<string>('');
+  const [password, setPassword] = React.useState<string>('');
+  const [gameType, setGameType] = React.useState<string>(
+    PongModel.Models.LobbyGameType.Powers
+  );
+  const [spectators, setSpectators] = React.useState<string>(
+    PongModel.Models.LobbySpectatorVisibility.All
+  );
   const [errors, setErrors] = React.useState({
-    name: "",
+    name: '',
   });
-  const [isCustom, setIsCustom] = React.useState(false);
+  const isCustom = useRecoilValue(pongGamesState.isInLobby);
+
   const validateForm = () => {
     const newErrors = {
-      name: name.trim() === "" ? "Name is required" : "", 
+      name: name.trim() === '' ? 'Name is required' : '',
     };
     if (name.trim().length > 20) {
-      newErrors.name = "Name cannot exceed 20 characters";
+      newErrors.name = 'Name cannot exceed 20 characters';
     }
     setErrors(newErrors);
-    return !Object.values(newErrors).some((error) => error !== "");
+    return !Object.values(newErrors).some((error) => error !== '');
   };
 
-  const handleCreateRoom = () => {
+  const [loading, setLoading] = React.useState(false);
+  const handleCreateRoom = useRecoilCallback((ctx) => async () => {
     if (validateForm()) {
-      setIsCustom(true);
+      const payload = {
+        password: password.trim() === '' ? null : password.trim(),
+        name: name.trim(),
+        spectators: spectators as PongModel.Models.LobbySpectatorVisibility,
+        lobbyType: PongModel.Models.LobbyType.Custom,
+        gameType: gameType as PongModel.Models.LobbyGameType,
+      };
+      const notif = notifications.default('Creating lobby...');
+      try {
+        setLoading(true);
+        const lobby = await tunnel.put(
+          PongModel.Endpoints.Targets.NewLobby,
+          payload
+        );
+        notif.update({
+          message: 'Lobby created successfully!',
+          color: 'success',
+        });
+
+        ctx.set(pongGamesState.gameLobby, lobby);
+
+        console.log(lobby);
+      } catch (error) {
+        notifications.error('Failed to create lobby', (error as Error).message);
+      } finally {
+        setLoading(false);
+      }
     }
-  };
+  });
+
+  // BEFORE:
+  //const handleCreateRoom = async () => {
+  //  if (validateForm()) {
+  //    try {
+  //      const lobby = await tunnel.put(
+  //        PongModel.Endpoints.Targets.NewLobby,
+  //        {
+  //          password: password.trim() === "" ? null : password.trim(),
+  //          name: name.trim(),
+  //          spectators: spectators as PongModel.Models.LobbySpectatorVisibility,
+  //          lobbyType: PongModel.Models.LobbyType.Custom,
+  //          gameType: gameType as PongModel.Models.LobbyGameType,
+  //        }
+  //      )
+  //      console.log(lobby);
+  //    } catch (error) {
+  //      notifications.error('Failed to create lobby', (error as Error).message);
+  //    }
+  //  }
+  //};
+
   return (
     <Sheet
       sx={{
-        display: "flex",
-        width: "100%",
-        height: "100%",
-        backgroundColor: "unset",
-        flexDirection: "column",
-        alignItems: "center",
+        display: 'flex',
+        width: '100%',
+        height: '100%',
+        backgroundColor: 'unset',
+        flexDirection: 'column',
+        alignItems: 'center',
       }}
     >
       {!isCustom ? (
         <>
-          <LobbyPlayerBanner />
+          <LobbyPlayerBanner id={1} />
           <Divider sx={{ mt: 4 }} />
-          <Box sx={{ width: "100%", display: "flex", flexDirection: "row" }}>
-            <Stack spacing={2} sx={{ display: "flex", mt: 5 }}>
+          <Box sx={{ width: '100%', display: 'flex', flexDirection: 'row' }}>
+            <Stack spacing={2} sx={{ display: 'flex', mt: 5 }}>
               <FormControl>
                 <FormLabel required>
                   <LobbyGameTypography level="body-sm">
@@ -71,37 +127,21 @@ export default function LobbyCreateCustom() {
                   </LobbyGameTypography>
                 </FormLabel>
                 <Input
-                  color={errors.name ? "danger" : "warning"}
+                  color={errors.name ? 'danger' : 'warning'}
                   required
                   placeholder="Enter room name"
                   startDecorator={<LabelIcon />}
-                  endDecorator={<Typography level="body-sm"></Typography>}
+                  endDecorator={<Typography level="body-sm">0/20</Typography>}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                 />
-                {errors.name && <FormHelperText>{errors.name}</FormHelperText>}{" "}
-              </FormControl>
-              <FormControl required>
-                <FormLabel>
-                  {" "}
-                  <LobbyGameTypography level="body-sm" >Team Size</LobbyGameTypography>
-                </FormLabel>
-                <Select
-                  variant="soft"
-                  color="warning"
-                  defaultValue="2"
-                  onChange={(e, value) => setTeamSize(value)}
-                  value={teamSize}
-                >
-                  <Option value="2">2</Option>
-                  <Option value="4">4</Option>
-                </Select>
+                {errors.name && <FormHelperText>{errors.name}</FormHelperText>}{' '}
               </FormControl>
               <FormControl>
                 <FormLabel>
-                  <LobbyGameTypography
-                    level="body-sm"
-                  >Password (optional)</LobbyGameTypography>
+                  <LobbyGameTypography level="body-sm">
+                    Password (optional)
+                  </LobbyGameTypography>
                 </FormLabel>
                 <Input
                   placeholder="Enter Password"
@@ -113,42 +153,51 @@ export default function LobbyCreateCustom() {
             </Stack>
             <Stack
               sx={{
-                alignItems: "center",
-                width: "100%",
-                display: "flex",
+                alignItems: 'center',
+                width: '100%',
+                display: 'flex',
                 mt: 5,
-                flexDirection: "column",
+                flexDirection: 'column',
               }}
             >
               <FormControl
-                sx={{ mt: 2, display: "flex", flexDirection: "column" }}
+                sx={{ mt: 2, display: 'flex', flexDirection: 'column' }}
               >
                 <FormLabel>
-                  {" "}
-                  <LobbyGameTypography
-                    level="body-md"
-                  >ALLOW SPECTATORS</LobbyGameTypography>
+                  {' '}
+                  <LobbyGameTypography level="body-md">
+                    ALLOW SPECTATORS
+                  </LobbyGameTypography>
                 </FormLabel>
-                <RadioGroup defaultValue="all" name="Spectator-Radio">
+                <RadioGroup
+                  defaultValue={PongModel.Models.LobbySpectatorVisibility.All}
+                  name="Spectator-Radio"
+                  onChange={(ev) =>
+                    setSpectators(
+                      ev.target
+                        .value as PongModel.Models.LobbySpectatorVisibility
+                    )
+                  }
+                  color="warning"
+                >
                   <Stack spacing={5} sx={{ mt: 2 }}>
                     <Radio
-                      value="all"
+                      value={PongModel.Models.LobbySpectatorVisibility.All}
                       size="sm"
                       label="All"
-                      defaultChecked
-                      onChange={() => setSpectators("all")}
+                      color="warning"
                     />
                     <Radio
-                      value="friends"
+                      value={PongModel.Models.LobbySpectatorVisibility.Friends}
                       size="sm"
                       label="Friends Only"
-                      onChange={() => setSpectators("friends")}
+                      color="warning"
                     />
                     <Radio
-                      value="none"
+                      value={PongModel.Models.LobbySpectatorVisibility.None}
                       size="sm"
                       label="None"
-                      onChange={() => setSpectators("none")}
+                      color="warning"
                     />
                   </Stack>
                 </RadioGroup>
@@ -156,21 +205,19 @@ export default function LobbyCreateCustom() {
             </Stack>
           </Box>
           <Button
-            sx={{ width: "25%", mt: 5 }}
+            sx={{ width: '25%', mt: 5 }}
+            fullWidth
             type="submit"
             variant="outlined"
             onClick={handleCreateRoom}
+            loading={loading}
+            color="warning"
           >
             Create
           </Button>
         </>
       ) : (
-        <LobbyRoom
-          name={name}
-          password={password}
-          teamSize={teamSize}
-          spectators={spectators}
-        />
+        <LobbyRoom />
       )}
     </Sheet>
   );

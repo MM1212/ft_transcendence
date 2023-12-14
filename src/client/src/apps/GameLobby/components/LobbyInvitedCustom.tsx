@@ -1,29 +1,23 @@
 import { UserAvatar } from "@components/AvatarWithStatus";
 import CloseIcon from "@components/icons/CloseIcon";
-import { useUser } from "@hooks/user";
-import { IconButton, Sheet } from "@mui/joy";
+import { IconButton } from "@mui/joy";
 import { Divider } from "@mui/joy";
 import { Stack, Typography } from "@mui/joy";
-import UsersModel from "@typings/models/users";
-import { useCurrentUser } from "@hooks/user";
+import React from "react";
+import { useRecoilValue } from "recoil";
+import pongGamesState from "../state";
 
 export default function LobbyInvitedCustom() {
-  const usersSample: (UsersModel.Models.IUserInfo | null)[] = [
-    useUser(1) ?? null,
-    useUser(2) ?? null,
-    useUser(3) ?? null,
-    useUser(4) ?? null,
-    useUser(5) ?? null,
-  ];
-
+  const invitingList = useRecoilValue(pongGamesState.gameLobby);
+  if (invitingList === null) return null;
   return (
-    <>
+    <> 
       <Stack sx={{ width: "100" }}>
-        {usersSample.length > 0 ? (
-          usersSample.map((user, index) => (
-            <>
+        {invitingList?.spectators.length > 0 ? (
+          invitingList?.spectators.map((user, index) => (
+      
+            <React.Fragment key={index}>
               <Stack
-                key={index}
                 sx={{
                   display: "flex",
                   flexDirection: "row",
@@ -39,7 +33,7 @@ export default function LobbyInvitedCustom() {
                 </IconButton>
               </Stack>
               <Divider sx={{ mb: 2 }} />
-            </>
+            </React.Fragment>
           ))
         ) : (
           <Typography level="body-sm">No pending invites</Typography>

@@ -2,14 +2,15 @@
 import { buildTunnelEndpoint } from '@hooks/tunnel';
 import { AuthModel, SseModel } from '@typings/api/models';
 import React from 'react';
-import { useRecoilValue } from 'recoil';
-import { eventCacheAtom } from './store';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { eventCacheAtom, sseConnectedAtom } from './store';
 import { mutate } from 'swr';
 import { useIsLoggedIn } from '@hooks/user';
 
 const useSseService = () => {
   const eventCache = useRecoilValue(eventCacheAtom);
   const isLoggedIn = useIsLoggedIn();
+  const setSseIsConnected = useSetRecoilState(sseConnectedAtom);
 
   React.useEffect(() => {
     const eventSource = new EventSource(
@@ -39,10 +40,11 @@ const useSseService = () => {
       );
     });
     return () => {
+      setSseIsConnected(false);
       console.log('SSE connection closed');
       eventSource.close();
     };
-  }, [eventCache, isLoggedIn]);
+  }, [eventCache, isLoggedIn, setSseIsConnected]);
 };
 
 export default useSseService;

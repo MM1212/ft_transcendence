@@ -1,0 +1,8 @@
+{
+    "ball": {
+        "width": 20,
+        "height": 20,
+        "colliderType": "circle",
+        "colliderData": {}
+      }
+}
