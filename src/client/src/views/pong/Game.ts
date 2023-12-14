@@ -16,7 +16,6 @@ import {
   BallTex,
 } from './utils';
 import { ETeamSide, IGameConfig } from '@shared/Pong/config/configInterface';
-import { SpecialPowerType } from '@shared/Pong/SpecialPowers/SpecialPower';
 import {
   MULTIPLAYER_START_POS,
   WINDOWSIZE_X,
@@ -259,23 +258,23 @@ export class UIGame extends Game {
         p1Conf.keys!,
         'Player 1', // might need to be changed
         new Vector2D(1, 1),
-        p1Conf.specialPower as SpecialPowerType,
+        p1Conf.specialPower as PongModel.Models.LobbyParticipantSpecialPowerType,
         this
       );
-    } else {
-      p1 = new UIBot(
-        P1Tex,
-        P_START_DIST,
-        this.height / 2,
-        'Player 2',
-        new Vector2D(1, 1),
-        this
-      );
-    }
-    // modify the color of the player based on gameConfig
-    this.blueTranform.hue(240, false);
-    p1.displayObject.filters = [this.blueTranform];
-    this.add(p1);
+    } 
+    // else {
+      // p1 = new UIBot(
+        // P1Tex,
+        // P_START_DIST,
+        // this.height / 2,
+        // 'Player 2',
+        // new Vector2D(1, 1),
+        // this
+      // );
+    // }
+    
+    
+    if (p1)  this.add(p1);
 
     let p2;
     if (p2Conf.type === 'player') {
@@ -286,21 +285,22 @@ export class UIGame extends Game {
         p2Conf.keys!,
         'Player 2',
         new Vector2D(-1, 1),
-        p2Conf.specialPower as SpecialPowerType,
+        p2Conf.specialPower as PongModel.Models.LobbyParticipantSpecialPowerType,
         this
       );
-    } else {
-      p2 = new UIBot(
-        P2Tex,
-        this.width - P_START_DIST,
-        this.height / 2,
-        'Player 2',
-        new Vector2D(-1, 1),
-        this
-      );
-    }
+    } 
+    // else {
+      // p2 = new UIBot(
+        // P2Tex,
+        // this.width - P_START_DIST,
+        // this.height / 2,
+        // 'Player 2',
+        // new Vector2D(-1, 1),
+        // this
+      // );
+    // }
     // modify the color of the player based on gameConfig
-    this.add(p2);
+    if (p2) this.add(p2);
 
     if (gameConfig.teams[0].players.length > 1) {
       const p3Conf = gameConfig.teams[0].players[1];
@@ -313,23 +313,22 @@ export class UIGame extends Game {
           p3Conf.keys!,
           'Player 3',
           new Vector2D(1, 1),
-          p3Conf.specialPower as SpecialPowerType,
+          p3Conf.specialPower as PongModel.Models.LobbyParticipantSpecialPowerType,
           this
         );
-      } else {
-        p3 = new UIBot(
-          P1Tex,
-          MULTIPLAYER_START_POS,
-          this.height / 2,
-          'Player 3',
-          new Vector2D(1, 1),
-          this
-        );
-      }
+      } 
+      // else {
+        // p3 = new UIBot(
+          // P1Tex,
+          // MULTIPLAYER_START_POS,
+          // this.height / 2,
+          // 'Player 3',
+          // new Vector2D(1, 1),
+          // this
+        // );
+      // }
       // modify the color of the player based on gameConfig
-      this.blueTranform.hue(240, false);
-      p3.displayObject.filters = [this.blueTranform];
-      this.add(p3);
+      if (p3) this.add(p3);
     }
 
     if (gameConfig.teams[1].players.length > 1) {
@@ -343,21 +342,22 @@ export class UIGame extends Game {
           p4Conf.keys!,
           'Player 4',
           new Vector2D(-1, 1),
-          p4Conf.specialPower as SpecialPowerType,
+          p4Conf.specialPower as PongModel.Models.LobbyParticipantSpecialPowerType,
           this
         );
-      } else {
-        p4 = new UIBot(
-          P2Tex,
-          this.width - MULTIPLAYER_START_POS,
-          this.height / 2,
-          'Player 4',
-          new Vector2D(-1, 1),
-          this
-        );
-      }
+      } 
+      // else {
+        // p4 = new UIBot(
+          // P2Tex,
+          // this.width - MULTIPLAYER_START_POS,
+          // this.height / 2,
+          // 'Player 4',
+          // new Vector2D(-1, 1),
+          // this
+        // );
+      // }
       // modify the color of the player based on gameConfig
-      this.add(p4);
+      if (p4) this.add(p4);
     }
   }
 }

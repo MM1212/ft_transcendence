@@ -1,5 +1,5 @@
+import PongModel from "@typings/models/pong";
 import { KeyControls } from "../Paddles/Player";
-import { SpecialPowerType } from "../SpecialPowers/SpecialPower";
 import { Vector2D } from "../utils/Vector";
 
 export interface IPlayerConfig {
@@ -7,7 +7,7 @@ export interface IPlayerConfig {
   teamId: number;
   type: "player" | "bot";
   keys?: KeyControls;
-  specialPower: SpecialPowerType;
+  specialPower: PongModel.Models.LobbyParticipantSpecialPowerType;
   paddleTexture: string;
   paddleColor: number;
   positionOrder: "back" | "front";

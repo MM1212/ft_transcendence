@@ -1,8 +1,9 @@
 import { Bar } from './Bar';
 import { Vector2D } from '../utils/Vector';
-import { SpecialPower, SpecialPowerType } from '../SpecialPowers/SpecialPower';
+import { SpecialPower } from '../SpecialPowers/SpecialPower';
 import { Game } from '../Game';
 import { GameObject } from '../GameObject';
+import PongModel from '../../../typings/models/pong';
 
 /* ----------------- Velocity ----------------- */
 const UP = new Vector2D(0, -5);
@@ -47,9 +48,9 @@ export class Player extends Bar {
     public keys: KeyControls,
     tag: string,
     public direction: Vector2D,
-    public specialPower: SpecialPowerType,
+    public specialPower: PongModel.Models.LobbyParticipantSpecialPowerType,
     game: Game,
-    public readonly socketId?: string
+    public readonly socketId?: number
   ) {
     super(x, y, tag, direction, game);
     this.specialPowerType = specialPower;
@@ -72,7 +73,7 @@ export class Player extends Bar {
         this.shooter === undefined &&
         this.hasEnoughMana()
       ) {
-        if (this.specialPowerType !== undefined) {
+        if (this.specialPowerType !== PongModel.Models.LobbyParticipantSpecialPowerType.none) {
           this.power = this.createPower(
             this.specialPowerType,
             this.center,
@@ -95,7 +96,7 @@ export class Player extends Bar {
   }
 
   protected createPower(
-    specialPower: SpecialPowerType,
+    specialPower: PongModel.Models.LobbyParticipantSpecialPowerType,
     center: Vector2D,
     direction: number,
     shooter: Bar,

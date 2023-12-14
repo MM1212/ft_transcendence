@@ -3,7 +3,7 @@ import { GameObject } from './GameObject';
 import { BallPolygon } from './Collisions/Polygon';
 import { Vector2D } from './utils/Vector';
 import { Player } from './Paddles/Player';
-import { Bot } from './Paddles/Bot';
+// import { Bot } from './Paddles/Bot';
 import { Game } from './Game';
 import { ETeamSide, gameConfig } from './config/configInterface';
 import { Bubble } from './SpecialPowers/Bubble';
@@ -106,7 +106,8 @@ export class Ball extends GameObject {
         this.collider.lastCollision = target.collider;
         if (target instanceof ArenaWall) {
             this.velocity.y = -this.velocity.y;
-        } else if (target instanceof Player || target instanceof Bot) {
+        } else if (target instanceof Player ) {
+        // || target instanceof Bot) {
             // where the ball hit
             let collidePoint = this.getCenter.y - target.getCenter.y;
             // normalize the value

@@ -4,6 +4,7 @@ import { useState } from "react";
 import MatchMakingCounter from "./MatchMakingCounter";
 import LobbyPongButton from "./LobbyPongBottom";
 import LobbyPlayerBanner from "./LobbyPlayerBanner";
+import { ChangePower } from "./PlayerSettingsModals/ChangePower";
 
 export const FindMatchWrapper = styled('div')(({ theme }) => ({
   '& > img': {

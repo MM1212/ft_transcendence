@@ -4,9 +4,12 @@ import { PongLobby } from '../ponglobbies/ponglobby';
 import { ServerGame } from './pong';
 import PongModel from '@typings/models/pong';
 import { Server } from 'socket.io';
+import { ClientSocket } from '@typings/ws';
+import { SHOOT_ACTION } from '@shared/Pong/Paddles/Player';
 
 @Injectable()
 export class PongService {
+  public clientInGames = new Map<number, string>(); // userId, gameUUID
   private games = new Map<string, ServerGame>();
   public readonly server: Server;
   constructor() {}
@@ -22,6 +25,46 @@ export class PongService {
     const newGame = new ServerGame(lobbyInterface, gameConfig, this.server);
     this.games.set(uuid, newGame);
     return newGame;
+  }
+
+  public handleKeys(
+    client: ClientSocket,
+    data: { key: string; state: boolean },
+  ): void {
+    const game = this.getGameByPlayerId(client.data.user.id);
+    if (!game || game.started === false) return;
+    console.log(`Game ${game.UUID}: received keypress from ${client.data.user.id}`);
+    const player = game.getPlayerInstanceById(client.data.user.id);
+    if (player) {
+      console.log(`Player ${player.tag} pressed ${data.key}`);
+      if (data.state) {
+        player.onKeyDown(data.key);
+      } else {
+        player.onKeyUp(data.key);
+      }
+      const [action, powertag] = player.handleShoot();
+      switch (action) {
+        case SHOOT_ACTION.CREATE:
+          game.room.emit('create-power', {
+            tag: player.tag,
+            powertag: powertag,
+          });
+          break;
+        case SHOOT_ACTION.SHOOT:
+          game.room.emit('shoot-power', { tag: player.tag });
+          break;
+        default:
+          break;
+      }
+    }
+  }
+
+  public getGameByPlayerId(playerId: number): ServerGame | undefined {
+    const uuid = this.clientInGames.get(playerId);
+    if (!uuid) return undefined;
+    const game = this.games.get(uuid);
+    if (!game) return undefined;
+    return game;
   }
 
   private parseLobbyPlayers(

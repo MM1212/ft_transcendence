@@ -40,11 +40,15 @@ export class PongGateway
     private lobbyService: PongLobbyService,
   ) {}
 
+  @SubscribeMessage('keyPress')
+  handleKeyPress(client: Socket, data: {key: string, state: boolean}): void {
+    this.service.handleKeys(client, data);
+  }
+
   async handleConnection(
     @ConnectedSocket()
     client: ClientSocket,
   ): Promise<void> {
-    console.log(`${client.data.user.nickname} connected`);
     try {
       if (!(await this.authGuard.canActivate(client)))
         return client.disconnect(true), void 0;
@@ -70,9 +74,16 @@ export class PongGateway
           game.started === false &&
           game.nbConnectedPlayers === game.lobbyInterface.nPlayers
         ) {
+          game.started = true;
           game.start();
+          game.room.emit("STARTMOVING");
         }
-        game.room.emit(PongModel.Socket.Events.SetUIGame, {state: true, config: game.config});
+        this.service.clientInGames.set(user.id, game.UUID);
+        console.log(`${client.data.user.nickname} connected`);
+        client.emit(PongModel.Socket.Events.SetUIGame, {
+          state: true,
+          config: game.config,
+        });
       }
     } catch (error) {
       console.log(error);
@@ -81,7 +92,6 @@ export class PongGateway
   }
 
   async handleDisconnect(@ConnectedSocket() client: Socket) {
-    console.log(`${client.data.user.nickname} disconnected`);
     try {
       if (!(await this.authGuard.canActivate(client)))
         return client.disconnect(true), void 0;
@@ -101,7 +111,12 @@ export class PongGateway
         const spectator = game.getSpectatorSocketByUserId(user.id);
         if (spectator) game.leaveSpectators(client);
       }
-      game.room.emit(PongModel.Socket.Events.SetUIGame, {state: false, config: null});
+      this.service.clientInGames.delete(user.id);
+      console.log(`${client.data.user.nickname} disconnected`);
+      client.emit(PongModel.Socket.Events.SetUIGame, {
+        state: false,
+        config: null,
+      });
       // emit msg to this person saying that he can set the uigame to null
     } catch (error) {
       console.log(error);
