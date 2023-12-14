@@ -12,7 +12,8 @@
     "composite": true,
     "declaration": true,
     "declarationMap": true,
-    "rootDir": "."
+    "rootDir": "../"
   },
+  "include": ["../typings/**/*"],
   "references": []
 }

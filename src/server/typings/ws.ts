@@ -1,5 +1,4 @@
-import { UserExtWithSession } from '@/modules/users/user';
-import { User } from '@prisma/client';
+import User, { UserExtWithSession } from '@/modules/users/user';
 import { DefaultEventsMap } from 'node_modules/socket.io/dist/typed-events';
 import { Socket } from 'socket.io';
 
