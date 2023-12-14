@@ -1,10 +1,9 @@
-import { useCurrentUser } from '@hooks/user';
-import { styled } from '@mui/joy';
-import { useState } from 'react';
-import MatchMakingCounter from './MatchMakingCounter';
-import LobbyPongButton from './LobbyPongBottom';
-import LobbyPlayerBanner from './LobbyPlayerBanner';
-import { ChangePower } from './PlayerSettingsModals/ChangePower';
+import { useCurrentUser } from "@hooks/user";
+import { styled } from "@mui/joy";
+import { useState } from "react";
+import MatchMakingCounter from "./MatchMakingCounter";
+import LobbyPongButton from "./LobbyPongBottom";
+import LobbyPlayerBanner from "./LobbyPlayerBanner";
 
 export const FindMatchWrapper = styled('div')(({ theme }) => ({
   '& > img': {
@@ -23,7 +22,6 @@ export const FindMatchWrapper = styled('div')(({ theme }) => ({
     },
   },
 }));
-
 export function LobbyMatchMaking() {
   const [isMatchmakingStarted, setIsMatchmakingStarted] = useState(false);
   const user = useCurrentUser();
@@ -43,7 +41,18 @@ export function LobbyMatchMaking() {
         alignItems: 'center',
       }}
     >
-      <LobbyPlayerBanner />
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          height: "100%",
+          width: '100%',
+          justifyContent: "space-around",
+        }}
+      >
+      <LobbyPlayerBanner id={user.id} />
+      <LobbyPlayerBanner id={undefined}  />
+      </div>
       <div
         style={{
           display: 'flex',

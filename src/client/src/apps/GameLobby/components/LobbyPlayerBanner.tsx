@@ -1,56 +1,84 @@
-import { UserAvatar } from '@components/AvatarWithStatus';
-import { useCurrentUser } from '@hooks/user';
-import { Box, Stack, Typography } from '@mui/joy';
-import publicPath from '@utils/public';
+import { UserAvatar } from "@components/AvatarWithStatus";
+import PlusIcon from "@components/icons/PlusIcon";
+import { useUser } from "@hooks/user";
+import { IconButton } from "@mui/joy";
+import { Typography } from "@mui/joy";
+import publicPath from "@utils/public";
 
-export default function LobbyPlayerBanner() {
-  const user = useCurrentUser();
-  if (user === null) return;
+export default function LobbyPlayerBanner({ id }: { id: number | undefined }) {
+  const handleInviteFriend = () => {};
+  const user = useUser(id!);
   return (
     <div
       style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        marginTop: '3dvh',
-        position: 'relative',
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        marginTop: "3dvh",
+        position: "relative",
       }}
     >
-      <Stack position="absolute" mt={8} spacing={2}>
+      {id === undefined ? (
         <UserAvatar
+          onClick={handleInviteFriend}
           sx={(theme) => ({
             width: theme.spacing(17),
             height: theme.spacing(17),
+            position: "absolute",
+            marginTop: "7dvh",
+            cursor: "pointer",
             zIndex: 1,
+            transition: theme.transitions.create("background-color"),
+            "&:hover": {
+              bgcolor: "warning.softBg",
+            },
           })}
+          color="warning"
           variant="outlined"
-          src={user?.avatar}
-        />
-        <Typography textAlign="center">{user.nickname}</Typography>
-      </Stack>
-      <img
-        src={publicPath('/matchMaking/matchMakingFrame.webp')}
-        alt="Matchmaking Frame"
-        style={{
-          width: '30dvh',
-        }}
-      />
+        >
+          <PlusIcon
+            sx={{
+              width: 35,
+              height: 35,
+            }}
+          />
+        </UserAvatar>
+      ) : (
+        <>
+          <UserAvatar
+            sx={(theme) => ({
+              width: theme.spacing(17),
+              height: theme.spacing(17),
+              position: "absolute",
+              marginTop: "7dvh",
+              zIndex: 1,
+            })}
+            variant="outlined"
+            src={user?.avatar}
+          />
+          <Typography
+            textAlign="center"
+            sx={{ position: "absolute", bottom: "50%" }}
+          >
+            {user?.nickname}
+          </Typography>
+          <img
+            src={publicPath("/matchMaking/matchMakingFrame.webp")}
+            alt="Matchmaking Frame"
+            width="300"
+            height="500"
+          />
+        </>
+      )}
       <div
         style={{
-          position: 'absolute',
-          display: 'flex',
-          flexDirection: 'column',
-          marginTop: 'auto',
-          bottom: '15%',
+          position: "absolute",
+          display: "flex",
+          flexDirection: "column",
+          marginTop: "auto",
+          bottom: "15%",
         }}
-      >
-        <img
-          src={publicPath('/matchMaking/paddleFrame.webp')}
-          alt="Matchmaking Frame"
-          width="200"
-          height="50"
-        ></img>
-      </div>
+      ></div>
     </div>
   );
 }

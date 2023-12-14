@@ -15,6 +15,7 @@ import { sessionAtom } from '@hooks/user/state';
 import { Lobbies } from '@typings/lobby';
 import LobbyModel from '@typings/models/lobby';
 import { IPenguinBaseAnimationsTypes } from '@typings/penguin';
+import { Viewport } from 'pixi-viewport';
 import {
   DefaultValue,
   RecoilValue,
@@ -161,7 +162,8 @@ export const lobbyAppAtom = atom<Pixi.Application | null>({
           const {
             transform: { position },
           } = selfPlayer;
-          const { x, y } = app.stage.toLocal(event.client);
+          const viewport = app.stage.getChildByName('viewport') as Viewport;
+          const { x, y } = viewport.toLocal(event.client);
           const angle = Math.atan2(y - position.y, x - position.x) + Math.PI;
 
           const slice = (Math.PI * 2) / 8;
@@ -203,26 +205,15 @@ export const lobbyAppAtom = atom<Pixi.Application | null>({
         app.stage.onmousemove = onMouseMove;
         const onResize = () => {
           if (!app.stage) return;
-          if (
-            window.innerWidth / window.innerHeight >=
-            LobbyModel.Models.STAGE_ASPECT_RATIO
-          ) {
-            app.renderer.resize(
-              window.innerHeight * LobbyModel.Models.STAGE_ASPECT_RATIO,
-              window.innerHeight
-            );
-          } else {
-            app.renderer.resize(
-              window.innerWidth,
-              window.innerWidth / LobbyModel.Models.STAGE_ASPECT_RATIO
-            );
-          }
-          app.stage.scale.x =
-            app.renderer.width / LobbyModel.Models.STAGE_WIDTH;
-          app.stage.scale.y =
-            app.renderer.height / LobbyModel.Models.STAGE_HEIGHT;
+          app.view.width = window.innerWidth;
+          app.view.height = window.innerHeight;
+          const viewport = app.stage.getChildByName('viewport') as Viewport;
+          viewport.resize(window.innerWidth, window.innerHeight);
+          const currentPlayer = viewport.getChildByName(
+            'self'
+          ) as Pixi.Container;
+          viewport.follow(currentPlayer);
         };
-        onResize();
         window.addEventListener('resize', onResize);
         return () => {
           // app.ticker.remove(tick);

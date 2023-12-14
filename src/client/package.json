@@ -24,6 +24,7 @@
     "lodash.isequal": "^4.5.0",
     "lodash.throttle": "^4.1.1",
     "moment": "^2.29.4",
+    "pixi-viewport": "^5.0.2",
     "pixi.js": "^7.3.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

@@ -120,7 +120,7 @@ const routes: ISidebarRoute[] = [
             path: '/history',
             icon: <HistoryIcon />,
             exact: false,
-            // Component: React.lazy(() => import('@views/pong')),
+            Component: React.lazy(() => import('@apps/MatchHistory/views')),
           },
           {
             label: 'Leaderboard',

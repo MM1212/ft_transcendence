@@ -1,12 +1,12 @@
 import fs from 'fs/promises';
 import path from 'path';
 
-const generateCloth = async (clothId) => {
+const generateCloth = async (clothId, backPaper = false) => {
   if (!clothId || isNaN(clothId))
     throw new Error('Please provide a valid clothing id');
 
   const REPOSITORY = 'https://media.cplegacy.net/assets/media/clothing/';
-  const TARGET_DIR = `public/penguin/clothing/${clothId}`;
+  const TARGET_DIR = `public/assets/penguin/clothing/${clothId}`;
 
   console.log(`Fetching sprite icon...`);
 
@@ -86,9 +86,11 @@ const generateCloth = async (clothId) => {
   }
   try {
     console.log(`Fetching sprite paper...`);
-    const spritePaper = await fetch(`${REPOSITORY}/paper/${clothId}.webp`).then(
-      (res) => res.arrayBuffer()
-    );
+    const spritePaper = await fetch(
+      backPaper
+        ? `${REPOSITORY}/paper/${clothId}_back.webp`
+        : `${REPOSITORY}/paper/${clothId}.webp`
+    ).then((res) => res.arrayBuffer());
 
     console.log(`Writing sprite paper to ${TARGET_DIR}...`);
 
@@ -96,14 +98,31 @@ const generateCloth = async (clothId) => {
       path.resolve(TARGET_DIR, `paper.webp`),
       new DataView(spritePaper)
     );
+    const repository = JSON.parse(
+      await fs.readFile(
+        'public/assets/penguin/paper/back_clothing.json',
+        'utf-8'
+      )
+    );
+    if (backPaper) repository.push(parseInt(clothId));
+    else if (repository.includes(parseInt(clothId)))
+      repository.splice(repository.indexOf(parseInt(clothId)), 1);
+    // filter repeats
+    await fs.writeFile(
+      'public/assets/penguin/paper/back_clothing.json',
+      JSON.stringify(
+        repository.sort((a, b) => a - b).filter((v, i, a) => a.indexOf(v) === i)
+      )
+    );
   } catch (e) {
-    console.warn(`Failed to fetch sprite paper for ${clothId}, skipping...`);
+    console.warn(`Failed to fetch sprite paper for ${clothId}, skipping...`, e);
   }
 
   console.log('Done!');
 };
 
 const arg = process.argv[2];
+const backPaper = process.argv[3] === '--back-paper';
 
 if (arg.includes(',')) await Promise.all(arg.split(',').map(generateCloth));
-else await generateCloth(arg);
+else await generateCloth(arg, backPaper);

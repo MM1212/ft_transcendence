@@ -1,28 +1,36 @@
-import { Box, Divider, Stack, Typography } from '@mui/joy';
-import SingleMatchHist from './SingleMatchHist';
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionGroup,
+  AccordionSummary,
+  Box,
+  Divider,
+  Stack,
+  Typography,
+} from "@mui/joy";
+import SingleMatchHist from "./SingleMatchHist";
+import UsersModel from "@typings/models/users";
+import MatchHistoryScoreBoard from "@apps/MatchHistory/components/MatchHistoryScoreBoard";
 
-export default function UserMatchHistory() {
+export default function UserMatchHistory({
+  users,
+}: {
+  users: UsersModel.Models.IUserInfo[];
+}) {
   return (
     <Box overflow="auto" height="100%" width="100%">
-      <Stack width="100%" alignItems="center" spacing={1} p={1}>
-        <Typography level="h2">Match History</Typography>
-        <Stack
-          alignItems={'center'}
-          justifyContent={'flex-start'}
-          spacing={1.5}
-          width="100%"
-        >
-          <SingleMatchHist />
-          <Divider />
-          <SingleMatchHist />
-          <Divider />
-          <SingleMatchHist />
-          <Divider />
-          <SingleMatchHist />
-          <Divider />
-          <SingleMatchHist />
-        </Stack>
-      </Stack>
+      {users.map((user, index) => (
+        <>
+          <AccordionGroup>
+            <Accordion >
+              <AccordionSummary key={index}>
+                <SingleMatchHist />
+              </AccordionSummary>
+              <AccordionDetails key={index}> <MatchHistoryScoreBoard/></AccordionDetails>
+            </Accordion>
+          </AccordionGroup>
+        </>
+      ))}
     </Box>
   );
 }
