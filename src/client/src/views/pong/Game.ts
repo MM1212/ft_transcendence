@@ -135,7 +135,7 @@ export class UIGame extends Game {
     });
   };
 
-  handleMovements(data: { tag: string; position: number[] }[]) {
+  handleMovements(data: PongModel.Socket.Data.UpdateMovements[]) {
     data.forEach((e) => {
       const obj = this.getObjectByTag(e.tag) as UIGameObject;
       if (obj) {

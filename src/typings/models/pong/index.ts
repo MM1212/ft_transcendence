@@ -114,17 +114,17 @@ namespace PongModel {
     }
 
     export interface IPlayerConfig {
-      tag: string,
-      teamId: number,
-      type: "player" | "bot",
-      keys?: IGamekeys,
-      specialPower: LobbyParticipantSpecialPowerType,
-      paddleTexture: string,
-      positionOrder: "back" | "front",
-      userId: number,
-      avatar: string,
-      nickname: string,
-      connected: boolean,
+      tag: string;
+      teamId: number;
+      type: 'player' | 'bot';
+      keys?: IGamekeys;
+      specialPower: LobbyParticipantSpecialPowerType;
+      paddleTexture: string;
+      positionOrder: 'back' | 'front';
+      userId: number;
+      avatar: string;
+      nickname: string;
+      connected: boolean;
     }
 
     export interface IGameTeam {
@@ -201,10 +201,37 @@ namespace PongModel {
 
   export namespace Socket {
     export enum Events {
-      UpdateConnectedPlayers = 'update-connected-players',
-      SetUIGame = 'set-ui-game',
+      UpdateMovements = 'object-movements',
+      SetUI = 'set-ui-game',
+      Start = 'start-game',
+      RemovePower = 'remove-power',
+      CreatePower = 'create-power',
+      ShootPower = 'shoot-power',
     }
 
+    export namespace Data {
+      
+      export interface SetUIGame {
+        state: boolean;
+        config: Models.IGameConfig;
+      }
+      
+      export interface UpdateMovements {
+        tag: string;
+        position: [number, number]
+      }
+
+      export interface RemovePower {
+        tag: string[];
+      }
+      export interface CreatePower {
+        tag: string;
+        powertag: string;
+      }
+      export interface ShootPower {
+        tag: string;
+      }
+    }
   }
 
   export namespace DTO {

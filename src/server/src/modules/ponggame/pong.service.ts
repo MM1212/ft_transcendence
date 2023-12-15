@@ -33,30 +33,10 @@ export class PongService {
   ): void {
     const game = this.getGameByPlayerId(client.data.user.id);
     if (!game || game.started === false) return;
-    console.log(`Game ${game.UUID}: received keypress from ${client.data.user.id}`);
-    const player = game.getPlayerInstanceById(client.data.user.id);
-    if (player) {
-      console.log(`Player ${player.tag} pressed ${data.key}`);
-      if (data.state) {
-        player.onKeyDown(data.key);
-      } else {
-        player.onKeyUp(data.key);
-      }
-      const [action, powertag] = player.handleShoot();
-      switch (action) {
-        case SHOOT_ACTION.CREATE:
-          game.room.emit('create-power', {
-            tag: player.tag,
-            powertag: powertag,
-          });
-          break;
-        case SHOOT_ACTION.SHOOT:
-          game.room.emit('shoot-power', { tag: player.tag });
-          break;
-        default:
-          break;
-      }
-    }
+    console.log(
+      `Game ${game.UUID}: received keypress from ${client.data.user.id}`,
+    );
+    game.handleKeys(client.data.user.id, data.key, data.state);
   }
 
   public getGameByPlayerId(playerId: number): ServerGame | undefined {

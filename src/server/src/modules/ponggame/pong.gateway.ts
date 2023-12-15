@@ -15,6 +15,8 @@ import { PongLobbyService } from '../ponglobbies/ponglobby.service';
 import { UsersService } from '../users/users.service';
 import { ClientSocket } from '@typings/ws';
 import { AuthGatewayGuard } from '../auth/guards/auth-gateway.guard';
+import { ServerGame } from './pong';
+import User from '../users/user';
 
 @WebSocketGateway({
   namespace: 'api/pong',
@@ -41,26 +43,17 @@ export class PongGateway
   ) {}
 
   @SubscribeMessage('keyPress')
-  handleKeyPress(client: Socket, data: {key: string, state: boolean}): void {
+  handleKeyPress(client: Socket, data: { key: string; state: boolean }): void {
     this.service.handleKeys(client, data);
   }
-
+  
   async handleConnection(
     @ConnectedSocket()
     client: ClientSocket,
   ): Promise<void> {
     try {
-      if (!(await this.authGuard.canActivate(client)))
-        return client.disconnect(true), void 0;
-
-      const { user } = client.data;
-      if (!user) return client.disconnect(true), void 0;
-
-      const lobby = this.lobbyService.getLobbyByUser(user);
-      if (!lobby) return client.disconnect(true), void 0;
-
-      const game = lobby.game;
-      if (!game) return client.disconnect(true), void 0;
+      const { user, game } = (await this.getGameOfClient(client)) || {};
+      if (!user || !game) return client.disconnect(true), void 0;
 
       const player = game.getPlayerByUserId(user.id);
       if (!player) {
@@ -70,20 +63,13 @@ export class PongGateway
         }
       } else {
         game.joinPlayer(client, player);
-        if (
-          game.started === false &&
-          game.nbConnectedPlayers === game.lobbyInterface.nPlayers
-        ) {
-          game.started = true;
-          game.start();
-          game.room.emit("STARTMOVING");
-        }
         this.service.clientInGames.set(user.id, game.UUID);
         console.log(`${client.data.user.nickname} connected`);
-        client.emit(PongModel.Socket.Events.SetUIGame, {
+        client.emit(PongModel.Socket.Events.SetUI, {
           state: true,
           config: game.config,
         });
+        game.checkStart();
       }
     } catch (error) {
       console.log(error);
@@ -93,17 +79,8 @@ export class PongGateway
 
   async handleDisconnect(@ConnectedSocket() client: Socket) {
     try {
-      if (!(await this.authGuard.canActivate(client)))
-        return client.disconnect(true), void 0;
-
-      const { user } = client.data;
-      if (!user) return client.disconnect(true), void 0;
-
-      const lobby = this.lobbyService.getLobbyByUser(user);
-      if (!lobby) return client.disconnect(true), void 0;
-
-      const game = lobby.game;
-      if (!game) return client.disconnect(true), void 0;
+      const { user, game } = (await this.getGameOfClient(client)) || {};
+      if (!user || !game) return client.disconnect(true), void 0;
 
       const player = game.getPlayerByUserId(user.id);
       if (player) game.leavePlayer(client, player);
@@ -113,14 +90,30 @@ export class PongGateway
       }
       this.service.clientInGames.delete(user.id);
       console.log(`${client.data.user.nickname} disconnected`);
-      client.emit(PongModel.Socket.Events.SetUIGame, {
+      client.emit(PongModel.Socket.Events.SetUI, {
         state: false,
         config: null,
       });
-      // emit msg to this person saying that he can set the uigame to null
     } catch (error) {
       console.log(error);
     }
+  }
+
+  private async getGameOfClient(
+    client: ClientSocket,
+  ): Promise<{ user: User; game: ServerGame } | null> {
+    if (!(await this.authGuard.canActivate(client))) return null;
+
+    const { user } = client.data;
+    if (!user) return null;
+
+    const lobby = this.lobbyService.getLobbyByUser(user);
+    if (!lobby) return null;
+
+    const game = lobby.game;
+    if (!game) return null;
+
+    return { user, game };
   }
 
   afterInit() {

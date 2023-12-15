@@ -11,7 +11,7 @@ import { DefaultEventsMap } from 'node_modules/socket.io/dist/typed-events';
 import { BroadcastOperator } from 'socket.io';
 import PongModel from '@typings/models/pong';
 import { ClientSocket } from '@typings/ws';
-import { Player } from '@shared/Pong/Paddles/Player';
+import { Player, SHOOT_ACTION } from '@shared/Pong/Paddles/Player';
 import { GameObject } from '@shared/Pong/GameObject';
 import { ArenaWall } from '@shared/Pong/Collisions/Arena';
 import { Vector2D } from '@shared/Pong/utils/Vector';
@@ -47,9 +47,43 @@ export class ServerGame extends Game {
     console.log(`Room ${this.UUID}: created`);
   }
   /***/
+  public checkStart() {
+    if (
+      this.started === false &&
+      this.nbConnectedPlayers === this.lobbyInterface.nPlayers
+    ) {
+      this.started = true;
+      this.start();
+    }
+  }
+
+  public handleKeys(clientId: number, key: string, state: boolean): void {
+    const player = this.getPlayerInstanceById(clientId);
+    if (player) {
+      if (state) player.onKeyDown(key);
+      else player.onKeyUp(key);
+
+      const [action, powertag] = player.handleShoot();
+      switch (action) {
+        case SHOOT_ACTION.CREATE:
+          this.room.emit(PongModel.Socket.Events.CreatePower, {
+            tag: player.tag,
+            powertag: powertag,
+          });
+          break;
+        case SHOOT_ACTION.SHOOT:
+          this.room.emit(PongModel.Socket.Events.ShootPower, {
+            tag: player.tag,
+          });
+          break;
+      }
+    }
+  }
+
   public start() {
     this.buildObjects();
     console.log(`Game ${this.UUID}: started!`);
+    this.room.emit(PongModel.Socket.Events.Start);
     this.startTick();
   }
 
@@ -103,18 +137,19 @@ export class ServerGame extends Game {
     super.update(delta);
     if (this.sendObjects.length > 0) {
       this.room.emit(
-        'movements',
+        PongModel.Socket.Events.UpdateMovements,
         this.sendObjects.map((gameObject: GameObject) => {
-          const temp = {
+          return {
             tag: gameObject.tag,
             position: gameObject.getCenter.toArray(),
           };
-          return temp;
         }),
       );
     }
     if (this.sendRemoveObjects.length > 0) {
-      this.room.emit('remove-power', { tag: this.sendRemoveObjects });
+      this.room.emit(PongModel.Socket.Events.RemovePower, {
+        tag: this.sendRemoveObjects,
+      });
     }
     if (this.sendShooter.length > 0) {
       this.room.emit('shooter-update', {
@@ -281,10 +316,6 @@ export class ServerGame extends Game {
     player.connected = true;
     this.nbConnectedPlayers++;
     console.log(`> Player ${player.nickname} joined room ${this.UUID} <`);
-    this.room.emit(
-      PongModel.Socket.Events.UpdateConnectedPlayers,
-      this.getConnectedPlayers(),
-    );
   }
 
   public leavePlayer(
@@ -295,10 +326,6 @@ export class ServerGame extends Game {
     player.connected = false;
     this.nbConnectedPlayers--;
     console.log(`> Player ${player.nickname} left room ${this.UUID} <`);
-    this.room.emit(
-      PongModel.Socket.Events.UpdateConnectedPlayers,
-      this.getConnectedPlayers(),
-    );
   }
 
   public joinSpectators(client: ClientSocket): void {
