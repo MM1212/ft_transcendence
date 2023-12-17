@@ -13,7 +13,7 @@ import { socketStorageAtom } from '@hooks/socket/state';
 import { buildTunnelEndpoint } from '@hooks/tunnel';
 import { sessionAtom } from '@hooks/user/state';
 import { Lobbies } from '@typings/lobby';
-import LobbyModel from '@typings/models/lobby';
+import DEPRECATED_LobbyModel from '@typings/models/lobby_old';
 import { IPenguinBaseAnimationsTypes } from '@typings/penguin';
 import { Viewport } from 'pixi-viewport';
 import {
@@ -148,7 +148,7 @@ export const lobbyAppAtom = atom<Pixi.Application | null>({
           if (!hasInput) return;
           const sock = await getPromise(
             socketStorageAtom(
-              buildTunnelEndpoint(LobbyModel.Endpoints.Targets.Connect)
+              buildTunnelEndpoint(DEPRECATED_LobbyModel.Endpoints.Targets.Connect)
             )
           );
           const selfPlayer = await getPromise(lobbyCurrentPlayerSelector);
