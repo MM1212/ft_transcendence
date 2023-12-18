@@ -7,6 +7,7 @@ import LobbyModel from '@typings/models/lobby';
 
 export class ClientPlayer extends Player {
   public readonly container = new PIXI.Container();
+  public declare character: ClientCharacter;
   constructor(
     id: number,
     name: string,
@@ -46,7 +47,6 @@ export class ClientPlayer extends Player {
   async onMount(): Promise<void> {
     await super.onMount();
     this.initContainer();
-    console.log(`Mounting player ${this.id} (${this.name})`);
 
     this.lobby.stage.addChild(this.container);
   }

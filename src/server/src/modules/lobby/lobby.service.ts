@@ -34,6 +34,13 @@ export class LobbyService {
     );
   }
 
+  async onPlayerClothes(
+    client: ClientSocket,
+    clothes: Record<LobbyModel.Models.InventoryCategory, number>,
+  ) {
+    await this.instance.onNetPlayerClothes(client, client.data.user, clothes);
+  }
+
   onPlayerMove(client: ClientSocket, direction: vector2) {
     this.instance.onNetPlayerMove(client, client.data.user, direction);
   }

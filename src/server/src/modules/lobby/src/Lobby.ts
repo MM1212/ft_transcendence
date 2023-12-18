@@ -185,4 +185,25 @@ export class ServerLobby extends Lobby {
       transform: player.transform.toObject(),
     });
   }
+
+  public async onNetPlayerClothes(
+    sock: Socket,
+    user: User,
+    changed: Record<LobbyModel.Models.InventoryCategory, number>,
+  ) {
+    const player = this.getPlayer(user);
+    if (!player) return;
+    await player.character.setClothes({
+      ...player.character.clothes,
+      ...changed,
+    });
+    this.broadcastToSync(
+      'player:clothes',
+      this.getConnectionsExcept(sock),
+      {
+        id: player.id,
+        changed,
+      },
+    );
+  }
 }

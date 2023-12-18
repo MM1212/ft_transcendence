@@ -34,8 +34,8 @@ export class Character
   ): Promise<boolean> {
     if (this.animation === animation && !force) return false;
     this.animation = animation;
-    console.log(this.player.name, 'playing animation', animation, force, sync);
-    
+    // console.log(this.player.name, 'playing animation', animation, force, sync);
+
     if (sync) {
       if (IS_CLIENT && this.player.isMain)
         this.player.lobby.events.emit('self:animation', this, animation);
@@ -47,7 +47,40 @@ export class Character
   public async setTint(tint: number): Promise<void> {
     this.clothes.color = tint;
   }
-  public async setClothes(clothes: Record<string, number>): Promise<void> {
+  public async setClothes(
+    clothes: Record<string, number>,
+    sync: boolean = true
+  ): Promise<void> {
     this.clothes = clothes;
+    if (sync) {
+      if (IS_CLIENT && this.player.isMain)
+        this.player.lobby.events.emit('self:clothes:update', clothes);
+      else if (!IS_CLIENT)
+        this.player.lobby.events.emit('player:clothes:update', this, clothes);
+    }
+  }
+
+  public async undress(
+    cloth: LobbyModel.Models.InventoryCategory,
+    sync: boolean = true
+  ): Promise<void> {
+    return await this.dress(cloth, -1, sync);
+  }
+  public async dress(
+    cloth: LobbyModel.Models.InventoryCategory,
+    id: number,
+    sync: boolean = true
+  ): Promise<void> {
+    this.clothes = { ...this.clothes, [cloth]: id };
+    if (sync) {
+      if (IS_CLIENT && this.player.isMain)
+        this.player.lobby.events.emit('self:clothes:update', {
+          [cloth]: id,
+        });
+      else if (!IS_CLIENT)
+        this.player.lobby.events.emit('player:clothes:update', this, {
+          [cloth]: id,
+        });
+    }
   }
 }

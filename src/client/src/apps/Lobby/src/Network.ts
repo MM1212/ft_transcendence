@@ -15,6 +15,18 @@ export interface IPlayerAnimationEvent
 export interface IPlayerDirectionEvent
   extends IEventPackage<'self:movement', [ClientPlayer, Transform]> {}
 
+export interface IPlayerClothesEvent
+  extends IEventPackage<
+    'self:clothes:update',
+    [Record<LobbyModel.Models.InventoryCategory, number>]
+  > {}
+
+export interface INetPlayerClothesEvent
+  extends IEventPackage<
+    'self:net:clothes:update',
+    [Record<LobbyModel.Models.InventoryCategory, number>]
+  > {}
+
 export class Network {
   constructor(private readonly lobby: ClientLobby) {
     this.lobby.events.on<IPlayerAnimationEvent>(
@@ -24,6 +36,10 @@ export class Network {
     this.lobby.events.on<IPlayerDirectionEvent>(
       'self:movement',
       this.onNewDirection.bind(this)
+    );
+    this.lobby.events.on<IPlayerClothesEvent>(
+      'self:clothes:update',
+      this.onClothingChange.bind(this)
     );
   }
 
@@ -35,11 +51,14 @@ export class Network {
     _player: ClientPlayer,
     animation: LobbyModel.Models.IPenguinBaseAnimationsTypes
   ) {
-    console.log('broadcasting player animation', animation);
+    // console.log('broadcasting player animation', animation);
     this.sock.emit('lobby:net:player:animation', { animation });
   }
   private onNewDirection(player: ClientPlayer) {
-    console.log('broadcasting player movement', player.transform.direction.toObject());
+    // console.log(
+    // 'broadcasting player movement',
+    // player.transform.direction.toObject()
+    // );
     this.sock.emit('lobby:net:player:direction', {
       transform: {
         direction: player.transform.direction.toObject(),
@@ -51,8 +70,8 @@ export class Network {
     playerId: number,
     animation: LobbyModel.Models.IPenguinBaseAnimationsTypes
   ): Promise<void> {
-    console.log('BOAS', playerId, animation);
-    
+    // console.log('BOAS', playerId, animation);
+
     const player = this.lobby.getPlayer(playerId) as ClientPlayer;
     if (!player) return;
     await player.character.playAnimation(animation, false, false);
@@ -64,8 +83,8 @@ export class Network {
   ): Promise<void> {
     const player = this.lobby.getPlayer(playerId) as ClientPlayer;
     if (!player) return;
-    console.log('netOnPlayerMove', playerId, transform);
-    
+    // console.log('netOnPlayerMove', playerId, transform);
+
     if (transform.position) {
       player.transform.position = new Vector2D(transform.position);
     }
@@ -75,5 +94,30 @@ export class Network {
     if (transform.speed !== undefined) {
       player.transform.speed = transform.speed;
     }
+  }
+
+  private onClothingChange(
+    changed: Record<LobbyModel.Models.InventoryCategory, number>
+  ) {
+    // console.log('broadcasting player clothing change', changed);
+    this.sock.emit('lobby:net:player:clothes', changed);
+  }
+
+  public async netOnPlayerClothes(
+    playerId: number,
+    changed: Record<LobbyModel.Models.InventoryCategory, number>
+  ): Promise<void> {
+    const player = this.lobby.getPlayer(playerId) as ClientPlayer;
+    if (!player) return;
+    // console.log('netOnPlayerClothes', playerId, changed);
+
+    for (const [category, id] of Object.entries(changed)) {
+      await player.character.dress(
+        category as LobbyModel.Models.InventoryCategory,
+        id,
+        false
+      );
+    }
+    this.lobby.events.emit('self:net:clothes:update', changed);
   }
 }

@@ -5,34 +5,48 @@ import CustomizationBottom from '../components/CustomizationBottom';
 import {
   InventoryCategory,
   backClothingItemsAtom,
-  inventoryAtom,
   penguinClothingPriority,
   penguinColorPalette,
 } from '../state';
-import { useRecoilCallback } from 'recoil';
+import { useRecoilCallback, useRecoilValue } from 'recoil';
 import React from 'react';
 import { Pixi } from '@hooks/pixiRenderer';
 import publicPath from '@utils/public';
+import { lobbyAtom } from '@apps/Lobby/state';
+import { INetPlayerClothesEvent } from '@apps/Lobby/src/Network';
+import LobbyModel from '@typings/models/lobby';
 
 export default function CustomizationPanel() {
   const [penguinBelly, setPenguinBelly] = React.useState<Pixi.Sprite | null>(
     null
   );
-  const [penguinClothes, setPenguinClothes] = React.useState<
-    Record<InventoryCategory, Pixi.Sprite>
-  >({} as Record<InventoryCategory, Pixi.Sprite>);
+  const penguinClothes = React.useRef<Record<
+    InventoryCategory,
+    Pixi.Sprite
+  > | null>(null);
 
   const loadClothes = useRecoilCallback(
     (ctx) => async () => {
-      const inventory = await ctx.snapshot.getPromise(inventoryAtom);
-      const backClothing = await ctx.snapshot.getPromise(backClothingItemsAtom);
+      const lobby = await ctx.snapshot.getPromise(lobbyAtom);
+      if (!lobby || !lobby.mainPlayer)
+        return {
+          head: Pixi.Sprite.from(Pixi.Texture.EMPTY),
+          face: Pixi.Sprite.from(Pixi.Texture.EMPTY),
+          neck: Pixi.Sprite.from(Pixi.Texture.EMPTY),
+          body: Pixi.Sprite.from(Pixi.Texture.EMPTY),
+          hand: Pixi.Sprite.from(Pixi.Texture.EMPTY),
+          feet: Pixi.Sprite.from(Pixi.Texture.EMPTY),
+          color: Pixi.Sprite.from(Pixi.Texture.EMPTY),
+        };
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { color, ...selected } = inventory.selected;
+      const { color, ...selected } = lobby.mainPlayer.character.clothes;
+      const backClothing = await ctx.snapshot.getPromise(backClothingItemsAtom);
+      // const { color, ...selected } = inventory.selected;
       const clothingAssets = (
         Object.keys(selected) as (keyof typeof selected)[]
       )
         .map((clothPiece) => {
-          const clothId = inventory.selected[clothPiece as InventoryCategory];
+          const clothId = selected[clothPiece];
           const backItem = backClothing.includes(clothId);
           const sprite = Pixi.Sprite.from(
             clothId === -1
@@ -43,72 +57,140 @@ export default function CustomizationPanel() {
           sprite.name = clothPiece;
           sprite.anchor.set(0.5);
           sprite.position.set(0, 0);
-          sprite.scale.set(backItem ? 0.92 :0.73);
+          sprite.scale.set(backItem ? 0.92 : 0.73);
           return sprite;
         })
         .reduce(
           (acc, sprite) => ({ ...acc, [String(sprite.name)]: sprite }),
           {}
         ) as Record<InventoryCategory, Pixi.Sprite>;
-      setPenguinClothes(clothingAssets);
+      penguinClothes.current = clothingAssets;
       return clothingAssets;
     },
     []
   );
 
   const updatePenguinColor = useRecoilCallback(
-    (ctx) => (piece: InventoryCategory, id: number) => {
+    (ctx) => async (id: number) => {
       if (!penguinBelly) return;
+      const lobby = await ctx.snapshot.getPromise(lobbyAtom);
+      if (!lobby || !lobby.mainPlayer) return;
+      await lobby.mainPlayer.character.dress('color', id);
       penguinBelly.tint =
         penguinColorPalette[id.toString() as keyof typeof penguinColorPalette];
-      ctx.set(inventoryAtom, (prev) => ({
-        ...prev,
-        selected: { ...prev.selected, [piece]: id },
-      }));
     },
     [penguinBelly]
   );
   const updateCloth = useRecoilCallback(
     (ctx) => async (piece: InventoryCategory, id: number) => {
-      if (piece === 'color') return updatePenguinColor(piece, id);
+      if (piece === 'color') return await updatePenguinColor(id);
+      const lobby = await ctx.snapshot.getPromise(lobbyAtom);
+      if (
+        !penguinClothes.current ||
+        !lobby ||
+        !lobby.mainPlayer ||
+        lobby.loading
+      )
+        return;
+      const character = lobby.mainPlayer.character;
       const backItems = await ctx.snapshot.getPromise(backClothingItemsAtom);
       if (id === -1) {
-        penguinClothes[piece].texture = Pixi.Texture.EMPTY;
-      } else
-        penguinClothes[piece].texture = Pixi.Texture.from(
+        penguinClothes.current[piece].texture = Pixi.Texture.EMPTY;
+        await character.undress(piece);
+      } else {
+        penguinClothes.current[piece].texture = Pixi.Texture.from(
           publicPath(`/penguin/clothing/${id}/paper.webp`)
         );
-      penguinClothes[piece].zIndex = backItems.includes(id)
+        await character.dress(piece, id);
+      }
+      penguinClothes.current[piece].zIndex = backItems.includes(id)
         ? -1
         : penguinClothingPriority[piece];
-      penguinClothes[piece].scale.set(backItems.includes(id) ? 0.92 : 0.73);
-      ctx.set(inventoryAtom, (prev) => ({
-        ...prev,
-        selected: { ...prev.selected, [piece]: id },
-      }));
+      penguinClothes.current[piece].scale.set(
+        backItems.includes(id) ? 0.92 : 0.73
+      );
     },
     [penguinClothes, updatePenguinColor]
   );
 
-  return (
-    <Sheet
-      sx={{
-        width: '100dvh',
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100%',
-        borderLeft: '1px solid',
-        borderColor: 'divider',
-      }}
-    >
-      <CustomizationTop
-        setPenguinBelly={setPenguinBelly}
-        loadClothes={loadClothes}
-        setPenguinClothes={setPenguinClothes}
-        updateCloth={updateCloth}
-      />
-      <Divider orientation="horizontal" />
-      <CustomizationBottom updateCloth={updateCloth} />
-    </Sheet>
+  const lobby = useRecoilValue(lobbyAtom);
+
+  const onNetClothesChange = useRecoilCallback(
+    (ctx) =>
+      async (changed: Record<LobbyModel.Models.InventoryCategory, number>) => {
+        if (
+          !lobby ||
+          !lobby.mainPlayer ||
+          lobby.loading ||
+          !penguinClothes.current
+        )
+          return;
+        for await (const [piece, id] of Object.entries(changed) as [
+          LobbyModel.Models.InventoryCategory,
+          number,
+        ][]) {
+          if (piece === 'color') {
+            if (!penguinBelly) continue;
+            penguinBelly.tint =
+              penguinColorPalette[
+                id.toString() as keyof typeof penguinColorPalette
+              ];
+            continue;
+          }
+          const backItems = await ctx.snapshot.getPromise(
+            backClothingItemsAtom
+          );
+          if (id === -1) {
+            penguinClothes.current[piece].texture = Pixi.Texture.EMPTY;
+          } else {
+            penguinClothes.current[piece].texture = Pixi.Texture.from(
+              publicPath(`/penguin/clothing/${id}/paper.webp`)
+            );
+          }
+          penguinClothes.current[piece].zIndex = backItems.includes(id)
+            ? -1
+            : penguinClothingPriority[piece];
+          penguinClothes.current[piece].scale.set(
+            backItems.includes(id) ? 0.92 : 0.73
+          );
+        }
+      },
+    [lobby, penguinBelly]
+  );
+  React.useEffect(() => {
+    lobby?.events.on<INetPlayerClothesEvent>(
+      'self:net:clothes:update',
+      onNetClothesChange
+    );
+    return () => {
+      lobby?.events.off<INetPlayerClothesEvent>(
+        'self:net:clothes:update',
+        onNetClothesChange
+      );
+    };
+  }, [lobby, onNetClothesChange]);
+
+  return React.useMemo(
+    () => (
+      <Sheet
+        sx={{
+          width: '100dvh',
+          display: 'flex',
+          flexDirection: 'column',
+          height: '100%',
+          borderLeft: '1px solid',
+          borderColor: 'divider',
+        }}
+      >
+        <CustomizationTop
+          setPenguinBelly={setPenguinBelly}
+          loadClothes={loadClothes}
+          updateCloth={updateCloth}
+        />
+        <Divider orientation="horizontal" />
+        <CustomizationBottom updateCloth={updateCloth} />
+      </Sheet>
+    ),
+    [loadClothes, updateCloth]
   );
 }

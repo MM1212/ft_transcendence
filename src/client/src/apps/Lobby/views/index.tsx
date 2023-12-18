@@ -1,30 +1,28 @@
 import ChatBox from '@apps/Lobby_Old/components/InGameChat';
 import React, { useSyncExternalStore } from 'react';
 import { ClientLobby } from '../src/Lobby';
-import { Snapshot, useRecoilTransactionObserver_UNSTABLE } from 'recoil';
+import {
+  Snapshot,
+  useRecoilCallback,
+  useRecoilTransactionObserver_UNSTABLE,
+} from 'recoil';
 import { useSocket } from '@hooks/socket';
 import { buildTunnelEndpoint } from '@hooks/tunnel';
 import { CircularProgress, Modal } from '@mui/joy';
 import LobbyModel from '@typings/models/lobby';
+import { lobbyAtom } from '../state';
 
 export default function LobbyView(): JSX.Element {
   const ref = React.useRef<HTMLDivElement>(null);
   const lobbyRef = React.useRef<ClientLobby | null>(null);
   const currentSnapshot = React.useRef<Snapshot | null>(null);
-  const {
-    socket,
-    connected,
-    useListener,
-    useListenerWithAck
-  } = useSocket(buildTunnelEndpoint('/lobby'));
+  const { socket, connected, useListener, useListenerWithAck } = useSocket(
+    buildTunnelEndpoint('/lobby')
+  );
 
   useListenerWithAck(
     'lobby:init',
-    (data: LobbyModel.Models.ILobby) => {
-      console.log('lobby:init', data);
-      lobbyRef.current?.__sockLobbyInit(data);
-      console.log('lobby:init done');
-    },
+    (data: LobbyModel.Models.ILobby) => lobbyRef.current?.__sockLobbyInit(data),
     []
   );
 
@@ -58,6 +56,15 @@ export default function LobbyView(): JSX.Element {
     []
   );
 
+  useListener(
+    'player:clothes',
+    (data: {
+      id: number;
+      changed: Record<LobbyModel.Models.InventoryCategory, number>;
+    }) => lobbyRef.current?.network.netOnPlayerClothes(data.id, data.changed),
+    []
+  );
+
   const isLobbyLoading = useSyncExternalStore<boolean>(
     (cb) => {
       if (!lobbyRef.current) return () => void 0;
@@ -68,20 +75,29 @@ export default function LobbyView(): JSX.Element {
     },
     () => !!lobbyRef.current?.loading
   );
+
+  const initLobby = useRecoilCallback(
+    (ctx) => () => {
+      if (!ref.current) return;
+      lobbyRef.current = new ClientLobby(
+        ref.current,
+        socket,
+        currentSnapshot.current
+      );
+      lobbyRef.current.onMount().then(() => socket.connect());
+      ctx.set(lobbyAtom, lobbyRef.current);
+    },
+    [socket]
+  );
+
   React.useEffect(() => {
-    if (!ref.current) return;
-    lobbyRef.current = new ClientLobby(
-      ref.current,
-      socket,
-      currentSnapshot.current
-    );
-    lobbyRef.current.onMount().then(() => socket.connect());
+    initLobby();
     return () => {
       lobbyRef.current?.destructor();
       lobbyRef.current = null;
       socket.disconnect();
     };
-  }, [socket]);
+  }, [socket, initLobby]);
 
   useRecoilTransactionObserver_UNSTABLE(({ snapshot }) => {
     currentSnapshot.current = snapshot;
@@ -104,7 +120,6 @@ export default function LobbyView(): JSX.Element {
     ),
     []
   );
-  console.log('rendering lobby view', connected, lobbyRef.current?.loading);
 
   return React.useMemo(
     () => (

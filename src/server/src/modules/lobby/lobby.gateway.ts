@@ -50,7 +50,7 @@ export class LobbyGateway
     @MessageBody('animation')
     animation: LobbyModel.Models.IPenguinBaseAnimationsTypes,
   ) {
-    console.log('lobby:net:player:animation', client.data.user.id, animation);
+    // console.log('lobby:net:player:animation', client.data.user.id, animation);
     await this.service.onPlayerAnimation(client, animation);
   }
   @SubscribeMessage('lobby:net:player:direction')
@@ -59,7 +59,17 @@ export class LobbyGateway
     @MessageBody('transform')
     transform: Pick<LobbyModel.Models.ITransform, 'direction'>,
   ) {
-    console.log('lobby:net:player:direction', client.data.user.id, transform);
+    // console.log('lobby:net:player:direction', client.data.user.id, transform);
     this.service.onPlayerMove(client, transform.direction);
+  }
+
+  @SubscribeMessage('lobby:net:player:clothes')
+  async onPlayerClothes(
+    @ConnectedSocket() client: ClientSocket,
+    @MessageBody()
+    clothes: Record<LobbyModel.Models.InventoryCategory, number>,
+  ) {
+    // console.log('lobby:net:player:clothes', client.data.user.id, clothes);
+    this.service.onPlayerClothes(client, clothes);
   }
 }

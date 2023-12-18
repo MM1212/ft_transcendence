@@ -9,10 +9,12 @@ import { Viewport } from 'pixi-viewport';
 import LobbyModel from '@typings/models/lobby';
 import assetCache from '@utils/pixi/AssetCache';
 import publicPath from '@utils/public';
+import { InventoryCategory } from '@apps/Customization/state';
 export class ClientCharacter extends Character {
   public declare readonly player: ClientPlayer;
   private belly: PIXI.AnimatedSprite | null = null;
-  private clothTextures: Record<string, PIXI.AnimatedSprite> = {};
+  private clothTextures: Record<InventoryCategory, PIXI.AnimatedSprite> =
+    {} as Record<InventoryCategory, PIXI.AnimatedSprite>;
   private animatedLayers: PIXI.AnimatedSprite[] = [];
 
   static colorPalette: LobbyModel.Models.TPenguinColorPalette;
@@ -87,13 +89,16 @@ export class ClientCharacter extends Character {
 
           const sprite = new PIXI.AnimatedSprite(animSet);
           sprite.name = this.clothes[piece].toString();
+          // @ts-expect-error impl
+          sprite.__category = piece;
           sprite.zIndex = clothingPriority[piece];
           return sprite;
         })
     );
     this.clothTextures = clothingTextures.reduce(
       (acc, curr) => {
-        acc[curr.name!] = curr;
+        // @ts-expect-error impl
+        acc[curr.__category!] = curr;
         return acc;
       },
       {} as Record<string, PIXI.AnimatedSprite>
@@ -142,8 +147,39 @@ export class ClientCharacter extends Character {
 
   public async updateColor(color: number): Promise<void> {
     if (!this.belly) return;
-    this.clothes.color = color;
     this.belly.tint = ClientCharacter.colorPalette[color];
+  }
+
+  public async dress(
+    cloth: InventoryCategory,
+    id: number,
+    sync: boolean = true
+  ): Promise<void> {
+    await super.dress(cloth, id, sync);
+    this.player.lobby.events.emit('rerender');
+    if (cloth === 'color') {
+      await this.updateColor(id);
+      return;
+    }
+    let sprite = this.clothTextures[cloth];
+    const clothingPriority = ClientCharacter.clothingPriority;
+    if (id === -1) {
+      sprite.destroy();
+      delete this.clothTextures[cloth];
+      this.animatedLayers = this.animatedLayers.filter((s) => s !== sprite);
+      return;
+    } else if (!sprite) {
+      const animSet = await this.getCurrentAnimSet(id.toString());
+      sprite = new PIXI.AnimatedSprite(animSet);
+      sprite.zIndex = clothingPriority[cloth];
+      this.clothTextures[cloth] = sprite;
+      centerObject(sprite);
+      this.container.addChild(sprite);
+      this.animatedLayers.push(sprite);
+    }
+    sprite.name = id.toString();
+    this.setupAnimation();
+    await this.playAnimation(this.animation, true, false);
   }
 
   private setupAnimation(
