@@ -31,6 +31,7 @@ export class ClientPlayer extends Player {
 
   private initContainer(): void {
     this.container.name = this.isMain ? 'self' : `player-${this.id}`;
+    if (this.isMain) this.container.zIndex = 1;
     this.container.scale.set(LOBBY_PLAYER_CONTAINER_SCALE);
     this.container.sortableChildren = true;
     this.updateContainer();
