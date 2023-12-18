@@ -2,9 +2,10 @@ import { LobbyModel } from './types';
 import { Character } from './Character';
 import { Transform } from './Transform';
 import { Lobby } from './Lobby';
-import { IClassLifeCycle } from './utils';
+import { IClassFeedbackLifeCycle, IClassLifeCycle } from './utils';
+import { IS_CLIENT } from './constants';
 
-export class Player implements LobbyModel.Models.IPlayer, IClassLifeCycle {
+export class Player implements LobbyModel.Models.IPlayer, IClassFeedbackLifeCycle {
   public character: Character;
   public readonly transform: Transform;
   constructor(
@@ -72,13 +73,16 @@ export class Player implements LobbyModel.Models.IPlayer, IClassLifeCycle {
   private isNewPositionOutOfBounds(): boolean {
     return !this.lobby.collision.isPositionValid(this.transform.position);
   }
-  async onUpdate(delta: number): Promise<void> {
+  async onUpdate(delta: number): Promise<boolean> {
     await this.character.onUpdate(delta);
     const lastPosition = this.transform.position;
-    const doCollisionCheck = this.transform.speed !== 0;
-    await this.transform.onUpdate(delta);
-    if (doCollisionCheck && this.isNewPositionOutOfBounds())
+    if (!await this.transform.onUpdate(delta))
+      return false;
+    if (this.isNewPositionOutOfBounds()) {
       this.transform.position = lastPosition;
+      return false;
+    }
+    return true;
   }
 
   async handleAction(_key: string): Promise<boolean> {
@@ -103,9 +107,13 @@ export class Player implements LobbyModel.Models.IPlayer, IClassLifeCycle {
         this.transform.direction.x = pressed ? 1 : 0;
         break;
       }
+      default:
+        return;
     }
     if (this.transform.direction.length() !== 0) this.transform.speed = 3.5;
     else this.transform.speed = 0;
+    if (IS_CLIENT && this.isMain)
+      this.lobby.events.emit('self:movement', this);
   }
   async handleNewAnimation(): Promise<void> {
     let type: 'walk' | 'idle' = 'idle',

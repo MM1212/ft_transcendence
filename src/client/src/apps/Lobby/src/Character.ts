@@ -146,22 +146,36 @@ export class ClientCharacter extends Character {
     this.belly.tint = ClientCharacter.colorPalette[color];
   }
 
-  private setupAnimation(): void {
-    const { speed = 0.3, loop = true } = animationManager.getAnimSettings(
-      this.animation
-    );
+  private setupAnimation(
+    lastAnim?: LobbyModel.Models.IPenguinBaseAnimationsTypes
+  ): void {
+    const {
+      speed = 0.3,
+      loop = true,
+      next,
+    } = animationManager.getAnimSettings(this.animation);
     this.animatedLayers.forEach((layer) => {
       layer.animationSpeed = speed;
       layer.loop = loop;
       centerObject(layer);
       layer.gotoAndPlay(0);
     });
+    if (!loop) {
+      const layer = this.animatedLayers.find((layer) => layer.name === 'body');
+      if (!layer) return;
+      layer.onComplete = () => {
+        this.playAnimation(next ?? lastAnim ?? 'idle/down');
+        layer.onComplete = undefined;
+      };
+    }
   }
   public async playAnimation(
     animation: LobbyModel.Models.IPenguinBaseAnimationsTypes,
-    force: boolean = false
+    force: boolean = false,
+    sync: boolean = true
   ): Promise<boolean> {
-    if (!super.playAnimation(animation, force)) return false;
+    const lastAnim = this.animation;
+    if (!super.playAnimation(animation, force, sync)) return false;
 
     await Promise.all(
       this.animatedLayers.map(async (layer) => {
@@ -170,7 +184,7 @@ export class ClientCharacter extends Character {
       })
     );
 
-    this.setupAnimation();
+    this.setupAnimation(lastAnim);
     return true;
   }
 }

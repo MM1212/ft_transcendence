@@ -35,6 +35,20 @@ export class ServerPlayer extends Player {
     });
     await this.broadcastTo('lobby:init', this.cons, lobby);
   }
+  private lastPositionSync: number = performance.now();
+  async onUpdate(delta: number): Promise<boolean> {
+    if (!await super.onUpdate(delta)) {
+      return false;
+    }
+    if (performance.now() - this.lastPositionSync > 1000) {
+      this.lastPositionSync = performance.now();
+      this.broadcast('player:move', {
+        id: this.id,
+        transform: this.transform.toObject(),
+      });
+    }
+    return true;
+  }
   async broadcastTo(
     event: string,
     target: Socket,

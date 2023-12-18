@@ -1,11 +1,7 @@
 // @ts-expect-error browser version
 import { PNG } from 'pngjs/browser';
 console.log('collision worker loaded');
-/**
- *
- * @param {*} path
- * @param {SharedArrayBuffer} buffer
- */
+
 self.onmessage = async (ev) => {
   const [path] = ev.data;
   console.log('spawned collision worker for ', path);

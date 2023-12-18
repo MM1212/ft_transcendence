@@ -7,9 +7,10 @@ import { ServerPlayer } from './Player';
 import User from '@/modules/users/user';
 import LobbyModel from '@typings/models/lobby';
 import Vector2D from '@shared/Vector/Vector2D';
-import { LOBBY_STAGE_SIZE } from '@shared/Lobby/constants';
+import { LOBBY_STAGE_SIZE, LOBBY_TARGET_FPS } from '@shared/Lobby/constants';
 import { Logger } from '@nestjs/common';
 import { Character } from '@shared/Lobby/Character';
+import { vector2 } from '@typings/vector';
 
 class ServerEvents extends Events {
   protected readonly emitter: EventEmitter2 = new EventEmitter2({
@@ -23,14 +24,40 @@ class ServerEvents extends Events {
 export class ServerLobby extends Lobby {
   public cons: Set<Socket> = new Set();
   private readonly logger = new Logger(ServerLobby.name);
+  private tickHandle: NodeJS.Timeout | null = null;
   constructor(public readonly sock: Server) {
     super([], -1, new ServerCollision(), new ServerEvents(), ServerPlayer);
+    this.tickHandle = setInterval(
+      this.tick.bind(this),
+      1000 / LOBBY_TARGET_FPS / 2,
+    );
   }
-
+  public destructor(): Promise<void> {
+    if (this.tickHandle) clearInterval(this.tickHandle);
+    return super.destructor();
+  }
+  public broadcastSync(event: string, ...args: any[]): void {
+    [...this.cons.values()].forEach((sock) => sock.emit(event, ...args));
+  }
   public async broadcast(event: string, ...args: any[]): Promise<void> {
     await Promise.all(
       [...this.cons.values()].map((sock) => sock.emitWithAck(event, ...args)),
     );
+  }
+  public async broadcastTo(event: string, socks: Socket[], ...args: any[]) {
+    await Promise.all(socks.map((sock) => sock.emitWithAck(event, ...args)));
+  }
+  public broadcastToSync(event: string, socks: Socket[], ...args: any[]) {
+    socks.forEach((sock) => sock.emit(event, ...args));
+  }
+
+  public getConnectionsExcludingUsers(users: User[]): Socket[] {
+    return [...this.cons.values()].filter(
+      (sock) => !users.some((user) => user.id === sock.data.user.id),
+    );
+  }
+  public getConnectionsExcept(sock: Socket): Socket[] {
+    return [...this.cons.values()].filter((s) => s !== sock);
   }
   public async addPlayer(
     playerData: Pick<LobbyModel.Models.IPlayer, 'id' | 'name'>,
@@ -76,6 +103,15 @@ export class ServerLobby extends Lobby {
     return ok;
   }
 
+  private lastTick = performance.now();
+  private readonly targetDelta = 1000 / LOBBY_TARGET_FPS;
+  private tick(): void {
+    const delta = performance.now() - this.lastTick;
+    this.lastTick = performance.now();
+    const deltaFromTarget = delta / this.targetDelta;
+    this.onUpdate(deltaFromTarget);
+  }
+
   // handling service
   public async onUserConnection(user: User, sock: Socket): Promise<void> {
     const player = this.getPlayer(user);
@@ -104,7 +140,7 @@ export class ServerLobby extends Lobby {
         {
           position: LOBBY_STAGE_SIZE.divide(2).subtract(300, 0),
           direction: Vector2D.Zero,
-          speed: 4,
+          speed: 0,
         },
         sock,
       );
@@ -121,5 +157,32 @@ export class ServerLobby extends Lobby {
     if (player.cons.length > 0) return;
     await this.removePlayer(player);
     this.logger.warn(`Player ${player.id} removed from lobby!`);
+  }
+
+  public async onNetPlayerAnimation(
+    sock: Socket,
+    user: User,
+    animation: LobbyModel.Models.IPenguinBaseAnimationsTypes,
+  ) {
+    const player = this.getPlayer(user);
+    if (!player) return;
+    await player.character.playAnimation(animation);
+    this.broadcastToSync('player:animation', this.getConnectionsExcept(sock), {
+      id: player.id,
+      animation,
+    });
+  }
+  public onNetPlayerMove(sock: Socket, user: User, _direction: vector2) {
+    const player = this.getPlayer(user);
+    if (!player) return;
+    const direction = new Vector2D(_direction);
+    if (player.transform.direction.equals(direction)) return;
+    player.transform.direction = direction;
+    if (player.transform.direction.length() !== 0) player.transform.speed = 3.5;
+    else player.transform.speed = 0;
+    this.broadcastToSync('player:move', this.getConnectionsExcept(sock), {
+      id: player.id,
+      transform: player.transform.toObject(),
+    });
   }
 }

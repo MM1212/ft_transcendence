@@ -1,13 +1,17 @@
 import {
+  ConnectedSocket,
+  MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
   OnGatewayInit,
+  SubscribeMessage,
   WebSocketGateway,
 } from '@nestjs/websockets';
 import { ClientSocket } from '@typings/ws';
 import { Server } from 'socket.io';
 import { AuthGatewayGuard } from '../auth/guards/auth-gateway.guard';
 import { LobbyService } from './lobby.service';
+import LobbyModel from '@typings/models/lobby';
 
 @WebSocketGateway({
   namespace: 'api/lobby',
@@ -26,8 +30,8 @@ export class LobbyGateway
     private readonly authGuard: AuthGatewayGuard,
     private readonly service: LobbyService,
   ) {}
-  afterInit(server: Server) {
-    this.service.init(server);
+  async afterInit(server: Server) {
+    await this.service.init(server);
   }
   async handleConnection(client: ClientSocket) {
     if (!(await this.authGuard.canActivate(client))) {
@@ -38,5 +42,24 @@ export class LobbyGateway
   }
   async handleDisconnect(client: ClientSocket) {
     await this.service.disconnect(client);
+  }
+
+  @SubscribeMessage('lobby:net:player:animation')
+  async onPlayerAnimation(
+    @ConnectedSocket() client: ClientSocket,
+    @MessageBody('animation')
+    animation: LobbyModel.Models.IPenguinBaseAnimationsTypes,
+  ) {
+    console.log('lobby:net:player:animation', client.data.user.id, animation);
+    await this.service.onPlayerAnimation(client, animation);
+  }
+  @SubscribeMessage('lobby:net:player:direction')
+  async onPlayerDirection(
+    @ConnectedSocket() client: ClientSocket,
+    @MessageBody('transform')
+    transform: Pick<LobbyModel.Models.ITransform, 'direction'>,
+  ) {
+    console.log('lobby:net:player:direction', client.data.user.id, transform);
+    this.service.onPlayerMove(client, transform.direction);
   }
 }

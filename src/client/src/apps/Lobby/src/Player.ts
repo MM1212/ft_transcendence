@@ -39,7 +39,7 @@ export class ClientPlayer extends Player {
     await super.destructor();
     this.lobby.stage.removeChild(this.container);
     this.container.destroy({
-      children: true
+      children: true,
     });
   }
 
@@ -47,13 +47,15 @@ export class ClientPlayer extends Player {
     await super.onMount();
     this.initContainer();
     console.log(`Mounting player ${this.id} (${this.name})`);
-    
+
     this.lobby.stage.addChild(this.container);
   }
 
-  async onUpdate(delta: number): Promise<void> {
-    await super.onUpdate(delta);
+  async onUpdate(delta: number): Promise<boolean> {
+    if (!await super.onUpdate(delta))
+      return false;
     this.updateContainer();
+    return true;
   }
 
   static readonly slice = (Math.PI * 2) / 8;
@@ -88,7 +90,7 @@ export class ClientPlayer extends Player {
       return anim;
     });
   async handleMouseMove(ev: PIXI.FederatedMouseEvent): Promise<void> {
-    if (this.transform.speed !== 0) return;
+    if (!this.isIdle || this.transform.speed !== 0) return;
     const { position } = this.transform;
     const { x, y } = this.lobby.stage.toLocal(ev.client);
     const angle = Math.atan2(y - position.y, x - position.x) + Math.PI;

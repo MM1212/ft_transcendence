@@ -1,8 +1,7 @@
 import { Player } from './Player';
+import { IS_CLIENT } from './constants';
 import { LobbyModel } from './types';
 import { IClassLifeCycle } from './utils';
-
-const IS_CLIENT = typeof window !== 'undefined';
 
 export class Character
   implements LobbyModel.Models.ICharacter, IClassLifeCycle
@@ -30,13 +29,19 @@ export class Character
 
   public async playAnimation(
     animation: LobbyModel.Models.IPenguinBaseAnimationsTypes,
-    force: boolean = false
+    force: boolean = false,
+    sync: boolean = true
   ): Promise<boolean> {
     if (this.animation === animation && !force) return false;
     this.animation = animation;
-    this.player.lobby.events.emit('player:animation', this, animation);
-    if (IS_CLIENT)
-      this.player.lobby.events.emit('self:animation', this, animation);
+    console.log(this.player.name, 'playing animation', animation, force, sync);
+    
+    if (sync) {
+      if (IS_CLIENT && this.player.isMain)
+        this.player.lobby.events.emit('self:animation', this, animation);
+      else if (!IS_CLIENT)
+        this.player.lobby.events.emit('player:animation', this, animation);
+    }
     return true;
   }
   public async setTint(tint: number): Promise<void> {

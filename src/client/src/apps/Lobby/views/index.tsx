@@ -11,13 +11,16 @@ export default function LobbyView(): JSX.Element {
   const ref = React.useRef<HTMLDivElement>(null);
   const lobbyRef = React.useRef<ClientLobby | null>(null);
   const currentSnapshot = React.useRef<Snapshot | null>(null);
-  const { socket, connected, useListenerWithAck: useListener } = useSocket(
-    buildTunnelEndpoint('/lobby')
-  );
+  const {
+    socket,
+    connected,
+    useListener,
+    useListenerWithAck
+  } = useSocket(buildTunnelEndpoint('/lobby'));
 
-  useListener(
+  useListenerWithAck(
     'lobby:init',
-     (data: LobbyModel.Models.ILobby) => {
+    (data: LobbyModel.Models.ILobby) => {
       console.log('lobby:init', data);
       lobbyRef.current?.__sockLobbyInit(data);
       console.log('lobby:init done');
@@ -25,16 +28,33 @@ export default function LobbyView(): JSX.Element {
     []
   );
 
-  useListener(
+  useListenerWithAck(
     'player:join',
     (data: LobbyModel.Models.IPlayer) =>
       lobbyRef.current?.__sockPlayerJoin(data),
     []
   );
 
-  useListener(
+  useListenerWithAck(
     'player:leave',
-    (data: {id: number}) => lobbyRef.current?.__sockPlayerLeave(data.id),
+    (data: { id: number }) => lobbyRef.current?.__sockPlayerLeave(data.id),
+    []
+  );
+
+  useListener(
+    'player:animation',
+    (data: {
+      id: number;
+      animation: LobbyModel.Models.IPenguinBaseAnimationsTypes;
+    }) =>
+      lobbyRef.current?.network.netOnPlayerAnimation(data.id, data.animation),
+    []
+  );
+
+  useListener(
+    'player:move',
+    (data: { id: number; transform: Partial<LobbyModel.Models.ITransform> }) =>
+      lobbyRef.current?.network.netOnPlayerMove(data.id, data.transform),
     []
   );
 

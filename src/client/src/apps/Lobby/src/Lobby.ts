@@ -12,6 +12,7 @@ import { ClientEvents } from './Events';
 import { MutableSnapshot, Snapshot } from 'recoil';
 import { Socket } from 'socket.io-client';
 import LobbyModel from '@typings/models/lobby';
+import { Network } from './Network';
 
 interface ExtendedSnapshot extends Snapshot {
   mutate: ClientLobby['mutateSnapshot'];
@@ -22,6 +23,8 @@ export class ClientLobby extends Lobby {
   public readonly stage: Viewport;
   public loading = true;
   private _snapshot: ExtendedSnapshot | null = null;
+
+  public readonly network: Network = new Network(this);
 
   private readonly domEvents: [
     {
