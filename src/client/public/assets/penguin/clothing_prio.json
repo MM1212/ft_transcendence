@@ -1,0 +1,9 @@
+{
+  "face": 0,
+  "head": 1,
+  "feet": 2,
+  "body": 3,
+  "neck": 4,
+  "hand": 5,
+  "color": -1
+}

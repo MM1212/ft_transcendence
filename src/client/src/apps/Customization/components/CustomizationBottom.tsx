@@ -7,11 +7,11 @@ import CustomizationBox from './CustomizationBox';
 import {
   InventoryCategory,
   getClothIcon,
-  inventoryAtom,
   inventoryBoughtCategoryItems,
 } from '../state';
 import { useRecoilValue } from 'recoil';
 import { Box } from '@mui/joy';
+import { useLobbyPenguinClothes } from '@apps/Lobby/state';
 
 const categoryTabNames: {
   category: InventoryCategory;
@@ -93,7 +93,7 @@ export default function CustomizationBottom({
 }: {
   updateCloth: (piece: InventoryCategory, id: number) => void;
 }) {
-  const inventory = useRecoilValue(inventoryAtom);
+  const inventory = useLobbyPenguinClothes();
   return (
     <Tabs
       aria-label="Scrollable tabs"
@@ -123,7 +123,7 @@ export default function CustomizationBottom({
         >
           <CustomizationItems
             category={cat.category}
-            selected={inventory.selected[cat.category]}
+            selected={inventory[cat.category]}
             updateCloth={updateCloth}
           />
         </TabPanel>

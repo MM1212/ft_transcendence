@@ -3,7 +3,7 @@ import CloseIcon from '@components/icons/CloseIcon';
 import { IconButton, Sheet, Typography } from '@mui/joy';
 import { Divider } from '@mui/joy';
 import { Stack } from '@mui/joy';
-import { samplePendingFriends } from '@apps/Lobby/state/mockup';
+import { samplePendingFriends } from '@apps/Lobby_Old/state/mockup';
 import { UserAvatar } from '@components/AvatarWithStatus';
 
 export default function PendingFriendsGetter() {

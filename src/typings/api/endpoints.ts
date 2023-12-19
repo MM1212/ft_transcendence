@@ -9,7 +9,7 @@
 // }
 
 import { SseModel, AuthModel, ChatModel } from '@typings/api/models';
-import LobbyModel from '@typings/models/lobby';
+import DEPRECATED_LobbyModel from '@typings/models/lobby_old';
 import UsersModel from '@typings/models/users';
 import { EndpointMethods } from './base/endpoint';
 import NotificationsModel from '@typings/models/notifications';
@@ -18,7 +18,7 @@ import PongModel from '@typings/models/pong';
 export type All =
   | SseModel.Endpoints.All
   | AuthModel.Endpoints.All
-  | LobbyModel.Endpoints.All
+  | DEPRECATED_LobbyModel.Endpoints.All
   | ChatModel.Endpoints.All
   | UsersModel.Endpoints.All
   | NotificationsModel.Endpoints.All
