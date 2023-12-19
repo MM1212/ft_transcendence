@@ -9,10 +9,13 @@ import UserExtFriends from './ext/Friends';
 import { HttpError } from '@/helpers/decorators/httpError';
 import { AuthModel } from '@typings/api';
 import UserExtAlerts from './ext/Alerts';
+import UserExtCharacter from './ext/Character';
 
 class User extends CacheObserver<UsersModel.Models.IUser> {
   public readonly friends: UserExtFriends = new UserExtFriends(this);
   public readonly alerts: UserExtAlerts = new UserExtAlerts(this);
+  public readonly character: UserExtCharacter = new UserExtCharacter(this);
+
   constructor(
     data: UsersModel.Models.IUser,
     private readonly helpers: UserDependencies,

@@ -99,9 +99,12 @@ export default function LobbyView(): JSX.Element {
     };
   }, [socket, initLobby]);
 
+  const retainRef = React.useRef<() => void | null>(() => void 0);
   useRecoilTransactionObserver_UNSTABLE(({ snapshot }) => {
     currentSnapshot.current = snapshot;
     if (!lobbyRef.current) return;
+    retainRef.current?.();
+    retainRef.current = snapshot.retain();
     lobbyRef.current.snapshot = snapshot;
   });
 

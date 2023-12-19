@@ -16,6 +16,7 @@ const USER_EXT_QUERY = Prisma.validator<Prisma.UserSelect>()({
   blocked: {
     select: { id: true },
   },
+  character: true,
 });
 
 @Injectable()
@@ -105,7 +106,12 @@ export class Users {
   ): Promise<UsersModel.Models.IUser> {
     return this.formatUser(
       await this.prisma.user.create({
-        data,
+        data: {
+          ...data,
+          character: {
+            create: {},
+          },
+        },
         include: USER_EXT_QUERY,
       }),
     );

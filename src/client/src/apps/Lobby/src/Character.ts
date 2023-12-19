@@ -200,8 +200,8 @@ export class ClientCharacter extends Character {
       const layer = this.animatedLayers.find((layer) => layer.name === 'body');
       if (!layer) return;
       layer.onComplete = () => {
-        this.playAnimation(next ?? lastAnim ?? 'idle/down');
         layer.onComplete = undefined;
+        this.playAnimation(next ?? lastAnim ?? 'idle/down');
       };
     }
   }
@@ -211,12 +211,18 @@ export class ClientCharacter extends Character {
     sync: boolean = true
   ): Promise<boolean> {
     const lastAnim = this.animation;
-    if (!super.playAnimation(animation, force, sync)) return false;
+    if (!(await super.playAnimation(animation, force, sync))) return false;
 
     await Promise.all(
       this.animatedLayers.map(async (layer) => {
         layer.stop();
-        layer.textures = await this.getCurrentAnimSet(layer.name!);
+        try {
+          layer.textures = await this.getCurrentAnimSet(layer.name!);
+        } catch (e) {
+           // @ts-expect-error impl
+          console.error(`Failed to load animation ${animation} for layer ${layer.__category} and id ${layer.name}`);
+          console.error(e);
+        }
       })
     );
 

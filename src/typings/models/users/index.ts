@@ -8,6 +8,7 @@ import {
   SseModel,
 } from '@typings/api';
 import { GroupEnumValues } from '@typings/utils';
+import LobbyModel from '../lobby';
 
 namespace UsersModel {
   export namespace Models {
@@ -17,6 +18,10 @@ namespace UsersModel {
       Online,
       Busy,
       Away,
+    }
+    export interface ICharacter {
+      id: number;
+      clothes: Record<LobbyModel.Models.InventoryCategory, number>;
     }
     export interface IUser {
       id: number;
@@ -32,11 +37,12 @@ namespace UsersModel {
       chats: number[];
       tfa: AuthModel.Models.TFA;
       connected: boolean;
+      character: ICharacter;
     }
     export interface IUserInfo
       extends Omit<
         IUser,
-        'friends' | 'blocked' | 'chats' | 'storedStatus' | 'tfa' | 'connected'
+        'friends' | 'blocked' | 'chats' | 'storedStatus' | 'tfa' | 'connected' | 'character'
       > {}
   }
   export namespace DTO {

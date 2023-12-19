@@ -19,15 +19,15 @@ export abstract class Collision implements IClassLifeCycle {
     return (r << 24) | (g << 16) | (b << 8) | a;
   }
   isPositionValid(position: Vector2D): boolean {
-    if (IS_SERVER) {
-      console.log(
-        'collision check',
-        position.toObject(),
-        !!this.mapCollision,
-        this.mapCollision &&
-          new Vector2D(this.mapCollision?.width, this.mapCollision?.height)
-      );
-    }
+    // if (IS_SERVER) {
+    //   console.log(
+    //     'collision check',
+    //     position.toObject(),
+    //     !!this.mapCollision,
+    //     this.mapCollision &&
+    //       new Vector2D(this.mapCollision?.width, this.mapCollision?.height)
+    //   );
+    // }
     if (!this.mapCollision) return false;
     if (
       position.x < 0 ||

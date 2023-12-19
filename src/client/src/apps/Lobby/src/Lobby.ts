@@ -13,6 +13,7 @@ import { MutableSnapshot, Snapshot } from 'recoil';
 import { Socket } from 'socket.io-client';
 import LobbyModel from '@typings/models/lobby';
 import { Network } from './Network';
+import { enablePlayerInput } from '@apps/Lobby_Old/state';
 
 interface ExtendedSnapshot extends Snapshot {
   mutate: ClientLobby['mutateSnapshot'];
@@ -84,8 +85,9 @@ export class ClientLobby extends Lobby {
       emitter.removeEventListener(event, listener);
     });
     await super.destructor();
-    this.container.removeChild(this.app.view as HTMLCanvasElement);
-    this.app.destroy();
+    this.app.destroy(true, {
+      children: true,
+    });
   }
   async onMount(): Promise<void> {
     await this.setupBackground();
@@ -127,9 +129,14 @@ export class ClientLobby extends Lobby {
     this.app.render();
   }
 
+  private async isInputEnabled(): Promise<boolean> {
+    return (await this.snapshot?.getPromise(enablePlayerInput)) ?? false;
+  }
+
   private async handleMouseMove(ev: PIXI.FederatedMouseEvent): Promise<void> {
     const mainPlayer = this.mainPlayer;
     if (!mainPlayer) return;
+    if (!(await this.isInputEnabled())) return;
     await mainPlayer.handleMouseMove(ev);
   }
 
@@ -144,12 +151,16 @@ export class ClientLobby extends Lobby {
 
     const onKeyPress =
       (pressed: boolean) =>
-      (ev: KeyboardEvent): void => {
+      async (ev: KeyboardEvent): Promise<void> => {
         if (ev.repeat) return;
         const mainPlayer = this.mainPlayer;
         if (!mainPlayer) return;
-        if (pressed) mainPlayer.onKeyPress(ev.key.toLowerCase());
-        else mainPlayer.onKeyRelease(ev.key.toLowerCase());
+        if (!pressed) {
+          mainPlayer.onKeyRelease(ev.key.toLowerCase());
+          return;
+        }
+        if (!(await this.isInputEnabled())) return;
+        mainPlayer.onKeyPress(ev.key.toLowerCase());
       };
 
     const onKeyPressHandler = onKeyPress(true);
