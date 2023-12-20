@@ -24,12 +24,22 @@ class User extends CacheObserver<UsersModel.Models.IUser> {
     super(data);
   }
 
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   public get public(): UsersModel.Models.IUserInfo {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { friends, blocked, chats, storedStatus, tfa, connected, ...user } =
-      this.get();
+    const {
+      friends,
+      blocked,
+      chats,
+      storedStatus,
+      tfa,
+      connected,
+      character,
+      quests,
+      ...user
+    } = this.get();
     return user satisfies UsersModel.Models.IUserInfo;
   }
+  /* eslint-enable @typescript-eslint/no-unused-vars */
 
   // getters
   public get id(): number {
