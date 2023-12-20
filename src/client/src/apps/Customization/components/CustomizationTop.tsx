@@ -1,14 +1,14 @@
-import { Box, Divider, useTheme } from '@mui/joy';
+import { Box, CircularProgress, Divider, useTheme } from '@mui/joy';
 import { Stack } from '@mui/joy';
 import { Sheet } from '@mui/joy';
 import CustomizationBox from './CustomizationBox';
 import { Pixi, usePixiRenderer } from '@hooks/pixiRenderer';
-import React, { memo, useSyncExternalStore } from 'react';
+import React, { memo } from 'react';
 import { InventoryCategory, getClothIcon, penguinColorPalette } from '../state';
 import publicPath from '@utils/public';
 import { lobbyAtom, useLobbyPenguinClothes } from '@apps/Lobby/state';
 import TshirtVIcon from '@components/icons/TshirtVIcon';
-import { useRecoilCallback, useRecoilValue } from 'recoil';
+import { useRecoilCallback } from 'recoil';
 
 const inventCatLeft: InventoryCategory[] = ['head', 'body', 'feet'];
 
@@ -18,25 +18,16 @@ interface ICustTop {
   setPenguinBelly: React.Dispatch<React.SetStateAction<Pixi.Sprite | null>>;
   loadClothes: () => Promise<Record<InventoryCategory, Pixi.Sprite>>;
   updateCloth: (piece: InventoryCategory, id: number) => Promise<void>;
+  isLobbyLoading: boolean;
 }
 
 function _CustomizationRender({
   setPenguinBelly,
   loadClothes,
+  isLobbyLoading,
 }: Omit<ICustTop, 'updateCloth'>): JSX.Element {
   const paperRef = React.useRef<HTMLDivElement>(null);
   const theme = useTheme();
-  const lobby = useRecoilValue(lobbyAtom);
-  const isLobbyLoading = useSyncExternalStore<boolean>(
-    (cb) => {
-      if (!lobby) return () => void 0;
-      lobby.events.on('rerender', cb);
-      return () => {
-        lobby?.events.off('rerender', cb);
-      };
-    },
-    () => !!lobby?.loading
-  );
 
   const onAppMount = useRecoilCallback(
     (ctx) => async (app: Pixi.Application) => {
@@ -102,9 +93,22 @@ function _CustomizationRender({
           alignItems: 'center',
         }}
         ref={paperRef}
-      ></Box>
+      >
+        {isLobbyLoading && (
+          <CircularProgress
+            variant="plain"
+            style={{
+              position: 'absolute',
+              zIndex: 1,
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+            }}
+          />
+        )}
+      </Box>
     ),
-    [paperRef]
+    [isLobbyLoading]
   );
 }
 
@@ -114,6 +118,7 @@ export default function CustomizationTop({
   setPenguinBelly,
   loadClothes,
   updateCloth,
+  isLobbyLoading,
 }: ICustTop) {
   const clothes = useLobbyPenguinClothes();
 
@@ -138,6 +143,7 @@ export default function CustomizationTop({
                   : getClothIcon(clothes[inventCat])
               }
               onClick={() => updateCloth(inventCat, -1)}
+              loading={isLobbyLoading}
               disabled={clothes[inventCat] === -1}
             >
               <TshirtVIcon />
@@ -149,6 +155,7 @@ export default function CustomizationTop({
       <CustomizationRender
         setPenguinBelly={setPenguinBelly}
         loadClothes={loadClothes}
+        isLobbyLoading={isLobbyLoading}
       />
       <Divider orientation="vertical" />
       <Stack
@@ -171,6 +178,7 @@ export default function CustomizationTop({
               }
               onClick={() => updateCloth(inventCat, -1)}
               disabled={clothes[inventCat] === -1}
+              loading={isLobbyLoading}
             >
               <TshirtVIcon />
             </CustomizationBox>

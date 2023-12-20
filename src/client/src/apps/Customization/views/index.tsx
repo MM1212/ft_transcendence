@@ -15,6 +15,7 @@ import publicPath from '@utils/public';
 import { lobbyAtom } from '@apps/Lobby/state';
 import { INetPlayerClothesEvent } from '@apps/Lobby/src/Network';
 import LobbyModel from '@typings/models/lobby';
+import { useIsLobbyLoading } from '@apps/Lobby/hooks';
 
 export default function CustomizationPanel() {
   const [penguinBelly, setPenguinBelly] = React.useState<Pixi.Sprite | null>(
@@ -170,6 +171,8 @@ export default function CustomizationPanel() {
     };
   }, [lobby, onNetClothesChange]);
 
+  const isLobbyLoading = useIsLobbyLoading();
+
   return React.useMemo(
     () => (
       <Sheet
@@ -186,11 +189,12 @@ export default function CustomizationPanel() {
           setPenguinBelly={setPenguinBelly}
           loadClothes={loadClothes}
           updateCloth={updateCloth}
+          isLobbyLoading={isLobbyLoading}
         />
         <Divider orientation="horizontal" />
-        <CustomizationBottom updateCloth={updateCloth} />
+        <CustomizationBottom updateCloth={updateCloth} isLobbyLoading={isLobbyLoading} />
       </Sheet>
     ),
-    [loadClothes, updateCloth]
+    [loadClothes, updateCloth, isLobbyLoading]
   );
 }
