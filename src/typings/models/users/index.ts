@@ -9,6 +9,7 @@ import {
 } from '@typings/api';
 import { GroupEnumValues } from '@typings/utils';
 import LobbyModel from '../lobby';
+import QuestsModel from '../quests';
 
 namespace UsersModel {
   export namespace Models {
@@ -38,11 +39,12 @@ namespace UsersModel {
       tfa: AuthModel.Models.TFA;
       connected: boolean;
       character: ICharacter;
+      quests: QuestsModel.Models.IQuest[];
     }
     export interface IUserInfo
       extends Omit<
         IUser,
-        'friends' | 'blocked' | 'chats' | 'storedStatus' | 'tfa' | 'connected' | 'character'
+        'friends' | 'blocked' | 'chats' | 'storedStatus' | 'tfa' | 'connected' | 'character' | 'quests'
       > {}
   }
   export namespace DTO {
@@ -57,6 +59,8 @@ namespace UsersModel {
         storedStatus: Models.Status;
         tfaEnabled: boolean;
         tfaSecret: string | null;
+
+        quests: QuestsModel.DTO.DB.IQuest[];
       }
       export interface IUserInfo
         extends Omit<Models.IUserInfo, 'createdAt' | 'status'> {
