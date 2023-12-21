@@ -1,10 +1,10 @@
 import User from '../..';
 import UserExtBase from '../Base';
 import { CacheObserver } from '@shared/CacheObserver';
-import QuestsModel from '@typings/models/quests';
+import QuestsModel from '@typings/models/users/quests';
 
 class Quest<T extends Record<string, unknown> = Record<string, unknown>>
-  extends CacheObserver<QuestsModel.Models.IQuest<T>>
+  extends CacheObserver<QuestsModel.Models.IQuest<Record<string, unknown>>>
   implements Omit<QuestsModel.Models.IQuest<T>, 'userId'>
 {
   constructor(

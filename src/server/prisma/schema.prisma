@@ -160,6 +160,7 @@ model Item {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId    Int      @map("user_id")
 
+  @@unique([userId, type, name], name: "item_unique")
   @@index([userId, type, name])
   @@map("user_items")
 }
