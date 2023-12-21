@@ -5,7 +5,9 @@ import { Lobby } from './Lobby';
 import { IClassFeedbackLifeCycle, IClassLifeCycle } from './utils';
 import { IS_CLIENT } from './constants';
 
-export class Player implements LobbyModel.Models.IPlayer, IClassFeedbackLifeCycle {
+export class Player
+  implements LobbyModel.Models.IPlayer, IClassFeedbackLifeCycle
+{
   public character: Character;
   public readonly transform: Transform;
   constructor(
@@ -76,8 +78,7 @@ export class Player implements LobbyModel.Models.IPlayer, IClassFeedbackLifeCycl
   async onUpdate(delta: number): Promise<boolean> {
     await this.character.onUpdate(delta);
     const lastPosition = this.transform.position;
-    if (!await this.transform.onUpdate(delta))
-      return false;
+    if (!(await this.transform.onUpdate(delta))) return false;
     if (this.isNewPositionOutOfBounds()) {
       this.transform.position = lastPosition;
       return false;
@@ -89,7 +90,7 @@ export class Player implements LobbyModel.Models.IPlayer, IClassFeedbackLifeCycl
     return false;
   }
 
-  handleMovement(key: string, pressed: boolean): void {
+  handleMovement(key: string, pressed: boolean): boolean {
     switch (key) {
       case 'w': {
         this.transform.direction.y = pressed ? -1 : 0;
@@ -108,12 +109,12 @@ export class Player implements LobbyModel.Models.IPlayer, IClassFeedbackLifeCycl
         break;
       }
       default:
-        return;
+        return false;
     }
     if (this.transform.direction.length() !== 0) this.transform.speed = 3.5;
     else this.transform.speed = 0;
-    if (IS_CLIENT && this.isMain)
-      this.lobby.events.emit('self:movement', this);
+    if (IS_CLIENT && this.isMain) this.lobby.events.emit('self:movement', this);
+    return true;
   }
   async handleNewAnimation(): Promise<void> {
     let type: 'walk' | 'idle' = 'idle',
@@ -141,12 +142,12 @@ export class Player implements LobbyModel.Models.IPlayer, IClassFeedbackLifeCycl
     await this.character.playAnimation(`${type}/${dir}`);
   }
   async onKeyPress(key: string): Promise<void> {
-    this.handleMovement(key, true);
+    if (!this.handleMovement(key, true)) return;
     await this.handleNewAnimation();
   }
   async onKeyRelease(key: string): Promise<void> {
     if (await this.handleAction(key)) return;
-    this.handleMovement(key, false);
+    if (!this.handleMovement(key, false)) return;
     await this.handleNewAnimation();
   }
 }

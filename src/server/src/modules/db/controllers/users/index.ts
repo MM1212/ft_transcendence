@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { PrismaService } from '@/modules/db/prisma';
 import UsersModel from '@typings/models/users';
 import { Prisma } from '@prisma/client';
+import { UserQuests } from './quests';
 
 const USER_EXT_QUERY = Prisma.validator<Prisma.UserSelect>()({
   chats: {
@@ -16,11 +17,16 @@ const USER_EXT_QUERY = Prisma.validator<Prisma.UserSelect>()({
   blocked: {
     select: { id: true },
   },
+  character: true,
+  quests: true,
 });
 
 @Injectable()
 export class Users {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Inject(forwardRef(() => UserQuests)) public readonly quests: UserQuests,
+  ) {}
 
   public formatUser<
     T extends UsersModel.DTO.DB.IUser | null,
@@ -47,6 +53,12 @@ export class Users {
     formatted.createdAt = user.createdAt.getTime();
     formatted.status = UsersModel.Models.Status.Offline;
     formatted.connected = false;
+    formatted.quests = user.quests.map((quest) => ({
+      ...quest,
+      createdAt: quest.createdAt.getTime(),
+      updatedAt: quest.updatedAt.getTime(),
+      finishedAt: quest.finishedAt?.getTime(),
+    }));
     return formatted as unknown as U;
   }
 
@@ -105,7 +117,12 @@ export class Users {
   ): Promise<UsersModel.Models.IUser> {
     return this.formatUser(
       await this.prisma.user.create({
-        data,
+        data: {
+          ...data,
+          character: {
+            create: {},
+          },
+        },
         include: USER_EXT_QUERY,
       }),
     );

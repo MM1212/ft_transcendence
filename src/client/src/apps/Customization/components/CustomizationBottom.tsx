@@ -50,11 +50,13 @@ const categoryTabNames: {
 function CustomizationItems({
   category,
   selected,
-  updateCloth
+  updateCloth,
+  disabled = false,
 }: {
   category: InventoryCategory;
   selected: number;
   updateCloth: (piece: InventoryCategory, id: number) => void;
+  disabled?: boolean;
 }) {
   const items = useRecoilValue(inventoryBoughtCategoryItems(category));
   return (
@@ -81,6 +83,7 @@ function CustomizationItems({
             imageUrl={getClothIcon(clothId)}
             flex={0.1}
             onClick={() => updateCloth(category, clothId)}
+            disabled={disabled}
           />
         </Box>
       ))}
@@ -90,8 +93,11 @@ function CustomizationItems({
 
 export default function CustomizationBottom({
   updateCloth,
+  isLobbyLoading
+
 }: {
   updateCloth: (piece: InventoryCategory, id: number) => void;
+  isLobbyLoading: boolean;
 }) {
   const inventory = useLobbyPenguinClothes();
   return (
@@ -125,6 +131,7 @@ export default function CustomizationBottom({
             category={cat.category}
             selected={inventory[cat.category]}
             updateCloth={updateCloth}
+            disabled={isLobbyLoading}
           />
         </TabPanel>
       ))}

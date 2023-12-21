@@ -123,15 +123,7 @@ export class ServerLobby extends Lobby {
     } else {
       // TODO: fetch char data from db
       const CHARACTER_DATA: LobbyModel.Models.ICharacter = {
-        clothes: {
-          color: 2,
-          body: -1,
-          feet: -1,
-          head: -1,
-          hand: -1,
-          neck: -1,
-          face: -1,
-        },
+        clothes: user.character.clothes,
         animation: 'idle/down',
       };
       await this.addPlayer(
@@ -193,6 +185,7 @@ export class ServerLobby extends Lobby {
   ) {
     const player = this.getPlayer(user);
     if (!player) return;
+    await user.character.updateClothes(changed);
     await player.character.setClothes({
       ...player.character.clothes,
       ...changed,

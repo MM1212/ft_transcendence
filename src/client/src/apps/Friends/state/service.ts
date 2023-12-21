@@ -5,13 +5,16 @@ import friendsState from '.';
 
 export const useFriendsService = () => {
   const onFriendsUpdate = useRecoilCallback(
-    ({ set }) =>
-      (ev: UsersModel.Sse.UserFriendsUpdatedEvent) => {
-        const { data } = ev;
-        console.log('friends update', data);
-        
-        if (data.friends && data.friends.length)
-          set(friendsState.friends, (prev) => {
+    (ctx) => (ev: UsersModel.Sse.UserFriendsUpdatedEvent) => {
+      const { data } = ev;
+      console.log('friends update', data);
+
+      if (data.friends && data.friends.length) {
+        const { isActive } = ctx.snapshot.getInfo_UNSTABLE(
+          friendsState.friends
+        );
+        if (isActive)
+          ctx.set(friendsState.friends, (prev) => {
             const newFriends = [...prev];
             data.friends?.forEach((e) => {
               switch (e.type) {
@@ -25,8 +28,13 @@ export const useFriendsService = () => {
             });
             return newFriends;
           });
-        if (data.blocked && data.blocked.length)
-          set(friendsState.blocked, (prev) => {
+      }
+      if (data.blocked && data.blocked.length) {
+        const { isActive } = ctx.snapshot.getInfo_UNSTABLE(
+          friendsState.blocked
+        );
+        if (isActive)
+          ctx.set(friendsState.blocked, (prev) => {
             const newBlocked = [...prev];
             data.blocked?.forEach((e) => {
               switch (e.type) {
@@ -41,6 +49,7 @@ export const useFriendsService = () => {
             return newBlocked;
           });
       }
+    }
   );
 
   useSseEvent<UsersModel.Sse.UserFriendsUpdatedEvent>(

@@ -42,7 +42,7 @@ export class ServerPlayer extends Player {
     }
     if (performance.now() - this.lastPositionSync > 1000) {
       this.lastPositionSync = performance.now();
-      this.broadcast('player:move', {
+      this.broadcastSync('player:move', {
         id: this.id,
         transform: this.transform.toObject(),
       });
@@ -65,17 +65,15 @@ export class ServerPlayer extends Player {
     ...args: any[]
   ): Promise<void> {
     if (!Array.isArray(targets)) targets = [targets];
-    console.log(
-      'broadcastTo',
-      event,
-      targets.map((sock) => sock.id),
-    );
     await Promise.all(targets.map((sock) => sock.emitWithAck(event, ...args)));
   }
   async broadcast(event: string, ...args: any[]): Promise<void> {
     await Promise.all(
       this.cons.map((sock) => sock.emitWithAck(event, ...args)),
     );
+  }
+  broadcastSync(event: string, ...args: any[]): void {
+    this.cons.forEach((sock) => sock.emit(event, ...args));
   }
   public async addConnection(sock: Socket): Promise<void> {
     this.cons.push(sock);

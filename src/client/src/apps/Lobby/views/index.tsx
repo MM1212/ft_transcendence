@@ -1,5 +1,5 @@
 import ChatBox from '@apps/Lobby_Old/components/InGameChat';
-import React, { useSyncExternalStore } from 'react';
+import React from 'react';
 import { ClientLobby } from '../src/Lobby';
 import {
   Snapshot,
@@ -11,6 +11,7 @@ import { buildTunnelEndpoint } from '@hooks/tunnel';
 import { CircularProgress, Modal } from '@mui/joy';
 import LobbyModel from '@typings/models/lobby';
 import { lobbyAtom } from '../state';
+import { useIsLobbyLoading } from '../hooks';
 
 export default function LobbyView(): JSX.Element {
   const ref = React.useRef<HTMLDivElement>(null);
@@ -65,16 +66,7 @@ export default function LobbyView(): JSX.Element {
     []
   );
 
-  const isLobbyLoading = useSyncExternalStore<boolean>(
-    (cb) => {
-      if (!lobbyRef.current) return () => void 0;
-      lobbyRef.current.events.on('rerender', cb);
-      return () => {
-        lobbyRef.current?.events.off('rerender', cb);
-      };
-    },
-    () => !!lobbyRef.current?.loading
-  );
+  const isLobbyLoading = useIsLobbyLoading();
 
   const initLobby = useRecoilCallback(
     (ctx) => () => {
@@ -99,9 +91,12 @@ export default function LobbyView(): JSX.Element {
     };
   }, [socket, initLobby]);
 
+  const retainRef = React.useRef<() => void | null>(() => void 0);
   useRecoilTransactionObserver_UNSTABLE(({ snapshot }) => {
     currentSnapshot.current = snapshot;
     if (!lobbyRef.current) return;
+    retainRef.current?.();
+    retainRef.current = snapshot.retain();
     lobbyRef.current.snapshot = snapshot;
   });
 

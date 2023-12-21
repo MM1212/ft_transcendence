@@ -53,8 +53,7 @@ export class ClientPlayer extends Player {
   }
 
   async onUpdate(delta: number): Promise<boolean> {
-    if (!await super.onUpdate(delta))
-      return false;
+    if (!(await super.onUpdate(delta))) return false;
     this.updateContainer();
     return true;
   }
@@ -114,11 +113,17 @@ export class ClientPlayer extends Player {
 
   async handleAction(key: string): Promise<boolean> {
     switch (key) {
-      case 't':
+      case 'f':
         await this.throwSnowball();
         return true;
-      case 'k':
+      case 'g':
         await this.dance();
+        return true;
+      case 'h':
+        await this.seat();
+        return true;
+      case 'j':
+        await this.wave();
         return true;
       default:
         return false;
@@ -152,5 +157,15 @@ export class ClientPlayer extends Player {
     await this.character.playAnimation(
       `snowball/${throwDirection}` as LobbyModel.Models.IPenguinBaseAnimationsTypes
     );
+  }
+  async seat(): Promise<void> {
+    if (this.character.animation.startsWith('seat')) return;
+    this.transform.speed = 0;
+    await this.character.playAnimation(`seat/${this.direction}`);
+  }
+  async wave(): Promise<void> {
+    if (!this.isIdle) return;
+    this.transform.speed = 0;
+    await this.character.playAnimation(`wave`);
   }
 }

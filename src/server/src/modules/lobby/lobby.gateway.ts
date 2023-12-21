@@ -70,6 +70,6 @@ export class LobbyGateway
     clothes: Record<LobbyModel.Models.InventoryCategory, number>,
   ) {
     // console.log('lobby:net:player:clothes', client.data.user.id, clothes);
-    this.service.onPlayerClothes(client, clothes);
+    await this.service.onPlayerClothes(client, clothes);
   }
 }
