@@ -10,7 +10,7 @@ namespace QuestsModel {
       updatedAt: number;
       finishedAt?: number;
       completed: boolean;
-      meta: Record<string, unknown>;
+      meta: T;
     }
   }
   export namespace DTO {
