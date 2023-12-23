@@ -138,7 +138,7 @@ export class AuthService {
       uSession.session.auth.updateNewToken(resp.data);
       if (user.get('tfa.enabled')) return this.handleTFA(uSession);
       uSession.session.sync().loggedIn = true;
-      console.log(`[Auth] [42] Logged in as `, user.public);
+      console.log(`[Auth] [42] Logged in as `, user.public, resp.data.access_token);
       return { url: `${this.config.get<string>('FRONTEND_URL')}` };
     } catch (e) {
       console.error(e);

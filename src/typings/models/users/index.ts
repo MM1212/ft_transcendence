@@ -8,6 +8,9 @@ import {
   SseModel,
 } from '@typings/api';
 import { GroupEnumValues } from '@typings/utils';
+import LobbyModel from '../lobby';
+import QuestsModel from './quests';
+import InventoryModel from './inventory';
 
 namespace UsersModel {
   export namespace Models {
@@ -17,6 +20,10 @@ namespace UsersModel {
       Online,
       Busy,
       Away,
+    }
+    export interface ICharacter {
+      id: number;
+      clothes: Record<LobbyModel.Models.InventoryCategory, number>;
     }
     export interface IUser {
       id: number;
@@ -32,11 +39,14 @@ namespace UsersModel {
       chats: number[];
       tfa: AuthModel.Models.TFA;
       connected: boolean;
+      character: ICharacter;
+      quests: QuestsModel.Models.IQuest[];
+      inventory: InventoryModel.Models.IItem[];
     }
     export interface IUserInfo
       extends Omit<
         IUser,
-        'friends' | 'blocked' | 'chats' | 'storedStatus' | 'tfa' | 'connected'
+        'friends' | 'blocked' | 'chats' | 'storedStatus' | 'tfa' | 'connected' | 'character' | 'quests' | 'inventory'
       > {}
   }
   export namespace DTO {
@@ -51,6 +61,9 @@ namespace UsersModel {
         storedStatus: Models.Status;
         tfaEnabled: boolean;
         tfaSecret: string | null;
+
+        quests: QuestsModel.DTO.DB.IQuest[];
+        inventory: InventoryModel.DTO.DB.IItem[];
       }
       export interface IUserInfo
         extends Omit<Models.IUserInfo, 'createdAt' | 'status'> {

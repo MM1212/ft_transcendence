@@ -111,7 +111,42 @@ export default class Vector2D {
     return { x: this.x, y: this.y };
   }
 
+  get NaN(): boolean {
+    return isNaN(this.x) || isNaN(this.y);
+  }
+
+  floor(): Vector2D {
+    return new Vector2D(Math.floor(this.x), Math.floor(this.y));
+  }
+  ceil(): Vector2D {
+    return new Vector2D(Math.ceil(this.x), Math.ceil(this.y));
+  }
+  round(decimals: number = 3): Vector2D {
+    const scale = Math.pow(10, decimals);
+    return new Vector2D(
+      Math.round(this.x * scale) / scale,
+      Math.round(this.y * scale) / scale
+    );
+  }
+
   static average(...vectors: Vector2D[]): Vector2D {
     return vectors.reduce((a, b) => a.add(b)).divide(vectors.length);
+  }
+  static distance(a: Vector2D, b: Vector2D): number {
+    return a.distance(b);
+  }
+
+  // variants
+  public get width(): number {
+    return this.x;
+  }
+  public get height(): number {
+    return this.y;
+  }
+  public get left(): number {
+    return this.x;
+  }
+  public get top(): number {
+    return this.y;
   }
 }
