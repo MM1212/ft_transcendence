@@ -101,6 +101,9 @@ const theme = extendTheme({
     lg: 500,
     xl: 600,
   },
+  fontSize: {
+    xs: '0.75rem',
+  },
   components: {
     JoyButton: {
       styleOverrides: {
@@ -116,13 +119,16 @@ const theme = extendTheme({
     },
     JoyIconButton: {
       styleOverrides: {
-        root: ({ theme }) => ({
+        root: ({ theme, ownerState }) => ({
           transition: theme.transitions.create(
             ['background-color', 'transform', 'box-shadow', 'border'],
             {
               duration: theme.transitions.duration.shortest,
             }
           ),
+          ...(ownerState.size === 'xs' && {
+            padding: theme.spacing(0.5),
+          })
         }),
       },
     },
@@ -146,11 +152,7 @@ const theme = extendTheme({
         placement: 'top',
         arrow: true,
         variant: 'outlined',
-      },
-      styleOverrides: {
-        root: {
-          // boxShadow: 'none',
-        },
+        size: 'sm',
       },
     },
     JoyMenuItem: {

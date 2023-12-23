@@ -6,7 +6,7 @@ import {
 import { PongLobby, PongLobbyParticipant } from './ponglobby';
 import { PongLobbyDependencies } from './ponglobby/dependencies';
 import { DbService } from '../db';
-import { UsersService } from '../users/users.service';
+import { UsersService } from '../users/services/users.service';
 import PongModel from '@typings/models/pong';
 import { ChatModel, EndpointData } from '@typings/api';
 import User from '../users/user';

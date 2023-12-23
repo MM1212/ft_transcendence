@@ -1,7 +1,7 @@
 import { DbService } from '@/modules/db';
 import { SseService } from '@/modules/sse/sse.service';
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
-import { UsersService } from '../users.service';
+import { UsersService } from '../services/users.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()

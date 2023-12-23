@@ -7,8 +7,10 @@ namespace NotificationsModel {
       Permanent = 'PERMANENT',
       Temporary = 'TEMPORARY',
     }
-    export enum Tags {}
-    export interface Notification<T = unknown> {
+    export enum Tags {
+      UserFriendsRequest = 'user.friends.request',
+    }
+    export interface INotification<T = unknown> {
       id: number;
       title: string;
       message: string;
@@ -17,19 +19,29 @@ namespace NotificationsModel {
       data: T;
       read: boolean;
       createdAt: number;
+      userId: number;
+      lifetime: number; // in miliseconds, 0 = permanent
     }
   }
   export namespace DTO {
     export namespace DB {
       export interface Notification
-        extends Omit<Models.Notification, 'data' | 'createdAt'> {
+        extends Omit<Models.INotification, 'data' | 'createdAt'> {
         data: any;
         createdAt: Date;
+      }
+      export interface CreateNotification
+        extends Pick<
+          NotificationsModel.Models.INotification,
+          'title' | 'message' | 'type' | 'lifetime'
+        > {
+        tag: string;
+        data: any;
       }
     }
 
     export interface GetParams extends Record<string, unknown> {
-      id: number;
+      notifId: number;
     }
 
     export interface DoActionParams extends GetParams {
@@ -37,6 +49,22 @@ namespace NotificationsModel {
     }
 
     export interface DoAction extends Record<string, unknown> {}
+
+    export interface CreateNotification
+      extends Pick<
+        NotificationsModel.Models.INotification,
+        'title' | 'message' | 'type' | 'tag'
+      > {
+      data?: Record<string, unknown>;
+      lifetime?: number;
+    }
+
+    export type UpdateNotification = Partial<
+      Omit<NotificationsModel.Models.INotification, 'id' | 'userId'>
+    > & {
+      id: number;
+      deleted?: boolean;
+    };
 
     export interface Alert {
       variant?: 'solid' | 'soft' | 'outlined' | 'plain';
@@ -49,24 +77,16 @@ namespace NotificationsModel {
   }
   export namespace Endpoints {
     export enum Targets {
-      GetAll = '/notifications',
-      GetOne = '/notifications/:id',
-      DeleteOne = '/notifications/:id',
-      DeleteAll = '/notifications',
-      DoAction = '/notifications/:id/action/:action',
-      MarkAllAsRead = '/notifications/read',
+      GetAll = '/me/notifications',
+      DeleteOne = '/me/notifications/:notifId',
+      DeleteAll = '/me/notifications',
+      MarkAsRead = '/me/notifications/:notifId/read',
+      MarkAllAsRead = '/me/notifications/read',
     }
     export type All = GroupEnumValues<Targets>;
 
     export interface GetAll
-      extends GetEndpoint<
-        Targets.GetAll,
-        Models.Notification[],
-        DTO.GetParams
-      > {}
-
-    export interface GetOne
-      extends GetEndpoint<Targets.GetOne, Models.Notification, DTO.GetParams> {}
+      extends GetEndpoint<Targets.GetAll, Models.INotification[]> {}
 
     export interface DeleteOne
       extends Endpoint<
@@ -85,13 +105,13 @@ namespace NotificationsModel {
         undefined
       > {}
 
-    export interface DoAction
+    export interface MarkAsRead
       extends Endpoint<
         EndpointMethods.Post,
-        Targets.DoAction,
+        Targets.MarkAsRead,
         undefined,
-        DTO.DoAction,
-        DTO.DoActionParams
+        { read: boolean },
+        DTO.GetParams
       > {}
 
     export interface MarkAllAsRead
@@ -105,24 +125,55 @@ namespace NotificationsModel {
     export interface Registry {
       [EndpointMethods.Get]: {
         [Targets.GetAll]: GetAll;
-        [Targets.GetOne]: GetOne;
       };
       [EndpointMethods.Delete]: {
         [Targets.DeleteOne]: DeleteOne;
         [Targets.DeleteAll]: DeleteAll;
       };
+      [EndpointMethods.Put]: {
+        [Targets.MarkAsRead]: MarkAsRead;
+      };
       [EndpointMethods.Post]: {
-        [Targets.DoAction]: DoAction;
+        [Targets.MarkAllAsRead]: MarkAllAsRead;
       };
     }
   }
+
   export namespace Sse {
     export enum Events {
       SendAlert = 'notifications.send-alert',
+      NewNotification = 'notifications.new-notification',
+      UpdateNotification = 'notifications.update-notification',
+      SyncNotifications = 'notifications.sync-notifications',
+      DeleteNotifications = 'notifications.delete-notifications',
     }
 
     export interface SendAlertEvent
       extends SseModel.Models.Event<DTO.Alert, Events.SendAlert> {}
+
+    export interface NewNotificationEvent
+      extends SseModel.Models.Event<
+        Models.INotification,
+        Events.NewNotification
+      > {}
+
+    export interface SyncNotificationsEvent
+      extends SseModel.Models.Event<
+        Models.INotification[],
+        Events.SyncNotifications
+      > {}
+
+    export interface UpdateNotificationEvent
+      extends SseModel.Models.Event<
+        DTO.UpdateNotification,
+        Events.UpdateNotification
+      > {}
+
+    export interface DeleteNotificationsEvent
+      extends SseModel.Models.Event<
+        { ids: number[] },
+        Events.DeleteNotifications
+      > {}
   }
 }
 

@@ -7,7 +7,7 @@ import {
 import Chat from './chat';
 import { ChatDependencies } from './chat/dependencies';
 import { DbService } from '../db';
-import { UsersService } from '../users/users.service';
+import { UsersService } from '../users/services/users.service';
 import User from '../users/user';
 import ChatsModel from '@typings/models/chat';
 import { ChatModel, EndpointData } from '@typings/api';

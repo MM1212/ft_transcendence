@@ -9,7 +9,7 @@ import * as API from '@typings/api';
 import { Auth } from '@typings/auth';
 import { ConfigService } from '@nestjs/config';
 import { IntraAPI } from '@/helpers/Intra';
-import { UsersService } from '@/modules/users/users.service';
+import { UsersService } from '@/modules/users/services/users.service';
 import { HttpError } from '@/helpers/decorators/httpError';
 import UsersModel from '@typings/models/users';
 import { UserExtWithSession } from '@/modules/users/user';

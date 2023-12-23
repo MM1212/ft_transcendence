@@ -137,6 +137,7 @@ model Notification {
   data      Json              @default("{}")
   read      Boolean           @default(false)
   createdAt DateTime          @default(now()) @map("created_at")
+  lifetime  Int               @default(0)
 
   @@index([userId, tag])
   @@map("notifications")

@@ -134,7 +134,7 @@ function UserProfile({
         <Divider />
         <UserAchievements />
         <Divider />
-        <UserMatchHistory />
+        <UserMatchHistory users={[]} />
       </Stack>
     </Sheet>
   );

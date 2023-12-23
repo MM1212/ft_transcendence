@@ -2,6 +2,7 @@ import UsersModel from '@typings/models/users';
 import User from '../..';
 import UserExtBase from '../Base';
 import { HttpError } from '@/helpers/decorators/httpError';
+import NotificationsModel from '@typings/models/notifications';
 
 class UserExtFriends extends UserExtBase {
   constructor(user: User) {
@@ -34,13 +35,35 @@ class UserExtFriends extends UserExtBase {
   async add(id: number): Promise<void> {
     const target = await this.helpers.usersService.get(id);
     if (!target) throw new HttpError('User not found');
-    if (this.user.id === target.id) throw new HttpError('You cannot add yourself');
+    if (this.user.id === target.id)
+      throw new HttpError('You cannot add yourself');
     if (this.is(target.id)) throw new HttpError('User already added');
     if (this.isBlocked(target.id)) throw new HttpError('User is blocked');
     if (target.friends.isBlocked(this.user.id))
       throw new HttpError('User has blocked you');
     // temporarly call acceptFriendRequest
-    await this.acceptFriendRequest(id);
+    // await this.acceptFriendRequest(id);
+    await this.user.notifications.create({
+      tag: NotificationsModel.Models.Tags.UserFriendsRequest,
+      title: 'Friend request',
+      message: `Friend request sent to ${target.nickname}`,
+      type: NotificationsModel.Models.Types.Permanent,
+      data: {
+        targetId: target.id,
+        sender: true,
+      },
+    });
+    await target.notifications.create({
+      tag: NotificationsModel.Models.Tags.UserFriendsRequest,
+      title: 'Friend request',
+      message: `sent you a friend request`,
+      type: NotificationsModel.Models.Types.Permanent,
+      data: {
+        senderId: this.user.id,
+        status: 'pending',
+        name: this.user.nickname,
+      },
+    });
   }
   async addByName(name: string): Promise<void> {
     const target = await this.helpers.usersService.getByNickname(name);
@@ -99,7 +122,8 @@ class UserExtFriends extends UserExtBase {
     if (!target) throw new HttpError('User not found');
     if (this.user.id === target.id)
       throw new HttpError('You cannot block yourself');
-    if (this.blockedIds.includes(id)) throw new HttpError('User already blocked');
+    if (this.blockedIds.includes(id))
+      throw new HttpError('User already blocked');
     if (this.ids.includes(id)) await this.remove(id);
     await this.helpers.db.users.update(this.user.id, {
       blocked: {

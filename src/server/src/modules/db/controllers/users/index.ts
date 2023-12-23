@@ -4,6 +4,7 @@ import UsersModel from '@typings/models/users';
 import { Prisma } from '@prisma/client';
 import { UserQuests } from './quests';
 import { UserInventory } from './inventory';
+import { UserNotifications } from './notifications';
 
 const USER_EXT_QUERY = Prisma.validator<Prisma.UserSelect>()({
   chats: {
@@ -21,6 +22,7 @@ const USER_EXT_QUERY = Prisma.validator<Prisma.UserSelect>()({
   character: true,
   quests: true,
   inventory: true,
+  notifications: true,
 });
 
 @Injectable()
@@ -28,7 +30,10 @@ export class Users {
   constructor(
     private readonly prisma: PrismaService,
     @Inject(forwardRef(() => UserQuests)) public readonly quests: UserQuests,
-    @Inject(forwardRef(() => UserInventory)) public readonly inventory: UserInventory,
+    @Inject(forwardRef(() => UserInventory))
+    public readonly inventory: UserInventory,
+    @Inject(forwardRef(() => UserNotifications))
+    public readonly notifications: UserNotifications,
   ) {}
 
   public formatUser<
@@ -65,6 +70,10 @@ export class Users {
     formatted.inventory = user.inventory.map((item) => ({
       ...item,
       createdAt: item.createdAt.getTime(),
+    }));
+    formatted.notifications = user.notifications.map((notification) => ({
+      ...notification,
+      createdAt: notification.createdAt.getTime(),
     }));
     return formatted as unknown as U;
   }

@@ -6,7 +6,7 @@ import {
   ParseIntPipe,
   PipeTransform,
 } from '@nestjs/common';
-import { UsersService } from '../users.service';
+import { UsersService } from '../services/users.service';
 import User from '../user';
 import { HttpError } from '@/helpers/decorators/httpError';
 

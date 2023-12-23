@@ -3,7 +3,7 @@ import NotificationsModel from '@typings/models/notifications';
 import React from 'react';
 import notifications, { NotificationProps } from './hooks';
 
-export const useNotificationsService = () => {
+export const useAlertsService = () => {
   const onNewAlert = React.useCallback(
     (ev: NotificationsModel.Sse.SendAlertEvent) => {
       const { data } = ev;

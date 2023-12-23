@@ -1,5 +1,6 @@
 import ChatMessagesLoadingView from '@apps/Chat/views/loading';
 import ChatMessagesSidebarDecoration from '@apps/Chat/views/sidebar';
+import InboxUnreadSidebarDecoration from '@apps/Inbox/views/sidebar';
 import AccountGroupIcon from '@components/icons/AccountGroupIcon';
 import AccountIcon from '@components/icons/AccountIcon';
 import AccountSearchIcon from '@components/icons/AccountSearchIcon';
@@ -157,7 +158,8 @@ export const endRoutes: ISidebarRoute[] = [
     path: '/inbox',
     icon: <InboxIcon />,
     exact: false,
-    // Component: React.lazy(() => import('@apps/Inbox/views')),
+    Component: React.lazy(() => import('@apps/Inbox/views')),
+    endDecoration: <InboxUnreadSidebarDecoration />,
   },
   {
     label: 'Settings',

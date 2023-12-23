@@ -3,7 +3,6 @@ import React from 'react';
 import { RecoilRoot } from 'recoil';
 import theme from './theme';
 import { SWRConfig } from 'swr';
-import { Router } from 'wouter';
 import StateMounter from '@state/mounter';
 import NotificationsProvider from '@lib/notifications/Provider';
 import moment from 'moment';

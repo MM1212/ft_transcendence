@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { HTTPContext } from 'typings/http';
-import { UsersService } from '@/modules/users/users.service';
+import { UsersService } from '@/modules/users/services/users.service';
 import { IAuthSession } from '@typings/auth/session';
 
 @Injectable()
