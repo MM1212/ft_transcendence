@@ -1,111 +1,114 @@
 import LobbyGameTypography from "@apps/GameLobby/components/LobbyGameTypography";
-import { Box, Divider, Stack, Typography } from "@mui/joy";
+import { Box, Divider, Stack, Tooltip, Typography } from "@mui/joy";
 import PlayerStatsRow from "./PlayerStatsRow";
 import CurrencyTwdIcon from "@components/icons/CurrencyTwdIcon";
 import SoccerIcon from "@components/icons/SoccerIcon";
+import { randomInt } from "@utils/random";
+import FireIcon from "@components/icons/FireIcon";
+import React, { ReactElement } from "react";
+import ShimmerIcon from "@components/icons/ShimmerIcon";
+import WalletIcon from "@components/icons/WalletIcon";
+import WallIcon from "@components/icons/WallIcon";
+import CrownCircleOutlineIcon from "@components/icons/CrownCircleOutlineIcon";
+import StarFourPointsIcon from "@components/icons/StarFourPointsIcon";
+
+
 
 export default function MatchHistoryScoreBoard() {
-    const teams = [ 
-        "Team 1", "Team 2"
-    ]
-  return (
-    <>
-    {teams.map((team, index) => (
-        <>
+  const teams = ["Team 1", "Team 2"];
+   
+
+
+  const iconMapping: ReactElement[] = [
+    <WallIcon key={0} />,
+    <ShimmerIcon key={1} />,
+    <FireIcon key={2} />,
+    <SoccerIcon key={3} />,
+    <CurrencyTwdIcon key={4} />,
+    <StarFourPointsIcon  key={5} />,
+  ];
+
+  const labelMapping: string[] = ["Bonces on your paddle", "Most Bounces", "Special Power", "Goals Scored", "Gold", "Player Score"];
+
+  function GetIconStats({
+    icon,
+    gridColumnStart,
+    nbGols,
+    team,
+    message,
+  }: {
+    icon: ReactElement;
+    gridColumnStart: number;
+    nbGols: number;
+    team: string;
+    message: string;
+  }) {
+    return (
+      <Box
+        style={{
+          justifySelf: "right",
+          display: "grid",
+          gridColumnStart: gridColumnStart,
+        }}
+      >
         <Stack
-          sx={{
-            display: "grid",
-            gridTemplateColumns: "5fr 7fr 4fr 4fr",
-            justifyItems: "left",
-            p: 1,
-            borderRadius: "md",
-            justifyContent: "space-between",
-          }}
-        >
-          <Typography
-            style={{ display: "grid", gridColumnStart: "1", alignSelf: "left" }}
-            textColor= {team === "Team 1" ? "primary.300" : "danger.400"}
-          >
-            {team}
-          </Typography>
-          <Box
-            style={{
-              justifySelf: "center",
-              alignSelf: "center",
-              display: "grid",
-              gridColumnStart: "2",
-            }}
-          >
-            <Stack
-              gap={1.5}
-              style={{
-                display: "flex",
-                flexDirection: "row",
-              }}
-            >
-              <Typography textColor={"primary.300"}>Paddle</Typography>
-            </Stack>
-          </Box>
-          <Box
-            style={{  justifySelf: "right", display: "grid", gridColumnStart: "3"}}
-          >
-            <Stack
-              gap={1.5}
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-              }}
-            >
-              <Typography textColor= {team === "Team 1" ? "primary.300" : "danger.400"}>9</Typography>
-              <SoccerIcon />
-            </Stack>
-          </Box>
-          <Box
-            style={{ justifySelf: "right", display: "grid", gridColumnStart: "4", alignSelf: "left" }}
-          >
-            <Stack
-              gap={1.5}
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-              }}
-            >
-              <Typography textColor= {team === "Team 1" ? "primary.300" : "danger.400"}>30,468 </Typography>
-              <CurrencyTwdIcon />
-            </Stack>
-          </Box>
-        </Stack>
-        <PlayerStatsRow id={12} />
-        <PlayerStatsRow id={3} />
-        <Divider />
-        </>
-        ))}
-        {/* <Stack
+          gap={1.5}
           style={{
             display: "flex",
             flexDirection: "row",
-            justifyContent: "space-between",
             alignItems: "center",
           }}
         >
-          <Typography textColor={"danger.400"}>Team 2</Typography>
-          <Typography textColor={"danger.400"}>Paddle</Typography>
-          <Box
-            gap={1.5}
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
+          <Typography
+            textColor={team === "Team 1" ? "primary.300" : "danger.400"}
+          >
+            {nbGols}
+          </Typography>
+          <Tooltip title={message} >{icon}</Tooltip>
+        </Stack>
+      </Box>
+    );
+  }
+  return (
+    <>
+      {teams.map((team, index) => (
+        <>
+          <Stack
+            sx={{
+              display: "grid",
+              gridTemplateColumns: "5fr 7fr 4fr 4fr 4fr 4fr 4fr",
+              justifyItems: "left",
+              p: 1,
+              borderRadius: "md",
+              justifyContent: "space-between",
             }}
           >
-            <Typography textColor={"danger.400"}>20,268 </Typography>
-            <CurrencyTwdIcon />
-          </Box>
-        </Stack>
-        <PlayerStatsRow id={2} />
-        <PlayerStatsRow id={5} /> */}
+            <Typography
+              style={{
+                display: "grid",
+                gridColumnStart: "1",
+                alignSelf: "left",
+              }}
+              textColor={team === "Team 1" ? "primary.300" : "danger.400"}
+            >
+              {team}
+            </Typography>
+            {iconMapping.map((icon, index) => (
+              <GetIconStats
+                key={index}
+                icon={icon}
+                gridColumnStart={index + 2}
+                nbGols={randomInt(0, 10)}
+                team={team}
+                message={labelMapping[index]}
+              />
+            ))}
+          </Stack>
+          <PlayerStatsRow id={randomInt(1, 10)} />
+          <PlayerStatsRow id={randomInt(1, 10)} />
+          {index === 0 && <Divider />}
+        </>
+      ))}
     </>
   );
 }
