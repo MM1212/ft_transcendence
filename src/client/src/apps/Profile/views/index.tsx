@@ -2,6 +2,7 @@ import { useCurrentUser, usersAtom } from '@hooks/user';
 import {
   Button,
   ButtonGroup,
+  CircularProgress,
   Divider,
   Dropdown,
   IconButton,
@@ -26,6 +27,7 @@ import useFriend from '@apps/Friends/hooks/useFriend';
 import MessageIcon from '@components/icons/MessageIcon';
 import UserMenuOptions from '../components/UserMenuOptions';
 import AccountPlusIcon from '@components/icons/AccountPlusIcon';
+import MenuOption from '@components/menu/MenuOption';
 
 function OtherOptions({
   user,
@@ -54,7 +56,11 @@ function OtherOptions({
           <DotsVerticalIcon />
         </MenuButton>
         <Menu variant="outlined" sx={{ zIndex: 1300 }}>
-          <UserMenuOptions user={user} />
+          <React.Suspense
+            fallback={<CircularProgress variant="plain" size="sm" />}
+          >
+            <UserMenuOptions user={user} />
+          </React.Suspense>
         </Menu>
       </Dropdown>
     </ButtonGroup>
