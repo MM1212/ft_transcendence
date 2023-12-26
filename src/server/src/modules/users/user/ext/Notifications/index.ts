@@ -3,7 +3,7 @@ import User from '../..';
 import UserExtBase from '../Base';
 import SharedNotification from '@shared/Notifications/Notification';
 
-class Notification extends SharedNotification {
+export class Notification extends SharedNotification {
   constructor(
     data: NotificationsModel.Models.INotification,
     private readonly ext: UserExtNotifications,
@@ -39,6 +39,17 @@ class Notification extends SharedNotification {
       data,
     );
   }
+  public async save(
+    ...keys: (keyof NotificationsModel.Models.INotification)[]
+  ): Promise<void> {
+    if (!this.isPermanent) return;
+    const data: Partial<NotificationsModel.Models.INotification> = {};
+    if (keys.length === 0) keys = Object.keys(this.public) as any;
+    for (const key of keys) {
+      (data as any)[key] = this.get(key);
+    }
+    this.helpers.db.users.notifications.update(this.id, data as any);
+  }
 
   public async markAsRead(sync: boolean = false): Promise<void> {
     if (this.read) return;
@@ -59,6 +70,11 @@ class Notification extends SharedNotification {
     }
   }
 
+  public async dismiss(sync: boolean = true): Promise<boolean> {
+    if (!this.dismissable) return false;
+    return await this.delete(sync);
+  }
+
   public async delete(sync: boolean = true): Promise<boolean> {
     try {
       if (this.isPermanent)
@@ -75,13 +91,14 @@ class Notification extends SharedNotification {
           },
         );
       }
+      await this.helpers.events.emitAsync('user.notifications.delete', this);
       return true;
     } catch (e) {
       return false;
     }
   }
 
-  public async updateData<T>(
+  public async updateData<T extends Record<string, unknown>>(
     data: T | ((prev: T) => T),
     sync: boolean = false,
   ): Promise<Notification> {
@@ -131,7 +148,7 @@ class UserExtNotifications extends UserExtBase {
     return this.all.filter((n) => n.tag === tag);
   }
 
-  public async cleanup(sync: boolean = false): Promise<void> {
+  public async cleanup(sync: boolean = true): Promise<void> {
     const toDelete = this.all.filter((n) => n.expired);
     await this.helpers.db.users.notifications.deleteSome(
       toDelete.filter((n) => n.isPermanent).map((n) => n.id),
@@ -151,7 +168,7 @@ class UserExtNotifications extends UserExtBase {
     );
   }
 
-  public async markAllAsRead(sync: boolean = false): Promise<void> {
+  public async markAllAsRead(sync: boolean = true): Promise<void> {
     await this.helpers.db.users.notifications.markAllAsRead(this.user.id);
     this.user.set('notifications', (prev) =>
       prev.map((n) => ({ ...n, read: true })),
@@ -160,7 +177,7 @@ class UserExtNotifications extends UserExtBase {
       this.sync();
     }
   }
-  public async deleteAll(sync: boolean = false): Promise<boolean> {
+  public async deleteAll(sync: boolean = true): Promise<boolean> {
     try {
       await this.helpers.db.users.notifications.deleteAll(this.user.id);
       const ids = this.raw.map((n) => n.id);
@@ -180,9 +197,9 @@ class UserExtNotifications extends UserExtBase {
     }
   }
 
-  public async create(
-    data: NotificationsModel.DTO.CreateNotification,
-    sync: boolean = false,
+  public async create<T extends Record<string, unknown>>(
+    data: NotificationsModel.DTO.CreateNotification<T>,
+    sync: boolean = true,
   ): Promise<Notification> {
     const notif =
       data.type === NotificationsModel.Models.Types.Permanent
@@ -191,6 +208,7 @@ class UserExtNotifications extends UserExtBase {
             lifetime: data.lifetime ?? 0,
             data: data.data ?? {},
             tag: data.tag as string,
+            dismissable: data.dismissable ?? true,
           })
         : ({
             id: Math.floor(Math.random() * 1000000000),
@@ -201,11 +219,16 @@ class UserExtNotifications extends UserExtBase {
             read: false,
             createdAt: Date.now(),
             userId: this.user.id,
+            dismissable: data.dismissable ?? true,
           } satisfies NotificationsModel.Models.INotification);
     this.user.set('notifications', (prev) => [...prev, notif]);
     const notification = new Notification(notif, this);
     if (sync) {
-      notification.sync();
+      this.helpers.sseService.emitTo<NotificationsModel.Sse.NewNotificationEvent>(
+        NotificationsModel.Sse.Events.NewNotification,
+        this.user.id,
+        notification.public,
+      );
     }
     return notification;
   }

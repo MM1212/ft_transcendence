@@ -8,6 +8,7 @@ import { MenuItem } from '@mui/joy';
 import { Dropdown, Menu, MenuButton } from '@mui/joy';
 import useFriend from '../hooks/useFriend';
 import AccountCancelIcon from '@components/icons/AccountCancelIcon';
+import Link from '@components/Link';
 
 const IconButtonRounded = styled(IconButton)(({ theme }) => ({
   borderRadius: theme.radius.xl,
@@ -16,6 +17,11 @@ const IconButtonRounded = styled(IconButton)(({ theme }) => ({
 export default function FriendsOptionsMenu({ id }: { id: number }) {
   const { remove } = useFriend(id);
   const { block } = useFriend(id);
+  const forwardPropagation =
+    (cb?: () => void) => (e: React.MouseEvent<HTMLDivElement>) => {
+      e.stopPropagation();
+      cb?.();
+    };
   return (
     <Dropdown>
       <MenuButton
@@ -26,25 +32,29 @@ export default function FriendsOptionsMenu({ id }: { id: number }) {
         <DotsVerticalIcon />
       </MenuButton>
       <Menu>
-        <MenuItem>
+        <MenuItem
+          component={Link}
+          to={`/profile/${id}`}
+          onClick={(e) => e.stopPropagation()}
+        >
           <ListItemDecorator>
             <AccountIcon />
           </ListItemDecorator>
           Profile
         </MenuItem>
-        <MenuItem>
+        <MenuItem onClick={forwardPropagation(() => alert('pong'))}>
           <ListItemDecorator>
             <TableTennisIcon />
           </ListItemDecorator>
           Invite to Pong
         </MenuItem>
-        <MenuItem onClick={remove} color="danger">
+        <MenuItem onClick={forwardPropagation(remove)} color="danger">
           <ListItemDecorator>
             <AccountRemoveIcon />
           </ListItemDecorator>
           Remove
         </MenuItem>
-        <MenuItem onClick={block} color="danger">
+        <MenuItem onClick={forwardPropagation(block)} color="danger">
           <ListItemDecorator>
             <AccountCancelIcon />
           </ListItemDecorator>

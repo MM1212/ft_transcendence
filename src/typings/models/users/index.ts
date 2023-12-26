@@ -128,6 +128,15 @@ namespace UsersModel {
       friends?: SseFriendsUpdater[];
       blocked?: SseFriendsUpdater[];
     }
+
+    export interface FriendRequestNotification
+      extends NotificationsModel.Models.INotification<
+        Record<string, unknown> & {
+          type: 'sender' | 'receiver';
+          uId: number;
+          status: 'pending' | 'accepted' | 'declined';
+        }
+      > {}
   }
   export namespace Endpoints {
     export enum Targets {

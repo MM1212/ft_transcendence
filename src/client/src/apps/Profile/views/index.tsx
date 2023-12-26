@@ -27,7 +27,6 @@ import useFriend from '@apps/Friends/hooks/useFriend';
 import MessageIcon from '@components/icons/MessageIcon';
 import UserMenuOptions from '../components/UserMenuOptions';
 import AccountPlusIcon from '@components/icons/AccountPlusIcon';
-import MenuOption from '@components/menu/MenuOption';
 
 function OtherOptions({
   user,
@@ -36,7 +35,7 @@ function OtherOptions({
   user: UsersModel.Models.IUserInfo;
   friend: boolean;
 }) {
-  const { goToMessages } = useFriend(user.id);
+  const { goToMessages, sentFriendRequest } = useFriend(user.id);
   return (
     <ButtonGroup size="sm" variant="outlined">
       <Button
@@ -47,7 +46,11 @@ function OtherOptions({
         Message
       </Button>
       {!friend && (
-        <Button size="sm" startDecorator={<AccountPlusIcon size="sm" />}>
+        <Button
+          size="sm"
+          startDecorator={<AccountPlusIcon size="sm" />}
+          onClick={sentFriendRequest}
+        >
           Friend Request
         </Button>
       )}

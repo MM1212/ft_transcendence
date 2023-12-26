@@ -26,7 +26,9 @@ const friendsState = new (class FriendsState {
     key: 'user/friends/extended',
     get: async ({ get }) => {
       const friends = get(this.friends);
-      return get(waitForAll(friends.map((id) => usersAtom(id)))).filter(Boolean) as UsersModel.Models.IUserInfo[];
+      return get(waitForAll(friends.map((id) => usersAtom(id)))).filter(
+        Boolean
+      ) as UsersModel.Models.IUserInfo[];
     },
   });
   blocked = atom<number[]>({
@@ -92,7 +94,9 @@ const friendsState = new (class FriendsState {
         if (!aOnline && bOnline) return 1;
         return 0;
       });
-      return users.map((user) => user?.id);
+      return (users.filter(Boolean) as UsersModel.Models.IUserInfo[]).map(
+        (user) => user.id
+      );
     },
   });
 })();

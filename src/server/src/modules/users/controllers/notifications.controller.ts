@@ -15,11 +15,12 @@ import {
 import { InternalEndpointResponse } from '@typings/api';
 import { HTTPContext } from '@typings/http';
 import NotificationsModel from '@typings/models/notifications';
+import { NotificationsService } from '../services/notifications.service';
 
 @Auth()
 @Controller()
 export class UsersNotificationsController {
-  constructor() {}
+  constructor(private readonly service: NotificationsService) {}
 
   @Get(NotificationsModel.Endpoints.Targets.GetAll)
   async getAll(
@@ -67,5 +68,14 @@ export class UsersNotificationsController {
     InternalEndpointResponse<NotificationsModel.Endpoints.MarkAllAsRead>
   > {
     await user.notifications.markAllAsRead();
+  }
+
+  @Post(NotificationsModel.Endpoints.Targets.DoAction)
+  async doAction(
+    @HttpCtx() { user }: HTTPContext<true>,
+    @Param('notifId', new ParseIntPipe()) notifId: number,
+    @Param('action') action: string,
+  ): Promise<InternalEndpointResponse<NotificationsModel.Endpoints.DoAction>> {
+    await this.service.handleNotificationAction(user, notifId, action);
   }
 }

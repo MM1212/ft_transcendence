@@ -4,9 +4,30 @@ import CheckAllIcon from '@components/icons/CheckAllIcon';
 import NotificationsInbox from '../components/Inbox';
 import { useRecoilValue } from 'recoil';
 import notificationsState from '../state';
+import React from 'react';
+import tunnel from '@lib/tunnel';
+import NotificationsModel from '@typings/models/notifications';
+import notifications from '@lib/notifications/hooks';
 
 export default function InboxView(): JSX.Element {
   const unreadCount = useRecoilValue(notificationsState.unreadCount);
+  const [loading, setLoading] = React.useState(false);
+  const markAllAsRead = React.useCallback(async () => {
+    try {
+      setLoading(true);
+      await tunnel.post(
+        NotificationsModel.Endpoints.Targets.MarkAllAsRead,
+        undefined
+      );
+    } catch (error) {
+      notifications.error(
+        'Failed to mark all as read',
+        (error as Error).message
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, []);
   return (
     <Sheet
       sx={{
@@ -36,7 +57,8 @@ export default function InboxView(): JSX.Element {
             sx={{
               borderRadius: 'lg',
             }}
-            disabled={unreadCount === 0}
+            disabled={loading || unreadCount === 0}
+            onClick={markAllAsRead}
           >
             <CheckAllIcon />
           </IconButton>

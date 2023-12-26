@@ -14,17 +14,27 @@ import { useNotificationsTemplate } from '../state';
 import { NotificationBuilderTemplateAction } from '../types';
 import { useRecoilCallback } from 'recoil';
 import CheckIcon from '@components/icons/CheckIcon';
-import CloseIcon from '@components/icons/CloseIcon';
+import useNotificationActions from '../state/hooks/useNotificationActions';
+import React from 'react';
+import BellOffIcon from '@components/icons/BellOffIcon';
 
 export default function NotificationOptions(
   props: NotificationsModel.Models.INotification
 ): JSX.Element {
-  const template = useNotificationsTemplate(props.tag);
+  const { customActions } = useNotificationsTemplate(props.tag);
+  const { performAction, dismiss, markAsRead, markAsUnread } =
+    useNotificationActions(props.id);
+  const stopPropagation =
+    (cb?: () => void) => (e: React.MouseEvent<HTMLDivElement>) => {
+      e.stopPropagation();
+      cb?.();
+    };
   const onActionClick = useRecoilCallback(
-    (ctx) => (action: NotificationBuilderTemplateAction) => {
-      action.onClick(props, ctx);
+    (ctx) => async (action: NotificationBuilderTemplateAction) => {
+      const data = await action.onClick?.(props, ctx);
+      await performAction(action.id, data);
     },
-    [props]
+    [performAction, props]
   );
   return (
     <Dropdown>
@@ -37,8 +47,8 @@ export default function NotificationOptions(
               variant: 'outlined',
               color: 'neutral',
               sx: {
-                mt: 2.5
-              }
+                mt: 2.5,
+              },
             },
           }}
           onClick={(e) => e.stopPropagation()}
@@ -47,27 +57,42 @@ export default function NotificationOptions(
         </MenuButton>
       </Tooltip>
       <Menu>
-        {template.customActions.map((action) => (
-          <MenuOption
-            key={action.id}
-            icon={action.Icon}
-            onClick={() => onActionClick(action)}
-            color={action.color}
-          >
-            {action.label}
-          </MenuOption>
-        ))}
-        {template.customActions.length > 0 && <Divider />}
+        {customActions.map(
+          (action) =>
+            (action.show?.(props) ?? true) && (
+              <MenuOption
+                key={action.id}
+                icon={action.Icon}
+                onClick={stopPropagation(() => onActionClick(action))}
+                color={action.color}
+              >
+                {action.label}
+              </MenuOption>
+            )
+        )}
+        {customActions.length > 0 && <Divider />}
         {props.read ? (
-          <MenuOption color="warning" icon={CloseIcon}>
+          <MenuOption
+            color="primary"
+            icon={BellOffIcon}
+            onClick={stopPropagation(markAsUnread)}
+          >
             Mark as Unread
           </MenuOption>
         ) : (
-          <MenuOption icon={CheckIcon}>Mark as Read</MenuOption>
+          <MenuOption icon={CheckIcon} onClick={stopPropagation(markAsRead)}>
+            Mark as Read
+          </MenuOption>
         )}
-        <MenuOption color="danger" icon={TrashCanIcon}>
-          Delete
-        </MenuOption>
+        {props.dismissable && (
+          <MenuOption
+            color="danger"
+            icon={TrashCanIcon}
+            onClick={stopPropagation(dismiss)}
+          >
+            Dismiss
+          </MenuOption>
+        )}
       </Menu>
     </Dropdown>
   );

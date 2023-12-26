@@ -3,32 +3,31 @@ import NotificationsModel from '@typings/models/notifications';
 import React from 'react';
 import { CallbackInterface } from 'recoil';
 
-export interface NotificationBuilderTemplateAction {
+export interface NotificationBuilderTemplateAction<
+  T extends
+    NotificationsModel.Models.INotification = NotificationsModel.Models.INotification,
+> {
   id: string;
   label: React.ReactNode;
-  onClick: (
-    notification: NotificationsModel.Models.INotification,
+  // action is forwarded to the server
+  onClick?: (
+    notification: T,
     ctx: CallbackInterface
-  ) => void;
+  ) => Promise<Record<string, unknown> | undefined>;
+  show?: (notification: T) => boolean;
   Icon: React.ComponentType<SvgIconProps>;
   color?: ColorPaletteProp;
 }
 
-export type NotificationBuilderTemplate = {
+export type NotificationBuilderTemplate<
+  T extends
+    NotificationsModel.Models.INotification = NotificationsModel.Models.INotification,
+> = {
   tag: NotificationsModel.Models.Tags | string;
-  CustomRenderer?: React.ComponentType<NotificationsModel.Models.INotification>;
-  Icon:
-    | React.ReactNode
-    | ((
-        notification: NotificationsModel.Models.INotification
-      ) => React.ReactNode);
-  MessageRenderer?: React.ComponentType<
-    NotificationsModel.Models.INotification
-  >;
+  CustomRenderer?: React.ComponentType<T>;
+  Icon: React.ReactNode | ((notification: T) => React.ReactNode);
+  MessageRenderer?: React.ComponentType<T>;
   customActions: NotificationBuilderTemplateAction[];
   routeTo?: string;
-  onClick?: (
-    notification: NotificationsModel.Models.INotification,
-    ctx: CallbackInterface
-  ) => void;
+  onClick?: (notification: T, ctx: CallbackInterface) => void;
 };

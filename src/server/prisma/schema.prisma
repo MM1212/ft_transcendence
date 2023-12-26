@@ -127,17 +127,18 @@ enum NotificationTypes {
 }
 
 model Notification {
-  id        Int               @id @default(autoincrement())
-  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId    Int               @map("user_id")
-  title     String
-  message   String
-  type      NotificationTypes @default(PERMANENT)
-  tag       String
-  data      Json              @default("{}")
-  read      Boolean           @default(false)
-  createdAt DateTime          @default(now()) @map("created_at")
-  lifetime  Int               @default(0)
+  id          Int               @id @default(autoincrement())
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId      Int               @map("user_id")
+  title       String
+  message     String
+  type        NotificationTypes @default(PERMANENT)
+  tag         String
+  data        Json              @default("{}")
+  read        Boolean           @default(false)
+  createdAt   DateTime          @default(now()) @map("created_at")
+  lifetime    Int               @default(0)
+  dismissable Boolean           @default(true)
 
   @@index([userId, tag])
   @@map("notifications")

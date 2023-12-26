@@ -7,8 +7,6 @@ import NotificationsModel from '@typings/models/notifications';
 import AccountPlusIcon from '@components/icons/AccountPlusIcon';
 import AccountCheckIcon from '@components/icons/AccountCheckIcon';
 import AccountMinusIcon from '@components/icons/AccountMinusIcon';
-import { Typography } from '@mui/joy';
-import Link from '@components/Link';
 
 export const useFriendsService = () => {
   const onFriendsUpdate = useRecoilCallback(
@@ -64,13 +62,11 @@ export const useFriendsService = () => {
     onFriendsUpdate
   );
 
-  useRegisterNotificationTemplate(
+  useRegisterNotificationTemplate<UsersModel.DTO.FriendRequestNotification>(
     NotificationsModel.Models.Tags.UserFriendsRequest,
     (ctx) => {
       ctx
         .setIcon((notif) => {
-          console.log('notif', notif);
-
           const data = notif.data as {
             targetId?: number;
             sender?: boolean;
@@ -87,40 +83,15 @@ export const useFriendsService = () => {
           id: 'accept',
           label: 'Accept',
           Icon: AccountCheckIcon,
-          onClick: console.log,
           color: 'success',
+          show: (n) => n.data.status === 'pending',
         })
         .addCustomAction({
           id: 'reject',
           label: 'Reject',
           Icon: AccountMinusIcon,
-          onClick: console.log,
           color: 'danger',
-        })
-        .setMessageRenderer((notif) => {
-          const data = notif.data as {
-            targetId?: number;
-            sender?: boolean;
-            senderId?: boolean;
-            status: string;
-            name?: string;
-          };
-          if (data.sender) return notif.message;
-          return (
-            <>
-              <Typography
-                component={Link}
-                href={`/profile/${data.senderId}`}
-                variant="soft"
-                color="primary"
-                onClick={e => e.stopPropagation()}
-              >
-                {data.name}
-              </Typography>
-              {' '}
-              {notif.message}
-            </>
-          );
+          show: (n) => n.data.status === 'pending',
         });
     },
     []

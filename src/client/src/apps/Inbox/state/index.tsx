@@ -1,7 +1,13 @@
 import alerts from '@lib/notifications/hooks';
 import tunnel from '@lib/tunnel';
 import NotificationsModel from '@typings/models/notifications';
-import { atom, atomFamily, selector, useRecoilValue } from 'recoil';
+import {
+  atom,
+  atomFamily,
+  selector,
+  selectorFamily,
+  useRecoilValue,
+} from 'recoil';
 import { NotificationBuilderTemplate } from '../types';
 import BellIcon from '@components/icons/BellIcon';
 
@@ -29,6 +35,18 @@ const notificationsState = new (class NotificationsState {
       }, 0);
     },
   });
+  byTag = selectorFamily<
+    NotificationsModel.Models.INotification[],
+    NotificationsModel.Models.Tags | string
+  >({
+    key: 'notifications/byTag',
+    get:
+      (tag) =>
+      ({ get }) => {
+        const notifications = get(this.all);
+        return notifications.filter((e) => e.tag === tag);
+      },
+  });
 
   public readonly DEFAULT_TEMPLATE_ICON = (<BellIcon />);
   templateCache = atomFamily<
@@ -47,4 +65,11 @@ const notificationsState = new (class NotificationsState {
 export const useNotificationsTemplate = (
   tag: NotificationsModel.Models.Tags | string
 ) => useRecoilValue(notificationsState.templateCache(tag));
+
+export const useGetNotificationsByTag = <
+  T extends NotificationsModel.Models.INotification,
+>(
+  tag: NotificationsModel.Models.Tags | string
+) => useRecoilValue<T[]>(notificationsState.byTag(tag) as any);
+
 export default notificationsState;

@@ -7,11 +7,8 @@ import {
 import notificationsState from '..';
 import { useSetRecoilState } from 'recoil';
 
-interface NotificationBuilderTemplateCache
-  extends NotificationBuilderTemplate {}
-
-class BuilderCtx {
-  private readonly cache: NotificationBuilderTemplateCache;
+class BuilderCtx<T extends NotificationsModel.Models.INotification> {
+  private readonly cache: NotificationBuilderTemplate<T>;
   constructor(tag: NotificationsModel.Models.Tags | string) {
     this.cache = {
       tag,
@@ -29,9 +26,7 @@ class BuilderCtx {
   }
 
   public setIcon(
-    icon:
-      | React.ReactNode
-      | ((props: NotificationsModel.Models.INotification) => React.ReactNode)
+    icon: React.ReactNode | ((props: T) => React.ReactNode)
   ): this {
     if (this.customRendered)
       throw new Error("Icon shouldn't be set when custom renderer is set");
@@ -39,16 +34,12 @@ class BuilderCtx {
     return this;
   }
 
-  public addCustomRenderer(
-    renderer: React.ComponentType<NotificationsModel.Models.INotification>
-  ): this {
+  public addCustomRenderer(renderer: React.ComponentType<T>): this {
     this.cache.CustomRenderer = renderer;
     return this;
   }
 
-  public setMessageRenderer(
-    renderer: React.ComponentType<NotificationsModel.Models.INotification>
-  ): this {
+  public setMessageRenderer(renderer: React.ComponentType<T>): this {
     this.cache.MessageRenderer = renderer;
     return this;
   }
@@ -65,30 +56,39 @@ class BuilderCtx {
     return this;
   }
 
-  public setOnClick(onClick: NotificationBuilderTemplate['onClick']): this {
+  public setOnClick(onClick: NotificationBuilderTemplate<T>['onClick']): this {
     if (this.routeIsSet)
       throw new Error("OnClick shouldn't be set when route is set");
     this.cache.onClick = onClick;
     return this;
   }
 
-  public build(): NotificationBuilderTemplate {
+  public build(): NotificationBuilderTemplate<T> {
     return this.cache;
+  }
+
+  public setDismissable(
+    dismissable: NotificationBuilderTemplate<T>['dismissable']
+  ): this {
+    this.cache.dismissable = dismissable;
+    return this;
   }
 }
 
-export const useRegisterNotificationTemplate = (
+export const useRegisterNotificationTemplate = <
+  T extends NotificationsModel.Models.INotification,
+>(
   tag: NotificationsModel.Models.Tags | string,
-  cb: (builder: BuilderCtx) => void,
+  cb: (builder: BuilderCtx<T>) => void,
   deps: React.DependencyList = []
 ) => {
   const setTemplateCache = useSetRecoilState(
     notificationsState.templateCache(tag)
   );
   React.useEffect(() => {
-    const builder = new BuilderCtx(tag);
+    const builder = new BuilderCtx<T>(tag);
     cb(builder);
-    setTemplateCache(builder.build());
+    setTemplateCache(builder.build() as NotificationBuilderTemplate);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [...deps]);
 };

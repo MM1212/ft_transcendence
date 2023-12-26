@@ -25,10 +25,13 @@ class SharedNotification
   get message() {
     return this.get('message');
   }
+  set message(value: string) {
+    this.set('message', value);
+  }
   get tag() {
     return this.get('tag');
   }
-  get data(): unknown {
+  get data(): Record<string,unknown> {
     return this.get('data');
   }
   dataAs<T>(): T {
@@ -48,6 +51,13 @@ class SharedNotification
   }
   get expiresAt(): number {
     return this.createdAt + this.lifetime;
+  }
+
+  get dismissable(): boolean {
+    return this.get('dismissable');
+  }
+  set dismissable(value: boolean) {
+    this.set('dismissable', value);
   }
   get expired(): boolean {
     return this.lifetime !== 0 && this.expiresAt < Date.now();

@@ -7,11 +7,13 @@ import { SseModule } from '../sse/sse.module';
 import { UsersFriendsController } from './controllers/friends.controller';
 import { UsersInventoryController } from './controllers/inventory.controller';
 import { UsersNotificationsController } from './controllers/notifications.controller';
+import { NotificationsService } from './services/notifications.service';
+import { UsersFriendsService } from './services/friends.service';
 
 @Global()
 @Module({
   imports: [DbModule, SseModule],
-  providers: [UsersService, UserDependencies],
+  providers: [UsersService, UserDependencies, NotificationsService, UsersFriendsService],
   controllers: [
     UsersController,
     UsersFriendsController,

@@ -10,7 +10,9 @@ namespace NotificationsModel {
     export enum Tags {
       UserFriendsRequest = 'user.friends.request',
     }
-    export interface INotification<T = unknown> {
+    export interface INotification<
+      T extends Record<string, unknown> = Record<string, unknown>
+    > {
       id: number;
       title: string;
       message: string;
@@ -21,6 +23,7 @@ namespace NotificationsModel {
       createdAt: number;
       userId: number;
       lifetime: number; // in miliseconds, 0 = permanent
+      dismissable: boolean;
     }
   }
   export namespace DTO {
@@ -37,6 +40,7 @@ namespace NotificationsModel {
         > {
         tag: string;
         data: any;
+        dismissable?: boolean;
       }
     }
 
@@ -50,13 +54,15 @@ namespace NotificationsModel {
 
     export interface DoAction extends Record<string, unknown> {}
 
-    export interface CreateNotification
-      extends Pick<
+    export interface CreateNotification<
+      T extends Record<string, unknown> = Record<string, unknown>
+    > extends Pick<
         NotificationsModel.Models.INotification,
         'title' | 'message' | 'type' | 'tag'
       > {
-      data?: Record<string, unknown>;
+      data?: T;
       lifetime?: number;
+      dismissable?: boolean;
     }
 
     export type UpdateNotification = Partial<
@@ -82,6 +88,7 @@ namespace NotificationsModel {
       DeleteAll = '/me/notifications',
       MarkAsRead = '/me/notifications/:notifId/read',
       MarkAllAsRead = '/me/notifications/read',
+      DoAction = '/me/notifications/:notifId/action/:action',
     }
     export type All = GroupEnumValues<Targets>;
 
@@ -122,6 +129,15 @@ namespace NotificationsModel {
         undefined
       > {}
 
+    export interface DoAction
+      extends Endpoint<
+        EndpointMethods.Post,
+        Targets.DoAction,
+        undefined,
+        DTO.DoAction,
+        DTO.DoActionParams
+      > {}
+
     export interface Registry {
       [EndpointMethods.Get]: {
         [Targets.GetAll]: GetAll;
@@ -135,6 +151,7 @@ namespace NotificationsModel {
       };
       [EndpointMethods.Post]: {
         [Targets.MarkAllAsRead]: MarkAllAsRead;
+        [Targets.DoAction]: DoAction;
       };
     }
   }
