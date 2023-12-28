@@ -7,7 +7,7 @@ import {
 import { Auth } from '@typings/auth';
 import { Request } from '@typings/http';
 import { AuthService } from '../42/auth.service';
-import { UsersService } from '@/modules/users/users.service';
+import { UsersService } from '@/modules/users/services/users.service';
 import UserExtSession from '@/modules/users/user/ext/Session';
 import { HttpError } from '@/helpers/decorators/httpError';
 

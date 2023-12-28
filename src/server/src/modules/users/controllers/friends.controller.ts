@@ -1,7 +1,7 @@
 import HttpCtx from '@/helpers/decorators/httpCtx';
 import { Auth } from '@/modules/auth/decorators';
 import UserCtx from '@/modules/users/decorators/User.pipe';
-import { UsersService } from '@/modules/users/users.service';
+import { UsersService } from '@/modules/users/services/users.service';
 import {
   Body,
   Controller,

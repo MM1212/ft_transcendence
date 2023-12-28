@@ -1,6 +1,6 @@
 import { DbService } from '@/modules/db';
 import { SseService } from '@/modules/sse/sse.service';
-import { UsersService } from '@/modules/users/users.service';
+import { UsersService } from '@/modules/users/services/users.service';
 import { Inject, Injectable } from '@nestjs/common';
 
 @Injectable()

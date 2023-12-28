@@ -11,7 +11,7 @@ import {
   Query,
   ValidationPipe,
 } from '@nestjs/common';
-import { UsersService } from '../users.service';
+import { UsersService } from '../services/users.service';
 import { InternalEndpointResponse } from '@typings/api';
 import UsersModel from '@typings/models/users';
 import { Auth } from '../../auth/decorators';

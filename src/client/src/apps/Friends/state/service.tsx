@@ -2,6 +2,11 @@ import { useSseEvent } from '@hooks/sse';
 import UsersModel from '@typings/models/users';
 import { useRecoilCallback } from 'recoil';
 import friendsState from '.';
+import { useRegisterNotificationTemplate } from '@apps/Inbox/state/hooks';
+import NotificationsModel from '@typings/models/notifications';
+import AccountPlusIcon from '@components/icons/AccountPlusIcon';
+import AccountCheckIcon from '@components/icons/AccountCheckIcon';
+import AccountMinusIcon from '@components/icons/AccountMinusIcon';
 
 export const useFriendsService = () => {
   const onFriendsUpdate = useRecoilCallback(
@@ -55,5 +60,40 @@ export const useFriendsService = () => {
   useSseEvent<UsersModel.Sse.UserFriendsUpdatedEvent>(
     UsersModel.Sse.Events.UserFriendsUpdated,
     onFriendsUpdate
+  );
+
+  useRegisterNotificationTemplate<UsersModel.DTO.FriendRequestNotification>(
+    NotificationsModel.Models.Tags.UserFriendsRequest,
+    (ctx) => {
+      ctx
+        .setIcon((notif) => {
+          const data = notif.data as {
+            targetId?: number;
+            sender?: boolean;
+            senderId?: boolean;
+            status: string;
+          };
+          if (data.sender) return <AccountPlusIcon />;
+          if (data.status === 'pending') return <AccountPlusIcon />;
+          if (data.status === 'accepted') return <AccountCheckIcon />;
+          return <AccountMinusIcon />;
+        })
+        .setRouteTo('/friends/pending')
+        .addCustomAction({
+          id: 'accept',
+          label: 'Accept',
+          Icon: AccountCheckIcon,
+          color: 'success',
+          show: (n) => n.data.status === 'pending',
+        })
+        .addCustomAction({
+          id: 'reject',
+          label: 'Reject',
+          Icon: AccountMinusIcon,
+          color: 'danger',
+          show: (n) => n.data.status === 'pending',
+        });
+    },
+    []
   );
 };

@@ -2,6 +2,7 @@ import { useCurrentUser, usersAtom } from '@hooks/user';
 import {
   Button,
   ButtonGroup,
+  CircularProgress,
   Divider,
   Dropdown,
   IconButton,
@@ -34,7 +35,7 @@ function OtherOptions({
   user: UsersModel.Models.IUserInfo;
   friend: boolean;
 }) {
-  const { goToMessages } = useFriend(user.id);
+  const { goToMessages, sentFriendRequest } = useFriend(user.id);
   return (
     <ButtonGroup size="sm" variant="outlined">
       <Button
@@ -45,7 +46,11 @@ function OtherOptions({
         Message
       </Button>
       {!friend && (
-        <Button size="sm" startDecorator={<AccountPlusIcon size="sm" />}>
+        <Button
+          size="sm"
+          startDecorator={<AccountPlusIcon size="sm" />}
+          onClick={sentFriendRequest}
+        >
           Friend Request
         </Button>
       )}
@@ -54,7 +59,11 @@ function OtherOptions({
           <DotsVerticalIcon />
         </MenuButton>
         <Menu variant="outlined" sx={{ zIndex: 1300 }}>
-          <UserMenuOptions user={user} />
+          <React.Suspense
+            fallback={<CircularProgress variant="plain" size="sm" />}
+          >
+            <UserMenuOptions user={user} />
+          </React.Suspense>
         </Menu>
       </Dropdown>
     </ButtonGroup>
@@ -128,7 +137,7 @@ function UserProfile({
         <Divider />
         <UserAchievements />
         <Divider />
-        <UserMatchHistory />
+        <UserMatchHistory users={[]} />
       </Stack>
     </Sheet>
   );

@@ -3,7 +3,7 @@ import {
   UnauthorizedException,
   HttpException,
 } from '@nestjs/common';
-import { UsersService } from '@/modules/users/users.service';
+import { UsersService } from '@/modules/users/services/users.service';
 import { AppService } from '@/app.service';
 import { FastifyInstance } from 'fastify';
 import { Socket } from 'socket.io';
