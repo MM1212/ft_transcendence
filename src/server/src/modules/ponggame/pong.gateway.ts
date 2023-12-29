@@ -12,7 +12,7 @@ import { Socket, Server } from 'socket.io';
 import { PongService } from './pong.service';
 import { AppService } from '@/app.service';
 import { PongLobbyService } from '../ponglobbies/ponglobby.service';
-import { UsersService } from '../users/users.service';
+import { UsersService } from '../users/services/users.service';
 import { ClientSocket } from '@typings/ws';
 import { AuthGatewayGuard } from '../auth/guards/auth-gateway.guard';
 import { ServerGame } from './pong';
