@@ -1,9 +1,10 @@
-import { useSocket } from '@hooks/socket';
-import { buildTunnelEndpoint } from '@hooks/tunnel';
-import PongModel from '@typings/models/pong';
-import { UIGame } from '@views/pong/Game';
-import { UIPlayer } from '@views/pong/Paddles/Player';
-import React from 'react';
+import { useSocket } from "@hooks/socket";
+import { buildTunnelEndpoint } from "@hooks/tunnel";
+import { useCurrentUser } from "@hooks/user";
+import PongModel from "@typings/models/pong";
+import { UIGame } from "@views/pong/Game";
+import { UIPlayer } from "@views/pong/Paddles/Player";
+import React from "react";
 
 export const useListenerManager = () => {
   const { connected, socket, status, useMounter, emit, useListener } =
@@ -11,15 +12,23 @@ export const useListenerManager = () => {
   useMounter();
 
   const parentRef = React.useRef<HTMLDivElement>(null);
+  const [alreadyConnected, setAlreadyConnected] = React.useState(false);
   const game = React.useRef<UIGame | null>(null);
+
+  const user = useCurrentUser()!;
 
   useListener(
     PongModel.Socket.Events.SetUI,
     (data: PongModel.Socket.Data.SetUIGame) => {
-      if (data)
-        game.current = new UIGame(socket, parentRef.current!, data.config);
-      else game.current = null;
-    }
+      if (data) {
+        game.current = new UIGame(socket, parentRef.current!, data.config, user.nickname);
+        if (data.state) {
+          game.current.start();
+        }
+      } else {
+        game.current = null;
+      }
+    }, [game]
   );
 
   useListener(PongModel.Socket.Events.Start, () => {
@@ -32,7 +41,7 @@ export const useListenerManager = () => {
     PongModel.Socket.Events.UpdateMovements,
     (data: PongModel.Socket.Data.UpdateMovements[]) => {
       game?.current?.handleMovements(data);
-    }
+    }, [game]
   );
 
   useListener(
@@ -51,7 +60,7 @@ export const useListenerManager = () => {
       if (power) {
         game?.current?.add(power);
       }
-    }
+    }, [game]
   );
 
   useListener(
@@ -59,15 +68,15 @@ export const useListenerManager = () => {
     (data: PongModel.Socket.Data.ShootPower) => {
       const player = game?.current?.getObjectByTag(data.tag) as UIPlayer;
       if (player) player.shootPower();
-    }
+    }, [game]
   );
 
   useListener(
-    'shooter-update',
-    (data: { tag: string; line: { start: number[]; end: number[] } }) => {
+    PongModel.Socket.Events.UpdateShooter,
+    (data: PongModel.Socket.Data.UpdateShooter) => {
       const player = game?.current?.getObjectByTag(data.tag) as UIPlayer;
       if (player) player.updateShooter(data.line);
-    }
+    }, [game]
   );
 
   useListener(
@@ -77,34 +86,66 @@ export const useListenerManager = () => {
         const object = game?.current?.getObjectByTag(tag);
         if (object) game?.current?.handleRemovePower(object);
       });
-    }
+    }, [game]
   );
 
   useListener(
-    'effect-create-remove',
-    (
-      data: { tag: string; effectName: string | undefined; option: number }[]
-    ) => {
+    PongModel.Socket.Events.EffectCreateRemove,
+    (data: PongModel.Socket.Data.EffectCreateRemove[]) => {
       data.forEach((effect) => {
         console.log(
-          effect.tag + ' has ' + effect.effectName + ' ' + effect.option
+          effect.tag + " has " + effect.effectName + " " + effect.option
         );
         const object = game?.current?.getObjectByTag(effect.tag);
         if (object)
           game?.current?.handleEffect(object, effect.effectName, effect.option);
       });
-    }
+    }, [game]
   );
 
   useListener(
-    'score-update',
-    (data: { teamId: number; score: [number, number]; scale: number }) => {
-      console.log(data.scale);
-      game?.current?.updateScore(data.teamId, data.score, data.scale);
-    }
+    PongModel.Socket.Events.UpdatePaddleSizes,
+    (data: PongModel.Socket.Data.UpdatePaddleSizes) => {
+      game?.current?.updatePaddleSizes(data.paddles);
+    }, [game]
+  )
+
+  useListener(
+    PongModel.Socket.Events.UpdateScore,
+    (data: PongModel.Socket.Data.UpdateScore) => {
+      game?.current?.updateScore(data.score, data.paddles);
+    }, [game]
   );
+
+  useListener(
+    PongModel.Socket.Events.UpdateDisconnected,
+    (data: PongModel.Socket.Data.UpdateDisconnected) => {
+      console.log(data);
+      if (data.userIds.length === 0) return;
+      game?.current?.updateDisconnectedRefresh(data.userIds);
+    }, [game]
+  )
+
+  useListener(
+    PongModel.Socket.Events.Disconnected,
+    (data: PongModel.Socket.Data.Disconnected) => {
+      game?.current?.updateDisconnected(data.nickname, data.tag);
+    }, [game]
+  );
+  useListener(
+    PongModel.Socket.Events.Reconnected,
+    (data: PongModel.Socket.Data.Reconnected) => {
+      console.log(data);
+      game?.current?.updateReconnected(data.nickname, data.tag);
+    }, [game]
+  );
+
+  useListener(PongModel.Socket.Events.AlreadyConnected, () => {
+    setAlreadyConnected(true);
+  }, [setAlreadyConnected]);
 
   return {
     parentRef,
+    alreadyConnected,
   };
 };

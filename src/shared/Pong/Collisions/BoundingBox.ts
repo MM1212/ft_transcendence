@@ -6,7 +6,6 @@ export class BoundingBox {
     constructor(
         public position: Vector2D = Vector2D.Zero,
         public size: Vector2D = Vector2D.Zero,
-        public lastCollision: BoundingBox | undefined = undefined
     ) {}
 
     get empty() { return this.size.x === 0 || this.size.y === 0; }

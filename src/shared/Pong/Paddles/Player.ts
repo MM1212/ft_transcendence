@@ -4,6 +4,7 @@ import { SpecialPower } from '../SpecialPowers/SpecialPower';
 import { Game } from '../Game';
 import { GameObject } from '../GameObject';
 import PongModel from '../../../typings/models/pong';
+import { paddleConfig } from '../config/configInterface';
 
 /* ----------------- Velocity ----------------- */
 const UP = new Vector2D(0, -5);
@@ -46,14 +47,17 @@ export class Player extends Bar {
     x: number,
     y: number,
     public keys: KeyControls,
-    tag: string,
+    public tag: string,
     public direction: Vector2D,
-    public specialPower: PongModel.Models.LobbyParticipantSpecialPowerType,
+    specialPower: PongModel.Models.LobbyParticipantSpecialPowerType,
     game: Game,
-    public readonly socketId?: number
+    teamId: number,
+    paddle: keyof typeof paddleConfig,
+    public readonly userId?: number,
   ) {
-    super(x, y, tag, direction, game);
+    super(x, y, tag, direction, game, paddle);
     this.specialPowerType = specialPower;
+    this.teamId = teamId;
   }
 
   onKeyDown(key: string): void {
@@ -83,7 +87,6 @@ export class Player extends Bar {
           );
           if (this.power !== undefined) {
             this.game.add(this.power);
-            this.spendMana();            
             return [SHOOT_ACTION.CREATE, this.power.tag];
           }
         }

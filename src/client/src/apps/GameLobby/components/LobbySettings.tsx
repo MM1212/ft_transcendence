@@ -158,6 +158,9 @@ export function LobbySettings() {
           </Typography>
         ))}
       </Box>
+      <Typography>Play until max score: </Typography>
+      <Typography>ADD A BOX TO SELECT MAX SCORE</Typography>
+
     </>
   );
 }

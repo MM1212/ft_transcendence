@@ -5,7 +5,6 @@ import { ServerGame } from './pong';
 import PongModel from '@typings/models/pong';
 import { Server } from 'socket.io';
 import { ClientSocket } from '@typings/ws';
-import { SHOOT_ACTION } from '@shared/Pong/Paddles/Player';
 
 @Injectable()
 export class PongService {
@@ -13,6 +12,8 @@ export class PongService {
   private games = new Map<string, ServerGame>();
   public readonly server: Server;
   constructor() {}
+
+  // maybe create a new node js thread for each game (?)
 
   public getGame(uuid: string): ServerGame | undefined {
     return this.games.get(uuid);
@@ -25,6 +26,22 @@ export class PongService {
     const newGame = new ServerGame(lobbyInterface, gameConfig, this.server);
     this.games.set(uuid, newGame);
     return newGame;
+  }
+
+  public handleUpdateDisconnected(client: ClientSocket, roomId: string) {
+    const game = this.getGame(roomId);
+    if (!game || game.started === false) return;
+    console.log(
+      `Game ${game.UUID}: received updateDisconnected from ${client.data.user.id}`,
+    );
+    const disconnectedPlayers = game.config.teams[0].players
+      .concat(game.config.teams[1].players)
+      .filter((player) => player.connected === false);
+    if (disconnectedPlayers.length === 0) return;
+    console.log(disconnectedPlayers.map((player) => player.userId));
+    client.emit(PongModel.Socket.Events.UpdateDisconnected, {
+      userIds: disconnectedPlayers.map((player) => player.userId),
+    });
   }
 
   public handleKeys(
@@ -55,18 +72,25 @@ export class PongService {
     const teams = lobby.teams.map((team) => {
       const players: PongModel.Models.IPlayerConfig[] = team.players.map(
         (player) => {
+          let playerNbr;
+          let position: 'back' | 'front';
+          if (player.teamPosition === PongModel.Models.TeamPosition.Top) {
+            position = 'back';
+            player.teamId === 0 ? (playerNbr = PongModel.InGame.ObjType.Player1) : (playerNbr = PongModel.InGame.ObjType.Player2);
+          } else {
+            position = 'front';
+            player.teamId === 0 ? (playerNbr = PongModel.InGame.ObjType.Player3) : (playerNbr = PongModel.InGame.ObjType.Player4);
+          }
+          
           return {
-            tag: 'player',
+            tag: playerNbr,
             teamId: team.id,
-            type: 'player',
+            type: player.type,
             keys: player.keys,
             specialPower:
               player.specialPower as PongModel.Models.LobbyParticipantSpecialPowerType,
-            paddleTexture: player.paddleTexture,
-            positionOrder:
-              player.teamPosition === PongModel.Models.TeamPosition.Top
-                ? 'back'
-                : 'front',
+            paddle: player.paddle,
+            positionOrder: position,
             userId: player.id,
             avatar: player.avatar,
             nickname: player.nickname,
@@ -90,6 +114,7 @@ export class PongService {
       teams: teams,
       spectators: spectators,
       nPlayers: lobby.nPlayers,
+      ballTexture: lobby.ballTexture,
     };
   }
 

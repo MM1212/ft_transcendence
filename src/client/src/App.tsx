@@ -10,7 +10,6 @@ import ImagePreviewView from '@apps/ImagePreview/views';
 import ConfirmationModalView from '@apps/Modals/Confirmation/views';
 import ChatSelectModal from '@apps/Chat/modals/ChatSelectModal';
 import TFALoginPage from '@apps/TFALoginPage/views';
-import Pong from '@views/pong';
 import SseWarning from '@hooks/sse/Warning';
 import ChatPasswordInputModalView from '@apps/Chat/modals/ChatPasswordInputModal';
 
@@ -54,9 +53,6 @@ function App() {
           <ChatSelectModal />
           <ChatPasswordInputModalView />
         </AuthRoute>
-        <Route path="/pong">
-          <Pong />
-        </Route>
       </Switch>
       <SseWarning />
     </div>

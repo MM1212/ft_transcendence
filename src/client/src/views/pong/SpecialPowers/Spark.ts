@@ -15,7 +15,6 @@ export class UISpark extends Spark {
         this.displayObject.x = center.x;
         this.displayObject.y = center.y;
         this.tag = tag;
-        //console.log(this)
     }
 
     update(): void {

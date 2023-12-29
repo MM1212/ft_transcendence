@@ -17,6 +17,7 @@ import { ArenaWall } from '@shared/Pong/Collisions/Arena';
 import { Vector2D } from '@shared/Pong/utils/Vector';
 import { Ball } from '@shared/Pong/Ball';
 import { Bar } from '@shared/Pong/Paddles/Bar';
+import { ballsConfig, paddleConfig } from '@shared/Pong/config/configInterface';
 // import { Bot } from '@shared/Pong/Paddles/Bot';
 
 type Room = BroadcastOperator<DefaultEventsMap, any>;
@@ -27,6 +28,8 @@ export class ServerGame extends Game {
   private updateHandle: NodeJS.Timeout | undefined;
   public readonly room: Room;
 
+  public userIdToSocketId: Map<number, string> = new Map(); // matchId, socketId
+
   public nbConnectedPlayers = 0;
   public started = false;
 
@@ -34,7 +37,6 @@ export class ServerGame extends Game {
 
   // interface can be removed, need to setup one that will
   //  return the results of the game
-
   constructor(
     public lobbyInterface: PongModel.Models.ILobby,
     public config: PongModel.Models.IGameConfig,
@@ -44,9 +46,11 @@ export class ServerGame extends Game {
 
     this.UUID = config.UUID;
     this.room = server.to(this.UUID);
+    this.buildObjects();
     console.log(`Room ${this.UUID}: created`);
   }
   /***/
+
   public checkStart() {
     if (
       this.started === false &&
@@ -81,7 +85,7 @@ export class ServerGame extends Game {
   }
 
   public start() {
-    this.buildObjects();
+    
     console.log(`Game ${this.UUID}: started!`);
     this.room.emit(PongModel.Socket.Events.Start);
     this.startTick();
@@ -105,7 +109,49 @@ export class ServerGame extends Game {
         this,
       ),
     );
-    this.add(new Ball(this.width / 2, this.height / 2, this));
+    this.add(new Ball(this.width / 2, this.height / 2, this, this.config.ballTexture as keyof typeof ballsConfig));
+  }
+
+  private buildPlayers(): void {
+    const players = this.config.teams[0].players.concat(
+      this.config.teams[1].players,
+    );
+    for (let i = 0; i < players.length; i++) {
+      const p = players[i];
+      let startX;
+      if (p.positionOrder === 'back') {
+        startX = P_START_DIST;
+      } else {
+        startX = MULTIPLAYER_START_POS;
+      }
+      let direction;
+      if (p.teamId === 1) {
+        startX = this.width - startX;
+        direction = new Vector2D(-1, 1);
+      } else {
+        direction = new Vector2D(1, 1);
+      }
+      
+      if (players[i].type === 'player') {
+        this.add( new Player(
+          startX,
+          this.height / 2,
+          p.keys!,
+          p.tag,
+          direction,
+          p.specialPower as PongModel.Models.LobbyParticipantSpecialPowerType,
+          this,
+          p.teamId,
+          p.paddle as keyof typeof paddleConfig,
+          p.userId,
+        ));
+      } else {
+        // MISSING: SpecialPowers in bot
+        //this.add( new Bot (
+        //  
+        //))
+      }
+    }
   }
 
   public startTick() {
@@ -133,176 +179,100 @@ export class ServerGame extends Game {
     }
   }
 
-  public update(delta: number): void {
-    super.update(delta);
-    if (this.sendObjects.length > 0) {
-      this.room.emit(
-        PongModel.Socket.Events.UpdateMovements,
-        this.sendObjects.map((gameObject: GameObject) => {
+  private emitMappedValues<T, U>(
+    eventName: string,
+    objects: T[],
+    mapFunc: (item: T) => U,
+  ): void {
+    if (objects.length > 0) {
+      const mappedObjects = objects.map(mapFunc);
+      this.room.emit(eventName, mappedObjects);
+    }
+  }
+
+  public emitUpdateGame(client: ClientSocket): void {
+    client.emit(PongModel.Socket.Events.UpdateScore, {
+      score: this.score,
+      paddles: this.gameObjects
+        .filter((obj) => obj instanceof Bar)
+        .map((obj: GameObject) => {
           return {
-            tag: gameObject.tag,
-            position: gameObject.getCenter.toArray(),
+            tag: obj.tag,
+            scale: (obj as Bar).getScale,
+            height: (obj as Bar).HeightVal,
+            width: (obj as Bar).WidthVal,
+            x: (obj as Bar).getCenter.x,
+            y: (obj as Bar).getCenter.y,
           };
         }),
-      );
-    }
+    });
+  }
+
+  public update(delta: number): void {
+    super.update(delta);
+
+    this.emitMappedValues<GameObject, PongModel.Socket.Data.UpdateMovements>(
+      PongModel.Socket.Events.UpdateMovements,
+      this.sendObjects,
+      (gameObject: GameObject) => {
+        return {
+          tag: gameObject.tag,
+          position: gameObject.getCenter.toArray(),
+        };
+      },
+    );
+
     if (this.sendRemoveObjects.length > 0) {
       this.room.emit(PongModel.Socket.Events.RemovePower, {
         tag: this.sendRemoveObjects,
       });
     }
+
     if (this.sendShooter.length > 0) {
-      this.room.emit('shooter-update', {
+      this.room.emit(PongModel.Socket.Events.UpdateShooter, {
         tag: this.sendShooter[0].tag,
         line: (this.sendShooter[0] as Bar).shooter?.linePositions(),
       });
     }
-    if (this.sendEffects.length > 0) {
-      this.room.emit(
-        'effect-create-remove',
-        this.sendEffects.map((gameObject: GameObject) => {
-          const temp = {
-            tag: gameObject.tag,
-            effectName: gameObject.getEffect?.effectType,
-            option: gameObject.effectSendOpt,
-          };
-          return temp;
-        }),
-      );
-    }
-    if (this.sendTeamScored != undefined) {
-      this.room.emit('score-update', {
-        teamId: this.sendTeamScored,
+
+    this.emitMappedValues<GameObject, PongModel.Socket.Data.EffectCreateRemove>(
+      PongModel.Socket.Events.EffectCreateRemove,
+      this.sendEffects,
+      (gameObject: GameObject) => {
+        return {
+          tag: gameObject.tag,
+          effectName: gameObject.getEffect?.effectType,
+          option: gameObject.effectSendOpt,
+        };
+      },
+    );
+
+    if (this.sendPaddlesScale.length > 0 || this.scored === true) {
+      this.room.emit(PongModel.Socket.Events.UpdateScore, {
         score: this.score,
-        scale: this.sendScale,
+        paddles: this.sendPaddlesScale.map<PongModel.Socket.Data.PaddleInfo>(
+          (obj: GameObject) => {
+            return {
+              tag: obj.tag,
+              scale: (obj as Bar).getScale,
+              height: (obj as Bar).HeightVal,
+              width: (obj as Bar).WidthVal,
+              x: (obj as Bar).getCenter.x,
+              y: (obj as Bar).getCenter.y,
+            };
+          },
+        ),
       });
     }
   }
-  // MISSING: SpecialPowers in bot
-  private buildPlayers() {
-    const p1Conf = this.config.teams[0].players[0];
-    const p2Conf = this.config.teams[1].players[0];
 
-    let p1;
-    if (p1Conf.type === 'player') {
-      p1 = new Player(
-        P_START_DIST,
-        this.height / 2,
-        p1Conf.keys!,
-        'Player 1',
-        new Vector2D(1, 1),
-        p1Conf.specialPower as PongModel.Models.LobbyParticipantSpecialPowerType,
-        this,
-        p1Conf.userId,
-      );
-    }
-    //else {
-    //  p1 = new Bot(
-    //    P_START_DIST,
-    //    this.height / 2,
-    //    "Player 1",
-    //    new Vector2D(1, 1),
-    //    this,
-    //    );
-    //  }
-    if (p1) {
-      this.playerTags.push(p1.tag);
-      this.add(p1);
-    }
 
-    let p2;
-    if (p2Conf.type === 'player') {
-      p2 = new Player(
-        this.width - P_START_DIST,
-        this.height / 2,
-        p2Conf.keys!,
-        'Player 2',
-        new Vector2D(-1, 1),
-        p2Conf.specialPower as PongModel.Models.LobbyParticipantSpecialPowerType,
-        this,
-        p2Conf.userId,
-      );
-    }
-    //else {
-    //  p2 = new Bot(
-    //    this.width - P_START_DIST,
-    //    this.height / 2,
-    //    "Player 2",
-    //    new Vector2D(-1, 1),
-    //    this,
-    //  );
-    //}
-    if (p2) {
-      this.playerTags.push(p2.tag);
-      this.add(p2);
-    }
-
-    if (this.config.teams[0].players.length > 1) {
-      const p3Conf = this.config.teams[0].players[1];
-      let p3;
-      if (p3Conf.type === 'player') {
-        p3 = new Player(
-          MULTIPLAYER_START_POS,
-          this.height / 2,
-          p3Conf.keys!,
-          'Player 3',
-          new Vector2D(1, 1),
-          p3Conf.specialPower as PongModel.Models.LobbyParticipantSpecialPowerType,
-          this,
-          p3Conf.userId,
-        );
-      }
-      //  else {
-      //    p3 = new Bot(
-      //      MULTIPLAYER_START_POS,
-      //      this.height / 2,
-      //      "Player 3",
-      //      new Vector2D(1, 1),
-      //      this,
-      //    );
-      //  }
-      if (p3) {
-        this.add(p3);
-        this.playerTags.push(p3.tag);
-      }
-    }
-
-    if (this.config.teams[1].players.length > 1) {
-      const p4Conf = this.config.teams[1].players[1];
-      let p4;
-      if (p4Conf.type === 'player') {
-        p4 = new Player(
-          this.width - MULTIPLAYER_START_POS,
-          this.height / 2,
-          p4Conf.keys!,
-          'Player 4',
-          new Vector2D(-1, 1),
-          p4Conf.specialPower as PongModel.Models.LobbyParticipantSpecialPowerType,
-          this,
-          p4Conf.userId,
-        );
-      }
-      // else {
-      //  p4 = new Bot(
-      //  this.width - MULTIPLAYER_START_POS,
-      //  this.height / 2,
-      //  "Player 4",
-      //  new Vector2D(-1, 1),
-      //  this,
-      //  );
-      //  }
-      if (p4) {
-        this.add(p4);
-        this.playerTags.push(p4.tag);
-      }
-    }
-  }
   /***/
   public getPlayerInstanceById(id: number): Player | undefined {
     return this.gameObjects.find((gameObject: GameObject) => {
       if (gameObject instanceof Player) {
-        console.log(gameObject.socketId, id);
-        return gameObject.socketId === id;
+        console.log(gameObject.userId, id);
+        return gameObject.userId === id;
       }
       return false;
     }) as Player;
@@ -313,6 +283,7 @@ export class ServerGame extends Game {
     player: PongModel.Models.IPlayerConfig,
   ): void {
     client.join(this.UUID);
+    this.userIdToSocketId.set(player.userId, client.id);
     player.connected = true;
     this.nbConnectedPlayers++;
     console.log(`> Player ${player.nickname} joined room ${this.UUID} <`);
@@ -323,6 +294,7 @@ export class ServerGame extends Game {
     player: PongModel.Models.IPlayerConfig,
   ): void {
     client.leave(this.UUID);
+    this.userIdToSocketId.delete(player.userId);
     player.connected = false;
     this.nbConnectedPlayers--;
     console.log(`> Player ${player.nickname} left room ${this.UUID} <`);

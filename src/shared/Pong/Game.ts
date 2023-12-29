@@ -1,7 +1,5 @@
 import { GameObject, effectSendOption } from "./GameObject";
 import { Collider } from "./Collisions/Collider";
-import { ETeamSide, IGameConfig } from "./config/configInterface";
-
 export class Game {
   public run = true;
   public gameObjects: GameObject[] = [];
@@ -9,41 +7,39 @@ export class Game {
   protected collider_gameObjects: GameObject[] = [];
   protected keydown_gameObjects: GameObject[] = [];
   protected keyup_gameObjects: GameObject[] = [];
-  protected gameconfig: IGameConfig;
-
-  protected playerTags: string[] = [];
 
   public score: [number, number] = [0, 0];
-  public sendScale: number = 1;
+  public sendPaddlesScale: GameObject[] = [];
   protected sendObjects: GameObject[] = [];
   protected sendRemoveObjects: string[] = [];
   protected sendShooter: GameObject[] = [];
   protected sendEffects: GameObject[] = [];
-  public sendTeamScored: ETeamSide | undefined = undefined;
-
+  public scored: boolean = false;
 
   public delta: number = 0;
 
-  // add array for changed objects to send to client
-
   constructor(public width: number, public height: number) {}
 
-  // replicate pixijs game loop where the delta value has a maximum of 1 that means high performance or lower but approximate
   start() {}
+
+  private zeroS(): void {
+    this.scored = false;
+    this.sendObjects.length = 0;
+    this.sendEffects.length = 0;
+    this.sendShooter.length = 0;
+    this.sendRemoveObjects.length = 0;
+    this.sendPaddlesScale.length = 0;
+    this.gameObjects.forEach((gameObject: GameObject) => {
+      gameObject.collider?.reset()
+      gameObject.effectSendOpt = effectSendOption.NONE;
+    }
+    );
+  }
 
   update(delta: number) {
     if (this.run) {
       //console.log(delta);
-      this.sendTeamScored = undefined;
-      this.sendObjects.length = 0;
-      this.sendEffects.length = 0;
-      this.sendShooter.length = 0;
-      this.sendRemoveObjects.length = 0;
-      this.gameObjects.forEach((gameObject: GameObject) => {
-        gameObject.collider.reset()
-        gameObject.effectSendOpt = effectSendOption.NONE;
-      }
-      );
+      this.zeroS();
       this.collider_gameObjects.forEach((target: GameObject) => {
         this.gameObjects.forEach((gameObject: GameObject) => {
           if (target != gameObject)
@@ -62,7 +58,6 @@ export class Game {
       this.sendEffects = this.gameObjects.filter(
         (gameObject: GameObject) => gameObject.effectSendOpt !== effectSendOption.NONE
       );
-
       if (this.remove_gameObjects.length > 0) this.removeObjects();
     }
   }
@@ -78,6 +73,7 @@ export class Game {
     this.sendRemoveObjects.length = 0;
     this.sendEffects.length = 0;
     this.sendShooter.length = 0;
+    this.sendPaddlesScale.length = 0;
   }
 
   public add(gameObject: GameObject) {
@@ -111,7 +107,7 @@ export class Game {
     });
   }
 
-  getObjectByTag(tag: string): GameObject | undefined {
+  public getObjectByTag(tag: string): GameObject | undefined {
     return this.gameObjects.find(
       (gameObject: GameObject) => gameObject.tag === tag
     );

@@ -4,11 +4,12 @@ import { SpecialPower } from './SpecialPower';
 import { specialpowerConfig } from '../config/configInterface';
 import { Bar } from '../Paddles/Bar';
 import { Ball } from '../Ball';
+import PongModel from "../../../typings/models/pong";
 
 export class Bubble extends SpecialPower {
   constructor(center: Vector2D, velocity: Vector2D, shooter: Bar) {
     super(
-      'Bubble' ,
+      PongModel.Models.LobbyParticipantSpecialPowerType.bubble ,
       center,
       velocity,
       shooter,
@@ -16,7 +17,13 @@ export class Bubble extends SpecialPower {
       specialpowerConfig.bubble.vertices
     );
     this.tag += this.id;
+    shooter.manaBar.spendMana(this.manaCost);
   }
+
+  get manaCost(): number {
+    return specialpowerConfig.bubble.manaCost;
+  }
+
   // add remove if out of map
   onCollide(target: GameObject): boolean {
     if (!(target instanceof SpecialPower)) {

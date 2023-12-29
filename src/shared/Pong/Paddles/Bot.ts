@@ -25,7 +25,7 @@
 
 //     update(delta: number): void {
 //         this.hasChanged = false;
-//         const ballPosition = this.game.getObjectByTag('Bolinha')?.getCenter;
+//         const ballPosition = this.game.getObjectByTag(PongModel.InGame.ObjType.Ball)?.getCenter;
 //         if (!ballPosition) return;
 //         if (ballPosition?.y < this.center.y - 5) {
 //             this.setMove(true);

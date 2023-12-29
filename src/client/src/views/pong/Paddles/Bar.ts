@@ -8,6 +8,7 @@ import { UIGhost } from '../SpecialPowers/Ghost';
 import PongModel from '@typings/models/pong';
 
 export abstract class UIBar extends Bar {
+
   public static create(
     specialPower: PongModel.Models.LobbyParticipantSpecialPowerType,
     center: Vector2D,

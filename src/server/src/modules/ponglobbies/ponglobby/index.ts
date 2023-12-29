@@ -9,16 +9,17 @@ import ChatsModel from '@typings/models/chat';
 import { PongLobbyService } from '../ponglobby.service';
 import { read } from 'fs';
 import { ServerGame } from '@/modules/ponggame/pong';
+import { ballsConfig } from '@shared/Pong/config/configInterface';
 
 /* ---- LOBBY PARTICIPANT ---- */
 
 export class PongLobbyParticipant
   implements PongModel.Models.ILobbyParticipant
 {
-  public keys: PongModel.Models.IGamekeys =
+  public keys: PongModel.Models.IGamekeys | undefined =
     PongModel.Models.TemporaryLobbyParticipant.keys;
-  public paddleTexture: string =
-    PongModel.Models.TemporaryLobbyParticipant.paddleTexture;
+  public paddle: string =
+    PongModel.Models.TemporaryLobbyParticipant.paddle;
   public specialPower: GroupEnumValues<PongModel.Models.LobbyParticipantSpecialPowerType> =
     PongModel.Models.TemporaryLobbyParticipant.specialPower;
   public status: GroupEnumValues<PongModel.Models.LobbyStatus> =
@@ -29,6 +30,8 @@ export class PongLobbyParticipant
     PongModel.Models.LobbyParticipantPrivileges.None;
   public teamId: PongModel.Models.TeamSide | null = null;
   public teamPosition: number = -1;
+  public type: string = 'player';
+
   constructor(
     public user: User,
     lobby: PongLobby,
@@ -39,6 +42,13 @@ export class PongLobbyParticipant
   ) {
     if (lobby.nPlayers < 4) lobby.addPlayerToPlayers(this);
     else lobby.addPlayerToSpectators(this);
+    
+    if (user.nickname === 'bot') // HARDCODED, BUT JUST NEEDS THIS TO BE CHANGED TO IMPLEMENT BOT
+    {
+      this.keys = undefined;
+      this.status = PongModel.Models.LobbyStatus.Ready;
+      this.type = 'bot';
+    }
   }
 
   public get interface(): PongModel.Models.ILobbyParticipant {
@@ -46,13 +56,14 @@ export class PongLobbyParticipant
       id: this.id,
       nickname: this.nickname,
       avatar: this.avatar,
+      type: this.type,
       lobbyId: this.lobbyId,
       role: this.role,
       privileges: this.privileges,
       teamId: this.teamId,
       status: this.status,
       keys: this.keys,
-      paddleTexture: this.paddleTexture,
+      paddle: this.paddle,
       specialPower: this.specialPower,
       teamPosition: this.teamPosition,
     };
@@ -92,6 +103,7 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
   ];
   public spectators: PongLobbyParticipant[] = [];
   public invited: number[] = [];
+  public ballTexture: string = "RedBall"; // default value
 
   public readonly chat: Chat;
   public readonly nonce: number = Math.floor(Math.random() * 1000000);
@@ -396,6 +408,7 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
       spectators: this.spectators.map((player) => player.interface),
       invited: this.invited,
       chatId: this.chat.id,
+      ballTexture: this.ballTexture,
     };
   }
 

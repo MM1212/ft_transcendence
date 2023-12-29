@@ -10,6 +10,16 @@ import {
 import { GroupEnumValues } from '@typings/utils';
 
 namespace PongModel {
+  export namespace InGame {
+    export enum ObjType {
+      Ball = 'Bolinha',
+      Player1 = 'Player 1',
+      Player2 = 'Player 2',
+      Player3 = 'Player 3',
+      Player4 = 'Player 4',
+      Arena = 'Arena',
+    }
+}
   export namespace Models {
     export enum LobbyType {
       Single = 'SINGLE', // Single Queue Mode
@@ -62,7 +72,7 @@ namespace PongModel {
       Top,
       Bottom,
     }
-
+    
     export type IGameKeyTypes = 'up' | 'down' | 'boost' | 'shoot';
     export type IGamekeys = Record<IGameKeyTypes, string>;
     export const DEFAULT_GAME_KEYS: IGamekeys = {
@@ -79,20 +89,21 @@ namespace PongModel {
     }
     export const TemporaryLobbyParticipant = {
       keys: PongModel.Models.DEFAULT_GAME_KEYS,
-      paddleTexture: '/pong/PaddleRed.png',
+      paddle: 'PaddleRed',
       specialPower: PongModel.Models.LobbyParticipantSpecialPowerType.bubble,
     };
     export interface ILobbyParticipant {
       id: number;
       avatar: string;
+      type: string;
       nickname: string;
       lobbyId: number;
       role: GroupEnumValues<LobbyParticipantRole>;
       privileges: GroupEnumValues<LobbyParticipantPrivileges>;
       teamId: TeamSide | null;
       status: GroupEnumValues<LobbyStatus>;
-      keys: IGamekeys;
-      paddleTexture: string;
+      keys?: IGamekeys;
+      paddle: string;
       specialPower: GroupEnumValues<LobbyParticipantSpecialPowerType>;
       teamPosition: number;
     }
@@ -111,15 +122,16 @@ namespace PongModel {
       spectators: ILobbyParticipant[];
       invited: number[];
       chatId: number;
+      ballTexture: string;
     }
 
     export interface IPlayerConfig {
       tag: string;
       teamId: number;
-      type: 'player' | 'bot';
+      type: string;
       keys?: IGamekeys;
       specialPower: LobbyParticipantSpecialPowerType;
-      paddleTexture: string;
+      paddle: string;
       positionOrder: 'back' | 'front';
       userId: number;
       avatar: string;
@@ -138,7 +150,7 @@ namespace PongModel {
       spectators: number[];
       nPlayers: number;
       //backgroundTexture: string;
-      //ballTexture: string
+      ballTexture: string
     }
 
     export interface ILobbyInfoDisplay
@@ -207,6 +219,15 @@ namespace PongModel {
       RemovePower = 'remove-power',
       CreatePower = 'create-power',
       ShootPower = 'shoot-power',
+      UpdateShooter = 'update-shooter',
+      EffectCreateRemove = 'effect-create-remove',
+      UpdateScore = 'update-score',
+      KeyPress = 'keyPress',
+      Disconnected = 'disconnected',
+      Reconnected = 'reconnected',
+      AlreadyConnected = 'already-connected',
+      UpdatePaddleSizes = 'update-paddle-sizes',
+      UpdateDisconnected = 'update-disconnected',
     }
 
     export namespace Data {
@@ -231,6 +252,50 @@ namespace PongModel {
       export interface ShootPower {
         tag: string;
       }
+
+      export interface UpdateShooter {
+        tag: string;
+        line: { start: [number, number]; end: [number, number] };
+      }
+
+      export interface EffectCreateRemove {
+        tag: string;
+        effectName: string | undefined;
+        option: number;
+      }
+
+      export interface PaddleInfo {
+        tag: string;
+        scale: number;
+        height: number;
+        width:number
+        x: number;
+        y: number;
+      }
+
+      export interface UpdatePaddleSizes {
+        paddles: PaddleInfo[];
+      }
+
+      export interface UpdateDisconnected {
+        userIds: number[];
+      }
+
+      export interface UpdateScore {
+        score: [number, number];
+        paddles: PaddleInfo[];
+      }
+
+      export interface Disconnected {
+        tag: string;
+        nickname: string;
+      }
+
+      export interface Reconnected {
+        tag: string;
+        nickname: string;
+      }
+
     }
   }
 
@@ -260,13 +325,10 @@ namespace PongModel {
 
       // existed before
       Connect = '/pong',
-      BallTexture1 = '/pong/Ball.png',
-      // BallTexture2 = "",
-      MarioBoxTexture = '/pong/MarioBox.png',
-      PaddleTexture1 = '/pong/PaddleRed.png',
-      // PaddleTexture2 = "",
+
+      DisconnectWindow = '/pong/UI/disconnect-window.png',
       PowerWaterTexture = '/pong/PowerWater.png',
-      PowerCannonTexture = '/pong/PowerCannon.png',
+      PowerFireTexture = '/pong/PowerCannon.png',
       PowerIceTexture = '/pong/PowerIce.png',
       PowerSparkTexture = '/pong/PowerSpark.png',
       PowerGhostTexture = '/pong/PowerGhost.png',

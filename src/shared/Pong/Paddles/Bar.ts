@@ -1,26 +1,29 @@
-import { GameObject } from '../GameObject';
-import { BarPolygon } from '../Collisions/Polygon';
-import { Vector2D } from '../utils/Vector';
-import { Mana } from './Mana';
-import { Energy } from './Energy';
-import { SpecialPower } from '../SpecialPowers/SpecialPower';
-import { Shooter } from '../SpecialPowers/Shooter';
+import { GameObject } from "../GameObject";
+import { BarPolygon } from "../Collisions/Polygon";
+import { Vector2D } from "../utils/Vector";
+import { Mana } from "./Mana";
+import { Energy } from "./Energy";
+import { SpecialPower } from "../SpecialPowers/SpecialPower";
+import { Shooter } from "../SpecialPowers/Shooter";
 
-import { Bubble } from '../SpecialPowers/Bubble';
-import { Ice } from '../SpecialPowers/Ice';
-import { Fire } from '../SpecialPowers/Fire';
-import { Spark } from '../SpecialPowers/Spark';
-import { Ghost } from '../SpecialPowers/Ghost';
+import { Bubble } from "../SpecialPowers/Bubble";
+import { Ice } from "../SpecialPowers/Ice";
+import { Fire } from "../SpecialPowers/Fire";
+import { Spark } from "../SpecialPowers/Spark";
+import { Ghost } from "../SpecialPowers/Ghost";
 
-import { paddleConfig } from '../config/configInterface';
-import { Game } from '../Game';
+import { paddleConfig, specialpowerConfig } from "../config/configInterface";
+import { Game } from "../Game";
 
-import PongModel from '../../../typings/models/pong/index';
+import PongModel from "../../../typings/models/pong/index";
+import { Collider } from "../Collisions/Collider";
 
 export abstract class Bar extends GameObject {
   protected mana: Mana;
   protected energy: Energy;
   protected specialPowerType: PongModel.Models.LobbyParticipantSpecialPowerType;
+
+  public teamId: number = 0;
 
   public power: SpecialPower | undefined = undefined;
 
@@ -32,7 +35,8 @@ export abstract class Bar extends GameObject {
     y: number,
     tag: string,
     public direction: Vector2D,
-    game: Game
+    game: Game,
+    paddle: keyof typeof paddleConfig,
   ) {
     super(tag, game);
 
@@ -42,19 +46,24 @@ export abstract class Bar extends GameObject {
     this.velocity = Vector2D.Zero;
     this.direction = direction;
     this.scale = 1;
-    this.height = paddleConfig.paddle.height;
-    this.width = paddleConfig.paddle.width;
-    this.collider.polygon = new BarPolygon(
-      this.center,
-      this.width,
-      this.height,
-      this.direction
+    this.height = paddleConfig[paddle].height;
+    this.width = paddleConfig[paddle].width;
+    this.specialPowerType =
+      PongModel.Models.LobbyParticipantSpecialPowerType.none;
+    this.collider = Collider.fromPolygon(
+      new BarPolygon(this.center, this.width, this.height, this.direction)
     );
-    this.collider.updateBoundingBox();
     this.mana = new Mana();
     this.energy = new Energy();
     this.effect = undefined;
     this.shooter = undefined;
+  }
+
+  get HeightVal(): number {
+    return this.height;
+  }
+  get WidthVal(): number {
+    return this.width;
   }
 
   get manaBar(): Mana {
@@ -75,20 +84,24 @@ export abstract class Bar extends GameObject {
     return this.isShooting;
   }
 
+  reduceScale(): void {
+    if (this.getScale >= 0.82) {
+      this.setScale(this.getScale - 0.02);
+      this.game.sendPaddlesScale.push(this);
+    }
+  }
+
   setScale(scale: number): void {
     this.scale = scale;
     this.height = this.height * scale;
     this.width = this.width * scale;
-    this.collider.polygon = new BarPolygon(
-      this.center,
-      this.width,
-      this.height,
-      this.direction
-    );
-    this.collider.updateBoundingBox();
+    this.updatePolygon(this.center);
   }
 
   updatePolygon(center: Vector2D): void {
+    if (this.collider === undefined) return;
+    this.collider.polygon.width = this.width;
+    this.collider.polygon.height = this.height;
     this.collider.polygon.update(center);
     this.collider.updateBoundingBox();
   }
@@ -96,7 +109,7 @@ export abstract class Bar extends GameObject {
   abstract update(delta: number): void;
 
   checkArenaCollision(): boolean {
-    if (this.collider.line && this.collider.intersection) {
+    if (this.collider?.line && this.collider.intersection) {
       if (
         this.collider.intersection.y < this.getCenter.y &&
         this.velocity.y < 0
@@ -155,36 +168,17 @@ export abstract class Bar extends GameObject {
   hasEnoughMana(): boolean {
     switch (this.specialPowerType) {
       case PongModel.Models.LobbyParticipantSpecialPowerType.bubble:
-        return this.manaBar.isManaEnough(20);
+        return this.manaBar.isManaEnough(specialpowerConfig.bubble.manaCost);
       case PongModel.Models.LobbyParticipantSpecialPowerType.fire:
-        return this.manaBar.isManaEnough(50);
+        return this.manaBar.isManaEnough(specialpowerConfig.fire.manaCost);
       case PongModel.Models.LobbyParticipantSpecialPowerType.ice:
-        return this.manaBar.isManaEnough(40);
+        return this.manaBar.isManaEnough(specialpowerConfig.ice.manaCost);
       case PongModel.Models.LobbyParticipantSpecialPowerType.spark:
-        return this.manaBar.isManaEnough(30);
+        return this.manaBar.isManaEnough(specialpowerConfig.spark.manaCost);
       case PongModel.Models.LobbyParticipantSpecialPowerType.ghost:
-        return this.manaBar.isManaEnough(35);
+        return this.manaBar.isManaEnough(specialpowerConfig.ghost.manaCost);
       default:
         return false;
-    }
-  }
-  spendMana(): void {
-    switch (this.specialPowerType) {
-      case PongModel.Models.LobbyParticipantSpecialPowerType.bubble:
-        this.manaBar.spendMana(20);
-        break;
-      case PongModel.Models.LobbyParticipantSpecialPowerType.fire:
-        this.manaBar.spendMana(50);
-        break;
-      case PongModel.Models.LobbyParticipantSpecialPowerType.ice:
-        this.manaBar.spendMana(40);
-        break;
-      case PongModel.Models.LobbyParticipantSpecialPowerType.spark:
-        this.manaBar.spendMana(30);
-        break;
-      case PongModel.Models.LobbyParticipantSpecialPowerType.ghost:
-        this.manaBar.spendMana(35);
-        break;
     }
   }
 }
