@@ -11,9 +11,12 @@ dependencies:
   '@emotion/styled':
     specifier: ^11.11.0
     version: 11.11.0(@emotion/react@11.11.1)(@types/react@18.2.38)(react@18.2.0)
-  '@fontsource/inter':
-    specifier: ^5.0.15
-    version: 5.0.15
+  '@fontsource/open-sans':
+    specifier: ^5.0.17
+    version: 5.0.17
+  '@fontsource/poppins':
+    specifier: ^5.0.8
+    version: 5.0.8
   '@mantine/form':
     specifier: ^7.2.2
     version: 7.2.2(react@18.2.0)
@@ -44,9 +47,15 @@ dependencies:
   moment:
     specifier: ^2.29.4
     version: 2.29.4
+  pixi-viewport:
+    specifier: ^5.0.2
+    version: 5.0.2
   pixi.js:
     specifier: ^7.3.2
     version: 7.3.2(@pixi/utils@7.3.2)
+  pngjs:
+    specifier: ^7.0.0
+    version: 7.0.0
   react:
     specifier: ^18.2.0
     version: 18.2.0
@@ -88,6 +97,9 @@ devDependencies:
   '@types/lodash.throttle':
     specifier: ^4.1.9
     version: 4.1.9
+  '@types/pngjs':
+    specifier: ^6.0.4
+    version: 6.0.4
   '@types/react':
     specifier: ^18.2.38
     version: 18.2.38
@@ -581,8 +593,12 @@ packages:
     resolution: {integrity: sha512-OfX7E2oUDYxtBvsuS4e/jSn4Q9Qb6DzgeYtsAdkPZ47znpoNsMgZw0+tVijiv3uGNR6dgNlty6r9rzIzHjtd/A==}
     dev: false
 
-  /@fontsource/inter@5.0.15:
-    resolution: {integrity: sha512-/IoWYEXl8lqJEx50JqNPT+bI4VNwxb/bg2oOfvG8PiEsDsmHRFvWBVHlohBNn1+QdBf+KbAjU/gb4vlGOSsVWw==}
+  /@fontsource/open-sans@5.0.17:
+    resolution: {integrity: sha512-4mIAJ/1B9pltG7NhxqReeu46L1+j/eAgwWmvjXh+FhsgcgsboQDrfn9wtUP2PWB7/JrMA4Hd9N/4qAN6kJSdyg==}
+    dev: false
+
+  /@fontsource/poppins@5.0.8:
+    resolution: {integrity: sha512-P8owfYWluoUY5Nyzk4gT/L6LmLmseP6ezFWhj6VBUa5pRIdnCvNJpoQ6i/vhekjtJOfqX6nKlB+LCttoUl2GQQ==}
     dev: false
 
   /@humanwhocodes/config-array@0.11.13:
@@ -1467,6 +1483,12 @@ packages:
     resolution: {integrity: sha512-OvlIYQK9tNneDlS0VN54LLd5uiPCBOp7gS5Z0f1mjoJYBrtStzgmJBxONW3U6OZqdtNzZPmn9BS/7WI7BFFcFQ==}
     dev: true
 
+  /@types/node@20.10.4:
+    resolution: {integrity: sha512-D08YG6rr8X90YB56tSIuBaddy/UXAA9RKJoFvrsnogAum/0pmjkgi4+2nx96A330FmioegBWmEYQ+syqCFaveg==}
+    dependencies:
+      undici-types: 5.26.5
+    dev: true
+
   /@types/offscreencanvas@2019.7.3:
     resolution: {integrity: sha512-ieXiYmgSRXUDeOntE1InxjWyvEelZGP63M+cGuquuRLuIKKT1osnkXjxev9B7d1nXSug5vpunx+gNlbVxMlC9A==}
     dev: false
@@ -1474,6 +1496,12 @@ packages:
   /@types/parse-json@4.0.2:
     resolution: {integrity: sha512-dISoDXWWQwUquiKsyZ4Ng+HX2KsPL7LyHKHQwgGFEA3IaKac4Obd+h2a/a6waisAoepJlBcx9paWqjA8/HVjCw==}
     dev: false
+
+  /@types/pngjs@6.0.4:
+    resolution: {integrity: sha512-atAK9xLKOnxiuArxcHovmnOUUGBZOQ3f0vCf43FnoKs6XnqiambT1kkJWmdo71IR+BoXSh+CueeFR0GfH3dTlQ==}
+    dependencies:
+      '@types/node': 20.10.4
+    dev: true
 
   /@types/prop-types@15.7.11:
     resolution: {integrity: sha512-ga8y9v9uyeiLdpKddhxYQkxNDrfvuPrlFb0N1qnZZByvcElJaXthF1UhvCh9TLWJBEHeNtdnbysW7Y6Uq8CVng==}
@@ -3415,6 +3443,10 @@ packages:
     engines: {node: '>=8.6'}
     dev: true
 
+  /pixi-viewport@5.0.2:
+    resolution: {integrity: sha512-U77KnCTl81xEgxEQRFEuI7MYVySWwCVkA41EnM8KiOYwgVOwdBUa7318O+u61IOnTwnoYLzaihy/kpoONKU13Q==}
+    dev: false
+
   /pixi.js@7.3.2(@pixi/utils@7.3.2):
     resolution: {integrity: sha512-GJickUrT3UcBInGT1CU6cv2oktCdocE5QM74CD3t+weiJPPWIzleNlp7zrBR5QIDdU6bEO8CUgUXH2Y9QvlCMw==}
     dependencies:
@@ -3455,6 +3487,11 @@ packages:
   /pngjs@3.4.0:
     resolution: {integrity: sha512-NCrCHhWmnQklfH4MtJMRjZ2a8c80qXeMlQMv2uVp9ISJMTt562SbGd6n2oq0PaPgKm7Z6pL9E2UlLIhC+SHL3w==}
     engines: {node: '>=4.0.0'}
+    dev: false
+
+  /pngjs@7.0.0:
+    resolution: {integrity: sha512-LKWqWJRhstyYo9pGvgor/ivk2w94eSjE3RGVuzLGlr3NmD8bf7RcYGze1mNdEHRP6TRP6rMuDHk5t44hnTRyow==}
+    engines: {node: '>=14.19.0'}
     dev: false
 
   /postcss@8.4.31:
@@ -4100,6 +4137,10 @@ packages:
       has-bigints: 1.0.2
       has-symbols: 1.0.3
       which-boxed-primitive: 1.0.2
+    dev: true
+
+  /undici-types@5.26.5:
+    resolution: {integrity: sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==}
     dev: true
 
   /uniq@1.0.1:

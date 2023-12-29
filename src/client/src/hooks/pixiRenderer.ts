@@ -7,7 +7,8 @@ export const usePixiRenderer = (
     app: Pixi.Application
   ) =>
     | (() => void | Promise<void>)
-    | Promise<() => void | Promise<void>>
+    | Promise<(() => void) | void | Promise<void>>
+    | Promise<(() => void) | undefined>
     | void,
   options?: Partial<Pixi.IApplicationOptions>
 ) => {
@@ -26,10 +27,16 @@ export const usePixiRenderer = (
       if (cleanup) {
         if (cleanup! instanceof Promise) cleanup = Promise.resolve(cleanup);
         (cleanup as Promise<any>).then((cleanup) => {
-          cleanup();
-          app.destroy();
+          cleanup?.();
+          if (app.stage)
+            app.destroy(true, {
+              children: true,
+            });
         });
-      } else app.destroy();
+      } else if (app.stage)
+        app.destroy(true, {
+          children: true,
+        });
     };
   }, [ref, onMount, options]);
 };

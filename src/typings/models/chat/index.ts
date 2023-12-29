@@ -59,10 +59,16 @@ namespace ChatsModel {
     export namespace Embeds {
       export enum Type {
         Media = 'media',
+        System = 'system',
         UserProfile = 'user-profile',
         GameInvite = 'game-invite',
         ChatInvite = 'chat-invite',
       }
+
+      export interface System {
+        type: GroupEnumValues<Type.System>;
+      }
+
       export interface Media {
         type: GroupEnumValues<Type.Media>;
         urls: string[];
@@ -73,14 +79,15 @@ namespace ChatsModel {
       }
       export interface GameInvite {
         type: GroupEnumValues<Type.GameInvite>;
-        gameId: number;
+        lobbyId: number;
+        nonce: number;
       }
       export interface ChatInvite {
         type: GroupEnumValues<Type.ChatInvite>;
         chatId: number;
         inviteNonce: string;
       }
-      export type All = Media | UserProfile | GameInvite | ChatInvite;
+      export type All = Media | UserProfile | GameInvite | ChatInvite | System;
     }
 
     export interface IChatMessage {

@@ -3,12 +3,11 @@ import {
   CanActivate,
   ExecutionContext,
   UnauthorizedException,
-  HttpException,
 } from '@nestjs/common';
 import { Auth } from '@typings/auth';
 import { Request } from '@typings/http';
 import { AuthService } from '../42/auth.service';
-import { UsersService } from '@/modules/users/users.service';
+import { UsersService } from '@/modules/users/services/users.service';
 import UserExtSession from '@/modules/users/user/ext/Session';
 import { HttpError } from '@/helpers/decorators/httpError';
 
@@ -31,8 +30,8 @@ export class AuthGuard implements CanActivate {
       if (!uSession.auth.isTokenValid()) await this.refreshToken(uSession);
     } catch (e) {
       console.error(e);
-      if (e instanceof HttpException)
-        throw new UnauthorizedException(e.message);
+      if (e instanceof UnauthorizedException)
+        throw e;
       throw new Error(e.message);
     }
     return true;

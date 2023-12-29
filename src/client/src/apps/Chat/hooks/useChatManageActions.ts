@@ -6,8 +6,15 @@ import UsersModel from '@typings/models/users';
 import notifications from '@lib/notifications/hooks';
 import tunnel from '@lib/tunnel';
 import { useConfirmationModalActions } from '@apps/Modals/Confirmation/hooks';
-import { useChatSelectModalActions } from '../modals/ChatSelectModal/hooks/useChatSelectModal';
+import {
+  ChatSelectedData,
+  useChatSelectModalActions,
+} from '../modals/ChatSelectModal/hooks/useChatSelectModal';
 import { useChatInfoEditModalActions } from '../modals/ChatInfoEdit/hooks/useChatInfoEditModal';
+import pongGamesState from '@apps/GameLobby/state';
+import { sessionAtom } from '@hooks/user';
+import { ChatModel } from '@typings/models';
+import PongModel from '@typings/models/pong';
 
 const useChatManageActions = () => {
   const useModal = () => {
@@ -56,6 +63,10 @@ const useChatManageActions = () => {
           chatsState.selfParticipantByChat(chatId)
         );
         if (!self) throw new Error('You are not in this chat');
+        const participants = await ctx.snapshot.getPromise(
+          chatsState.activeParticipants(chatId)
+        );
+        console.log(participants);
         if (self.role === ChatsModel.Models.ChatParticipantRole.Owner) {
           const confirmed = await confirm({
             content: `
@@ -64,6 +75,18 @@ const useChatManageActions = () => {
           `,
             confirmText: 'Leave',
             confirmColor: 'warning',
+            keepOpen: true,
+          });
+          if (!confirmed) return;
+        }
+
+        if (participants.length === 1) {
+          const confirmed = await confirm({
+            content: `
+              Are you sure you want to leave this chat?
+              This action will delete it as there are no other members.
+          `,
+            confirmText: 'Leave',
           });
           if (!confirmed) return;
         }
@@ -306,6 +329,27 @@ const useChatManageActions = () => {
     },
     [select]
   );
+
+  const sendInviteToTargets = useRecoilCallback(
+    (ctx) => async (targets: ChatSelectedData[]) => {
+      try {
+        const chatId = await ctx.snapshot.getPromise(chatsState.selectedChatId);
+        if (chatId === -1)
+          throw new Error('You must select a chat before inviting a user');
+        await tunnel.post(
+          ChatsModel.Endpoints.Targets.SendInviteToTargets,
+          targets,
+          {
+            chatId,
+          }
+        );
+        notifications.success('Invites sent!');
+      } catch (e) {
+        notifications.error('Failed to send invites', (e as Error).message);
+      }
+    },
+    []
+  );
   const { close } = useChatInfoEditModalActions();
 
   const updateInfo = useRecoilCallback(
@@ -326,6 +370,57 @@ const useChatManageActions = () => {
     [close]
   );
 
+  const inviteToPongLobby = useRecoilCallback(
+    (ctx) => async (chatId:number) => {
+      try {
+        const chat = await ctx.snapshot.getPromise(chatsState.chat(chatId));
+        let lobby = await ctx.snapshot.getPromise(pongGamesState.gameLobby);
+        const session = await ctx.snapshot.getPromise(sessionAtom)
+        if (!chat) throw new Error('Chat not found');
+        if (!session) throw new Error('Session not found');
+        let lobbyId = lobby?.id;
+        if (lobby) {
+          if (lobby.ownerId !== session.id)
+            throw new Error('You are not the owner of the lobby');
+        } else {
+          lobbyId = undefined;
+        }
+        
+        let selected: ChatSelectedData[] = [];
+        if (chat.type === ChatModel.Models.ChatType.Group) {
+          selected = [
+            {
+              id: chat.id,
+              type: 'chat',
+            },
+          ];
+        } else {
+          const other = chat.participants.find(
+            (p) => p.userId !== session.id
+          );
+          if (!other) throw new Error('No other user found');
+          selected = [
+            {
+              id: other.userId, 
+              type: 'user',
+            },
+          ];
+        }
+        if (selected.length === 0) throw new Error('No players selected');
+        console.log(lobbyId, selected);
+        lobby = await tunnel.post(PongModel.Endpoints.Targets.Invite, {
+          lobbyId: lobbyId,
+          data: selected,
+        });
+        ctx.set(pongGamesState.gameLobby, lobby);
+        notifications.success('Invite sent');
+      } catch (err) {
+        console.log(err);
+      }
+    },
+    []
+  );
+
   return {
     useModal,
     toggleAdmin,
@@ -339,7 +434,9 @@ const useChatManageActions = () => {
     openMuteModal,
     nuke,
     sendInviteFromGroup,
-    updateInfo
+    sendInviteToTargets,
+    updateInfo,
+    inviteToPongLobby,
   };
 };
 

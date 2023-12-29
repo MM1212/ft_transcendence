@@ -4,7 +4,7 @@ import CheckIcon from '@components/icons/CheckIcon';
 import CloseIcon from '@components/icons/CloseIcon';
 import InformationIcon from '@components/icons/InformationIcon';
 import { Alert, AlertProps, Button, IconButton, Typography } from '@mui/joy';
-import React from 'react';
+import React, { isValidElement } from 'react';
 import { ExternalToast, toast } from 'sonner';
 
 type NotificationComponentProps = Pick<
@@ -95,7 +95,7 @@ function NotificationWrapper({
         </>
       }
     >
-      {children ??
+      {children && isValidElement(children) ? children :
         (message ? (
           <Typography level="body-sm">{message}</Typography>
         ) : (
@@ -166,8 +166,8 @@ class NotificationsAPI {
     } else if (description === undefined) props = title;
     return new Notification({
       icon: <InformationIcon />,
-      ...(props as NotificationProps),
       color: 'neutral',
+      ...(props as NotificationProps),
       message,
       title,
       description,

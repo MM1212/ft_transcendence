@@ -1,0 +1,59 @@
+{
+  "game": {
+    "canvas": {
+      "width": 800,
+      "height": 600
+    }
+  },
+  "balls": {
+    "RedBall": {
+      "diameter": 32,
+      "vertices": 8,
+      "image": "RedBall.png"
+    },
+    "default": {
+      "diameter": 32,
+      "vertices": 8,
+      "image": "RedBall.png"
+    }
+  },
+  "paddles": {
+    "PaddleRed": {
+      "width": 28,
+      "height": 116,
+      "image": "PaddleRed.png"
+    },
+    "default": {
+      "width": 28,
+      "height": 116,
+      "image": "PaddleRed.png"
+    }
+  },
+  "powers": {
+    "spark": {
+      "diameter": 32,
+      "vertices": 8,
+      "manaCost": 30
+    },
+    "fire": {
+      "diameter": 32,
+      "vertices": 8,
+      "manaCost": 50
+    },
+    "ghost": {
+      "diameter": 32,
+      "vertices": 8,
+      "manaCost": 35
+    },
+    "bubble": {
+      "diameter": 32,
+      "vertices": 8,
+      "manaCost": 20
+    },
+    "ice": {
+      "diameter": 32,
+      "vertices": 8,
+      "manaCost": 40
+    }
+  }
+}

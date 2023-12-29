@@ -1,14 +1,17 @@
-import { Divider, Sheet } from "@mui/joy";
-import FriendsHeader from "../components/FriendsHeader";
+import { Divider, Sheet } from '@mui/joy';
+import FriendsHeader from '../components/FriendsHeader';
 import FriendsDisplay, {
   FriendsDisplayWrapper,
-} from "../components/FriendsDisplay";
-import { Redirect, Route, Router, Switch, useRouter } from "wouter";
-import PendingFriendsGetter from "../components/PendingFriendsGetter";
-import { useRecoilValue } from "recoil";
-import friendsState from "../state";
-import FriendBlockedDisplay from "../components/FriendsBlockedDisplay";
-import React from "react";
+} from '../components/FriendsDisplay';
+import { Redirect, Route, Router, Switch, useRouter } from 'wouter';
+import { useRecoilValue } from 'recoil';
+import friendsState from '../state';
+import FriendBlockedDisplay from '../components/FriendsBlockedDisplay';
+import React from 'react';
+import { useGetNotificationsByTag } from '@apps/Inbox/state';
+import NotificationsModel from '@typings/models/notifications';
+import UsersModel from '@typings/models/users';
+import FriendPendingDisplay from '../components/FriendsPendingDisplay';
 
 function OnlineFriends(): JSX.Element {
   const friends = useRecoilValue(friendsState.onlineFriends);
@@ -34,35 +37,54 @@ function BlockedFriends(): JSX.Element {
   );
 }
 
+function PendingFriends(): JSX.Element {
+  const notifications =
+    useGetNotificationsByTag<UsersModel.DTO.FriendRequestNotification>(
+      NotificationsModel.Models.Tags.UserFriendsRequest
+    );
+  return React.useMemo(
+    () => (
+      <FriendsDisplayWrapper length={notifications.length} label="pending">
+        {notifications
+          .filter((n) => n.data.status === 'pending')
+          .map((notif, i) => (
+            <FriendPendingDisplay key={i} notif={notif} />
+          ))}
+      </FriendsDisplayWrapper>
+    ),
+    [notifications]
+  );
+}
+
 export default function FriendsPanel() {
-  const router = useRouter();
   return (
-    <Router base="/friends" parent={router}>
+    <Router parent={useRouter()}>
       <Sheet
         sx={{
-          borderRight: "1px solid",
-          borderColor: "divider",
-          height: "100%",
-          overflowY: "auto",
-          width: "80dvh",
+          borderRight: '1px solid',
+          borderLeft: '1px solid',
+          borderColor: 'divider',
+          height: '100%',
+          overflowY: 'auto',
+          width: '80dvh',
         }}
       >
         <FriendsHeader />
         <Divider />
         <Switch>
-          <Route path="/">
+          <Route path="/friends">
             <OnlineFriends />
           </Route>
-          <Route path="/online">
-            <Redirect to="/" />
+          <Route path="/friends/online">
+            <Redirect to="/friends/" />
           </Route>
-          <Route path="/all">
+          <Route path="/friends/all">
             <AllFriends />
           </Route>
-          <Route path="/pending">
-            <PendingFriendsGetter />
+          <Route path="/friends/pending">
+            <PendingFriends />
           </Route>
-          <Route path="/blocked">
+          <Route path="/friends/blocked">
             <BlockedFriends />
           </Route>
         </Switch>

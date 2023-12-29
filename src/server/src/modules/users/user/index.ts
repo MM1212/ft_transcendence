@@ -8,21 +8,44 @@ import { IAuthSession } from '@typings/auth/session';
 import UserExtFriends from './ext/Friends';
 import { HttpError } from '@/helpers/decorators/httpError';
 import { AuthModel } from '@typings/api';
+import UserExtAlerts from './ext/Alerts';
+import UserExtCharacter from './ext/Character';
+import UserExtQuests from './ext/Quests';
+import UserExtInventory from './ext/Inventory';
+import UserExtNotifications from './ext/Notifications';
 
 class User extends CacheObserver<UsersModel.Models.IUser> {
   public readonly friends: UserExtFriends = new UserExtFriends(this);
+  public readonly alerts: UserExtAlerts = new UserExtAlerts(this);
+  public readonly character: UserExtCharacter = new UserExtCharacter(this);
+  public readonly quests: UserExtQuests = new UserExtQuests(this);
+  public readonly inventory: UserExtInventory = new UserExtInventory(this);
+  public readonly notifications: UserExtNotifications =
+    new UserExtNotifications(this);
+
   constructor(
     data: UsersModel.Models.IUser,
-    public readonly helpers: UserDependencies,
+    private readonly helpers: UserDependencies,
   ) {
     super(data);
   }
 
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   public get public(): UsersModel.Models.IUserInfo {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { friends, blocked, chats, storedStatus, tfa, ...user } = this.get();
+    const {
+      friends,
+      blocked,
+      chats,
+      storedStatus,
+      tfa,
+      connected,
+      character,
+      quests,
+      ...user
+    } = this.get();
     return user satisfies UsersModel.Models.IUserInfo;
   }
+  /* eslint-enable @typescript-eslint/no-unused-vars */
 
   // getters
   public get id(): number {
@@ -49,20 +72,8 @@ class User extends CacheObserver<UsersModel.Models.IUser> {
     return this.get('status');
   }
 
-  public get isOnline(): boolean {
-    return this.status === UsersModel.Models.Status.Online;
-  }
-
-  public get isOffline(): boolean {
-    return this.status === UsersModel.Models.Status.Offline;
-  }
-
-  public get isAway(): boolean {
-    return this.status === UsersModel.Models.Status.Away;
-  }
-
-  public get isBusy(): boolean {
-    return this.status === UsersModel.Models.Status.Busy;
+  public get isConnected(): boolean {
+    return this.get('connected');
   }
 
   public async refresh(): Promise<void> {

@@ -3,15 +3,15 @@ import UsersModel from '@typings/models/users';
 export const userStatusToString = (status: UsersModel.Models.Status) => {
   switch (status) {
     case UsersModel.Models.Status.Online:
-      return 'Online';
+      return 'online';
     case UsersModel.Models.Status.Offline:
-      return 'Offline';
+      return 'offline';
     case UsersModel.Models.Status.Away:
-      return 'Away';
+      return 'away';
     case UsersModel.Models.Status.Busy:
-      return 'Busy';
+      return 'busy';
     default:
-      return 'Unknown';
+      return 'unknown';
   }
 };
 

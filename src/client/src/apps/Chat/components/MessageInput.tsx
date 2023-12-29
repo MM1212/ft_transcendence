@@ -33,7 +33,13 @@ function _ParticipantsTyping({ id }: { id: number; selfId: number }) {
 
   if (participantNames.length === 0) return null;
   return (
-    <Typography level="body-xs" color="neutral" position="absolute" mt={0.5} ml={0.5}>
+    <Typography
+      level="body-xs"
+      color="neutral"
+      position="absolute"
+      mt={0.5}
+      ml={0.5}
+    >
       {participantNames}
       {threeDots}
     </Typography>
@@ -42,7 +48,19 @@ function _ParticipantsTyping({ id }: { id: number; selfId: number }) {
 
 const ParticipantsTyping = React.memo(_ParticipantsTyping);
 
-function MessageInput({ id }: { id: number }) {
+export interface ChatMessageInputProps {
+  id: number;
+  rootProps?: React.ComponentProps<typeof Stack>;
+  inputProps?: React.ComponentProps<typeof Textarea>;
+  submitBtnProps?: React.ComponentProps<typeof IconButton>;
+}
+
+function MessageInput({
+  id,
+  rootProps,
+  inputProps,
+  submitBtnProps,
+}: ChatMessageInputProps) {
   const [input, setInput] = useRecoilState(chatsState.chatsInput(id));
   const formRef = React.useRef<HTMLFormElement>(null);
 
@@ -74,6 +92,9 @@ function MessageInput({ id }: { id: number }) {
   const submit = useRecoilCallback(
     (ctx) => async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
+      const input = (
+        e.currentTarget.elements.namedItem('message') as HTMLTextAreaElement
+      ).value;
       if (input.trim().length === 0) return;
       try {
         const chat = await ctx.snapshot.getPromise(chatsState.chat(id));
@@ -99,9 +120,18 @@ function MessageInput({ id }: { id: number }) {
             ...message
               .match(new RegExp(urlRegex, 'g'))!
               .map((url) => url.trim())
+              .filter((url) =>
+                /(jpg|png|gif|jpeg|webp|webm)/g.test(
+                  url.slice(url.lastIndexOf('.') + 1)
+                )
+              )
               .filter((url, i, arr) => arr.indexOf(url) === i)
           );
           urlRegex.lastIndex = 0;
+          if (messagePayload.meta.urls!.length === 0) {
+            messagePayload.type = ChatsModel.Models.ChatMessageType.Normal;
+            messagePayload.meta = {};
+          }
         }
         ctx.set(chatsState.messages(chat.id), (prev) => [
           {
@@ -115,7 +145,7 @@ function MessageInput({ id }: { id: number }) {
           ...prev,
         ]);
         setInput('');
-        clearIsTyping();
+        await clearIsTyping();
         const resp = await tunnel.rawPut(
           ChatsModel.Endpoints.Targets.CreateMessage,
           messagePayload,
@@ -139,7 +169,7 @@ function MessageInput({ id }: { id: number }) {
         notifications.error('Could not send message', (e as Error).message);
       }
     },
-    [clearIsTyping, id, input, setInput]
+    [clearIsTyping, id, setInput]
   );
   const inputRef = React.useRef<HTMLTextAreaElement>(null);
   React.useEffect(() => {
@@ -156,17 +186,21 @@ function MessageInput({ id }: { id: number }) {
     <Stack
       sx={{ px: 2, pb: 3 }}
       direction="row"
-      alignItems="center"
+      alignItems="flex-end"
       spacing={1}
       width="100%"
+      position="relative"
       component="form"
+      {...(rootProps as any)}
       onSubmit={submit}
       ref={formRef}
-      position="relative"
     >
       <FormControl
         style={{
           flexGrow: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
         }}
       >
         <FormLabel>
@@ -182,6 +216,10 @@ function MessageInput({ id }: { id: number }) {
                     : moment(self.mutedUntil).format('lll')
                 }`
           }
+          minRows={1}
+          maxRows={10}
+          {...inputProps}
+          name="message"
           disabled={mutedData.is}
           onChange={(e) => {
             setInput(e.target.value);
@@ -189,8 +227,11 @@ function MessageInput({ id }: { id: number }) {
             else updateToTyping();
           }}
           value={input}
-          minRows={1}
-          maxRows={10}
+          sx={{
+            mt: 1,
+            '& textarea:first-of-type': {},
+            flexGrow: 1,
+          }}
           slotProps={{
             textarea: {
               ref: inputRef,
@@ -207,21 +248,17 @@ function MessageInput({ id }: { id: number }) {
               formRef.current?.requestSubmit();
             }
           }}
-          sx={{
-            mt: 1,
-            '& textarea:first-of-type': {},
-            flexGrow: 1,
-          }}
         />
       </FormControl>
       <IconButton
         size="md"
         color="primary"
-        type="submit"
         variant="plain"
         sx={{
           borderRadius: (theme) => theme.radius.xl,
         }}
+        {...submitBtnProps}
+        type="submit"
         disabled={input.trim().length === 0 || mutedData.is}
       >
         {!mutedData.is ? (
@@ -234,12 +271,12 @@ function MessageInput({ id }: { id: number }) {
   );
 }
 
-export default function MessageInputSelector({
-  id,
-}: {
-  id: number;
-}): JSX.Element {
-  const isTargetRecipientBlocked = useChat(id).useIsTargetRecipientBlocked();
-  if (isTargetRecipientBlocked) return <MessageInputBlocked id={id} />;
-  return <MessageInput id={id} />;
+export default function MessageInputSelector(
+  props: ChatMessageInputProps
+): JSX.Element {
+  const isTargetRecipientBlocked = useChat(
+    props.id
+  ).useIsTargetRecipientBlocked();
+  if (isTargetRecipientBlocked) return <MessageInputBlocked id={props.id} />;
+  return <MessageInput {...props} />;
 }

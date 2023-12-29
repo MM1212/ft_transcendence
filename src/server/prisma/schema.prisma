@@ -13,23 +13,25 @@ datasource db {
 // Infrastructure Modules
 
 model User {
-  id                 Int               @id @default(autoincrement())
-  studentId          Int               @unique @map("student_id")
-  nickname           String            @unique
-  avatar             String
-  createdAt          DateTime          @default(now()) @map("created_at")
-  currentCharacterId Int?              @map("current_character_id")
-  storedStatus       Int               @default(1) @map("stored_status")
-  firstLogin         Boolean           @default(true) @map("first_login")
-  characters         Character[]
-  friends            User[]            @relation("friends")
-  friendOf           User[]            @relation("friends")
-  blocked            User[]            @relation("blocked")
-  blockedBy          User[]            @relation("blocked")
-  chats              ChatParticipant[]
-  notifications      Notification[]
-  tfaEnabled        Boolean           @default(false) @map("tfa_enabled")
-  tfaSecret         String?           @map("tfa_secret")
+  id            Int               @id @default(autoincrement())
+  studentId     Int               @unique @map("student_id")
+  nickname      String            @unique
+  avatar        String
+  createdAt     DateTime          @default(now()) @map("created_at")
+  storedStatus  Int               @default(1) @map("stored_status")
+  firstLogin    Boolean           @default(true) @map("first_login")
+  friends       User[]            @relation("friends")
+  friendOf      User[]            @relation("friends")
+  blocked       User[]            @relation("blocked")
+  blockedBy     User[]            @relation("blocked")
+  chats         ChatParticipant[]
+  notifications Notification[]
+  tfaEnabled    Boolean           @default(false) @map("tfa_enabled")
+  tfaSecret     String?           @map("tfa_secret")
+  inventory     Item[]
+  character     Character         @relation(fields: [characterId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  characterId   Int               @unique @map("character_id")
+  quests        Quest[]
 
   gamesPlayed MatchHistory[] @relation("match_players")
 
@@ -119,55 +121,62 @@ model ChatMessage {
   @@map("chat_messages")
 }
 
-model Notification {
-  id        Int       @id @default(autoincrement())
-  type      String
-  meta      Json?     @default("{}")
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId    Int       @map("user_id")
-  createdAt DateTime  @default(now()) @map("created_at")
-  readAt    DateTime? @map("read_at")
+enum NotificationTypes {
+  PERMANENT
+  TEMPORARY
+}
 
-  @@index([userId])
+model Notification {
+  id          Int               @id @default(autoincrement())
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId      Int               @map("user_id")
+  title       String
+  message     String
+  type        NotificationTypes @default(PERMANENT)
+  tag         String
+  data        Json              @default("{}")
+  read        Boolean           @default(false)
+  createdAt   DateTime          @default(now()) @map("created_at")
+  lifetime    Int               @default(0)
+  dismissable Boolean           @default(true)
+
+  @@index([userId, tag])
   @@map("notifications")
 }
 
 // Game Models
 
 model Character {
-  id        Int             @id @default(autoincrement())
-  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId    Int             @map("user_id")
+  id   Int   @id @default(autoincrement())
+  user User?
+
+  clothes Json @default("{\"color\": 1,\"face\": -1,\"head\": -1,\"body\": -1,\"feet\": -1,\"hand\": -1,\"neck\": -1}")
+}
+
+model Item {
+  id        Int      @id @default(autoincrement())
+  type      String
   name      String
-  createdAt DateTime        @default(now()) @map("created_at")
-  stats     CharacterStat[]
-  inventory CharacterItem[]
+  meta      Json     @default("{}")
+  createdAt DateTime @default(now()) @map("created_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId    Int      @map("user_id")
 
-  @@map("characters")
+  @@unique([userId, type, name], name: "item_unique")
+  @@index([userId, type, name])
+  @@map("user_items")
 }
 
-model CharacterStat {
-  id          Int       @id @default(autoincrement())
-  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  characterId Int       @map("character_id")
-  type        String
-  name        String
-  value       Int
-  createdAt   DateTime  @default(now()) @map("created_at")
-
-  @@map("characters_stats")
-}
-
-model CharacterItem {
-  id          Int       @id @default(autoincrement())
-  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  characterId Int       @map("character_id")
-  type        String
-  name        String
-  meta        Json      @default("{}")
-  createdAt   DateTime  @default(now()) @map("created_at")
-
-  @@map("characters_inventories")
+model Quest {
+  id         Int       @id @default(autoincrement())
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId     Int       @map("user_id")
+  tag        String
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @default(now()) @updatedAt @map("updated_at")
+  finishedAt DateTime? @map("finished_at")
+  completed  Boolean   @default(false)
+  meta       Json      @default("{}")
 }
 
 model MatchHistory {

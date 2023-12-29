@@ -33,6 +33,11 @@ const useMessagesService = () => {
   const onNewChat = useRecoilCallback(
     (ctx) => async (ev: ChatsModel.Sse.NewChatEvent) => {
       const { data } = ev;
+      const { isActive } = ctx.snapshot.getInfo_UNSTABLE(
+        chatsState.chats
+      );    
+      if (!isActive) return;
+
       ctx.set(chatsState.chats, (prev) => [...prev, data.chatId]);
     },
     []

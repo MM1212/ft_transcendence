@@ -32,7 +32,7 @@ export const buildTunnelEndpoint = (
 export const useTunnelEndpoint = <
   T extends API.Endpoint<API.EndpointMethods, API.Endpoints.All>,
 >(
-  endpoint: API.EndpointTarget<T>,
+  endpoint: API.EndpointTarget<T> | null,
   params: API.EndpointParams<T> = {},
   options: SWRConfiguration<API.EndpointResponse<T>> = {},
   fetcher: (
@@ -41,7 +41,9 @@ export const useTunnelEndpoint = <
   ) => Promise<API.EndpointResponse<T>> = jsonFetcher<API.EndpointResponse<T>>
 ) =>
   useSWR<API.EndpointResponse<T>>(
-    buildTunnelEndpoint(endpoint, params),
+    endpoint
+      ? buildTunnelEndpoint(endpoint, params as Record<string, unknown>)
+      : null,
     fetcher,
     options
   );

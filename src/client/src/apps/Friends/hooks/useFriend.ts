@@ -12,15 +12,13 @@ import { useChatSelectModalActions } from '@apps/Chat/modals/ChatSelectModal/hoo
 
 const useFriend = (friendId: number) => {
   const [, navigate] = useLocation();
+  const { select, closeAll } = useChatSelectModalActions();
+
   const remove = useRecoilCallback(
     (ctx) => async () => {
       try {
         const self = await ctx.snapshot.getPromise(sessionAtom);
         if (!self) throw new Error('You are not logged in');
-        await tunnel.del(UsersModel.Endpoints.Targets.RemoveFriend, {
-          id: self.id,
-          friendId,
-        });
         await tunnel.del(UsersModel.Endpoints.Targets.RemoveFriend, {
           id: self.id,
           friendId,
@@ -76,11 +74,12 @@ const useFriend = (friendId: number) => {
           { targetId: friendId }
         );
         navigate(`/messages/${chatId}`);
+        closeAll();
       } catch (e) {
         notifications.error('Failed to go to messages', (e as Error).message);
       }
     },
-    [friendId, navigate]
+    [friendId, navigate, closeAll]
   );
 
   const goToProfile = useRecoilCallback(
@@ -89,8 +88,9 @@ const useFriend = (friendId: number) => {
       if (!self) throw new Error('You are not logged in');
       if (self.id === friendId) return navigate('/profile/me');
       navigate(`/profile/${friendId}`);
+      closeAll();
     },
-    [friendId, navigate]
+    [friendId, navigate, closeAll]
   );
 
   const useIsBlocked = () => {
@@ -102,7 +102,6 @@ const useFriend = (friendId: number) => {
     return React.useMemo(() => friends.includes(friendId), [friends]);
   };
 
-  const { select } = useChatSelectModalActions();
   const sendInviteFromDM = useRecoilCallback(
     (ctx) => async () => {
       try {
@@ -135,6 +134,26 @@ const useFriend = (friendId: number) => {
     [select]
   );
 
+  const sentFriendRequest = useRecoilCallback(
+    (ctx) => async () => {
+      const self = await ctx.snapshot.getPromise(sessionAtom);
+      if (!self) throw new Error('You are not logged in');
+      try {
+        await tunnel.put(UsersModel.Endpoints.Targets.AddFriend, undefined, {
+          id: self.id,
+          friendId,
+        });
+        notifications.success('Friend request sent!');
+      } catch (e) {
+        notifications.error(
+          'Failed to send friend request',
+          (e as Error).message
+        );
+      }
+    },
+    [friendId]
+  );
+
   return {
     remove,
     block,
@@ -144,6 +163,7 @@ const useFriend = (friendId: number) => {
     useIsBlocked,
     useIsFriend,
     sendInviteFromDM,
+    sentFriendRequest,
   };
 };
 

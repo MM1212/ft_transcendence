@@ -1,4 +1,4 @@
-import { Sheet } from '@mui/joy';
+import { Sheet, CircularProgress } from '@mui/joy';
 import { SxProps } from '@mui/joy/styles/types';
 import React from 'react';
 
@@ -10,6 +10,7 @@ export default function CustomizationBox({
   children,
   disabled = false,
   imgProps,
+  loading = false,
 }: {
   disabled?: boolean;
   imageUrl?: string;
@@ -18,6 +19,7 @@ export default function CustomizationBox({
   onClick?: () => void;
   children?: React.ReactNode;
   imgProps?: SxProps;
+  loading?: boolean;
 }) {
   return (
     <Sheet
@@ -29,21 +31,25 @@ export default function CustomizationBox({
         justifyContent: 'center',
         alignItems: 'center',
         cursor: !disabled ? 'pointer' : undefined,
-        bgcolor: selected && !disabled ? 'background.level2' : undefined,
+        bgcolor:
+          selected && !disabled && !loading ? 'background.level2' : undefined,
         borderRadius: (theme) => theme.radius.sm,
         transition: (theme) => theme.transitions.create('background-color'),
-        '&:hover': !disabled
-          ? {
-              bgcolor: 'background.level1',
-            }
-          : undefined,
+        '&:hover':
+          !disabled && !loading
+            ? {
+                bgcolor: 'background.level1',
+              }
+            : undefined,
         flex,
         overflow: 'hidden',
         ...imgProps,
       }}
-      onClick={onClick}
+      onClick={!disabled && !loading ? onClick : undefined}
     >
-      {imageUrl ? (
+      {loading ? (
+        <CircularProgress variant="plain" />
+      ) : imageUrl ? (
         <img
           src={imageUrl}
           style={{

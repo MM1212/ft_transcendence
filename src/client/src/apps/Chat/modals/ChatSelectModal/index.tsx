@@ -68,6 +68,8 @@ function _ChatSelectModal(): JSX.Element {
       data.push(
         ...chats
           .filter((chat) => {
+            if (chat.type === ChatsModel.Models.ChatType.Temp)
+              return false;
             if (exclude.some((e) => e.type === 'chat' && e.id === chat.id))
               return false;
             if (
@@ -127,7 +129,7 @@ function _ChatSelectModal(): JSX.Element {
 
       setSelected((prev) => {
         if (!multiple) return [option];
-        if (prev.some((p) => p.id === option.id)) {
+        if (prev.some((p) => p.type === option.type && p.id === option.id)) {
           return prev.filter((p) => p.id !== option.id);
         }
         return [...prev, option];

@@ -7,7 +7,7 @@ import {
 import Chat from './chat';
 import { ChatDependencies } from './chat/dependencies';
 import { DbService } from '../db';
-import { UsersService } from '../users/users.service';
+import { UsersService } from '../users/services/users.service';
 import User from '../users/user';
 import ChatsModel from '@typings/models/chat';
 import { ChatModel, EndpointData } from '@typings/api';
@@ -60,9 +60,15 @@ export class ChatsService {
   }
   public async getAllByUserId(userId: number): Promise<Chat[]> {
     const chats = await this.db.chats.getChatsIdsForUserId(userId);
-    return (await Promise.all(chats.map((chatId) => this.get(chatId)))).filter(
-      Boolean,
-    ) as Chat[];
+    // gatter temp chats
+    const tempChats = [...this.chats.values()].filter(
+      (chat) => chat.isTemporary && chat.hasParticipantByUserId(userId),
+    );
+    return (
+      (await Promise.all(chats.map((chatId) => this.get(chatId)))).filter(
+        Boolean,
+      ) as Chat[]
+    ).concat(tempChats);
   }
   public async create(
     data: ChatsModel.DTO.NewChat,
@@ -88,7 +94,29 @@ export class ChatsService {
         data.authorizationData.password,
       ).toString();
     }
-    const chatData = await this.db.chats.createChat(data);
+    data.type ??= ChatsModel.Models.ChatType.Group;
+    const chatData =
+      data.type !== ChatsModel.Models.ChatType.Temp
+        ? await this.db.chats.createChat(data)
+        : (() => {
+            const chatId = hash((data as unknown as { id: string }).id);
+            return {
+              ...data,
+              id: chatId,
+              createdAt: Date.now(),
+              participants: data.participants.map((p) => ({
+                ...p,
+                chatId,
+                id: p.userId,
+                createdAt: Date.now(),
+                toReadPings: 0,
+                muted: ChatsModel.Models.ChatParticipantMuteType.No,
+                mutedUntil: null,
+                typing: false,
+              })),
+              messages: [],
+            } satisfies ChatsModel.Models.IChat;
+          })();
     const chat = this.build(chatData);
     if (!propagate) return chat;
     if (author)
@@ -105,6 +133,13 @@ export class ChatsService {
         { chatId: chat.id },
       );
     return chat;
+  }
+  public async createTemporary(
+    data: ChatsModel.DTO.NewChat & { id: string },
+    author?: User,
+    propagate: boolean = true,
+  ): Promise<Chat> {
+    return await this.create(data, author, propagate);
   }
 
   public async checkOrCreateDirectChat(
@@ -138,7 +173,7 @@ export class ChatsService {
     ];
   }
 
-  public async nukeChat(id: number, op: User): Promise<void> {
+  public async nukeChat(id: number, op?: User): Promise<void> {
     const chat = await this.get(id);
     if (!chat) return;
     await chat.nuke(op);
@@ -153,10 +188,15 @@ export class ChatsService {
       throw new ForbiddenException('You are banned from this chat.');
     if (participant.role !== ChatsModel.Models.ChatParticipantRole.Left)
       throw new InternalServerErrorException('Invalid participant role.');
-    await chat.updateParticipant(op, participant.id, {
-      role: ChatsModel.Models.ChatParticipantRole.Member,
-      toReadPings: 0,
-    }, false);
+    await chat.updateParticipant(
+      op,
+      participant.id,
+      {
+        role: ChatsModel.Models.ChatParticipantRole.Member,
+        toReadPings: 0,
+      },
+      false,
+    );
   }
   public async joinChat(
     id: number,
@@ -198,5 +238,17 @@ export class ChatsService {
     if (chat.isDirect)
       throw new ForbiddenException('You cannot join a direct chat.');
     await chat.addParticipant(op);
+  }
+
+  async leaveChat(id: number, user: User): Promise<void> {
+    const chat = await this.get(id);
+    if (!chat) throw new BadRequestException('Chat does not exist.');
+    const participant = chat.getParticipantByUserId(user.id);
+    if (!participant)
+      throw new InternalServerErrorException(
+        'Participant validated but not found',
+      );
+    await chat.removeParticipant(participant.id);
+    if (chat.participants.length === 0) await this.nukeChat(chat.id);
   }
 }

@@ -16,6 +16,7 @@ import UsersModel from '@typings/models/users';
 import { useRecoilCallback } from 'recoil';
 import { sessionAtom } from '@hooks/user';
 import notifications from '@lib/notifications/hooks';
+import { navigate } from 'wouter/use-location';
 
 export default function BasicModalDialog({
   setOpen,
@@ -47,7 +48,8 @@ export default function BasicModalDialog({
         );
         setOpen(false);
         setInputValue('');
-        notifications.success('Add friend', 'Friend added (TEMP)');
+        notifications.success('Add friend', 'Friend request sent!');
+        navigate('/friends/pending');
       } catch (e) {
         setFeedbackMessage((e as Error).message);
       }

@@ -115,7 +115,7 @@ interface Cache {
   data: UsersModel.Models.IUserInfo;
 }
 
-function UsersAutocomplete({
+export function UsersAutocomplete({
   selected,
   setSelected,
   error,
