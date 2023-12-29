@@ -1,15 +1,17 @@
-import { Module } from "@nestjs/common";
-import { DbModule } from "../db";
-import { SseModule } from "../sse/sse.module";
-import { PongLobbyService } from "./ponglobby.service";
-import { PongLobbyDependencies } from "./ponglobby/dependencies";
-import { PongLobbyController } from "./ponglobby.controller";
-import { ChatsModule } from "../chats/chats.module";
+import { Module, forwardRef } from '@nestjs/common';
+import { DbModule } from '../db';
+import { SseModule } from '../sse/sse.module';
+import { PongLobbyService } from './ponglobby.service';
+import { PongLobbyDependencies } from './ponglobby/dependencies';
+import { PongLobbyController } from './ponglobby.controller';
+import { ChatsModule } from '../chats/chats.module';
+import { PongModule } from '../ponggame/pong.module';
+import { PongGateway } from '../ponggame/pong.gateway';
 
 @Module({
-  imports: [DbModule, SseModule, ChatsModule],
+  imports: [DbModule, SseModule, ChatsModule, forwardRef(() => PongModule)],
   providers: [PongLobbyService, PongLobbyDependencies],
   controllers: [PongLobbyController],
-  exports: [PongLobbyService]
+  exports: [PongLobbyService],
 })
 export class PongLobbyModule {}

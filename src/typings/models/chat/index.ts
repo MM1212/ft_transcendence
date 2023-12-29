@@ -79,7 +79,8 @@ namespace ChatsModel {
       }
       export interface GameInvite {
         type: GroupEnumValues<Type.GameInvite>;
-        gameId: number;
+        lobbyId: number;
+        nonce: number;
       }
       export interface ChatInvite {
         type: GroupEnumValues<Type.ChatInvite>;

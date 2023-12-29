@@ -1,4 +1,4 @@
-import { BallPolygon } from './Collisions/Polygon';
+import { Polygon } from './Collisions/Polygon';
 import { Collider } from './Collisions/Collider';
 import { Vector2D } from './utils/Vector';
 import { Effect } from './SpecialPowers/Effect';
@@ -21,7 +21,7 @@ export abstract class GameObject {
     protected scale: number;
     protected height: number;
     protected width: number;
-    public collider: Collider;
+    public collider: Collider | undefined;
     
     public id: number = objectID;
     
@@ -43,8 +43,7 @@ export abstract class GameObject {
         this.velocity = Vector2D.Zero;
         this.height = 0;
         this.width = 0;
-        this.collider = Collider.fromPolygon(new BallPolygon(this.center, 0, 0, []));
-        this.collider.lastCollision = false;
+        this.collider = undefined;
         this.effect = undefined;
         this.id = objectID++;
     }
@@ -101,8 +100,8 @@ export abstract class GameObject {
     get getVelocity(): Vector2D {
         return this.velocity;
     }
-    get getPolygon(): BallPolygon {
-        return this.collider.polygon;
+    get getPolygon(): Polygon | undefined {
+        return this.collider?.polygon;
     }
     get getDirection(): Vector2D {
         return this.direction;

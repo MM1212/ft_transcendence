@@ -2,6 +2,7 @@ import { Bar } from "../Paddles/Bar";
 import { Vector2D } from "../utils/Vector";
 import { Game } from "../Game";
 import { Ball } from "../Ball";
+import PongModel from "../../../typings/models/pong";
 
 export class Shooter {
     public line: {start: Vector2D, end: Vector2D}
@@ -16,7 +17,7 @@ export class Shooter {
     {
         this.line = {start: Vector2D.Zero, end: Vector2D.Zero};
         this.angle = -(Math.PI / 4);
-        this.ballRef = this.game.getObjectByTag("Bolinha") as Ball;
+        this.ballRef = this.game.getObjectByTag(PongModel.InGame.ObjType.Ball) as Ball;
         if (!this.ballRef)
             throw new Error("Ball not found");
         
@@ -29,7 +30,7 @@ export class Shooter {
         shooter.setVelocity(new Vector2D(0, 0));
     }
 
-    public linePositions(): {start: number[], end: number[]}
+    public linePositions(): {start: [number, number], end: [number, number]}
     {
         return {start: [this.line.start.x, this.line.start.y], end: [this.line.end.x, this.line.end.y]};
     }

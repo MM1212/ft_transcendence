@@ -2,20 +2,24 @@ import ChatsModel from '@typings/models/chat';
 import { ChatDefaultMessageBubbleProps } from './Default';
 import Bubble from '../Bubble';
 import { Avatar, Badge, Button, Skeleton, Stack, Typography } from '@mui/joy';
-import useChat from '@apps/Chat/hooks/useChat';
-import AccountGroupIcon from '@components/icons/AccountGroupIcon';
 import LockIcon from '@components/icons/LockIcon';
 import React from 'react';
-import chatsState from '@apps/Chat/state';
 import AlertIcon from '@components/icons/AlertIcon';
-import { useRecoilValue } from 'recoil';
+import { useRecoilCallback, useRecoilValue } from 'recoil';
 import { useTunnelEndpoint } from '@hooks/tunnel';
 import { randomInt } from '@utils/random';
+import pongGamesState from '@apps/GameLobby/state';
+import { useCurrentUser } from '@hooks/user';
+import PongModel from '@typings/models/pong';
+import tunnel from '@lib/tunnel';
+import notifications from '@lib/notifications/hooks';
 import { navigate } from 'wouter/use-location';
+import TableTennisIcon from '@components/icons/TableTennisIcon';
+import { useChatPasswordInputModalActions } from '@apps/Chat/modals/ChatPasswordInputModal/hooks/useChatPasswordInputModal';
 
 interface IChatEmbedAttachmentsBubbleProps
   extends ChatDefaultMessageBubbleProps {
-  embed: ChatsModel.Models.Embeds.ChatInvite;
+  embed: ChatsModel.Models.Embeds.GameInvite;
 }
 
 function _InviteSkeleton(): JSX.Element {
@@ -42,47 +46,74 @@ function _InviteSkeleton(): JSX.Element {
 }
 
 const InviteSkeleton = React.memo(_InviteSkeleton);
-const brokenInvitesCache = new Set<number>();
-function _ChatEmbedChatInviteBubble({
+const brokenInvitesCache = new Set<string>();
+function _ChatEmbedGameInviteBubble({
   embed,
   ...props
 }: IChatEmbedAttachmentsBubbleProps) {
   const { data, error, isLoading } =
-    useTunnelEndpoint<ChatsModel.Endpoints.GetChatInfo>(
-      brokenInvitesCache.has(embed.chatId)
+    useTunnelEndpoint<PongModel.Endpoints.GetLobby>(
+      brokenInvitesCache.has(`${embed.lobbyId}.${embed.nonce}`)
         ? null
-        : ChatsModel.Endpoints.Targets.GetChatInfo,
-      { chatId: embed.chatId },
+        : PongModel.Endpoints.Targets.GetLobby,
+      { id: embed.lobbyId, nonce: embed.nonce },
       { revalidateOnFocus: false, shouldRetryOnError: false }
     );
-  const { attemptToJoin: _attemptToJoin } = useChat(embed.chatId);
-  const chats = useRecoilValue(chatsState.chats);
-  const joined = React.useMemo(
-    () => chats.includes(embed.chatId),
-    [embed.chatId, chats]
-  );
-  const deleted = !isLoading && (!!error || !data || data.status === 'error');
-  React.useEffect(() => {
-    if (deleted) brokenInvitesCache.add(embed.chatId);
-  }, [deleted, embed.chatId]);
-  const chat = !error && data?.status === 'ok' ? data.data : undefined;
-  const [loading, setLoading] = React.useState(false);
-  const attemptToJoin = React.useCallback(async () => {
-    if (joined) return navigate(`/messages/${embed.chatId}`);
-    setLoading(true);
 
-    await _attemptToJoin({
-      id: props.messageId,
-      nonce: embed.inviteNonce,
-    });
-    setLoading(false);
-  }, [
-    joined,
-    embed.chatId,
-    embed.inviteNonce,
-    _attemptToJoin,
-    props.messageId,
-  ]);
+  const myLobby = useRecoilValue(pongGamesState.gameLobby);
+  const self = useCurrentUser();
+  const joined = React.useMemo(() => {
+    if (!myLobby) return false;
+    const players = myLobby.teams[0].players
+      .concat(myLobby.teams[1].players)
+      .concat(myLobby.spectators);
+    return players.some((p) => p.id === self?.id);
+  }, [myLobby, self]);
+
+  const deleted = !isLoading && (!!error || !data || data.status === 'error');
+
+  React.useEffect(() => {
+    if (deleted) brokenInvitesCache.add(`${embed.lobbyId}.${embed.nonce}`);
+  }, [deleted, embed.lobbyId, embed.nonce]);
+
+  const { prompt } = useChatPasswordInputModalActions();
+
+  const lobby = !error && data?.status === 'ok' ? data.data : undefined;
+  const [loading, setLoading] = React.useState(false);
+  const attemptToJoin = useRecoilCallback(
+    (ctx) => async () => {
+      if (joined) return navigate('/pong/play/create');
+      if (!lobby) return;
+      try {
+        setLoading(true);
+        let pass: string | null = null;
+        if (lobby.authorization === PongModel.Models.LobbyAccess.Protected) {
+          pass = await prompt({
+            chatName: lobby.name,
+          });
+          if (!pass) {
+            setLoading(false);
+            return;
+          }
+        }
+        const lobbyJoined = await tunnel.post(
+          PongModel.Endpoints.Targets.JoinLobby,
+          {
+            lobbyId: lobby.id,
+            nonce: embed.nonce,
+            password: pass,
+          }
+        );
+        ctx.set(pongGamesState.gameLobby, lobbyJoined);
+        navigate('/pong/play/create');
+      } catch (error) {
+        notifications.error('Failed to join lobby', (error as Error).message);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [joined, lobby, embed.nonce, prompt]
+  );
 
   return (
     <Bubble
@@ -93,7 +124,7 @@ function _ChatEmbedChatInviteBubble({
         gap: '0.5rem',
         minWidth: '35dvh',
       }}
-      mainColor="success"
+      mainColor="warning"
     >
       {isLoading ? (
         <InviteSkeleton />
@@ -106,25 +137,25 @@ function _ChatEmbedChatInviteBubble({
               fontWeight: 600,
               color: props.isSent
                 ? 'var(--joy-palette-common-white)'
-                : 'var(--joy-palette-text-success)',
+                : 'var(--joy-palette-text-warning)',
               width: 'fit-content',
               whiteSpace: 'pre-wrap',
               letterSpacing: '0.05rem',
               wordBreak: 'break-word',
             }}
           >
-            Chat Invite
+            Pong Invite
           </Typography>
           <Stack spacing={1} alignItems="center" direction="row" width="100%">
             <Badge
               badgeContent={<LockIcon size="xs" />}
-              color="success"
+              color="warning"
               badgeInset="14%"
               size="sm"
               variant="plain"
               anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
               invisible={
-                chat?.authorization !== ChatsModel.Models.ChatAccess.Private
+                lobby?.authorization !== PongModel.Models.LobbyAccess.Protected
               }
               slotProps={{
                 badge: {
@@ -136,12 +167,8 @@ function _ChatEmbedChatInviteBubble({
                 },
               }}
             >
-              <Avatar
-                src={chat?.photo ?? undefined}
-                size="lg"
-                color={'success'}
-              >
-                {deleted ? <AlertIcon /> : <AccountGroupIcon />}
+              <Avatar size="lg" color={'warning'}>
+                {deleted ? <AlertIcon /> : <TableTennisIcon />}
               </Avatar>
             </Badge>
             <Stack
@@ -153,18 +180,18 @@ function _ChatEmbedChatInviteBubble({
               {deleted ? (
                 <Typography level="title-md">Whoops!</Typography>
               ) : (
-                <Typography level="title-sm">{chat?.name}</Typography>
+                <Typography level="title-sm">{lobby?.name}</Typography>
               )}
               <Typography level="body-xs">
                 {deleted
-                  ? 'This chat no longer exists'
-                  : `${chat?.participantsCount} members`}
+                  ? 'This game no longer exists'
+                  : `${lobby?.nPlayers} players`}
               </Typography>
             </Stack>
             {!deleted && (
               <Button
                 variant={joined ? 'plain' : 'soft'}
-                color="success"
+                color="warning"
                 sx={{ ml: 'auto' }}
                 onClick={attemptToJoin}
                 disabled={deleted}
@@ -180,6 +207,6 @@ function _ChatEmbedChatInviteBubble({
   );
 }
 
-const ChatEmbedChatInviteBubble = React.memo(_ChatEmbedChatInviteBubble);
+const ChatEmbedGameInviteBubble = React.memo(_ChatEmbedGameInviteBubble);
 
-export default ChatEmbedChatInviteBubble;
+export default ChatEmbedGameInviteBubble;

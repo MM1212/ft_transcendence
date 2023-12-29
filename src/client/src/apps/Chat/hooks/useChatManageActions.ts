@@ -11,6 +11,10 @@ import {
   useChatSelectModalActions,
 } from '../modals/ChatSelectModal/hooks/useChatSelectModal';
 import { useChatInfoEditModalActions } from '../modals/ChatInfoEdit/hooks/useChatInfoEditModal';
+import pongGamesState from '@apps/GameLobby/state';
+import { sessionAtom } from '@hooks/user';
+import { ChatModel } from '@typings/models';
+import PongModel from '@typings/models/pong';
 
 const useChatManageActions = () => {
   const useModal = () => {
@@ -366,6 +370,57 @@ const useChatManageActions = () => {
     [close]
   );
 
+  const inviteToPongLobby = useRecoilCallback(
+    (ctx) => async (chatId:number) => {
+      try {
+        const chat = await ctx.snapshot.getPromise(chatsState.chat(chatId));
+        let lobby = await ctx.snapshot.getPromise(pongGamesState.gameLobby);
+        const session = await ctx.snapshot.getPromise(sessionAtom)
+        if (!chat) throw new Error('Chat not found');
+        if (!session) throw new Error('Session not found');
+        let lobbyId = lobby?.id;
+        if (lobby) {
+          if (lobby.ownerId !== session.id)
+            throw new Error('You are not the owner of the lobby');
+        } else {
+          lobbyId = undefined;
+        }
+        
+        let selected: ChatSelectedData[] = [];
+        if (chat.type === ChatModel.Models.ChatType.Group) {
+          selected = [
+            {
+              id: chat.id,
+              type: 'chat',
+            },
+          ];
+        } else {
+          const other = chat.participants.find(
+            (p) => p.userId !== session.id
+          );
+          if (!other) throw new Error('No other user found');
+          selected = [
+            {
+              id: other.userId, 
+              type: 'user',
+            },
+          ];
+        }
+        if (selected.length === 0) throw new Error('No players selected');
+        console.log(lobbyId, selected);
+        lobby = await tunnel.post(PongModel.Endpoints.Targets.Invite, {
+          lobbyId: lobbyId,
+          data: selected,
+        });
+        ctx.set(pongGamesState.gameLobby, lobby);
+        notifications.success('Invite sent');
+      } catch (err) {
+        console.log(err);
+      }
+    },
+    []
+  );
+
   return {
     useModal,
     toggleAdmin,
@@ -381,6 +436,7 @@ const useChatManageActions = () => {
     sendInviteFromGroup,
     sendInviteToTargets,
     updateInfo,
+    inviteToPongLobby,
   };
 };
 

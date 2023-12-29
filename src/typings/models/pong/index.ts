@@ -10,6 +10,16 @@ import {
 import { GroupEnumValues } from '@typings/utils';
 
 namespace PongModel {
+  export namespace InGame {
+    export enum ObjType {
+      Ball = 'Bolinha',
+      Player1 = 'Player 1',
+      Player2 = 'Player 2',
+      Player3 = 'Player 3',
+      Player4 = 'Player 4',
+      Arena = 'Arena',
+    }
+}
   export namespace Models {
     export enum LobbyType {
       Single = 'SINGLE', // Single Queue Mode
@@ -62,7 +72,7 @@ namespace PongModel {
       Top,
       Bottom,
     }
-
+    
     export type IGameKeyTypes = 'up' | 'down' | 'boost' | 'shoot';
     export type IGamekeys = Record<IGameKeyTypes, string>;
     export const DEFAULT_GAME_KEYS: IGamekeys = {
@@ -79,20 +89,21 @@ namespace PongModel {
     }
     export const TemporaryLobbyParticipant = {
       keys: PongModel.Models.DEFAULT_GAME_KEYS,
-      paddleTexture: '/pong/PaddleRed.png',
+      paddle: 'PaddleRed',
       specialPower: PongModel.Models.LobbyParticipantSpecialPowerType.bubble,
     };
     export interface ILobbyParticipant {
       id: number;
       avatar: string;
+      type: string;
       nickname: string;
       lobbyId: number;
       role: GroupEnumValues<LobbyParticipantRole>;
       privileges: GroupEnumValues<LobbyParticipantPrivileges>;
       teamId: TeamSide | null;
       status: GroupEnumValues<LobbyStatus>;
-      keys: IGamekeys;
-      paddleTexture: string;
+      keys?: IGamekeys;
+      paddle: string;
       specialPower: GroupEnumValues<LobbyParticipantSpecialPowerType>;
       teamPosition: number;
     }
@@ -109,7 +120,37 @@ namespace PongModel {
       nPlayers: number;
       teams: [ITeam, ITeam];
       spectators: ILobbyParticipant[];
+      invited: number[];
       chatId: number;
+      ballTexture: string;
+    }
+
+    export interface IPlayerConfig {
+      tag: string;
+      teamId: number;
+      type: string;
+      keys?: IGamekeys;
+      specialPower: LobbyParticipantSpecialPowerType;
+      paddle: string;
+      positionOrder: 'back' | 'front';
+      userId: number;
+      avatar: string;
+      nickname: string;
+      connected: boolean;
+    }
+
+    export interface IGameTeam {
+      players: IPlayerConfig[];
+      score: number;
+      id: TeamSide;
+    }
+    export interface IGameConfig {
+      UUID: string;
+      teams: [IGameTeam, IGameTeam];
+      spectators: number[];
+      nPlayers: number;
+      //backgroundTexture: string;
+      ballTexture: string
     }
 
     export interface ILobbyInfoDisplay
@@ -133,13 +174,19 @@ namespace PongModel {
     }
 
     export interface ILobbyKickParticipantEvent extends ILobby {}
+
+    export interface ILobbyUpdateInvitedEvent extends Pick<ILobby, 'invited'> {}
+
+    export interface IStartGameEvent extends Pick<ILobby, 'id' | 'status'> {}
   }
 
   export namespace Sse {
     export enum Events {
       NewLobby = 'pong.new-lobby',
       UpdateLobbyParticipants = 'pong.update-lobby-participants',
+      UpdateLobbyInvited = 'pong.update-lobby-invited',
       Kick = 'pong.kick-participant',
+      Start = 'pong.start',
     }
 
     export interface UpdateLobbyParticipantEvent
@@ -147,11 +194,109 @@ namespace PongModel {
         Models.ILobbyUpdateParticipantsEvent,
         Events.UpdateLobbyParticipants
       > {}
-    
-    export interface Kick extends SseModel.Models.Event<
-      Models.ILobbyKickParticipantEvent,
-      Events.Kick
-    > {}
+
+    export interface Kick
+      extends SseModel.Models.Event<
+        Models.ILobbyKickParticipantEvent,
+        Events.Kick
+      > {}
+
+    export interface UpdateLobbyInvited
+      extends SseModel.Models.Event<
+        Models.ILobbyUpdateInvitedEvent,
+        Events.UpdateLobbyInvited
+      > {}
+
+    export interface Start
+      extends SseModel.Models.Event<Models.IStartGameEvent, Events.Start> {}
+  }
+
+  export namespace Socket {
+    export enum Events {
+      UpdateMovements = 'object-movements',
+      SetUI = 'set-ui-game',
+      Start = 'start-game',
+      RemovePower = 'remove-power',
+      CreatePower = 'create-power',
+      ShootPower = 'shoot-power',
+      UpdateShooter = 'update-shooter',
+      EffectCreateRemove = 'effect-create-remove',
+      UpdateScore = 'update-score',
+      KeyPress = 'keyPress',
+      Disconnected = 'disconnected',
+      Reconnected = 'reconnected',
+      AlreadyConnected = 'already-connected',
+      UpdatePaddleSizes = 'update-paddle-sizes',
+      UpdateDisconnected = 'update-disconnected',
+    }
+
+    export namespace Data {
+      
+      export interface SetUIGame {
+        state: boolean;
+        config: Models.IGameConfig;
+      }
+      
+      export interface UpdateMovements {
+        tag: string;
+        position: [number, number]
+      }
+
+      export interface RemovePower {
+        tag: string[];
+      }
+      export interface CreatePower {
+        tag: string;
+        powertag: string;
+      }
+      export interface ShootPower {
+        tag: string;
+      }
+
+      export interface UpdateShooter {
+        tag: string;
+        line: { start: [number, number]; end: [number, number] };
+      }
+
+      export interface EffectCreateRemove {
+        tag: string;
+        effectName: string | undefined;
+        option: number;
+      }
+
+      export interface PaddleInfo {
+        tag: string;
+        scale: number;
+        height: number;
+        width:number
+        x: number;
+        y: number;
+      }
+
+      export interface UpdatePaddleSizes {
+        paddles: PaddleInfo[];
+      }
+
+      export interface UpdateDisconnected {
+        userIds: number[];
+      }
+
+      export interface UpdateScore {
+        score: [number, number];
+        paddles: PaddleInfo[];
+      }
+
+      export interface Disconnected {
+        tag: string;
+        nickname: string;
+      }
+
+      export interface Reconnected {
+        tag: string;
+        nickname: string;
+      }
+
+    }
   }
 
   export namespace DTO {
@@ -170,19 +315,20 @@ namespace PongModel {
       JoinSpectators = '/pong/lobby/spectators',
       Ready = '/pong/lobby/ready',
       Kick = '/pong/lobby/kick',
+      Invite = '/pong/lobby/invite',
+      KickInvited = '/pong/lobby/kick-invited',
+      StartGame = '/pong/lobby/start',
       //GET
       GetSessionLobby = '/pong/lobby/session',
       GetAllLobbies = '/pong/lobby/all',
+      GetLobby = '/pong/lobby/:id',
 
       // existed before
       Connect = '/pong',
-      BallTexture1 = '/pong/Ball.png',
-      // BallTexture2 = "",
-      MarioBoxTexture = '/pong/MarioBox.png',
-      PaddleTexture1 = '/pong/PaddleRed.png',
-      // PaddleTexture2 = "",
+
+      DisconnectWindow = '/pong/UI/disconnect-window.png',
       PowerWaterTexture = '/pong/PowerWater.png',
-      PowerCannonTexture = '/pong/PowerCannon.png',
+      PowerFireTexture = '/pong/PowerCannon.png',
       PowerIceTexture = '/pong/PowerIce.png',
       PowerSparkTexture = '/pong/PowerSpark.png',
       PowerGhostTexture = '/pong/PowerGhost.png',
@@ -224,6 +370,7 @@ namespace PongModel {
         Models.ILobby,
         {
           lobbyId: number;
+          nonce?: number;
           password: string | null;
         }
       > {}
@@ -277,6 +424,43 @@ namespace PongModel {
         }
       > {}
 
+    export interface KickInvited
+      extends Endpoint<
+        EndpointMethods.Post,
+        Targets.KickInvited,
+        undefined,
+        {
+          lobbyId: number;
+          userId: number;
+        }
+      > {}
+
+    export interface ChatSelectedData {
+      id: number;
+      type: string;
+    }
+
+    export interface Invite
+      extends Endpoint<
+        EndpointMethods.Post,
+        Targets.Invite,
+        Models.ILobby,
+        {
+          lobbyId?: number;
+          data: ChatSelectedData[];
+        }
+      > {}
+
+    export interface StartGame
+      extends Endpoint<
+        EndpointMethods.Post,
+        Targets.StartGame,
+        undefined,
+        {
+          lobbyId: number;
+        }
+      > {}
+
     /* GET methods */
 
     export interface GetSessionLobby
@@ -291,10 +475,21 @@ namespace PongModel {
         }
       > {}
 
+    export interface GetLobby
+      extends GetEndpoint<
+        Targets.GetLobby,
+        Models.ILobbyInfoDisplay | null,
+        {
+          id: number;
+          nonce: number;
+        }
+      > {}
+
     export interface Registry extends EndpointRegistry {
       [EndpointMethods.Get]: {
         [Targets.GetSessionLobby]: GetSessionLobby;
         [Targets.GetAllLobbies]: GetAllLobbies;
+        [Targets.GetLobby]: GetLobby;
       };
       [EndpointMethods.Put]: {
         [Targets.NewLobby]: NewLobby;
@@ -307,6 +502,9 @@ namespace PongModel {
         [Targets.ChangeOwner]: ChangeOwner;
         [Targets.Ready]: Ready;
         [Targets.Kick]: Kick;
+        [Targets.Invite]: Invite;
+        [Targets.KickInvited]: KickInvited;
+        [Targets.StartGame]: StartGame;
       };
     }
   }

@@ -1,11 +1,12 @@
-import { Sheet, styled } from '@mui/joy';
+import { ColorPaletteProp, Sheet, styled } from '@mui/joy';
 
 const Bubble = styled(Sheet, {
-  shouldForwardProp: (prop) => prop !== 'isSent' && prop !== 'features' && prop !== 'messageId',
+  shouldForwardProp: (prop) => prop !== 'isSent' && prop !== 'features' && prop !== 'messageId' && prop !== 'mainColor',
 })<{
   isSent: boolean;
   features: { prev: boolean; next: boolean };
-}>(({ theme, isSent, features }) => ({
+  mainColor?: ColorPaletteProp
+}>(({ theme, isSent, features, mainColor = 'primary' }) => ({
   padding: theme.spacing(1.25),
   borderRadius: theme.radius.lg,
   borderTopRightRadius: isSent && features.prev ? theme.radius.xs : undefined,
@@ -15,7 +16,7 @@ const Bubble = styled(Sheet, {
   borderBottomLeftRadius:
     isSent || !features.next ? undefined : theme.radius.xs,
   backgroundColor: isSent
-    ? theme.palette.primary.solidBg
+    ? theme.palette[mainColor].solidBg
     : theme.palette.background.body,
   display: 'flex',
   alignItems: 'center',
