@@ -29,7 +29,7 @@ export class ClientCollision extends Collision {
         worker.terminate();
         r();
       };
-      worker.postMessage([this.collisionFileMapPath]);
+      worker.postMessage([`${document.baseURI.slice(0, document.baseURI.length - 1)}${this.collisionFileMapPath}`]);
     });
   }
 }
