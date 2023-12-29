@@ -1,62 +1,79 @@
-import { EndpointRegistry, GroupEndpointTargets } from '@typings/api';
-import { IUser } from '@typings/user';
 import { vector2 } from '@typings/vector';
 
-namespace LobbyModel {
+export namespace LobbyModel {
   export namespace Models {
-    export const STAGE_WIDTH = 2624;
-    export const STAGE_HEIGHT = 1476;
-    export const STAGE_ASPECT_RATIO = STAGE_WIDTH / STAGE_HEIGHT;
-    export interface IPlayerTransform {
+    export type InventoryCategory =
+      | 'head'
+      | 'face'
+      | 'neck'
+      | 'body'
+      | 'hand'
+      | 'feet'
+      | 'color';
+
+    export type TPenguinAnimationDirection =
+      | 'down'
+      | 'down-left'
+      | 'left'
+      | 'top-left'
+      | 'top'
+      | 'top-right'
+      | 'right'
+      | 'down-right';
+
+    export type TPenguinAnimationSets = 'idle' | 'walk' | 'seat' | 'snowball';
+
+    export type IPenguinAnimationSetTypes<
+      K extends TPenguinAnimationSets = TPenguinAnimationSets,
+      T extends TPenguinAnimationDirection = TPenguinAnimationDirection
+    > = `${K}/${T}`;
+
+    export type IPenguinBaseAnimationsTypes =
+      | IPenguinAnimationSetTypes<'idle'>
+      | IPenguinAnimationSetTypes<'walk'>
+      | IPenguinAnimationSetTypes<'seat'>
+      | 'wave'
+      | 'dance'
+      | IPenguinAnimationSetTypes<
+          'snowball',
+          Exclude<TPenguinAnimationDirection, 'down' | 'left' | 'top' | 'right'>
+        >;
+
+    export interface AnimationConfigSet {
+      id: number;
+      frames?: number;
+      speed?: number;
+      loop?: boolean;
+      next?: IPenguinBaseAnimationsTypes;
+    }
+
+    export type TPenguinColorPriority = Record<InventoryCategory, number>;
+    export type TPenguinColorPalette = Record<number, string>;
+
+    export interface ITransform {
       position: vector2;
-      velocity: vector2;
+      direction: vector2;
+      speed: number;
+    }
+    export interface ICharacter {
+      animation: IPenguinBaseAnimationsTypes;
+      clothes: Record<InventoryCategory, number>;
     }
     export interface IPlayer {
-      user: IUser;
-      transform: IPlayerTransform;
-      connections: unknown[];
+      id: number;
+      name: string;
+      character: ICharacter;
+      transform: ITransform;
     }
 
     export interface ILobby {
-      players: IPlayer[];
+      players: (IPlayer & { main: boolean })[];
     }
   }
-
-  export namespace DTO {
-    export interface LoadData {
-      players: Models.IPlayer[];
-    }
-    export interface NewPlayer {
-      player: Models.IPlayer;
-    }
-    export interface SetPlayers {
-      players: Models.IPlayer[];
-    }
-    export interface RemovePlayer {
-      id: number;
-    }
-    export interface UpdatePlayersTransform {
-      players: (Partial<Models.IPlayerTransform> & { id: number })[];
-    }
-  }
-  export namespace Endpoints {
-    export enum Targets {
-      Connect = '/lobby',
-      StaticBackground = '/assets/lobby.webp',
-      WalkableMask = '/assets/lobby-mask.webp',
-    }
-    export type All = GroupEndpointTargets<Targets>;
-    export interface Registry extends EndpointRegistry {}
-  }
-  export namespace Socket {
-    export enum Messages {
-      LoadData = 'lobby/loadData',
-      NewPlayer = 'lobby/newPlayer',
-      SetPlayers = 'lobby/setPlayers',
-      RemovePlayer = 'lobby/removePlayer',
-      UpdatePlayersTransform = 'lobby/updatePlayerTransform',
-    }
-  }
+  export namespace DTO {}
+  export namespace Endpoints {}
+  export namespace Sse {}
+  export namespace Socket {}
 }
 
 export default LobbyModel;

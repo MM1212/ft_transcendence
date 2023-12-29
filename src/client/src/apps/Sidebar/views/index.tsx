@@ -7,7 +7,7 @@ import SidebarUserCard from '../components/UserCard';
 import { sessionAtom } from '@hooks/user';
 import { useRecoilCallback } from 'recoil';
 import SidebarSwitchComposer from '../components/SwitchComposer';
-import { enablePlayerInput } from '@apps/Lobby/state';
+import { enablePlayerInput } from '@apps/Lobby_Old/state';
 import { locationAtom } from '@state/location';
 import { navigate } from 'wouter/use-location';
 

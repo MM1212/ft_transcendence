@@ -1,4 +1,3 @@
-import { AppService } from '@/app.service';
 import {
   ConnectedSocket,
   MessageBody,
@@ -7,20 +6,12 @@ import {
   OnGatewayInit,
   SubscribeMessage,
   WebSocketGateway,
-  WebSocketServer,
 } from '@nestjs/websockets';
-import { Server } from 'socket.io';
-import { Lobbies } from '@typings/lobby';
-import { IPenguinBaseAnimationsTypes } from '@typings/penguin';
-import LobbyModel from '@typings/models/lobby';
-import Vector2D from '@shared/Vector/Vector2D';
-import fs from 'fs';
-import { PNG } from 'pngjs';
-import { Logger } from '@nestjs/common';
 import { ClientSocket } from '@typings/ws';
+import { Server } from 'socket.io';
 import { AuthGatewayGuard } from '../auth/guards/auth-gateway.guard';
-import GatewayUser from '@/helpers/decorators/gatewayCtx';
-import User from '../users/user';
+import { LobbyService } from './lobby.service';
+import LobbyModel from '@typings/models/lobby';
 
 @WebSocketGateway({
   namespace: 'api/lobby',
@@ -33,247 +24,52 @@ export class LobbyGateway
   implements
     OnGatewayInit<Server>,
     OnGatewayConnection<ClientSocket>,
-    OnGatewayDisconnect<ClientSocket>,
-    Lobbies.ILobby
+    OnGatewayDisconnect<ClientSocket>
 {
-  @WebSocketServer()
-  private readonly server: Server;
-  readonly players: Lobbies.IPlayer[] = [];
-  private readonly walkableAreaMaskBuffer: PNG;
-  private readonly logger = new Logger(LobbyGateway.name);
-
   constructor(
-    private readonly rootService: AppService,
-    private authGuard: AuthGatewayGuard,
+    private readonly authGuard: AuthGatewayGuard,
+    private readonly service: LobbyService,
+  ) {}
+  async afterInit(server: Server) {
+    await this.service.init(server);
+  }
+  async handleConnection(client: ClientSocket) {
+    if (!(await this.authGuard.canActivate(client))) {
+      client.disconnect(true);
+      return;
+    }
+    await this.service.newConnection(client);
+  }
+  async handleDisconnect(client: ClientSocket) {
+    await this.service.disconnect(client);
+  }
+
+  @SubscribeMessage('lobby:net:player:animation')
+  async onPlayerAnimation(
+    @ConnectedSocket() client: ClientSocket,
+    @MessageBody('animation')
+    animation: LobbyModel.Models.IPenguinBaseAnimationsTypes,
   ) {
-    const stream = fs.createReadStream('dist/assets/lobby/mask.png');
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
-    const instance = this;
-    stream.pipe(new PNG()).on('parsed', function () {
-      // @ts-expect-error - pngjs typings are wrong
-      instance.walkableAreaMaskBuffer = this;
-    });
+    // console.log('lobby:net:player:animation', client.data.user.id, animation);
+    await this.service.onPlayerAnimation(client, animation);
   }
-  getPixelColor(x: number, y: number): number {
-    const address = (this.walkableAreaMaskBuffer.width * y + x) << 2;
-    const r = this.walkableAreaMaskBuffer.data[address];
-    const g = this.walkableAreaMaskBuffer.data[address + 1];
-    const b = this.walkableAreaMaskBuffer.data[address + 2];
-    const a = this.walkableAreaMaskBuffer.data[address + 3];
-    return (r << 24) | (g << 16) | (b << 8) | a;
-  }
-  validateNewPlayerPosition(position: Vector2D): boolean {
-    const pixel = this.getPixelColor(
-      Math.floor(position.x),
-      Math.floor(position.y),
-    );
-    const a = pixel & 0xff;
-    return a !== 0;
-  }
-  afterInit() {
-    setInterval(() => this.onTick(), 1000 / 60);
-  }
-  async handleConnection(client: ClientSocket): Promise<void> {
-    if (!(await this.authGuard.canActivate(client)))
-      return client.disconnect(true), void 0;
-
-    const { user } = client.data;
-
-    const playerRef = this.players.find((player) => player.userId === user.id);
-    if (playerRef) {
-      playerRef.connections.push(client);
-      this.logger.verbose(
-        `LobbyGatewa new client connection ${user.nickname}${user.id}, at ${playerRef.connections.length} connections.`,
-      );
-    } else {
-      this.players.push({
-        userId: user.id,
-        transform: {
-          position: {
-            x: LobbyModel.Models.STAGE_WIDTH / 2 - 300,
-            y: LobbyModel.Models.STAGE_HEIGHT / 2,
-          },
-          direction: { x: 0, y: 0 },
-          speed: 4,
-        },
-        currentAnimation: 'idle/down',
-        connections: [client],
-      });
-      this.logger.verbose(
-        `LobbyGateway client connected ${user.nickname} ${user.id}`,
-      );
-    }
-    client.emit(Lobbies.Packets.Events.LoadData, {
-      players: this.players.map((player) => ({ ...player, connections: [] })),
-    } as Lobbies.Packets.LoadData);
-    if (playerRef) return;
-    const player = this.players.find((player) => player.userId === user.id);
-    this.players.forEach((p) => {
-      if (p.userId === user.id) return;
-      p.connections.forEach((con: ClientSocket) => {
-        con.emit(Lobbies.Packets.Events.NewPlayer, {
-          player: { ...player, connections: [] },
-        } as Lobbies.Packets.NewPlayer);
-      });
-    });
-  }
-  handleDisconnect(@ConnectedSocket() client: ClientSocket) {
-    const playerRef = this.players.find((player) =>
-      player.connections.find((con: ClientSocket) => con.id === client.id),
-    );
-    if (!playerRef) return;
-    playerRef.connections = playerRef.connections.filter(
-      (con: ClientSocket) => con.id !== client.id,
-    );
-    if (playerRef.connections.length === 0) {
-      this.players.splice(this.players.indexOf(playerRef), 1);
-      this.players.forEach((player) => {
-        player.connections.forEach((con: ClientSocket) => {
-          con.emit(Lobbies.Packets.Events.RemovePlayer, {
-            id: playerRef.userId,
-          } as Lobbies.Packets.RemovePlayer);
-        });
-      });
-    }
-    this.logger.log('LobbyGateway client disconnected');
+  @SubscribeMessage('lobby:net:player:direction')
+  async onPlayerDirection(
+    @ConnectedSocket() client: ClientSocket,
+    @MessageBody('transform')
+    transform: Pick<LobbyModel.Models.ITransform, 'direction'>,
+  ) {
+    // console.log('lobby:net:player:direction', client.data.user.id, transform);
+    this.service.onPlayerMove(client, transform.direction);
   }
 
-  @SubscribeMessage('update-velocity')
-  updatePlayerVelocity(
+  @SubscribeMessage('lobby:net:player:clothes')
+  async onPlayerClothes(
+    @ConnectedSocket() client: ClientSocket,
     @MessageBody()
-    {
-      key,
-      pressed,
-      anim,
-    }: {
-      key: 'KeyW' | 'KeyA' | 'KeyS' | 'KeyD';
-      pressed: boolean;
-      anim: IPenguinBaseAnimationsTypes;
-    },
-    @ConnectedSocket() client: ClientSocket,
-    @GatewayUser() user: User,
+    clothes: Record<LobbyModel.Models.InventoryCategory, number>,
   ) {
-    const playerRef = this.players.find((player) => player.userId === user.id);
-    if (!playerRef) return client.disconnect(true), void 0;
-    switch (key) {
-      case 'KeyA':
-        playerRef.transform.direction.x = pressed ? -1 : 0;
-        break;
-      case 'KeyD':
-        playerRef.transform.direction.x = pressed ? 1 : 0;
-        break;
-      case 'KeyW':
-        playerRef.transform.direction.y = pressed ? -1 : 0;
-        break;
-      case 'KeyS':
-        playerRef.transform.direction.y = pressed ? 1 : 0;
-        break;
-    }
-    playerRef.currentAnimation = anim;
-    this.players.forEach((player) => {
-      player.connections.forEach((con: ClientSocket) => {
-        con.emit(Lobbies.Packets.Events.UpdatePlayersTransform, {
-          players: [
-            {
-              id: playerRef.userId,
-              direction: playerRef.transform.direction,
-              newAnim: playerRef.currentAnimation,
-            },
-          ],
-        } as Lobbies.Packets.UpdatePlayersTransform);
-      });
-    });
-  }
-  private lastTick = Date.now();
-  private moved = new Map<number, boolean>();
-  onTick() {
-    this.players.forEach((player) => {
-      if (
-        player.transform.direction.x === 0 &&
-        player.transform.direction.y === 0
-      )
-        return;
-      const velocity = new Vector2D(player.transform.direction)
-        .normalize()
-        .multiply(player.transform.speed);
-      const newPosition = new Vector2D(player.transform.position).add(velocity);
-      if (
-        !this.validateNewPlayerPosition(newPosition) ||
-        newPosition.x < 0 ||
-        newPosition.x > LobbyModel.Models.STAGE_WIDTH ||
-        newPosition.y < 0 ||
-        newPosition.y > LobbyModel.Models.STAGE_HEIGHT
-      ) {
-        return;
-      }
-      player.transform.position = newPosition.toObject();
-      this.moved.set(player.userId, true);
-    });
-    // if (Date.now() - this.lastTick > 1000 / 30) {
-    const payload: Lobbies.Packets.UpdatePlayersTransform = {
-      players: this.players
-        .map((player) => ({
-          id: player.userId,
-          ...player.transform,
-        }))
-        .filter((player) => !!this.moved.get(player.id)),
-    };
-    this.moved.clear();
-    if (payload.players.length > 0) {
-      this.players.forEach((player) => {
-        player.connections.forEach((con: ClientSocket) => {
-          con.emit(Lobbies.Packets.Events.UpdatePlayersTransform, payload);
-        });
-      });
-    }
-    this.lastTick = Date.now();
-    // }
-  }
-  @SubscribeMessage('lobby:toggle-dance')
-  toggleDance(
-    @ConnectedSocket() client: ClientSocket,
-    @GatewayUser() user: User,
-  ) {
-    const playerRef = this.players.find((player) => player.userId === user.id);
-    if (!playerRef) return client.disconnect(true), void 0;
-    playerRef.currentAnimation = playerRef.currentAnimation.includes('dance')
-      ? 'idle/down'
-      : 'dance';
-    this.players.forEach((player) => {
-      player.connections.forEach((con: ClientSocket) => {
-        con.emit(Lobbies.Packets.Events.UpdatePlayersTransform, {
-          players: [
-            {
-              id: playerRef.userId,
-              newAnim: playerRef.currentAnimation,
-            },
-          ],
-        } as Lobbies.Packets.UpdatePlayersTransform);
-      });
-    });
-  }
-
-  @SubscribeMessage('lobby:update-animation')
-  throwSnowball(
-    @ConnectedSocket() client: ClientSocket,
-    @MessageBody() data: any,
-    @GatewayUser() user: User,
-  ) {
-    const playerRef = this.players.find((player) => player.userId === user.id);
-    if (!playerRef) return client.disconnect(true), void 0;
-    playerRef.currentAnimation = data.anim as IPenguinBaseAnimationsTypes;
-
-    this.players.forEach((player) => {
-      player.connections.forEach((con: ClientSocket) => {
-        con.emit(Lobbies.Packets.Events.UpdatePlayersTransform, {
-          players: [
-            {
-              id: playerRef.userId,
-              newAnim: playerRef.currentAnimation,
-            },
-          ],
-        } as Lobbies.Packets.UpdatePlayersTransform);
-      });
-    });
+    // console.log('lobby:net:player:clothes', client.data.user.id, clothes);
+    await this.service.onPlayerClothes(client, clothes);
   }
 }

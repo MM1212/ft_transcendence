@@ -1,19 +1,14 @@
-import { Box, Divider, useTheme } from '@mui/joy';
+import { Box, CircularProgress, Divider, useTheme } from '@mui/joy';
 import { Stack } from '@mui/joy';
 import { Sheet } from '@mui/joy';
 import CustomizationBox from './CustomizationBox';
 import { Pixi, usePixiRenderer } from '@hooks/pixiRenderer';
-import React from 'react';
-import { useRecoilValue } from 'recoil';
-import {
-  InventoryCategory,
-  getClothIcon,
-  inventoryAtom,
-  penguinClothingPriority,
-  penguinColorPalette,
-} from '../state';
-import TshirtVIcon from '@components/icons/TshirtVIcon';
+import React, { memo } from 'react';
+import { InventoryCategory, getClothIcon, penguinColorPalette } from '../state';
 import publicPath from '@utils/public';
+import { lobbyAtom, useLobbyPenguinClothes } from '@apps/Lobby/state';
+import TshirtVIcon from '@components/icons/TshirtVIcon';
+import { useRecoilCallback } from 'recoil';
 
 const inventCatLeft: InventoryCategory[] = ['head', 'body', 'feet'];
 
@@ -22,26 +17,27 @@ const inventCatRight: InventoryCategory[] = ['face', 'neck', 'hand'];
 interface ICustTop {
   setPenguinBelly: React.Dispatch<React.SetStateAction<Pixi.Sprite | null>>;
   loadClothes: () => Promise<Record<InventoryCategory, Pixi.Sprite>>;
-  setPenguinClothes: React.Dispatch<
-    React.SetStateAction<Record<InventoryCategory, Pixi.Sprite>>
-  >;
   updateCloth: (piece: InventoryCategory, id: number) => Promise<void>;
+  isLobbyLoading: boolean;
 }
 
-function CustomizationRender({
-  color,
+function _CustomizationRender({
   setPenguinBelly,
   loadClothes,
-  setPenguinClothes,
-}: Omit<ICustTop, 'updateCloth'> & {
-  color: number;
-}): JSX.Element {
+  isLobbyLoading,
+}: Omit<ICustTop, 'updateCloth'>): JSX.Element {
   const paperRef = React.useRef<HTMLDivElement>(null);
   const theme = useTheme();
 
-  const onAppMount = React.useCallback(
-    async (app: Pixi.Application) => {
-      console.log('onAppMount');
+  const onAppMount = useRecoilCallback(
+    (ctx) => async (app: Pixi.Application) => {
+      const lobby = await ctx.snapshot.getPromise(lobbyAtom);
+      if (!lobby || !lobby.mainPlayer || isLobbyLoading) {
+        app.destroy(true, {
+          children: true,
+        });
+        return;
+      }
 
       await Pixi.Assets.load(publicPath('/penguin/paper/asset.json'));
       const paperContainer = new Pixi.Container();
@@ -52,7 +48,7 @@ function CustomizationRender({
       paperBelly.position.set(0, 0);
       paperBelly.tint =
         penguinColorPalette[
-          color.toString() as keyof typeof penguinColorPalette
+          lobby.mainPlayer.character.tint.toString() as keyof typeof penguinColorPalette
         ];
       setPenguinBelly(paperBelly);
       const paperFixtures = new Pixi.Sprite(
@@ -71,18 +67,8 @@ function CustomizationRender({
       paperContainer.sortChildren();
       paperContainer.position.set(app.screen.width / 2, app.screen.height / 2);
       app.stage.addChild(paperContainer);
-      return () => {
-        paperContainer.destroy();
-        paperBelly.destroy();
-        paperFixtures.destroy();
-        Object.values(clothes).forEach((cloth) => cloth.destroy());
-        setPenguinClothes({} as Record<InventoryCategory, Pixi.Sprite>);
-        //setPenguinBelly(null);
-        app.stage.removeChildren();
-        (app.view as HTMLCanvasElement).remove();
-      };
     },
-    [color, loadClothes, setPenguinBelly, setPenguinClothes]
+    [loadClothes, setPenguinBelly, isLobbyLoading]
   );
 
   const bgColor = theme.resolveVar('palette-background-surface');
@@ -91,7 +77,7 @@ function CustomizationRender({
     onAppMount,
     React.useMemo(
       () => ({
-        backgroundColor: 'white',
+        backgroundColor: bgColor,
       }),
       [bgColor]
     )
@@ -107,19 +93,34 @@ function CustomizationRender({
           alignItems: 'center',
         }}
         ref={paperRef}
-      ></Box>
+      >
+        {isLobbyLoading && (
+          <CircularProgress
+            variant="plain"
+            style={{
+              position: 'absolute',
+              zIndex: 1,
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+            }}
+          />
+        )}
+      </Box>
     ),
-    [paperRef]
+    [isLobbyLoading]
   );
 }
+
+const CustomizationRender = memo(_CustomizationRender);
 
 export default function CustomizationTop({
   setPenguinBelly,
   loadClothes,
-  setPenguinClothes,
   updateCloth,
+  isLobbyLoading,
 }: ICustTop) {
-  const inventory = useRecoilValue(inventoryAtom);
+  const clothes = useLobbyPenguinClothes();
 
   return (
     <Sheet sx={{ width: '100%', display: 'flex', height: '70%' }}>
@@ -137,12 +138,13 @@ export default function CustomizationTop({
             <CustomizationBox
               key={inventCat}
               imageUrl={
-                inventory.selected[inventCat] === -1
+                clothes[inventCat] === -1
                   ? undefined
-                  : getClothIcon(inventory.selected[inventCat])
+                  : getClothIcon(clothes[inventCat])
               }
               onClick={() => updateCloth(inventCat, -1)}
-              disabled={inventory.selected[inventCat] === -1}
+              loading={isLobbyLoading}
+              disabled={clothes[inventCat] === -1}
             >
               <TshirtVIcon />
             </CustomizationBox>
@@ -151,10 +153,9 @@ export default function CustomizationTop({
       </Stack>
       <Divider orientation="vertical" />
       <CustomizationRender
-        color={inventory.selected.color}
         setPenguinBelly={setPenguinBelly}
         loadClothes={loadClothes}
-        setPenguinClothes={setPenguinClothes}
+        isLobbyLoading={isLobbyLoading}
       />
       <Divider orientation="vertical" />
       <Stack
@@ -171,12 +172,13 @@ export default function CustomizationTop({
             <CustomizationBox
               key={inventCat}
               imageUrl={
-                inventory.selected[inventCat] === -1
+                clothes[inventCat] === -1
                   ? undefined
-                  : getClothIcon(inventory.selected[inventCat])
+                  : getClothIcon(clothes[inventCat])
               }
               onClick={() => updateCloth(inventCat, -1)}
-              disabled={inventory.selected[inventCat] === -1}
+              disabled={clothes[inventCat] === -1}
+              loading={isLobbyLoading}
             >
               <TshirtVIcon />
             </CustomizationBox>

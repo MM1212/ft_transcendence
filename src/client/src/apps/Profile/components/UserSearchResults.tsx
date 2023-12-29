@@ -19,6 +19,7 @@ import DotsVerticalIcon from '@components/icons/DotsVerticalIcon';
 import UserMenuOptions from './UserMenuOptions';
 import useFriend from '@apps/Friends/hooks/useFriend';
 import EmoticonSadOutlineIcon from '@components/icons/EmoticonSadOutlineIcon';
+import React from 'react';
 
 function SearchResult(
   user: UsersModel.Models.IUserInfo & { isFriend: boolean }
@@ -74,7 +75,11 @@ function SearchResult(
             <DotsVerticalIcon />
           </MenuButton>
           <Menu variant="outlined" sx={{ zIndex: 1300 }}>
-            <UserMenuOptions user={user} />
+            <React.Suspense
+              fallback={<CircularProgress variant="plain" size="sm" />}
+            >
+              <UserMenuOptions user={user} />
+            </React.Suspense>
           </Menu>
         </Dropdown>
       </ButtonGroup>

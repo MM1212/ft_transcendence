@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger, forwardRef } from '@nestjs/common';
-import { UserDependencies } from './user/dependencies';
-import User from './user';
-import { DbService } from '../db';
+import { UserDependencies } from '../user/dependencies';
+import User from '../user';
+import { DbService } from '../../db';
 import UsersModel from '@typings/models/users';
 import { OnEvent } from '@nestjs/event-emitter';
 import { HttpError } from '@/helpers/decorators/httpError';
@@ -19,10 +19,11 @@ export class UsersService {
   @OnEvent('sse.connected')
   private async onSseConnected(userId: number) {
     const user = await this.get(userId);
-    if (!user) return;
+    if (!user || user.isConnected) return;
     this.logger.log(`User ${user.nickname}[${user.id}] connected`);
     user.set('status', user.get('storedStatus')).set('connected', true);
     user.propagate('status');
+    this.deps.events.emit('user.connected', user);
   }
   @OnEvent('sse.disconnected')
   private async onSseDisconnected(userId: number) {
@@ -33,6 +34,7 @@ export class UsersService {
       .set('status', UsersModel.Models.Status.Offline)
       .set('connected', false);
     user.propagate('status');
+    this.deps.events.emit('user.disconnected', user);
   }
 
   private get db(): DbService {

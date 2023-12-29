@@ -9,24 +9,27 @@
 // }
 
 import { SseModel, AuthModel, ChatModel } from '@typings/api/models';
-import LobbyModel from '@typings/models/lobby';
+import DEPRECATED_LobbyModel from '@typings/models/lobby_old';
 import UsersModel from '@typings/models/users';
 import { EndpointMethods } from './base/endpoint';
 import NotificationsModel from '@typings/models/notifications';
 import PongModel from '@typings/models/pong';
+import InventoryModel from '@typings/models/users/inventory';
 
 export type All =
   | SseModel.Endpoints.All
   | AuthModel.Endpoints.All
-  | LobbyModel.Endpoints.All
+  | DEPRECATED_LobbyModel.Endpoints.All
   | ChatModel.Endpoints.All
   | UsersModel.Endpoints.All
+  | InventoryModel.Endpoints.All
   | NotificationsModel.Endpoints.All
   | PongModel.Endpoints.All;
 
 export type Registry = SseModel.Endpoints.Registry &
   AuthModel.Endpoints.Registry &
   UsersModel.Endpoints.Registry &
+  InventoryModel.Endpoints.Registry &
   ChatModel.Endpoints.Registry &
   PongModel.Endpoints.Registry &
   NotificationsModel.Endpoints.Registry & {

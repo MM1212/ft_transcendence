@@ -23,10 +23,6 @@ const useFriend = (friendId: number) => {
           id: self.id,
           friendId,
         });
-        await tunnel.del(UsersModel.Endpoints.Targets.RemoveFriend, {
-          id: self.id,
-          friendId,
-        });
         notifications.success('Removed friend');
       } catch (e) {
         notifications.error('Failed to remove friend', (e as Error).message);
@@ -138,6 +134,26 @@ const useFriend = (friendId: number) => {
     [select]
   );
 
+  const sentFriendRequest = useRecoilCallback(
+    (ctx) => async () => {
+      const self = await ctx.snapshot.getPromise(sessionAtom);
+      if (!self) throw new Error('You are not logged in');
+      try {
+        await tunnel.put(UsersModel.Endpoints.Targets.AddFriend, undefined, {
+          id: self.id,
+          friendId,
+        });
+        notifications.success('Friend request sent!');
+      } catch (e) {
+        notifications.error(
+          'Failed to send friend request',
+          (e as Error).message
+        );
+      }
+    },
+    [friendId]
+  );
+
   return {
     remove,
     block,
@@ -147,6 +163,7 @@ const useFriend = (friendId: number) => {
     useIsBlocked,
     useIsFriend,
     sendInviteFromDM,
+    sentFriendRequest,
   };
 };
 

@@ -7,7 +7,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import speakeasy from '@levminer/speakeasy';
 import QrCode from 'qrcode';
-import { UsersService } from '@/modules/users/users.service';
+import { UsersService } from '@/modules/users/services/users.service';
 import { Session } from '@fastify/secure-session';
 
 @Injectable()
