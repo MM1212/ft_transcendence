@@ -79,7 +79,6 @@ export function KickParticipantButton({
   id: number;
   ownerId: number;
 }) {
-
   const user = useCurrentUser();
   const handleKickParticipant = useRecoilCallback(
     (ctx) => async () => {
@@ -103,7 +102,47 @@ export function KickParticipantButton({
   return (
     <>
       <Tooltip title="Kick Player">
-        <IconButton color={"danger"} sx={{ ml: 'auto' }} onClick={handleKickParticipant}>
+        <IconButton
+          color={'danger'}
+          sx={{ ml: 'auto' }}
+          onClick={handleKickParticipant}
+        >
+          <KarateIcon />
+        </IconButton>
+      </Tooltip>
+    </>
+  );
+}
+
+export function KickInvitedButton({
+  id,
+  ownerId,
+}: {
+  id: number;
+  ownerId: number;
+}) {
+  const user = useCurrentUser();
+
+  const handleKickInvited = useRecoilCallback((ctx) => async () => {
+    try {
+      const lobby = await ctx.snapshot.getPromise(pongGamesState.gameLobby);
+      if (lobby === null) return;
+      await tunnel.post(PongModel.Endpoints.Targets.KickInvited, {
+        lobbyId: lobby.id,
+        userId: id,
+      });
+      console.log('kick invited success');
+    } catch {
+      console.log('kick invited error');
+    }
+  }, [id]);
+
+  if (id === ownerId) return null;
+  if (user?.id !== ownerId) return null;
+  return (
+    <>
+      <Tooltip title="Kick from Invited">
+        <IconButton color={'danger'} sx={{ ml: 'auto' }} onClick={handleKickInvited}>
           <KarateIcon />
         </IconButton>
       </Tooltip>

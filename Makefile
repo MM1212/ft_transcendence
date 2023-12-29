@@ -27,10 +27,9 @@ setup:
 ifeq ($(shell test envs/.tokens.env), 1)
 	$(error Setup the tokens file before setting up everything!)
 endif
-	$(MAKE) env
+	$(MAKE) env mode=$(MODE)
 	git lfs pull
 	npm i -g pnpm
-	npm i -g pnpm @nestjs/cli
 	cd $(CLIENT_DIR) && pnpm i
 	$(MAKE) client_gen_icon icon=--all
 	$(MAKE) db_start
@@ -70,6 +69,7 @@ endif
 	make generate_session_key
 	make setup_tokens
 	cp envs/.env.tmp $(SERVER_DIR)/.env
+	cp envs/.env.tmp .env
 	cp envs/.env.tmp $(CLIENT_DIR)/.env
 	cp envs/.env.tmp $(PROD_DIR)/.env
 	cp envs/.env.tmp envs/.active.env

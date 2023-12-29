@@ -5,8 +5,7 @@ import { Vector2D } from '../utils/Vector';
 
 export class Collider {
     public center: Vector2D = Vector2D.Zero;
-    public lastCollision: Collider | undefined | false;
-    public hasCollided: boolean = false;
+    public lastCollision: Collider | undefined = undefined;
     public target: GameObject | undefined;
     public line: { start: Vector2D, end: Vector2D} | undefined = undefined;
     public intersection: Vector2D | undefined = undefined;
@@ -15,6 +14,7 @@ export class Collider {
         public readonly boundingBox: BoundingBox = new BoundingBox(),
         public polygon: Polygon
     ) {
+        this.target = undefined;
         this.updateBoundingBox();
     }
 
@@ -25,6 +25,9 @@ export class Collider {
     get bottom() { return this.boundingBox.bottom; }
     get width() { return this.boundingBox.width; }
     get height() { return this.boundingBox.height; }
+
+    set width(value: number) { this.boundingBox.size.x = value; }
+    set height(value: number) { this.boundingBox.size.y = value; }
 
     updateBoundingBox(): void {
         const newBoundingBox = BoundingBox.fromPolygon(this.polygon);
@@ -49,14 +52,12 @@ export class Collider {
 
     public static collidingObjects(ob1: GameObject, ob2: GameObject): boolean
     {
+        if (!ob1.collider || !ob2.collider) return false;
         if (ob1.collider.boundingBox.collides(ob2.collider.boundingBox))
         {
-            const co = ob1.getPolygon.collides(ob2.getPolygon);
+            const co = ob1.getPolygon!.collides(ob2.getPolygon!);
             if (co != undefined) 
             {
-                ob1.collider.hasCollided = true;
-                ob2.collider.hasCollided = true;
-
                 ob1.collider.line = co.obj;
                 ob2.collider.line = co.target;
 
@@ -86,9 +87,7 @@ export class Collider {
     }
 
     public reset(){
-        //this.target = undefined;
         this.line = undefined;
-        this.hasCollided = false;
         this.intersection = undefined;
     }
 

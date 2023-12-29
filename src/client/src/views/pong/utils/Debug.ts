@@ -11,16 +11,19 @@ export class Debug {
     }
     public set isDebug(value: boolean) {
         this._enabled = value;
+        console.log("isDebug", value);
         if (value === false)
             this.clear();
     }
     constructor(public app: PIXI.Application) {
         this.debugGraphics = new PIXI.Graphics();
+        this.debugGraphics.zIndex = 999999;
         app.stage.addChild(this.debugGraphics);
     }
 
     debugDraw(gameObj: UIGameObject[], ): void {
         if (this._enabled === false) return;
+        console.log("debugDraw", gameObj.length);
         this.clear();
         gameObj.forEach((obj) => {
             this.drawPolygon(obj);
@@ -28,6 +31,7 @@ export class Debug {
     }
 
     drawPolygon(obj: UIGameObject) {
+        if (obj.collider === undefined) return;
         const polygon = obj.collider.polygon;
         const points = polygon.getPoints;
 

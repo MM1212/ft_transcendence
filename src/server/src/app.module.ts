@@ -16,7 +16,7 @@ import { UsersModule } from './modules/users/users.module';
 import { ChatsModule } from './modules/chats/chats.module';
 import { IS_PROD } from './helpers/constants';
 import { AuthTfaModule } from './modules/auth/2fa/2fa.module';
-import { PongModule } from './modules/pongTEMP/pong.module';
+import { PongModule } from './modules/ponggame/pong.module';
 import { PongLobbyModule } from './modules/ponglobbies/ponglobby.module';
 
 @Module({
@@ -49,7 +49,7 @@ import { PongLobbyModule } from './modules/ponglobbies/ponglobby.module';
     UsersModule,
     ChatsModule,
     forwardRef(() => PongModule),
-    PongLobbyModule,
+    forwardRef(() => PongLobbyModule),
   ].filter(Boolean) as ModuleMetadata['imports'],
   providers: [AppService, { provide: APP_FILTER, useClass: GlobalFilter }],
   exports: [AppService],

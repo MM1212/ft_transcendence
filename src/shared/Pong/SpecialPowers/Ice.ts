@@ -5,11 +5,17 @@ import { SpecialPower } from "./SpecialPower";
 import { Bar } from "../Paddles/Bar";
 import { Effect } from "./Effect";
 import { Ball } from "../Ball";
+import PongModel from "../../../typings/models/pong";
 
 export class Ice extends SpecialPower {
     constructor(center: Vector2D, velocity: Vector2D, shooter: Bar) {
-        super("Ice", center, velocity, shooter, specialpowerConfig.ice.diameter, specialpowerConfig.ice.vertices);
+        super(PongModel.Models.LobbyParticipantSpecialPowerType.ice, center, velocity, shooter, specialpowerConfig.ice.diameter, specialpowerConfig.ice.vertices);
         this.tag += this.id;
+        shooter.manaBar.spendMana(this.manaCost);
+    }
+
+    get manaCost(): number {
+        return specialpowerConfig.ice.manaCost;
     }
 
     onCollide(target: GameObject): boolean {

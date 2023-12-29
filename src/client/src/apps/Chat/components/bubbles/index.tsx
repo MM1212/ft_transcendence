@@ -1,8 +1,11 @@
 import ChatsModel from '@typings/models/chat';
-import ChatDefaultMessageBubble, { ChatDefaultMessageBubbleProps } from './Default';
+import ChatDefaultMessageBubble, {
+  ChatDefaultMessageBubbleProps,
+} from './Default';
 import React from 'react';
 import ChatEmbedAttachmentsBubble from './Attachments';
 import ChatEmbedChatInviteBubble from './ChatInvite';
+import ChatEmbedGameInviteBubble from './GameInvite';
 
 interface IChatEmbedMessageProps extends ChatDefaultMessageBubbleProps {
   embed: ChatsModel.Models.Embeds.All;
@@ -20,6 +23,8 @@ export default function ChatEmbedMessage({
         return <ChatEmbedAttachmentsBubble {...props} embed={embed} />;
       case EmbedTypes.ChatInvite:
         return <ChatEmbedChatInviteBubble {...props} embed={embed} />;
+      case EmbedTypes.GameInvite:
+        return <ChatEmbedGameInviteBubble {...props} embed={embed} />;
       default:
         return <ChatDefaultMessageBubble {...props} />;
     }

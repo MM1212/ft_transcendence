@@ -53,6 +53,7 @@ export function SidebarNestedRoute({
   return (
     <ListItem nested>
       <Toggler
+        defaultExpanded
         renderToggle={({ open, setOpen }) => (
           <ListItemButton onClick={() => setOpen(!open)}>
             {icon}
