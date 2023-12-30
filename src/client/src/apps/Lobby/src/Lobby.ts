@@ -85,13 +85,23 @@ export class ClientLobby extends Lobby {
       emitter.removeEventListener(event, listener);
     });
     await super.destructor();
-    this.app.destroy(true, {
+    this.stage.destroy({
       children: true,
     });
+    this.app.destroy(true);
   }
   async onMount(): Promise<void> {
     await this.setupBackground();
-    this.app.ticker.add(this.onUpdate.bind(this));
+    const onUpdateHandler = this.onUpdate.bind(this);
+    this.app.ticker.add(onUpdateHandler);
+    this.domEvents.push([
+      {
+        removeEventListener: (_, listener) => this.app.ticker.remove(listener),
+      },
+      'update',
+      onUpdateHandler,
+    ]);
+
     await super.onMount();
   }
 
@@ -130,7 +140,10 @@ export class ClientLobby extends Lobby {
   }
 
   private async isInputEnabled(): Promise<boolean> {
-    return (await this.snapshot?.getPromise(enablePlayerInput)) ?? false;
+    return (
+      (!this.loading && (await this.snapshot?.getPromise(enablePlayerInput))) ??
+      false
+    );
   }
 
   private async handleMouseMove(ev: PIXI.FederatedMouseEvent): Promise<void> {
@@ -202,9 +215,9 @@ export class ClientLobby extends Lobby {
 
   // Socket Calls
   public async __sockLobbyInit(data: LobbyModel.Models.ILobby): Promise<void> {
-    if (this.mainPlayer) {
-      await this.destructor();
-    }
+    this.loading = true;
+    await Promise.all(this.players.map((p) => p.destructor()));
+
     this.mainPlayerId = data.players.find((p) => p.main)!.id;
     // @ts-expect-error impl
     this.players = data.players.map(
