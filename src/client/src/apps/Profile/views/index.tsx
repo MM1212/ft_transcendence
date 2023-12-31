@@ -13,7 +13,6 @@ import {
   Typography,
 } from '@mui/joy';
 import UserAchievements from '../components/UserAchievements';
-import UserMatchHistory from '../components/UserMatchHistory';
 import AvatarWithStatus, { UserAvatar } from '@components/AvatarWithStatus';
 import DotsVerticalIcon from '@components/icons/DotsVerticalIcon';
 import { Route, Switch, useParams } from 'wouter';
@@ -27,6 +26,7 @@ import useFriend from '@apps/Friends/hooks/useFriend';
 import MessageIcon from '@components/icons/MessageIcon';
 import UserMenuOptions from '../components/UserMenuOptions';
 import AccountPlusIcon from '@components/icons/AccountPlusIcon';
+import ProfileMatchHistory from '../components/ProfileMatchHistory';
 
 function OtherOptions({
   user,
@@ -137,7 +137,7 @@ function UserProfile({
         <Divider />
         <UserAchievements />
         <Divider />
-        <UserMatchHistory users={[]} />
+        <ProfileMatchHistory id={affiliation === 'me' ? undefined : user.id} />
       </Stack>
     </Sheet>
   );

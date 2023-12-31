@@ -1,8 +1,8 @@
-import { useUser } from "@hooks/user";
-import { Box, Divider, Sheet, Stack } from "@mui/joy";
-import LobbyGameTypography from "@apps/GameLobby/components/LobbyGameTypography";
-import UserMatchHistory from "@apps/Profile/components/UserMatchHistory";
-import UsersModel from "@typings/models/users";
+import { useUser } from '@hooks/user';
+import {  Divider, Sheet } from '@mui/joy';
+import LobbyGameTypography from '@apps/GameLobby/components/LobbyGameTypography';
+import MatchHistoryList from '@apps/MatchHistory/components/MatchHistoryList';
+import UsersModel from '@typings/models/users';
 
 export default function MatchHistory() {
   const users = [
@@ -18,24 +18,26 @@ export default function MatchHistory() {
     useUser(11),
     useUser(12),
   ];
-  const filteredUsers = users.filter((user) => user !== null) as UsersModel.Models.IUserInfo[];
+  const filteredUsers = users.filter(
+    (user) => user !== null
+  ) as UsersModel.Models.IUserInfo[];
 
   if (filteredUsers.length === 0) return null;
-  if (users === null) return ;
+  if (users === null) return;
   return (
     <Sheet
       sx={{
-        width: "100dvh",
+        width: '60dvh',
         p: 2,
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "flex-start",
-        justifyContent: "flex-start",
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+        justifyContent: 'flex-start',
       }}
     >
       <LobbyGameTypography level="body-lg">Match History</LobbyGameTypography>
       <Divider />
-     <UserMatchHistory users={filteredUsers}/>
+      <MatchHistoryList />
     </Sheet>
   );
 }

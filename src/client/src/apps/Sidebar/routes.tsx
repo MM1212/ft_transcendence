@@ -118,7 +118,8 @@ const routes: ISidebarRoute[] = [
           },
           {
             label: 'Match History',
-            path: '/history',
+            path: '/history/me',
+            routePath: '/history/:rest*',
             icon: <HistoryIcon />,
             exact: false,
             Component: React.lazy(() => import('@apps/MatchHistory/views')),
