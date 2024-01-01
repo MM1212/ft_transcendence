@@ -23,6 +23,11 @@ const Entry = memo(function Entry({
     id: number
   ) => void;
 }) {
+  const firstMount = React.useRef(true);
+
+  React.useLayoutEffect(() => {
+    firstMount.current = false;
+  }, []);
   return (
     <Accordion
       id={`profile-match-history-${id}`}
@@ -33,7 +38,7 @@ const Entry = memo(function Entry({
         <MatchHistoryEntry />
       </AccordionSummary>
       <AccordionDetails>
-        <MatchHistoryScoreBoard />
+        {!firstMount.current && <MatchHistoryScoreBoard />}
       </AccordionDetails>
     </Accordion>
   );

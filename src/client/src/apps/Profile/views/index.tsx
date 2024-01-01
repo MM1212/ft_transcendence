@@ -135,7 +135,7 @@ function UserProfile({
           )}
         </Stack>
         <Divider />
-        <UserAchievements />
+        <UserAchievements id={affiliation === 'me' ? undefined : user.id} />
         <Divider />
         <ProfileMatchHistory id={affiliation === 'me' ? undefined : user.id} />
       </Stack>

@@ -87,7 +87,8 @@ const routes: ISidebarRoute[] = [
   },
   {
     label: 'Achievements',
-    path: '/achievements',
+    path: '/achievements/me',
+    routePath: '/achievements/:rest*',
     icon: <TrophyIcon />,
     exact: false,
     Component: React.lazy(() => import('@apps/Achievements/views')),

@@ -33,7 +33,7 @@ model User {
   characterId   Int               @unique @map("character_id")
   quests        Quest[]
 
-  gamesPlayed MatchHistory[] @relation("match_players")
+  gamesPlayed MatchHistoryPlayer[]
 
   @@index([studentId, nickname])
   @@map("users")
@@ -179,14 +179,41 @@ model Quest {
   meta       Json      @default("{}")
 }
 
+model MatchHistoryPlayer {
+  id        Int              @id @default(autoincrement())
+  User      User             @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId    Int              @map("user_id")
+  score     Int              @default(0)
+  gear      Json             @default("{}") // paddle, special power, etc..
+  stats     Json             @default("{}")
+  team      MatchHistoryTeam @relation("match_players", fields: [teamId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  teamId    Int              @map("team_id")
+  match     MatchHistory     @relation(fields: [matchId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  matchId   Int              @map("match_id")
+  createdAt DateTime         @default(now()) @map("created_at")
+
+  @@map("matches_history_players")
+}
+
+model MatchHistoryTeam {
+  id        Int                  @id @default(autoincrement())
+  name      String
+  score     Int                  @default(0)
+  match     MatchHistory         @relation(fields: [matchId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  matchId   Int                  @map("match_id")
+  players   MatchHistoryPlayer[] @relation("match_players")
+  stats     Json                 @default("{}")
+  createdAt DateTime             @default(now()) @map("created_at")
+
+  @@map("matches_history_teams")
+}
+
 model MatchHistory {
-  id        Int      @id @default(autoincrement())
-  players   User[]   @relation("match_players")
-  winner    Int      @map("winner_id")
-  rounds    Int
-  gameType  String   @map("game_type")
-  gameTime  Int      @map("game_time")
-  createdAt DateTime @default(now()) @map("created_at")
+  id        Int                  @id @default(autoincrement())
+  players   MatchHistoryPlayer[]
+  teams     MatchHistoryTeam[]
+  stats     Json                 @default("{}")
+  createdAt DateTime             @default(now()) @map("created_at")
 
   @@map("matches_history")
 }
