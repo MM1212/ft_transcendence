@@ -41,6 +41,8 @@ class User extends CacheObserver<UsersModel.Models.IUser> {
       connected,
       character,
       quests,
+      notifications,
+      inventory,
       ...user
     } = this.get();
     return user satisfies UsersModel.Models.IUserInfo;
