@@ -45,7 +45,7 @@ export default function LobbbyCustomMatchPlayers({
           id={leftTopPlayer?.id}
           teamId={PongModel.Models.TeamSide.Left}
           teamPosition={PongModel.Models.TeamPosition.Top}
-          ready={leftTopPlayer?.status === PongModel.Models.LobbyStatus.Ready}
+          ready={leftTopPlayer?.status === PongModel.Models.LobbyStatus.Ready || leftTopPlayer?.status === PongModel.Models.LobbyStatus.Playing}
         />
         <LobbyPlayerPlaceholder
           id={leftBottomPlayer?.id}
@@ -53,7 +53,7 @@ export default function LobbbyCustomMatchPlayers({
           teamPosition={PongModel.Models.TeamPosition.Bottom}
           warnForPositionShift={leftBottomPlayer && !leftTopPlayer}
           ready={
-            leftBottomPlayer?.status === PongModel.Models.LobbyStatus.Ready
+            leftBottomPlayer?.status === PongModel.Models.LobbyStatus.Ready || leftBottomPlayer?.status === PongModel.Models.LobbyStatus.Playing
           }
         />
       </Box>
@@ -71,7 +71,7 @@ export default function LobbbyCustomMatchPlayers({
           id={rightTopPlayer?.id}
           teamId={PongModel.Models.TeamSide.Right}
           teamPosition={PongModel.Models.TeamPosition.Top}
-          ready={rightTopPlayer?.status === PongModel.Models.LobbyStatus.Ready}
+          ready={rightTopPlayer?.status === PongModel.Models.LobbyStatus.Ready || rightTopPlayer?.status === PongModel.Models.LobbyStatus.Playing}
         />
         <LobbyPlayerPlaceholder
           id={rightBottomPlayer?.id}
@@ -79,7 +79,7 @@ export default function LobbbyCustomMatchPlayers({
           teamPosition={PongModel.Models.TeamPosition.Bottom}
           warnForPositionShift={rightBottomPlayer && !rightTopPlayer}
           ready={
-            rightBottomPlayer?.status === PongModel.Models.LobbyStatus.Ready
+            rightBottomPlayer?.status === PongModel.Models.LobbyStatus.Ready || rightBottomPlayer?.status === PongModel.Models.LobbyStatus.Playing
           }
         />
       </Box>

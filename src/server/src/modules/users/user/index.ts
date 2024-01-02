@@ -12,6 +12,7 @@ import UserExtAlerts from './ext/Alerts';
 import UserExtCharacter from './ext/Character';
 import UserExtQuests from './ext/Quests';
 import UserExtInventory from './ext/Inventory';
+import UserExtNotifications from './ext/Notifications';
 
 class User extends CacheObserver<UsersModel.Models.IUser> {
   public readonly friends: UserExtFriends = new UserExtFriends(this);
@@ -19,6 +20,8 @@ class User extends CacheObserver<UsersModel.Models.IUser> {
   public readonly character: UserExtCharacter = new UserExtCharacter(this);
   public readonly quests: UserExtQuests = new UserExtQuests(this);
   public readonly inventory: UserExtInventory = new UserExtInventory(this);
+  public readonly notifications: UserExtNotifications =
+    new UserExtNotifications(this);
 
   constructor(
     data: UsersModel.Models.IUser,

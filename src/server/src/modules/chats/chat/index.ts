@@ -545,10 +545,10 @@ class Chat extends CacheObserver<IChat> {
     participantId: number,
   ): Promise<void> {
     const targetParticipant = this.getParticipant(participantId, true);
-    if (!targetParticipant) throw new NotFoundException();
-    if (targetParticipant.isOwner()) throw new ForbiddenException();
+    if (!targetParticipant) throw new NotFoundException("Target doesn't exist");
+    if (targetParticipant.isOwner()) throw new ForbiddenException("Cannot transfer ownership to yourself");
     const participantOp = this.getParticipantByUserId(op.id);
-    if (!participantOp) throw new ForbiddenException();
+    if (!participantOp) throw new ForbiddenException("You don't exist");
     if (!participantOp.isOwner())
       throw new ForbiddenException('Insufficient permissions');
     !this.isTemporary &&

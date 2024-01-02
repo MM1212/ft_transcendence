@@ -5,12 +5,17 @@ import { SpecialPower } from "./SpecialPower";
 import { Bar } from "../Paddles/Bar";
 import { Effect } from "./Effect";
 import { Ball } from "../Ball";
-
+import PongModel from "../../../typings/models/pong";
 
 export class Spark extends SpecialPower {
     constructor(center: Vector2D, velocity: Vector2D, shooter: Bar) {
-        super("Spark", center, velocity, shooter, specialpowerConfig.spark.diameter, specialpowerConfig.spark.vertices);
+        super(PongModel.Models.LobbyParticipantSpecialPowerType.spark, center, velocity, shooter, specialpowerConfig.spark.diameter, specialpowerConfig.spark.vertices);
         this.tag += this.id;
+        shooter.manaBar.spendMana(this.manaCost);
+    }
+
+    get manaCost(): number {
+        return specialpowerConfig.spark.manaCost;
     }
 
     onCollide(target: GameObject): boolean {

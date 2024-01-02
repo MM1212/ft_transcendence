@@ -1,5 +1,5 @@
 import { Vector2D } from "../utils/Vector";
-import { CannonTex } from "../utils";
+import { AnimFireTex } from "../utils";
 import { Bar } from "@shared/Pong/Paddles/Bar";
 import { UIShooter } from "./Shooter";
 import * as PIXI from "pixi.js";
@@ -17,7 +17,7 @@ export class UIFire extends Fire {
   public displayObject: PIXI.Sprite;
   constructor(center: Vector2D, velocity: Vector2D, shooter: Bar, tag: string) {
     super(center, velocity, shooter);
-    // this.displayObject = new PIXI.Sprite(CannonTex) as PIXI.AnimatedSprite;
+    // this.displayObject = new PIXI.Sprite(AnimFireTex) as PIXI.AnimatedSprite;
     // FireAnim.then((textures) => {
     //  this.displayObject.destroy();
     //  this.displayObject = new PIXI.AnimatedSprite(textures);
@@ -26,7 +26,7 @@ export class UIFire extends Fire {
     //  this.displayObject.animationSpeed = 0.1;
     //  this.displayObject.play();
     //});
-    this.displayObject = new PIXI.Sprite(CannonTex);
+    this.displayObject = new PIXI.Sprite(AnimFireTex);
     this.displayObject.anchor.set(0.5);
     this.displayObject.x = center.x;
     this.displayObject.y = center.y;

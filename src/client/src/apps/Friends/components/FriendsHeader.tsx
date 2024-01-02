@@ -9,7 +9,7 @@ import { useLocation } from 'wouter';
 const tabs = [
   {
     label: 'Online',
-    target: '/',
+    target: '',
   },
   {
     label: 'All',
@@ -70,8 +70,8 @@ export default function FriendsHeader() {
                   disableIndicator
                   key={tab.target}
                   component={Link}
-                  to={tab.target}
-                  value={tab.target}
+                  to={`/friends${tab.target}`}
+                  value={`/friends${tab.target}`}
                 >
                   {tab.label}
                 </Tab>

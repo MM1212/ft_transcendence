@@ -6,6 +6,7 @@ import { Effect } from './Effect';
 import { Ball } from '../Ball';
 import { Bar } from '../Paddles/Bar';
 import { Shooter } from './Shooter';
+import PongModel from "../../../typings/models/pong";
 
 enum collide {
   NO,
@@ -15,7 +16,7 @@ enum collide {
 export class Fire extends SpecialPower {
   constructor(center: Vector2D, velocity: Vector2D, public shooter: Bar) {
     super(
-      'Fire',
+      PongModel.Models.LobbyParticipantSpecialPowerType.fire,
       center,
       velocity,
       shooter,
@@ -23,6 +24,11 @@ export class Fire extends SpecialPower {
       specialpowerConfig.fire.vertices
     );
     this.tag += this.id;
+    shooter.manaBar.spendMana(this.manaCost);
+  }
+
+  get manaCost(): number {
+    return specialpowerConfig.fire.manaCost;
   }
 
   onCollide(target: GameObject): any {

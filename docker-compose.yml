@@ -1,0 +1,38 @@
+# docker compose with postgresql
+version: '3.1'
+services:
+  postgresql:
+    image: postgres:latest
+    container_name: postgresql
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${BACKEND_DB_USER}
+      POSTGRES_PASSWORD: ${BACKEND_DB_PASSWORD}
+      POSTGRES_DB: ${BACKEND_DB_NAME}
+    expose:
+      - "${BACKEND_DB_PORT}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    user: postgres
+    privileged: false
+    networks:
+      - transcendence
+  ft_transcendence:
+    container_name: ft_transcendence
+    image: ft_transcendence
+    build:
+      context: .
+      dockerfile: production/Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgresql
+    networks:
+      - transcendence
+    restart: unless-stopped
+
+  
+volumes:
+  pgdata:
+networks:
+  transcendence:

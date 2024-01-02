@@ -4,7 +4,7 @@ import { Path } from "wouter/use-location";
 
 const externalLinkRegex = /http(s?):\/\/(.*)/;
 
-export type LinkProps = { to: Path; href?: never } | { href: Path; to?: never };
+export type LinkProps = React.ComponentProps<'a'> & ({ to: Path; href?: never } | { href: Path; to?: never });
 
 const Link = React.forwardRef<
   HTMLAnchorElement,
@@ -22,7 +22,6 @@ const Link = React.forwardRef<
     if (isExternal) {
       return <a ref={ref} {...props} />;
     }
-    // @ts-expect-error pois pois
     return <WouterLink ref={ref} {...props} />;
   }
 );

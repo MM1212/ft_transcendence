@@ -1,9 +1,9 @@
 import { Tab, TabList, TabPanel, Tabs } from '@mui/joy';
 import { alpha } from '@theme';
 import GameLobbyChat from './LobbyTabs/Chat';
-import LobbyInviteSpectate from './LobbyInviteSpectate';
 import { useRecoilValue } from 'recoil';
 import pongGamesState from '../state';
+import { LobbyInvitedList, LobbySpectatorsList } from './LobbyInviteSpectate';
 
 export default function LobbyPongCustomMatchTabs(): JSX.Element {
   const lobby = useRecoilValue(pongGamesState.gameLobby)!;
@@ -27,10 +27,10 @@ export default function LobbyPongCustomMatchTabs(): JSX.Element {
         <GameLobbyChat />
       </TabPanel>
       <TabPanel value={1}>
-        <LobbyInviteSpectate type="No Pending Invites" usersId={[]} />
+        <LobbyInvitedList type="No Pending Invites" usersId={lobby.invited} />
       </TabPanel>
       <TabPanel value={2}>
-        <LobbyInviteSpectate
+        <LobbySpectatorsList
           type="No Spectators"
           usersId={lobby.spectators.map((s) => s.id)}
         />

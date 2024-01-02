@@ -2,12 +2,15 @@ import { GameObject } from '../GameObject';
 import { Game } from "../Game";
 import { Polygon } from './Polygon';
 import { Vector2D } from '../utils/Vector';
+import { Collider } from './Collider';
+import PongModel from '../../../typings/models/pong';
 
 export class ArenaWall extends GameObject {
     constructor( public readonly position: Vector2D, public readonly size: Vector2D, private readonly color: number, game: Game) {
-        super('Arena', game);
-        this.collider.polygon = new ArenaPolygon(position, size, game);
-        this.collider.updateBoundingBox();
+        super(PongModel.InGame.ObjType.Arena, game);
+        this.collider = Collider.fromPolygon(
+            new ArenaPolygon(position, size, game)
+        );
     }
 
     update(): void {}

@@ -1,6 +1,8 @@
+import { usersAtom } from '@hooks/user';
 import tunnel from '@lib/tunnel';
 import PongModel from '@typings/models/pong';
-import { atom, selector } from 'recoil';
+import UsersModel from '@typings/models/users';
+import { atom, selector, waitForAll } from 'recoil';
 
 const Targets = PongModel.Endpoints.Targets;
 
@@ -16,7 +18,7 @@ const pongGamesState = new (class GamesState {
         } catch (e) {
           return null;
         }
-      }
+      },
     }),
   });
   isInLobby = selector<boolean>({
@@ -31,6 +33,14 @@ const pongGamesState = new (class GamesState {
       const lobby = get(this.gameLobby);
       if (!lobby) return null;
       return lobby.ownerId;
+    },
+  });
+  isPlaying = selector<boolean>({
+    key: 'isPlaying',
+    get: ({ get }) => {
+      const lobby = get(this.gameLobby);
+      if (!lobby) return false;
+      return lobby.status === PongModel.Models.LobbyStatus.Playing;
     },
   });
 })();

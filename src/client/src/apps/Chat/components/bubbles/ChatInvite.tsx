@@ -11,6 +11,7 @@ import AlertIcon from '@components/icons/AlertIcon';
 import { useRecoilValue } from 'recoil';
 import { useTunnelEndpoint } from '@hooks/tunnel';
 import { randomInt } from '@utils/random';
+import { navigate } from 'wouter/use-location';
 
 interface IChatEmbedAttachmentsBubbleProps
   extends ChatDefaultMessageBubbleProps {
@@ -60,14 +61,14 @@ function _ChatEmbedChatInviteBubble({
     () => chats.includes(embed.chatId),
     [embed.chatId, chats]
   );
-  const deleted = !!error || !data || data.status === 'error';
+  const deleted = !isLoading && (!!error || !data || data.status === 'error');
   React.useEffect(() => {
     if (deleted) brokenInvitesCache.add(embed.chatId);
   }, [deleted, embed.chatId]);
   const chat = !error && data?.status === 'ok' ? data.data : undefined;
   const [loading, setLoading] = React.useState(false);
   const attemptToJoin = React.useCallback(async () => {
-    if (joined) return;
+    if (joined) return navigate(`/messages/${embed.chatId}`);
     setLoading(true);
 
     await _attemptToJoin({
@@ -75,7 +76,13 @@ function _ChatEmbedChatInviteBubble({
       nonce: embed.inviteNonce,
     });
     setLoading(false);
-  }, [joined, _attemptToJoin, props.messageId, embed.inviteNonce]);
+  }, [
+    joined,
+    embed.chatId,
+    embed.inviteNonce,
+    _attemptToJoin,
+    props.messageId,
+  ]);
 
   return (
     <Bubble
@@ -86,6 +93,7 @@ function _ChatEmbedChatInviteBubble({
         gap: '0.5rem',
         minWidth: '35dvh',
       }}
+      mainColor="success"
     >
       {isLoading ? (
         <InviteSkeleton />
@@ -98,7 +106,7 @@ function _ChatEmbedChatInviteBubble({
               fontWeight: 600,
               color: props.isSent
                 ? 'var(--joy-palette-common-white)'
-                : 'var(--joy-palette-text-primary)',
+                : 'var(--joy-palette-text-success)',
               width: 'fit-content',
               whiteSpace: 'pre-wrap',
               letterSpacing: '0.05rem',
@@ -110,7 +118,7 @@ function _ChatEmbedChatInviteBubble({
           <Stack spacing={1} alignItems="center" direction="row" width="100%">
             <Badge
               badgeContent={<LockIcon size="xs" />}
-              color="primary"
+              color="success"
               badgeInset="14%"
               size="sm"
               variant="plain"
@@ -131,7 +139,7 @@ function _ChatEmbedChatInviteBubble({
               <Avatar
                 src={chat?.photo ?? undefined}
                 size="lg"
-                color={props.isSent ? 'primary' : 'neutral'}
+                color={'success'}
               >
                 {deleted ? <AlertIcon /> : <AccountGroupIcon />}
               </Avatar>
@@ -156,7 +164,7 @@ function _ChatEmbedChatInviteBubble({
             {!deleted && (
               <Button
                 variant={joined ? 'plain' : 'soft'}
-                color="primary"
+                color="success"
                 sx={{ ml: 'auto' }}
                 onClick={attemptToJoin}
                 disabled={deleted}

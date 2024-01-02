@@ -59,7 +59,6 @@ function _View(): JSX.Element {
       <ChatMembersModal />
       <ChatManageMuteModal />
       <PublicChatsModalView />
-      <ChatPasswordInputModalView />
       <ChatInfoEditModal />
     </Sheet>
   );

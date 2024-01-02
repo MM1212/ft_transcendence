@@ -7,16 +7,19 @@ import { hash } from '@shared/hash';
 import Chat from '@/modules/chats/chat';
 import ChatsModel from '@typings/models/chat';
 import { PongLobbyService } from '../ponglobby.service';
+import { read } from 'fs';
+import { ServerGame } from '@/modules/ponggame/pong';
+import { ballsConfig } from '@shared/Pong/config/configInterface';
 
 /* ---- LOBBY PARTICIPANT ---- */
 
 export class PongLobbyParticipant
   implements PongModel.Models.ILobbyParticipant
 {
-  public keys: PongModel.Models.IGamekeys =
+  public keys: PongModel.Models.IGamekeys | undefined =
     PongModel.Models.TemporaryLobbyParticipant.keys;
-  public paddleTexture: string =
-    PongModel.Models.TemporaryLobbyParticipant.paddleTexture;
+  public paddle: string =
+    PongModel.Models.TemporaryLobbyParticipant.paddle;
   public specialPower: GroupEnumValues<PongModel.Models.LobbyParticipantSpecialPowerType> =
     PongModel.Models.TemporaryLobbyParticipant.specialPower;
   public status: GroupEnumValues<PongModel.Models.LobbyStatus> =
@@ -27,6 +30,8 @@ export class PongLobbyParticipant
     PongModel.Models.LobbyParticipantPrivileges.None;
   public teamId: PongModel.Models.TeamSide | null = null;
   public teamPosition: number = -1;
+  public type: string = 'player';
+
   constructor(
     public user: User,
     lobby: PongLobby,
@@ -37,6 +42,13 @@ export class PongLobbyParticipant
   ) {
     if (lobby.nPlayers < 4) lobby.addPlayerToPlayers(this);
     else lobby.addPlayerToSpectators(this);
+    
+    if (user.nickname === 'bot') // HARDCODED, BUT JUST NEEDS THIS TO BE CHANGED TO IMPLEMENT BOT
+    {
+      this.keys = undefined;
+      this.status = PongModel.Models.LobbyStatus.Ready;
+      this.type = 'bot';
+    }
   }
 
   public get interface(): PongModel.Models.ILobbyParticipant {
@@ -44,13 +56,14 @@ export class PongLobbyParticipant
       id: this.id,
       nickname: this.nickname,
       avatar: this.avatar,
+      type: this.type,
       lobbyId: this.lobbyId,
       role: this.role,
       privileges: this.privileges,
       teamId: this.teamId,
       status: this.status,
       keys: this.keys,
-      paddleTexture: this.paddleTexture,
+      paddle: this.paddle,
       specialPower: this.specialPower,
       teamPosition: this.teamPosition,
     };
@@ -89,10 +102,20 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
     },
   ];
   public spectators: PongLobbyParticipant[] = [];
+  public invited: number[] = [];
+  public ballTexture: string = "RedBall"; // default value
+
   public readonly chat: Chat;
+  public readonly nonce: number = Math.floor(Math.random() * 1000000);
+  public gameUUId: string | null = null;
 
   public get service(): PongLobbyService {
     return this.helpers.service;
+  }
+
+  public get game(): ServerGame {
+    if (!this.gameUUId) throw new Error('Game not started');
+    return this.helpers.gameService.getGame(this.gameUUId)!;
   }
 
   constructor(
@@ -140,6 +163,48 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
         this.service.usersInGames.set(newUser.id, this.id);
         return this;
       });
+  }
+
+  public emitGameStart(): void {
+    this.helpers.sseService.emitToTargets<PongModel.Sse.Start>(
+      PongModel.Sse.Events.Start,
+      this.allInLobby.map((player) => player.id),
+      {
+        id: this.id,
+        status: this.status,
+      },
+    );
+  }
+
+  public async startGame(userId: number): Promise<boolean> {
+    const player = this.getPlayerFromTeam(userId);
+    if (this.teams[0].players.length === 0) return false;
+    if (this.teams[1].players.length === 0) return false;
+    if (player !== undefined)
+      player.status = PongModel.Models.LobbyStatus.Ready;
+    if (
+      this.allPlayers.some(
+        (player) => player.status !== PongModel.Models.LobbyStatus.Ready,
+      )
+    ) {
+      console.log('NOT ALL READY');
+      player!.status = PongModel.Models.LobbyStatus.Waiting;
+      return false;
+    }
+    this.allPlayers.forEach((player) => {
+      player.status = PongModel.Models.LobbyStatus.Playing;
+    });
+    this.teams.forEach((team) => {
+      team.score = 0;
+      if (team.players.length === 1)
+        team.players[0].teamPosition = PongModel.Models.TeamPosition.Top;
+    });
+    console.log('ALL READY');
+    this.status = PongModel.Models.LobbyStatus.Playing;
+
+    const game = await this.helpers.gameService.initGameSession(this);
+    this.gameUUId = game.UUID;
+    return true;
   }
 
   public get owner(): Promise<User> {
@@ -190,10 +255,79 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
     );
   }
 
+  private get allPlayers(): PongModel.Models.ILobbyParticipant[] {
+    return this.teams[0].players.concat(this.teams[1].players);
+  }
+
   private get allInLobby(): PongModel.Models.ILobbyParticipant[] {
     return this.teams[0].players
       .concat(this.teams[1].players)
       .concat(this.spectators);
+  }
+
+  public updateInvited(): void {
+    this.helpers.sseService.emitToTargets<PongModel.Sse.UpdateLobbyInvited>(
+      PongModel.Sse.Events.UpdateLobbyInvited,
+      this.allInLobby.map((player) => player.id),
+      {
+        invited: this.invited,
+      },
+    );
+  }
+
+  public async invite(
+    user: User,
+    data: PongModel.Endpoints.ChatSelectedData[],
+  ): Promise<void> {
+    const allPlayers = this.allInLobby;
+
+    for (const i in data) {
+      if (data[i].type === 'user') {
+        console.log(data[i]);
+        if (allPlayers.some((player) => player.id === data[i].id)) continue;
+        if (this.invited.some((player) => player === data[i].id)) continue;
+        this.invited.push(data[i].id);
+        const target = await this.helpers.usersService.get(data[i].id);
+        console.log(target);
+        if (!target) continue;
+        const [, chat] =
+          await this.helpers.chatsService.checkOrCreateDirectChat(user, target);
+        if (!chat) continue;
+        console.log(chat);
+        console.log(user.id + ' invited ' + target.id);
+        await chat.addMessage(
+          user,
+          {
+            type: ChatsModel.Models.ChatMessageType.Embed,
+            message: 'Pong Invite',
+            meta: {
+              type: ChatsModel.Models.Embeds.Type.GameInvite,
+              lobbyId: this.id,
+              nonce: this.nonce,
+            },
+          },
+          true,
+        );
+      }
+      if (data[i].type === 'chat') {
+        const chat = await this.helpers.chatsService.get(data[i].id);
+        if (!chat) continue;
+        if (chat.type !== ChatsModel.Models.ChatType.Group) continue;
+        chat.addMessage(
+          user,
+          {
+            type: ChatsModel.Models.ChatMessageType.Embed,
+            message: 'Pong Invite',
+            meta: {
+              type: ChatsModel.Models.Embeds.Type.GameInvite,
+              lobbyId: this.id,
+              nonce: this.nonce,
+            },
+          },
+          true,
+        );
+      }
+    }
   }
 
   public syncParticipants(): void {
@@ -233,21 +367,18 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
 
   private async assignNewOwner() {
     // does this work?
-    const newOwner =
-      this.teams[0].players[0] ||
-      this.teams[1].players[0] ||
-      this.spectators[0];
+    const newOwner = this.allInLobby.find((p) => p.id !== this.ownerId);
     if (newOwner) {
       console.log('NEW OWNER : ', newOwner);
-      await this.setAsOwner(this.getPlayerFromBoth(newOwner.id)!);
+      await this.setAsOwner(newOwner as PongLobbyParticipant);
     }
   }
 
   public async removePlayer(userId: number) {
-    await this.removeFromLobby(userId);
     if (this.ownerId === userId) {
       await this.assignNewOwner();
     }
+    await this.removeFromLobby(userId);
   }
 
   public async setAsOwner(player: PongLobbyParticipant) {
@@ -266,7 +397,7 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
       spectatorVisibility: this.spectatorVisibility,
       status: this.status,
       authorization: this.authorization,
-      authorizationData: this.authorizationData,
+      authorizationData: null,
       nPlayers: this.nPlayers,
       teams: this.teams.map((team) => ({
         ...team,
@@ -275,7 +406,9 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
         ),
       })) as [PongModel.Models.ITeam, PongModel.Models.ITeam],
       spectators: this.spectators.map((player) => player.interface),
+      invited: this.invited,
       chatId: this.chat.id,
+      ballTexture: this.ballTexture,
     };
   }
 
@@ -298,6 +431,25 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
     const player = this.getPlayerFromBoth(userToKickId);
     if (!player) return false;
     await this.removeFromLobby(userToKickId);
+    return true;
+  }
+
+  public async kickInvited(
+    userId: number,
+    userToKickId: number,
+  ): Promise<boolean> {
+    console.log(
+      'OWNER ID: ' +
+        this.ownerId +
+        ' USER ID: ' +
+        userId +
+        ' USER TO KICK ID: ' +
+        userToKickId,
+    );
+    console.log(this.invited);
+    if (this.ownerId !== userId) return false;
+    if (!this.invited.some((id) => id === userToKickId)) return false;
+    this.invited = this.invited.filter((id) => id !== userToKickId);
     return true;
   }
 

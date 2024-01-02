@@ -1,38 +1,33 @@
-import * as PIXI from 'pixi.js';
-import { UIBall } from './Ball';
-import { Game } from '@shared/Pong/Game';
-import { UIGameObject } from './GameObject';
-import { Vector2D } from './utils/Vector';
-import { UIArenaWall } from './Collisions/Arena';
-import { Debug } from './utils/Debug';
-import { drawLines } from './utils/drawUtils';
-import { UIPlayer } from './Paddles/Player';
+import * as PIXI from "pixi.js";
+import { UIBall } from "./Ball";
+import { Game } from "@shared/Pong/Game";
+import { UIGameObject } from "./GameObject";
+import { Vector2D } from "./utils/Vector";
+import { UIArenaWall } from "./Collisions/Arena";
+import { Debug } from "./utils/Debug";
+import { drawLines } from "./utils/drawUtils";
+import { UIPlayer } from "./Paddles/Player";
 import {
-  hue_value,
-  P_START_DIST,
   ARENA_SIZE,
-  P1Tex,
-  P2Tex,
-  BallTex,
-} from './utils';
-import { ETeamSide, IGameConfig } from '@shared/Pong/config/configInterface';
-import { SpecialPowerType } from '@shared/Pong/SpecialPowers/SpecialPower';
-import {
   MULTIPLAYER_START_POS,
+  P_START_DIST,
   WINDOWSIZE_X,
   WINDOWSIZE_Y,
-  score,
-} from '@shared/Pong/main';
+} from "@shared/Pong/main";
 
-import { UIBot } from './Paddles/Bot';
-import { Socket } from 'socket.io-client';
-import { GameObject, effectSendOption } from '@shared/Pong/GameObject';
-import { UIBubble } from './SpecialPowers/Bubble';
-import { UIFire } from './SpecialPowers/Fire';
-import { UIGhost } from './SpecialPowers/Ghost';
-import { UIIce } from './SpecialPowers/Ice';
-import { UISpark } from './SpecialPowers/Spark';
-import { UIEffect } from './SpecialPowers/Effect';
+//import { UIBot } from "./Paddles/Bot";
+import { Socket } from "socket.io-client";
+import { GameObject, effectSendOption } from "@shared/Pong/GameObject";
+import { UIBubble } from "./SpecialPowers/Bubble";
+import { UIFire } from "./SpecialPowers/Fire";
+import { UIGhost } from "./SpecialPowers/Ghost";
+import { UIIce } from "./SpecialPowers/Ice";
+import { UISpark } from "./SpecialPowers/Spark";
+import { UIEffect } from "./SpecialPowers/Effect";
+import PongModel from "@typings/models/pong";
+import { Ball } from "@shared/Pong/Ball";
+import { ballsConfig, paddleConfig } from "@shared/Pong/config/configInterface";
+import { DisconnectWindowTex } from "./utils";
 
 type Powers = UIBubble | UIFire | UIGhost | UIIce | UISpark;
 
@@ -42,29 +37,34 @@ export class UIGame extends Game {
   private scoreElement: PIXI.Text;
   private scoreStyle: PIXI.TextStyle;
 
-  private blueTranform = new PIXI.ColorMatrixFilter();
-  private backgroundHue = new PIXI.ColorMatrixFilter();
+  public disconnectWindow: PIXI.Sprite;
+
+  public disconnectedPlayers: { tag: string; nickname: string }[] = [];
+  public disconnectedPrint: PIXI.Text;
 
   public roomId: string;
 
   constructor(
     public readonly socket: Socket,
     container: HTMLDivElement,
-    gameConfig: IGameConfig
+    gameConfig: PongModel.Models.IGameConfig,
+    public readonly nickname: string
   ) {
     super(WINDOWSIZE_X, WINDOWSIZE_Y);
 
-    this.roomId = gameConfig.roomId;
+    this.roomId = gameConfig.UUID;
 
+    // need to add background tex
+    // Black hardcoded for now
     this.app = new PIXI.Application({
-      background: gameConfig.backgroundColor,
-      antialias: true, // smooth edge rendering
+      background: "#000000",
+      antialias: true,
       width: WINDOWSIZE_X,
       height: WINDOWSIZE_Y,
     });
-    this.app.renderer.background.color = gameConfig.backgroundColor;
+    this.app.renderer.background.color = "#000000";
 
-    drawLines(gameConfig.lineColor, this.app);
+    drawLines(0xffffff, this.app);
 
     this.drawPlayers(gameConfig);
 
@@ -84,20 +84,27 @@ export class UIGame extends Game {
         this
       )
     );
-    this.add(new UIBall(this.width / 2, this.height / 2, BallTex, this));
+    this.add(
+      new UIBall(
+        this.width / 2,
+        this.height / 2,
+        this,
+        gameConfig.ballTexture as keyof typeof ballsConfig
+      )
+    );
 
     container.appendChild(this.app.view as HTMLCanvasElement);
 
     // change this
     this.scoreStyle = new PIXI.TextStyle({
-      fontFamily: 'arial',
+      fontFamily: "arial",
       fontSize: 36,
-      fontWeight: 'bold',
-      fill: ['#FF2C05', '#FFCE03'], // gradient
-      stroke: '#4a1850',
+      fontWeight: "bold",
+      fill: ["#FF2C05", "#FFCE03"], // gradient
+      stroke: "#4a1850",
       strokeThickness: 4,
       dropShadow: true,
-      dropShadowColor: '#000000',
+      dropShadowColor: "#000000",
       dropShadowBlur: 3,
       dropShadowAngle: Math.PI / 4,
       dropShadowDistance: 2,
@@ -106,35 +113,136 @@ export class UIGame extends Game {
       `${this.score[0]}     ${this.score[1]}`,
       this.scoreStyle
     );
+
+    this.disconnectWindow = new PIXI.Sprite(DisconnectWindowTex);
+    this.disconnectWindow.x = this.app.view.width / 2 - this.disconnectWindow.width / 2;
+    this.disconnectWindow.y = this.app.view.height / 2 - this.disconnectWindow.height / 2;
+    
+    this.disconnectWindow.alpha = 0.8;
+    this.disconnectWindow.visible = false;
+    this.app.stage.addChild(this.disconnectWindow);
+
+
+    this.disconnectedPrint = new PIXI.Text("", this.scoreStyle);
+    this.disconnectedPrint.x =
+      this.app.view.width / 2 - this.disconnectedPrint.width / 2;
+    this.disconnectedPrint.y =
+      this.app.view.height / 2 - this.disconnectedPrint.height / 2;
+    this.disconnectedPrint.anchor.set(0.5);
+    this.disconnectedPrint.alpha = 0.8;
+    this.app.stage.addChild(this.disconnectedPrint);
+    this.disconnectedPrint.visible = true;
+
     this.scoreElement.x = this.app.view.width / 2 - this.scoreElement.width / 2;
     this.scoreElement.y = this.app.view.height / 16;
     this.app.stage.addChild(this.scoreElement);
 
     //window.addEventListener('resize', this.setCanvasSize.bind(this));
-    document.addEventListener('keydown', this.handleKeyDown);
-    document.addEventListener('keyup', this.handleKeyUp);
+    document.addEventListener("keydown", this.handleKeyDown);
+    document.addEventListener("keyup", this.handleKeyUp);
 
     this.debug = new Debug(this.app);
+    this.app.stage.sortableChildren = true;
+
+    // update disconnected when page is refreshed
+    this.socket.emit(PongModel.Socket.Events.UpdateDisconnected, {
+      roomId: this.roomId,
+    })
+  }
+
+  getPlayerByUserId(userId: number): UIPlayer | undefined {
+    return this.gameObjects.find((e) => {
+      if (e instanceof UIPlayer) {
+        return e.userId === userId;
+      }
+      return false;
+    }) as UIPlayer;
+  }
+
+  updateDisconnectedRefresh(userIds: number[]): void {
+    this.disconnectedPlayers.length = 0;
+    let disconnectedText = "";
+    console.log(userIds);
+    
+    for (let i = 0; i < userIds.length; i++) {
+      console.log(userIds[i]);
+      const player = this.getPlayerByUserId(userIds[i]);
+      console.log(player);
+      if (player) {
+        player.displayObject.alpha = 0.5;
+        this.disconnectedPlayers.push({
+          tag: player.tag,
+          nickname: player.nickname,
+        });
+        disconnectedText += player.nickname + "\n";
+      }
+    }
+    this.disconnectedPrint.text = `Disconnected Players: ${this.disconnectedPlayers.length}\n${disconnectedText}`;
+    this.disconnectedPrint.visible = true;
+    this.disconnectWindow.visible = true;
+  }
+
+  updateDisconnected(nickname: string, tag: string) {
+    this.disconnectedPlayers.push({ tag: tag, nickname: nickname });
+    if (this.disconnectedPlayers.length > 0) {
+      let disconnectedText = "";
+      this.disconnectedPlayers.forEach((player) => {
+        disconnectedText += player.nickname + "\n";
+      });
+      const obj = this.getObjectByTag(tag) as UIGameObject;
+      if (obj) obj.displayObject.alpha = 0.5;
+      this.disconnectedPrint.text = `Disconnected Players: ${this.disconnectedPlayers.length}\n${disconnectedText}`;
+      this.disconnectedPrint.visible = true;
+      this.disconnectWindow.visible = true;
+    }
+  }
+
+  updateReconnected(nickname: string, tag: string) {
+    this.disconnectedPlayers = this.disconnectedPlayers.filter(
+      (player) => player.nickname !== nickname
+    );
+    if (this.disconnectedPlayers.length > 0) {
+      let disconnectedText = "";
+      this.disconnectedPlayers.forEach((player) => {
+        disconnectedText += player.nickname + "\n";
+        const obj = this.getObjectByTag(player.tag) as UIGameObject;
+        if (obj) obj.displayObject.alpha = 0.5;
+        console.log("PLAYER: " + player.tag);
+      });
+      const obj = this.getObjectByTag(tag) as UIGameObject;
+      if (obj) obj.displayObject.alpha = 1;
+      this.disconnectedPrint.text = `Disconnected Players: ${this.disconnectedPlayers.length}\n${disconnectedText}`;
+      this.disconnectedPrint.visible = true;
+      this.disconnectWindow.visible = true;
+    } else {
+      this.disconnectedPrint.visible = false;
+      this.disconnectWindow.visible = false;
+      const obj = this.getObjectByTag(tag) as UIGameObject;
+      if (obj) obj.displayObject.alpha = 1;
+    }
   }
 
   handleKeyDown = (e: KeyboardEvent) => {
     if (e.key && e.repeat === false && e.shiftKey === false) {
-      this.socket.emit('keyPress', {
+      // (this.AllPlayersNicks)
+      this.socket.emit(PongModel.Socket.Events.KeyPress, {
         key: e.key.toLowerCase(),
         state: true,
       });
     }
-    if (e.key === 'p') this.debug.isDebug = !this.debug.isDebug;
+    if (e.key === "p") {
+      this.debug.isDebug = !this.debug.isDebug;
+    }
   };
 
   handleKeyUp = (e: KeyboardEvent) => {
-    this.socket.emit('keyPress', {
+    this.socket.emit(PongModel.Socket.Events.KeyPress, {
       key: e.key.toLowerCase(),
       state: false,
     });
   };
 
-  handleMovements(data: { tag: string; position: number[] }[]) {
+  handleMovements(data: PongModel.Socket.Data.UpdateMovements[]) {
     data.forEach((e) => {
       const obj = this.getObjectByTag(e.tag) as UIGameObject;
       if (obj) {
@@ -146,11 +254,12 @@ export class UIGame extends Game {
   }
 
   getObjectWithType(obj: UIGameObject): Powers | undefined {
-    if (obj.tag.includes('Bubble')) return obj as UIBubble;
-    if (obj.tag.includes('Fire')) return obj as UIFire;
-    if (obj.tag.includes('Ghost')) return obj as UIGhost;
-    if (obj.tag.includes('Ice')) return obj as UIIce;
-    if (obj.tag.includes('Spark')) return obj as UISpark;
+    const powers = PongModel.Models.LobbyParticipantSpecialPowerType;
+    if (obj.tag.includes(powers.bubble)) return obj as unknown as UIBubble;
+    if (obj.tag.includes(powers.fire)) return obj as unknown as UIFire;
+    if (obj.tag.includes(powers.ghost)) return obj as unknown as UIGhost;
+    if (obj.tag.includes(powers.ice)) return obj as unknown as UIIce;
+    if (obj.tag.includes(powers.spark)) return obj as unknown as UISpark;
     return undefined;
   }
 
@@ -161,7 +270,18 @@ export class UIGame extends Game {
       specialpower.removePower();
       specialpower.displayObject?.destroy();
       this.app.stage.removeChild(specialpower.displayObject);
+      this.gameObjects = this.gameObjects.filter((e) => e !== specialpower);
     }
+  }
+
+  updatePaddleSizes(paddles: PongModel.Socket.Data.PaddleInfo[]) {
+    paddles.forEach((e) => {
+      const obj = this.getObjectByTag(e.tag) as UIPlayer;
+      if (obj) {
+        console.log(e.tag + " " + e.height + " " + e.width);
+        obj.setScaleDisplay(e.scale, e.height, e.width, e.x, e.y);
+      }
+    });
   }
 
   handleEffect(
@@ -170,45 +290,30 @@ export class UIGame extends Game {
     option: effectSendOption
   ): void {
     if (option === effectSendOption.REMOVE) {
-      console.log(effectName + ' removed on ' + obj.tag);
-      if (obj.effect?.name === 'INVISIBLE') obj.displayObject.alpha = 1;
+      console.log(effectName + " removed on " + obj.tag);
+      if (obj.effect?.name === "INVISIBLE") obj.displayObject.alpha = 1;
       obj.effect = undefined;
     } else if (option === effectSendOption.SEND) {
-      console.log(effectName + ' added on ' + obj.tag);
+      console.log(effectName + " added on " + obj.tag);
       if (effectName) obj.setEffect(new UIEffect(effectName, obj));
     }
   }
 
   start() {
-    const text = new PIXI.Text(this.app.ticker.FPS, { fill: 'white' });
-    text.x = 200;
-    text.y = 10;
-    this.app.stage.addChild(text);
     this.app.ticker.add(this.update.bind(this));
   }
 
-  // ERROR HERE 
-  updateScore(teamId: number, updatedScore: [number, number], scale: number) {
+  updateScore(
+    updatedScore: [number, number],
+    paddles: PongModel.Socket.Data.PaddleInfo[]
+  ) {
     this.score = updatedScore;
     this.scoreElement.text = `${this.score[0]}     ${this.score[1]}`;
-    if (teamId === ETeamSide.Left && scale > 0.82) {
-      const p1 = this.getObjectByTag('Player 1');
-      (p1 as UIPlayer).setScaleDisplay(scale);
-      const p3 = this.getObjectByTag('Player 3');
-      if (p3) (p3 as UIPlayer).setScaleDisplay(scale);
-    } else if (teamId === ETeamSide.Right && scale > 0.82) {
-      const p2 = this.getObjectByTag('Player 2');
-      (p2 as UIPlayer).setScaleDisplay(scale);
-      const p4 = this.getObjectByTag('Player 4');
-      if (p4) (p4 as UIPlayer).setScaleDisplay(scale);
-    }
+    this.updatePaddleSizes(paddles);
   }
 
   update() {
     if (this.run) {
-      this.scoreElement.text = `${this.score[0]}     ${this.score[1]}`;
-      this.backgroundHue.hue(hue_value, false);
-      //hue_value += 1;
       this.debug.debugDraw(this.gameObjects as UIGameObject[]);
     }
   }
@@ -227,10 +332,15 @@ export class UIGame extends Game {
     );
   }
 
+  private ballRef: UIGameObject | undefined = undefined;
   public getObjectByTag(tag: string): UIGameObject | undefined {
-    return this.gameObjects.find(
+    if (tag === PongModel.InGame.ObjType.Ball && !!this.ballRef)
+      return this.ballRef;
+    const obj = this.gameObjects.find(
       (gameObject: GameObject) => gameObject.tag === tag
     ) as UIGameObject;
+    if (!this.ballRef && obj instanceof Ball) this.ballRef = obj;
+    return obj;
   }
 
   shutdown() {
@@ -239,123 +349,67 @@ export class UIGame extends Game {
     this.app.stage.destroy();
     this.app.stop();
     this.app.destroy(true);
+    document.removeEventListener("keydown", this.handleKeyDown);
+    document.removeEventListener("keyup", this.handleKeyUp);
     super.shutdown();
   }
 
-  private drawPlayers(gameConfig: IGameConfig) {
-    const p1Conf = gameConfig.teams[0].players[0];
-    const p2Conf = gameConfig.teams[1].players[0];
+  private drawPlayers(gameConfig: PongModel.Models.IGameConfig) {
+    const players = gameConfig.teams[0].players.concat(
+      gameConfig.teams[1].players
+    );
+    const objtype = PongModel.InGame.ObjType;
+    for (let i = 0; i < players.length; i++) {
+      const p = players[i];
+      let startX;
+      let playerNbr;
+      if (p.positionOrder === "back") {
+        startX = P_START_DIST;
+        p.teamId === 0
+          ? (playerNbr = objtype.Player1)
+          : (playerNbr = objtype.Player2);
+      } else {
+        startX = MULTIPLAYER_START_POS;
+        p.teamId === 0
+          ? (playerNbr = objtype.Player3)
+          : (playerNbr = objtype.Player4);
+      }
+      let direction;
+      if (p.teamId === 1) {
+        startX = this.width - startX;
+        direction = new Vector2D(-1, 1);
+      } else {
+        direction = new Vector2D(1, 1);
+      }
 
-    // Texture cannot be "P1Tex", it might need to be pre-loaded on the client side
+      if (p.type === "player") {
+        this.add(
+          new UIPlayer(
+            startX,
+            this.height / 2,
+            p.keys!,
+            playerNbr!,
+            direction,
+            p.specialPower as PongModel.Models.LobbyParticipantSpecialPowerType,
+            this,
+            p.teamId,
+            p.paddle as keyof typeof paddleConfig,
+            p.avatar,
+            p.nickname,
+            p.userId,
+          )
+        );
+      } else {
+        //this.add (new UIBot(
+        // P_START_DIST,
+        // this.height / 2,
+        // PongModel.InGame.ObjType.Player2,
+        // new Vector2D(1, 1),
+        // this
+        // );
+        // })
+      }
+    }
     // Add special power to the bots
-    let p1;
-    if (p1Conf.type === 'player') {
-      p1 = new UIPlayer(
-        P1Tex,
-        P_START_DIST,
-        this.height / 2,
-        p1Conf.keys!,
-        'Player 1', // might need to be changed
-        new Vector2D(1, 1),
-        p1Conf.specialPower as SpecialPowerType,
-        this
-      );
-    } else {
-      p1 = new UIBot(
-        P1Tex,
-        P_START_DIST,
-        this.height / 2,
-        'Player 2',
-        new Vector2D(1, 1),
-        this
-      );
-    }
-    // modify the color of the player based on gameConfig
-    this.blueTranform.hue(240, false);
-    p1.displayObject.filters = [this.blueTranform];
-    this.add(p1);
-
-    let p2;
-    if (p2Conf.type === 'player') {
-      p2 = new UIPlayer(
-        P2Tex,
-        this.width - P_START_DIST,
-        this.height / 2,
-        p2Conf.keys!,
-        'Player 2',
-        new Vector2D(-1, 1),
-        p2Conf.specialPower as SpecialPowerType,
-        this
-      );
-    } else {
-      p2 = new UIBot(
-        P2Tex,
-        this.width - P_START_DIST,
-        this.height / 2,
-        'Player 2',
-        new Vector2D(-1, 1),
-        this
-      );
-    }
-    // modify the color of the player based on gameConfig
-    this.add(p2);
-
-    if (gameConfig.teams[0].players.length > 1) {
-      const p3Conf = gameConfig.teams[0].players[1];
-      let p3;
-      if (p3Conf.type === 'player') {
-        p3 = new UIPlayer(
-          P1Tex,
-          MULTIPLAYER_START_POS,
-          this.height / 2,
-          p3Conf.keys!,
-          'Player 3',
-          new Vector2D(1, 1),
-          p3Conf.specialPower as SpecialPowerType,
-          this
-        );
-      } else {
-        p3 = new UIBot(
-          P1Tex,
-          MULTIPLAYER_START_POS,
-          this.height / 2,
-          'Player 3',
-          new Vector2D(1, 1),
-          this
-        );
-      }
-      // modify the color of the player based on gameConfig
-      this.blueTranform.hue(240, false);
-      p3.displayObject.filters = [this.blueTranform];
-      this.add(p3);
-    }
-
-    if (gameConfig.teams[1].players.length > 1) {
-      const p4Conf = gameConfig.teams[1].players[1];
-      let p4;
-      if (p4Conf.type === 'player') {
-        p4 = new UIPlayer(
-          P2Tex,
-          this.width - MULTIPLAYER_START_POS,
-          this.height / 2,
-          p4Conf.keys!,
-          'Player 4',
-          new Vector2D(-1, 1),
-          p4Conf.specialPower as SpecialPowerType,
-          this
-        );
-      } else {
-        p4 = new UIBot(
-          P2Tex,
-          this.width - MULTIPLAYER_START_POS,
-          this.height / 2,
-          'Player 4',
-          new Vector2D(-1, 1),
-          this
-        );
-      }
-      // modify the color of the player based on gameConfig
-      this.add(p4);
-    }
   }
 }
