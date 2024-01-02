@@ -22,14 +22,15 @@ import PongModel from '@typings/models/pong';
 import notifications from '@lib/notifications/hooks';
 import { useRecoilCallback, useRecoilValue } from 'recoil';
 import pongGamesState from '../state';
+import { useCurrentUser, useSession } from '@hooks/user';
 
 export default function LobbyCreateCustom() {
-  // Create a logic that first inputs the user to create a custom or to join an existing room
   const [name, setName] = React.useState<string>('');
   const [password, setPassword] = React.useState<string>('');
   const [gameType, setGameType] = React.useState<string>(
     PongModel.Models.LobbyGameType.Powers
   );
+  const user = useCurrentUser(); 
   const [spectators, setSpectators] = React.useState<string>(
     PongModel.Models.LobbySpectatorVisibility.All
   );
@@ -116,7 +117,7 @@ export default function LobbyCreateCustom() {
     >
       {!isCustom ? (
         <>
-          <LobbyPlayerBanner id={1} />
+          <LobbyPlayerBanner id={user?.id} />
           <Divider sx={{ mt: 4 }} />
           <Box sx={{ width: '100%', display: 'flex', flexDirection: 'row' }}>
             <Stack spacing={2} sx={{ display: 'flex', mt: 5 }}>

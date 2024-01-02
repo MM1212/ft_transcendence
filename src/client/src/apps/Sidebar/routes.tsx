@@ -4,6 +4,7 @@ import InboxUnreadSidebarDecoration from '@apps/Inbox/views/sidebar';
 import AccountGroupIcon from '@components/icons/AccountGroupIcon';
 import AccountIcon from '@components/icons/AccountIcon';
 import AccountSearchIcon from '@components/icons/AccountSearchIcon';
+import CartIcon from '@components/icons/CartIcon';
 import CogIcon from '@components/icons/CogIcon';
 import ControllerIcon from '@components/icons/ControllerIcon';
 import DevToIcon from '@components/icons/DevToIcon';
@@ -14,6 +15,7 @@ import HomeIcon from '@components/icons/HomeIcon';
 import InboxIcon from '@components/icons/InboxIcon';
 import PlayIcon from '@components/icons/PlayIcon';
 import PodiumIcon from '@components/icons/PodiumIcon';
+import StoreIcon from '@components/icons/StoreIcon';
 import TableTennisIcon from '@components/icons/TableTennisIcon';
 import TrophyIcon from '@components/icons/TrophyIcon';
 import React from 'react';
@@ -99,6 +101,13 @@ const routes: ISidebarRoute[] = [
     icon: <HangerIcon />,
     exact: false,
     Component: React.lazy(() => import('@apps/Customization/views')),
+  },
+  {
+    label: 'Shop',
+    path: '/shop',
+    icon: <CartIcon />,
+    exact: false,
+    Component: React.lazy(() => import('@apps/Shop/views')),
   },
   {
     label: 'Games',
