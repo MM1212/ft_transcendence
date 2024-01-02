@@ -1,9 +1,10 @@
 import { UserAvatar } from '@components/AvatarWithStatus';
-import { useSession } from '@hooks/user';
+import { useSession, useUser } from '@hooks/user';
 import { AvatarGroup, Sheet, Stack, Typography } from '@mui/joy';
+import { randomInt } from '@utils/random';
 
 export default function SingleMatchHist() {
-  const { user } = useSession();
+  const user  = useUser(randomInt(0, 7));
   return (
     <>
       <Sheet
@@ -12,6 +13,7 @@ export default function SingleMatchHist() {
           width: '100%',
           p: 2,
           borderRadius: (theme) => theme.radius.md,
+          backgroundColor: 'unset',
         }}
       >
         <Stack
@@ -63,13 +65,8 @@ export default function SingleMatchHist() {
                 src={'https://mui.com/static/images/avatar/1.jpg'}
               />
             </AvatarGroup>
-            <Sheet
-              sx={{
-                p: 1,
-                borderRadius: (theme) => theme.radius.md,
-              }}
-            >
-              <Typography level="h3">12 - 4</Typography>
+            <Sheet sx={{backgroundColor:'unset'}}>
+              <Typography level="h3">{randomInt(0, 10)} - {randomInt(0, 10)}</Typography>
             </Sheet>
             <AvatarGroup
               sx={{
