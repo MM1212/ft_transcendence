@@ -14,13 +14,13 @@ export default function ProfileMatchHistory({ id }: { id?: number }) {
           spacing={1.5}
           width="100%"
         >
-          {[...new Array(20)].map((_, index) => (
+          {[...new Array(10)].map((_, index) => (
             <React.Fragment key={index}>
               <SingleMatchHist matchId={index} profileId={id} />
               {index !== 9 && <Divider />}
             </React.Fragment>
           ))}
-        P</Stack>
+        </Stack>
       </Stack>
     </Box>
   );

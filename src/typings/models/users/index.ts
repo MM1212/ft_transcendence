@@ -44,6 +44,7 @@ namespace UsersModel {
       quests: QuestsModel.Models.IQuest[];
       inventory: InventoryModel.Models.IItem[];
       notifications: NotificationsModel.Models.INotification[];
+      credits: number;
     }
     export interface IUserInfo
       extends Omit<
@@ -82,7 +83,9 @@ namespace UsersModel {
         createdAt: Date;
       }
       export interface IUserCreate
-        extends Pick<Models.IUserInfo, 'studentId' | 'nickname' | 'avatar'> {}
+        extends Pick<Models.IUserInfo, 'studentId' | 'nickname' | 'avatar'> {
+        credits?: number;
+      }
       export interface GetLimits {
         limit?: number;
         offset?: number;
@@ -153,6 +156,7 @@ namespace UsersModel {
       RemoveFriend = '/users/:id/friends/:friendId',
       BlockUser = '/users/:id/blocked/:blockedId',
       UnblockUser = '/users/:id/blocked/:blockedId',
+      GetCredits = '/users/:id/credits',
     }
 
     export type All = GroupEnumValues<Targets>;
@@ -231,6 +235,9 @@ namespace UsersModel {
         undefined,
         DTO.BlockedParams
       > {}
+
+    export interface GetCredits
+      extends GetEndpoint<Targets.GetCredits, number, DTO.GetUserParams> {}
     export type Registry = {
       [EndpointMethods.Get]: {
         [Targets.GetUsers]: GetUsers;
@@ -239,6 +246,7 @@ namespace UsersModel {
         [Targets.GetBlocked]: GetBlocked;
         [Targets.GetSessionFriends]: GetSessionFriends;
         [Targets.GetSessionBlocked]: GetSessionBlocked;
+        [Targets.GetCredits]: GetCredits;
       };
       [EndpointMethods.Post]: {
         [Targets.SearchUsers]: SearchUsers;

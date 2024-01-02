@@ -32,6 +32,7 @@ model User {
   character     Character         @relation(fields: [characterId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   characterId   Int               @unique @map("character_id")
   quests        Quest[]
+  credits       Int               @default(0)
 
   gamesPlayed MatchHistoryPlayer[]
 

@@ -129,7 +129,9 @@ export const useIsLoggedIn = (): boolean => useRecoilValue(isLoggedInSelector);
 
 export const useUsersService = () => {
   const onUserUpdate = useRecoilCallback(
-    (ctx) => (ev: UsersModel.Sse.UserUpdatedEvent) => {
+    (ctx) => async (ev: UsersModel.Sse.UserUpdatedEvent) => {
+      const session = await ctx.snapshot.getPromise(sessionAtom);
+      if (!session) return;
       const {
         data: { id, avatar, nickname, studentId, status },
       } = ev;
@@ -143,9 +145,15 @@ export const useUsersService = () => {
         if (userUpdate[key as keyof typeof userUpdate] === undefined)
           delete userUpdate[key as keyof typeof userUpdate];
       }
-      const { state } = ctx.snapshot.getLoadable(usersAtom(id));
+      if (id === session.id) {
+        ctx.set(sessionAtom, (prev) => ({
+          ...prev!,
+          ...userUpdate,
+        }));
+        return;
+      }
       const { isActive } = ctx.snapshot.getInfo_UNSTABLE(usersAtom(id));
-      if (state === 'loading' || !isActive) {
+      if (!isActive) {
         console.warn('User not found in cache, skipping update');
         return;
       }

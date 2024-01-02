@@ -4,11 +4,12 @@ import { Sheet } from '@mui/joy';
 import CustomizationBox from './CustomizationBox';
 import { Pixi, usePixiRenderer } from '@hooks/pixiRenderer';
 import React, { memo } from 'react';
-import { InventoryCategory, getClothIcon, penguinColorPalette } from '../state';
+import { InventoryCategory, getClothIcon } from '../state';
 import publicPath from '@utils/public';
 import { lobbyAtom, useLobbyPenguinClothes } from '@apps/Lobby/state';
 import TshirtVIcon from '@components/icons/TshirtVIcon';
 import { useRecoilCallback } from 'recoil';
+import { ClientCharacter } from '@apps/Lobby/src/Character';
 
 const inventCatLeft: InventoryCategory[] = ['head', 'body', 'feet'];
 
@@ -47,8 +48,8 @@ function _CustomizationRender({
       paperBelly.anchor.set(0.5);
       paperBelly.position.set(0, 0);
       paperBelly.tint =
-        penguinColorPalette[
-          lobby.mainPlayer.character.tint.toString() as keyof typeof penguinColorPalette
+        ClientCharacter.colorPalette[
+          lobby.mainPlayer.character.tint.toString() as any
         ];
       setPenguinBelly(paperBelly);
       const paperFixtures = new Pixi.Sprite(

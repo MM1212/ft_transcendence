@@ -2,6 +2,7 @@ import { useCurrentUser, usersAtom } from '@hooks/user';
 import {
   Button,
   ButtonGroup,
+  Chip,
   CircularProgress,
   Divider,
   Dropdown,
@@ -10,6 +11,7 @@ import {
   MenuButton,
   Sheet,
   Stack,
+  Tooltip,
   Typography,
 } from '@mui/joy';
 import UserAchievements from '../components/UserAchievements';
@@ -27,6 +29,7 @@ import MessageIcon from '@components/icons/MessageIcon';
 import UserMenuOptions from '../components/UserMenuOptions';
 import AccountPlusIcon from '@components/icons/AccountPlusIcon';
 import ProfileMatchHistory from '../components/ProfileMatchHistory';
+import CreditsIcon from '@components/CreditsIcon';
 
 function OtherOptions({
   user,
@@ -100,7 +103,7 @@ function UserProfile({
           width="100%"
           position="relative"
           p={1}
-          spacing={0.5}
+          spacing={1}
         >
           {affiliation === 'me' ? (
             <UserAvatar
@@ -129,7 +132,25 @@ function UserProfile({
               }}
             />
           )}
-          <Typography level="h2">{user.nickname}</Typography>
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <Typography
+              level="h2"
+              endDecorator={
+                <Tooltip title="Credits">
+                  <Chip
+                    variant="soft"
+                    color="neutral"
+                    size="lg"
+                    startDecorator={<CreditsIcon />}
+                  >
+                    {user.credits}
+                  </Chip>
+                </Tooltip>
+              }
+            >
+              {user.nickname}
+            </Typography>
+          </Stack>
           {affiliation !== 'me' && (
             <OtherOptions user={user} friend={affiliation === 'friend'} />
           )}

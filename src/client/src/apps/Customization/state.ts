@@ -64,35 +64,5 @@ export const inventoryBoughtCategoryItems = selectorFamily<
     },
 });
 
-export const penguinClothingPriority = {
-  face: 0,
-  head: 1,
-  feet: 2,
-  body: 3,
-  neck: 4,
-  hand: 5,
-  color: -1,
-};
-
-export const penguinColorPalette = {
-  '1': 0x003366,
-  '11': 0x006600,
-  '13': 0x8ae302,
-  '16': 0xf0f0d8,
-  '2': 0x009900,
-  '3': 0xff3399,
-  '5': 0xcc0000,
-  '7': 0xffcc00,
-  '9': 0x996600,
-  '10': 0xff6666,
-  '12': 0x0099cc,
-  '15': 0x02a797,
-  '18': 0xbb85ab,
-  '20': 0x2e47aa,
-  '4': 0x333333,
-  '6': 0xff6600,
-  '8': 0x660099,
-};
-
 export const getClothIcon = (clothId: number) =>
   publicPath(`/penguin/clothing/${clothId}/icon.webp`);
