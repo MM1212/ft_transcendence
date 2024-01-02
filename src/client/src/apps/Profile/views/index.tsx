@@ -81,24 +81,12 @@ function UserProfile({
   affiliation: "me" | "friend" | "unknown";
 }) {
   const { open: openUpdateModal } = useUpdateUserModalActions();
-  const users = [
-    useUser(1),
-    useUser(2),
-    useUser(3),
-    useUser(4),
-    useUser(5),
-    useUser(6),
-    useUser(7),
-    useUser(9),
-    useUser(10),
-    useUser(11),
-    useUser(12),
-  ];
+
   return (
     <Sheet
       sx={{
         width: "45dvh",
-        height: "90dvh",
+        height: "100%",
         borderLeft: "1px solid",
         borderColor: "divider",
       }}
@@ -108,16 +96,13 @@ function UserProfile({
         justifyContent="center"
         alignItems="center"
         height="100%"
-        overflow="hidden"
       >
         <Stack
           direction="column"
           alignItems="center"
           justifyContent="center"
-          overflow="hidden"
           sx={{
             width: "100%",
-            height: "30dvh",
           }}
           position="relative"
           p={1}

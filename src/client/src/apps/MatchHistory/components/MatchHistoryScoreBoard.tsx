@@ -6,9 +6,7 @@ import { randomInt } from '@utils/random';
 import FireIcon from '@components/icons/FireIcon';
 import React, { ReactElement } from 'react';
 import ShimmerIcon from '@components/icons/ShimmerIcon';
-import WalletIcon from '@components/icons/WalletIcon';
 import WallIcon from '@components/icons/WallIcon';
-import CrownCircleOutlineIcon from '@components/icons/CrownCircleOutlineIcon';
 import StarFourPointsIcon from '@components/icons/StarFourPointsIcon';
 
 export default function MatchHistoryScoreBoard() {

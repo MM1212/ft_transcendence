@@ -1,5 +1,5 @@
 import { useUser } from '@hooks/user';
-import {  Divider, Sheet } from '@mui/joy';
+import { Divider, Sheet } from '@mui/joy';
 import LobbyGameTypography from '@apps/GameLobby/components/LobbyGameTypography';
 import MatchHistoryList from '@apps/MatchHistory/components/MatchHistoryList';
 import UsersModel from '@typings/models/users';
@@ -27,7 +27,7 @@ export default function MatchHistory() {
   return (
     <Sheet
       sx={{
-        width: '60dvh',
+        width: '80dvh',
         p: 2,
         display: 'flex',
         flexDirection: 'column',

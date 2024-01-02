@@ -1,7 +1,7 @@
 import { UserAvatar } from "@components/AvatarWithStatus";
 import ProfileTooltip from "@components/ProfileTooltip";
 import { useCurrentUser, useUser } from "@hooks/user";
-import { Avatar, Grid } from "@mui/joy";
+import { Avatar } from "@mui/joy";
 import { Box, Stack, Typography } from "@mui/joy";
 import PongModel from "@typings/models/pong";
 import { randomInt } from "@utils/random";
@@ -48,9 +48,7 @@ export default function PlayerStatsRow({ id }: { id: number }) {
         gridTemplateColumns: "5fr 7fr 4fr 4fr 4fr 4fr 4fr",
         justifyItems: "left",
         p: 1,
-        borderRadius: "md",
         justifyContent: "space-between",
-        backgroundColor: "background.level1",
       }}
     >
       <Box style={{ display: "grid", gridColumnStart: "1", alignSelf: "left" }}>
