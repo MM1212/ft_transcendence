@@ -23,16 +23,6 @@ export class UsersFriendsService {
     WeakRef;
     await Promise.all(notifs.map((notif) => notif.delete(true)));
   }
-  @OnEvent('user.notifications.delete')
-  private async onFriendRequestDelete(notif: Notification): Promise<void> {
-    if (notif.tag !== NotificationsModel.Models.Tags.UserFriendsRequest) return;
-    const { uId } =
-      notif.dataAs<UsersModel.DTO.FriendRequestNotification['data']>();
-    const target = await this.service.get(uId);
-    if (!target) return;
-    await this.deleteFriendRequest(notif.user, target);
-  }
-
   @OnEvent(
     `user.notifications[${NotificationsModel.Models.Tags.UserFriendsRequest}].action`,
   )

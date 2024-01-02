@@ -84,14 +84,14 @@ export const useFriendsService = () => {
           label: 'Accept',
           Icon: AccountCheckIcon,
           color: 'success',
-          show: (n) => n.data.status === 'pending',
+          show: (n) => n.data.type === 'receiver' && n.data.status === 'pending',
         })
         .addCustomAction({
           id: 'reject',
           label: 'Reject',
           Icon: AccountMinusIcon,
           color: 'danger',
-          show: (n) => n.data.status === 'pending',
+          show: (n) => n.data.type === 'receiver' && n.data.status === 'pending',
         });
     },
     []

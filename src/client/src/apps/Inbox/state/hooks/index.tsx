@@ -67,12 +67,6 @@ class BuilderCtx<T extends NotificationsModel.Models.INotification> {
     return this.cache;
   }
 
-  public setDismissable(
-    dismissable: NotificationBuilderTemplate<T>['dismissable']
-  ): this {
-    this.cache.dismissable = dismissable;
-    return this;
-  }
 }
 
 export const useRegisterNotificationTemplate = <
