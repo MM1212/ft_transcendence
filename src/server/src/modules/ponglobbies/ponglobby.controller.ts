@@ -130,7 +130,7 @@ export class PongLobbyController {
     @Body() body: EndpointData<PongModel.Endpoints.Invite>,
   ): Promise<InternalEndpointResponse<PongModel.Endpoints.Invite>> {
     console.log(body);
-    const lobby = await this.service.invite(ctx.user, body.data, body.lobbyId);
+    const lobby = await this.service.invite(ctx.user, body.data, body.source, body.lobbyId);
     return lobby.interface;
   }
 

@@ -17,7 +17,6 @@ import AccountPlusIcon from '@components/icons/AccountPlusIcon';
 import LobbyPongCustomMatchTabs from './LobbyPongCustomMatchTabs';
 import EyeArrowRightIcon from '@components/icons/EyeArrowRightIcon';
 import { LobbySettings } from './LobbySettings';
-import { useModalActions } from '@hooks/useModal';
 import {
   ChatSelectedData,
   useChatSelectModalActions,
@@ -111,6 +110,7 @@ export default function LobbyRoom() {
       await tunnel.post(PongModel.Endpoints.Targets.Invite, {
         lobbyId: lobby.id,
         data: selected,
+        source: PongModel.Models.InviteSource.Lobby,
       });
     } catch (error) {
       console.log(error);

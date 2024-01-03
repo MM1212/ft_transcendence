@@ -114,6 +114,7 @@ export class PongLobbyService {
   public async invite(
     user: User,
     data: PongModel.Endpoints.ChatSelectedData[],
+    source: PongModel.Models.InviteSource,
     lobbyId?: number,
   ): Promise<PongLobby> {
     let lobby: PongLobby;
@@ -136,7 +137,7 @@ export class PongLobbyService {
       lobby.ownerId !== user.id
     )
       throw new ForbiddenException('User is not authorized to invite');
-    await lobby.invite(user, data);
+    await lobby.invite(user, data, source);
     lobby.updateInvited();
     return lobby;
   }

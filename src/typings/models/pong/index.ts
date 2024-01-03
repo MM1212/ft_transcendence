@@ -8,6 +8,7 @@ import {
   SseModel,
 } from '@typings/api';
 import { GroupEnumValues } from '@typings/utils';
+import NotificationsModel from '../notifications';
 
 namespace PongModel {
   export namespace InGame {
@@ -178,6 +179,16 @@ namespace PongModel {
     export interface ILobbyUpdateInvitedEvent extends Pick<ILobby, 'invited'> {}
 
     export interface IStartGameEvent extends Pick<ILobby, 'id' | 'status'> {}
+  
+    export enum InviteSource {
+      Lobby = 'lobby',
+      Chat = 'chat',
+    }
+
+    export interface NotificationInvite extends NotificationsModel.Models.INotification <{
+      lobbyId: number;
+      nonce: number;
+    }>  {}
   }
 
   export namespace Sse {
@@ -448,6 +459,7 @@ namespace PongModel {
         {
           lobbyId?: number;
           data: ChatSelectedData[];
+          source: Models.InviteSource;
         }
       > {}
 

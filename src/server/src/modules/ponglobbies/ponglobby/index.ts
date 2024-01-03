@@ -10,6 +10,8 @@ import { PongLobbyService } from '../ponglobby.service';
 import { read } from 'fs';
 import { ServerGame } from '@/modules/ponggame/pong';
 import { ballsConfig } from '@shared/Pong/config/configInterface';
+import NotificationsModel from '@typings/models/notifications';
+import UserProfileMessageInjector from '@/modules/users/user/ext/Notifications/MessageInjectors/UserProfile';
 
 /* ---- LOBBY PARTICIPANT ---- */
 
@@ -18,8 +20,7 @@ export class PongLobbyParticipant
 {
   public keys: PongModel.Models.IGamekeys | undefined =
     PongModel.Models.TemporaryLobbyParticipant.keys;
-  public paddle: string =
-    PongModel.Models.TemporaryLobbyParticipant.paddle;
+  public paddle: string = PongModel.Models.TemporaryLobbyParticipant.paddle;
   public specialPower: GroupEnumValues<PongModel.Models.LobbyParticipantSpecialPowerType> =
     PongModel.Models.TemporaryLobbyParticipant.specialPower;
   public status: GroupEnumValues<PongModel.Models.LobbyStatus> =
@@ -42,9 +43,9 @@ export class PongLobbyParticipant
   ) {
     if (lobby.nPlayers < 4) lobby.addPlayerToPlayers(this);
     else lobby.addPlayerToSpectators(this);
-    
-    if (user.nickname === 'bot') // HARDCODED, BUT JUST NEEDS THIS TO BE CHANGED TO IMPLEMENT BOT
-    {
+
+    if (user.nickname === 'bot') {
+      // HARDCODED, BUT JUST NEEDS THIS TO BE CHANGED TO IMPLEMENT BOT
       this.keys = undefined;
       this.status = PongModel.Models.LobbyStatus.Ready;
       this.type = 'bot';
@@ -103,7 +104,7 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
   ];
   public spectators: PongLobbyParticipant[] = [];
   public invited: number[] = [];
-  public ballTexture: string = "RedBall"; // default value
+  public ballTexture: string = 'RedBall'; // default value
 
   public readonly chat: Chat;
   public readonly nonce: number = Math.floor(Math.random() * 1000000);
@@ -213,6 +214,22 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
 
   public async delete(): Promise<void> {
     await this.helpers.chatsService.nukeChat(this.chat.id);
+    await Promise.all(
+      this.invited.map(async (id) => {
+        const user = await this.helpers.usersService.get(id);
+        if (!user) return;
+        const notifications = user.notifications.getByTag(
+          NotificationsModel.Models.Tags.PongLobbyInvite,
+        );
+        const notif = notifications.find(
+          (notif) =>
+            notif.data.lobbyId === this.id && notif.data.nonce === this.nonce,
+        );
+        if (notif) {
+          await notif.dismiss(true);
+        }
+      }),
+    );
   }
 
   public removePlayerFromSpectator(
@@ -278,6 +295,7 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
   public async invite(
     user: User,
     data: PongModel.Endpoints.ChatSelectedData[],
+    source: PongModel.Models.InviteSource,
   ): Promise<void> {
     const allPlayers = this.allInLobby;
 
@@ -290,24 +308,43 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
         const target = await this.helpers.usersService.get(data[i].id);
         console.log(target);
         if (!target) continue;
-        const [, chat] =
-          await this.helpers.chatsService.checkOrCreateDirectChat(user, target);
-        if (!chat) continue;
-        console.log(chat);
-        console.log(user.id + ' invited ' + target.id);
-        await chat.addMessage(
-          user,
-          {
-            type: ChatsModel.Models.ChatMessageType.Embed,
-            message: 'Pong Invite',
-            meta: {
-              type: ChatsModel.Models.Embeds.Type.GameInvite,
+        if (source === PongModel.Models.InviteSource.Chat) {
+          const [, chat] =
+            await this.helpers.chatsService.checkOrCreateDirectChat(
+              user,
+              target,
+            );
+          if (!chat) continue;
+          console.log(chat);
+          console.log(user.id + ' invited ' + target.id);
+          await chat.addMessage(
+            user,
+            {
+              type: ChatsModel.Models.ChatMessageType.Embed,
+              message: 'Pong Invite',
+              meta: {
+                type: ChatsModel.Models.Embeds.Type.GameInvite,
+                lobbyId: this.id,
+                nonce: this.nonce,
+              },
+            },
+            true,
+          );
+        } else if (source === PongModel.Models.InviteSource.Lobby) {
+          await target.notifications.create({
+            type: NotificationsModel.Models.Types.Temporary,
+            tag: NotificationsModel.Models.Tags.PongLobbyInvite,
+            title: 'Pong Game Invite',
+            message: `${new UserProfileMessageInjector(
+              user,
+            )} invited you to a game of Pong`,
+            data: {
               lobbyId: this.id,
               nonce: this.nonce,
             },
-          },
-          true,
-        );
+            dismissable: true,
+          });
+        }
       }
       if (data[i].type === 'chat') {
         const chat = await this.helpers.chatsService.get(data[i].id);
@@ -438,18 +475,21 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
     userId: number,
     userToKickId: number,
   ): Promise<boolean> {
-    console.log(
-      'OWNER ID: ' +
-        this.ownerId +
-        ' USER ID: ' +
-        userId +
-        ' USER TO KICK ID: ' +
-        userToKickId,
-    );
-    console.log(this.invited);
+    const user = await this.helpers.usersService.get(userToKickId);
+    if (!user) return false;
     if (this.ownerId !== userId) return false;
     if (!this.invited.some((id) => id === userToKickId)) return false;
     this.invited = this.invited.filter((id) => id !== userToKickId);
+    const notifications = user.notifications.getByTag(
+      NotificationsModel.Models.Tags.PongLobbyInvite,
+    );
+    const notif = notifications.find(
+      (notif) =>
+        notif.data.lobbyId === this.id && notif.data.nonce === this.nonce,
+    );
+    if (notif) {
+      await notif.dismiss(true);
+    }
     return true;
   }
 
