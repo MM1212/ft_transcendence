@@ -35,21 +35,27 @@ export function LobbyMatchMaking() {
     (ctx) => async () => {
       if (!isMatchmakingStarted) setIsMatchmakingStarted(true);
       else setIsMatchmakingStarted(false);
-      let lobby = await ctx.snapshot.getPromise(pongGamesState.gameLobby);
-      if (!lobby) {
-        lobby = await tunnel.put(PongModel.Endpoints.Targets.NewLobby, {
-          password: null,
-          name: user!.nickname,
-          spectators: PongModel.Models.LobbySpectatorVisibility.All,
-          lobbyType: PongModel.Models.LobbyType.Single,
-          gameType: PongModel.Models.LobbyGameType.Powers,
-          
-        });
-        ctx.set(pongGamesState.gameLobby, lobby);
-        console.log('newLobby');
+      try {
+        let lobby = await ctx.snapshot.getPromise(pongGamesState.gameLobby);
+        if (!lobby) {
+          lobby = await tunnel.put(PongModel.Endpoints.Targets.NewLobby, {
+            password: null,
+            name: user!.nickname,
+            spectators: PongModel.Models.LobbySpectatorVisibility.All,
+            lobbyType: PongModel.Models.LobbyType.Single,
+            gameType: PongModel.Models.LobbyGameType.Powers,
+          });
+          ctx.set(pongGamesState.gameLobby, lobby);
+          console.log('newLobby');
 
-
+          await tunnel.put(PongModel.Endpoints.Targets.AddToQueue, {
+            lobbyId: lobby.id,
+          });
+        }
+      } catch {
+        console.log('error in: create lobby and add to queue');
       }
+
       // else {
       //   tunnel.put(PongModel.Endpoints.Targets.LeaveLobby, {
       //     lobbyId: lobby.id,

@@ -20,8 +20,7 @@ namespace PongModel {
       Player4 = 'Player 4',
       Arena = 'Arena',
     }
-}
-
+  }
 
   export namespace Models {
     export enum LobbyType {
@@ -76,7 +75,7 @@ namespace PongModel {
       Top,
       Bottom,
     }
-    
+
     export type IGameKeyTypes = 'up' | 'down' | 'boost' | 'shoot';
     export type IGamekeys = Record<IGameKeyTypes, string>;
     export const DEFAULT_GAME_KEYS: IGamekeys = {
@@ -156,7 +155,7 @@ namespace PongModel {
       nPlayers: number;
       maxScore: number;
       //backgroundTexture: string;
-      ballTexture: string
+      ballTexture: string;
     }
 
     export interface ILobbyInfoDisplay
@@ -247,15 +246,14 @@ namespace PongModel {
     }
 
     export namespace Data {
-      
       export interface SetUIGame {
         state: boolean;
         config: Models.IGameConfig;
       }
-      
+
       export interface UpdateMovements {
         tag: string;
-        position: [number, number]
+        position: [number, number];
       }
 
       export interface RemovePower {
@@ -284,7 +282,7 @@ namespace PongModel {
         tag: string;
         scale: number;
         height: number;
-        width:number
+        width: number;
         x: number;
         y: number;
       }
@@ -311,7 +309,6 @@ namespace PongModel {
         tag: string;
         nickname: string;
       }
-
     }
   }
 
@@ -324,6 +321,7 @@ namespace PongModel {
       // PUT
       NewLobby = '/pong/lobby',
       LeaveLobby = '/pong/lobby/leave',
+      AddToQueue = '/pong/lobby/addToQueue',
       //POST
       JoinLobby = '/pong/lobby/join',
       ChangeTeam = '/pong/lobby/team',
@@ -377,6 +375,16 @@ namespace PongModel {
         undefined,
         {
           lobbyId: number;
+        }
+      > {}
+
+    export interface AddToQueue
+      extends Endpoint<
+        EndpointMethods.Put,
+        Targets.AddToQueue,
+        undefined,
+        {
+          lobbyId: number
         }
       > {}
 
@@ -513,6 +521,7 @@ namespace PongModel {
       [EndpointMethods.Put]: {
         [Targets.NewLobby]: NewLobby;
         [Targets.LeaveLobby]: LeaveLobby;
+        [Targets.AddToQueue] : AddToQueue;
       };
       [EndpointMethods.Post]: {
         [Targets.JoinLobby]: JoinLobby;
