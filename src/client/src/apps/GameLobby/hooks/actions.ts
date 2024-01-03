@@ -13,9 +13,9 @@ export const useLobbyActions = () => {
     (ctx) =>
       async (
         lobbyId: number,
+        nonce: number,
         authorization: GroupEnumValues<PongModel.Models.LobbyAccess>,
         name: string,
-        nonce?: number
       ): Promise<boolean> => {
         try {
           let pass: string | null = null;

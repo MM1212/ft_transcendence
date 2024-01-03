@@ -182,7 +182,7 @@ export class PongLobbyService {
     user: User,
     lobbyId: number,
     password: string | null,
-    nonce?: number,
+    nonce: number,
   ): Promise<PongLobby> {
     if (this.usersInGames.has(user.id))
       throw new ForbiddenException('User is already in a lobby/game');

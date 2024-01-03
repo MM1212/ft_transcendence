@@ -22,7 +22,7 @@ import PongModel from '@typings/models/pong';
 import notifications from '@lib/notifications/hooks';
 import { useRecoilCallback, useRecoilValue } from 'recoil';
 import pongGamesState from '../state';
-import { useCurrentUser, useSession } from '@hooks/user';
+import { useCurrentUser } from '@hooks/user';
 import KeyIcon from '@components/icons/KeyIcon';
 import SoccerIcon from '@components/icons/SoccerIcon';
 

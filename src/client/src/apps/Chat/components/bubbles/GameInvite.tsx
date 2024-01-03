@@ -85,9 +85,9 @@ function _ChatEmbedGameInviteBubble({
 
       const lobbyJoined = await joinGame(
         lobby.id,
+        embed.nonce,
         lobby.authorization,
         lobby.name,
-        embed.nonce
       );
       if (!lobbyJoined) return;
       navigate('/pong/play/');

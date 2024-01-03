@@ -16,10 +16,15 @@ function LobbyEntry(lobby: PongModel.Models.ILobbyInfoDisplay) {
   const { joinGame } = useLobbyActions();
 
   const handleJoinGame = useCallback(async () => {
-    const joined = await joinGame(lobby.id, lobby.authorization, lobby.name);
+    const joined = await joinGame(
+      lobby.id,
+      lobby.nonce,
+      lobby.authorization,
+      lobby.name
+    );
     if (!joined) return;
     navigate('/pong/play/', { replace: true });
-  }, [lobby.id, lobby.authorization, lobby.name, joinGame]);
+  }, [lobby.id, lobby.authorization, lobby.name, lobby.nonce, joinGame]);
 
   if (owner === null) return null;
   return (
@@ -54,7 +59,7 @@ function LobbyEntry(lobby: PongModel.Models.ILobbyInfoDisplay) {
           level="body-sm"
           endDecorator={
             lobby.authorization === PongModel.Models.LobbyAccess.Protected && (
-              <LockIcon size="xs" />
+              <LockIcon color="warning" size="xs" />
             )
           }
         >
@@ -97,16 +102,14 @@ export default function LobbyJoinCustom() {
   if (isLoading || error || !data || data.status !== 'ok')
     return <div>Loading...</div>;
 
-    // NEEDS REVISION
+  const lobbies = data.data.filter(
+    (lobby) => lobby.authorization !== PongModel.Models.LobbyAccess.Private
+  );
   return (
     <Stack spacing={0.5}>
-      {data.data.map((lobby) => {
-        if (lobby.authorization !== PongModel.Models.LobbyAccess.Private) {
-          <LobbyEntry key={lobby.id} {...lobby} />;
-        } else {
-          return null;
-        }
-      })}
+      {lobbies.map((lobby) => (
+        <LobbyEntry key={lobby.id} {...lobby} />
+      ))}
     </Stack>
   );
 }

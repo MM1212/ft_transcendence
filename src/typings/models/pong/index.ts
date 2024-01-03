@@ -111,6 +111,7 @@ namespace PongModel {
     }
     export interface ILobby {
       id: number;
+      nonce: number;
       ownerId: number;
       name: string;
       queueType: GroupEnumValues<LobbyType>;
@@ -168,6 +169,8 @@ namespace PongModel {
         | 'authorization'
         | 'nPlayers'
         | 'ownerId'
+        | 'score'
+        | 'nonce'
       > {
       spectators: number;
     }
@@ -386,7 +389,7 @@ namespace PongModel {
         Models.ILobby,
         {
           lobbyId: number;
-          nonce?: number;
+          nonce: number;
           password: string | null;
         }
       > {}

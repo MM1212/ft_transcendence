@@ -7,9 +7,7 @@ import { hash } from '@shared/hash';
 import Chat from '@/modules/chats/chat';
 import ChatsModel from '@typings/models/chat';
 import { PongLobbyService } from '../ponglobby.service';
-import { read } from 'fs';
 import { ServerGame } from '@/modules/ponggame/pong';
-import { ballsConfig } from '@shared/Pong/config/configInterface';
 import NotificationsModel from '@typings/models/notifications';
 import UserProfileMessageInjector from '@/modules/users/user/ext/Notifications/MessageInjectors/UserProfile';
 
@@ -434,6 +432,7 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
   public get interface(): PongModel.Models.ILobby {
     return {
       id: this.id,
+      nonce: this.nonce,
       ownerId: this.ownerId,
       name: this.name,
       queueType: this.queueType,
@@ -461,6 +460,7 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
     return {
       id: this.id,
       name: this.name,
+      nonce: this.nonce,
       gameType: this.gameType,
       spectatorVisibility: this.spectatorVisibility,
       status: this.status,
@@ -468,6 +468,7 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
       nPlayers: this.nPlayers,
       ownerId: this.ownerId,
       spectators: this.spectators.length,
+      score: this.score,
     };
   }
 
