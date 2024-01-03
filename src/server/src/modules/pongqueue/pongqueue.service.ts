@@ -52,6 +52,10 @@ export class PongQueueService {
         this.serviceRef.leaveLobby(p.id);
         receiver.addPlayerToPlayers(p as PongLobbyParticipant);
       });
+      console.log(`Merging ${provider.id} into ${receiver.id}'s lobby`);
+      receiver.teams[0].players[0].status = PongModel.Models.LobbyStatus.Ready
+      receiver.teams[1].players[0].status = PongModel.Models.LobbyStatus.Ready
+      this.serviceRef.startGame(receiver.teams[0].players[0].id, receiver.id); 
     }
   }
 

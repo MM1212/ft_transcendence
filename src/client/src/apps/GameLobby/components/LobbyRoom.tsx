@@ -5,7 +5,6 @@ import LobbbyCustomMatchPlayers from './LobbyCustomMatchPlayers';
 import { useRecoilCallback, useRecoilValue } from 'recoil';
 import { useCurrentUser } from '@hooks/user';
 import React from 'react';
-// import AddFriendRoom from "./AddFriendRoom";
 import { FindMatchWrapper } from './LobbyMatchMaking';
 import LobbyPongButton from './LobbyPongBottom';
 import pongGamesState from '../state';

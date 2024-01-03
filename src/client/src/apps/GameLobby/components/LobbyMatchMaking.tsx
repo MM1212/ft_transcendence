@@ -7,8 +7,9 @@ import LobbyPlayerBanner from './LobbyPlayerBanner';
 import { ChangePower } from './PlayerSettingsModals/ChangePower';
 import tunnel from '@lib/tunnel';
 import PongModel from '@typings/models/pong';
-import { useRecoilCallback } from 'recoil';
+import { useRecoilCallback, useRecoilValue } from 'recoil';
 import pongGamesState from '../state';
+import { OpenGameModal } from '@apps/GamePong/PongModal';
 
 export const FindMatchWrapper = styled('div')(({ theme }) => ({
   '& > img': {
@@ -29,6 +30,7 @@ export const FindMatchWrapper = styled('div')(({ theme }) => ({
 }));
 export function LobbyMatchMaking() {
   const [isMatchmakingStarted, setIsMatchmakingStarted] = useState(false);
+  const isPlaying = useRecoilValue(pongGamesState.isPlaying);
   const user = useCurrentUser();
 
   const handleStartMatchmaking = useRecoilCallback(
@@ -116,6 +118,7 @@ export function LobbyMatchMaking() {
             />
           </FindMatchWrapper>
         )}
+      <OpenGameModal isPlaying={isPlaying} />
       </div>
     </div>
   );
