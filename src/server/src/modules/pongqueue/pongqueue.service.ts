@@ -10,13 +10,13 @@ interface IQueue<T> {
 }
 
 class Queue<T> implements IQueue<T> {
-  private storage: T[] = [];
+  public storage: T[] = [];
 
   constructor(private capacity: number = Infinity) {}
 
   enqueue(item: T): void {
     if (this.size() === this.capacity) {
-      throw Error("Queue has reached max capacity, you cannot add more items");
+      throw Error('Queue has reached max capacity, you cannot add more items');
     }
     this.storage.push(item);
   }
@@ -30,15 +30,30 @@ class Queue<T> implements IQueue<T> {
 
 @Injectable()
 export class PongQueueService {
-  private queue1x1: Queue<PongLobby>;
-  private queue2x2: Queue<PongLobby>;
+  private queue1x1 = new Queue<PongLobby>();
+  private queue2x2 = new Queue<PongLobby>();
 
-  constructor() {}
-  addToQueue(pongLobby: PongLobby, user: User) {
+  private joinWaitingUsers(waintingQ: Queue<PongLobby>) {
+    while (waintingQ.size() > 1)
+    {
+      //TODO: call match lobbies;
+      waintingQ.dequeue();
+      //TODO: destroy next queue before dequeue because he is joined to previous
+      waintingQ.dequeue();
+    }
+  }
+
+  constructor() {
+    setInterval(() => {
+      this.joinWaitingUsers(this.queue1x1);
+      this.joinWaitingUsers(this.queue2x2);
+    }, 3000);
+  }
+
+  public addToQueue(pongLobby: PongLobby, user: User) {
     //TODO: verify no already waiting lobby
     if (pongLobby.queueType === PongModel.Models.LobbyType.Single)
       this.queue1x1.enqueue(pongLobby);
-    else
-      this.queue2x2.enqueue(pongLobby);
+    else this.queue2x2.enqueue(pongLobby);
   }
 }
