@@ -36,6 +36,7 @@ export class PongLobbyController {
   ): Promise<InternalEndpointResponse<PongModel.Endpoints.AddToQueue>> {
     const lobby = await this.service.getLobby(body.lobbyId)
     this.queueService.addToQueue(lobby, ctx.user);
+    //TODO: return
   }
 
   @Put(Targets.NewLobby)
@@ -55,7 +56,7 @@ export class PongLobbyController {
     const lobby = this.service.getLobbyByUser(ctx.user);
     if (lobby.id !== body.lobbyId)
       throw new BadRequestException('Lobby ID does not match');
-    await this.service.leaveLobby(ctx.user);
+    await this.service.leaveLobby(ctx.user.id);
   }
 
   @Post(Targets.StartGame)

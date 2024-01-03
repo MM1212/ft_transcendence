@@ -44,6 +44,8 @@ export function LobbyMatchMaking() {
             spectators: PongModel.Models.LobbySpectatorVisibility.All,
             lobbyType: PongModel.Models.LobbyType.Single,
             gameType: PongModel.Models.LobbyGameType.Powers,
+            lobbyAccess: PongModel.Models.LobbyAccess.Private,
+            score: 7
           });
           ctx.set(pongGamesState.gameLobby, lobby);
           console.log('newLobby');

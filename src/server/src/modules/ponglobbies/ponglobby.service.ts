@@ -223,15 +223,15 @@ export class PongLobbyService {
     else throw new ForbiddenException('Could not join spectators');
   }
 
-  public async leaveLobby(user: User): Promise<PongLobby> {
-    console.log(this.usersInGames, user.id);
-    if (!this.usersInGames.has(user.id))
+  public async leaveLobby(userId: number): Promise<PongLobby> {
+    console.log(this.usersInGames, userId);
+    if (!this.usersInGames.has(userId))
       throw new Error('User is not in a lobby/game');
-    const lobby = this.games.get(this.usersInGames.get(user.id)!);
+    const lobby = this.games.get(this.usersInGames.get(userId)!);
     if (!lobby) throw new Error('User is in a non-existent lobby/game');
-    await lobby.removePlayer(user.id);
+    await lobby.removePlayer(userId);
     lobby.syncParticipants();
-    this.usersInGames.delete(user.id);
+    this.usersInGames.delete(userId);
     if (lobby.nPlayers === 0 && lobby.spectators.length === 0) {
       await lobby.delete();
       this.games.delete(lobby.id);

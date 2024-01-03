@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { PongLobby } from '../ponglobbies/ponglobby';
+import { PongLobby, PongLobbyParticipant } from '../ponglobbies/ponglobby';
 import User from '../users/user';
 import PongModel from '@typings/models/pong';
+import { PongService } from '../ponggame/pong.service';
+import { PongLobbyService } from '../ponglobbies/ponglobby.service';
 
 interface IQueue<T> {
   enqueue(item: T): void;
@@ -33,27 +35,31 @@ export class PongQueueService {
   private queue1x1 = new Queue<PongLobby>();
   private queue2x2 = new Queue<PongLobby>();
 
-  private joinWaitingUsers(waintingQ: Queue<PongLobby>) {
-    while (waintingQ.size() > 1)
-    {
-      //TODO: call match lobbies;
-      waintingQ.dequeue();
-      //TODO: destroy next queue before dequeue because he is joined to previous
-      waintingQ.dequeue();
-    }
-  }
-
-  constructor() {
+  constructor(private serviceRef: PongLobbyService) {
     setInterval(() => {
       this.joinWaitingUsers(this.queue1x1);
       this.joinWaitingUsers(this.queue2x2);
     }, 3000);
   }
 
+  private joinWaitingUsers(waintingQ: Queue<PongLobby>) {
+    while (waintingQ.size() > 1) {
+      const receiver = waintingQ.dequeue();
+      const provider = waintingQ.dequeue();
+      if (!receiver || !provider) return;
+
+      provider.teams[0].players.forEach((p) => {
+        this.serviceRef.leaveLobby(p.id);
+        receiver.addPlayerToPlayers(p as PongLobbyParticipant);
+      });
+    }
+  }
+
   public addToQueue(pongLobby: PongLobby, user: User) {
-    //TODO: verify no already waiting lobby
     if (pongLobby.queueType === PongModel.Models.LobbyType.Single)
       this.queue1x1.enqueue(pongLobby);
-    else this.queue2x2.enqueue(pongLobby);
+    else if (pongLobby.queueType === PongModel.Models.LobbyType.Double)
+      this.queue2x2.enqueue(pongLobby);
+    else console.log("Custom lobby shouldn't be queued");
   }
 }
