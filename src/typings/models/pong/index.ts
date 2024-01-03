@@ -21,6 +21,8 @@ namespace PongModel {
       Arena = 'Arena',
     }
 }
+
+
   export namespace Models {
     export enum LobbyType {
       Single = 'SINGLE', // Single Queue Mode
