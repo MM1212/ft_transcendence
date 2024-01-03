@@ -105,6 +105,7 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
   public spectators: PongLobbyParticipant[] = [];
   public invited: number[] = [];
   public ballTexture: string = 'RedBall'; // default value
+  public score: number = 7; // default value
 
   public readonly chat: Chat;
   public readonly nonce: number = Math.floor(Math.random() * 1000000);
@@ -126,7 +127,9 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
       name: string;
       spectators: PongModel.Models.LobbySpectatorVisibility;
       lobbyType: PongModel.Models.LobbyType;
+      lobbyAccess: PongModel.Models.LobbyAccess;
       gameType: PongModel.Models.LobbyGameType;
+      score: number;
     },
     lobbyId: number,
     owner: User,
@@ -137,7 +140,11 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
     this.gameType = data.gameType;
     this.spectatorVisibility = data.spectators;
     this.ownerId = owner.id;
-    this.setAuthorization(data.password);
+    this.score = data.score;
+    this.authorization = data.lobbyAccess;
+    if (data.lobbyAccess !== PongModel.Models.LobbyAccess.Private) {
+      this.setAuthorization(data.password);
+    }
 
     // @ts-expect-error Impl
     return this.helpers.chatsService
@@ -446,6 +453,7 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
       invited: this.invited,
       chatId: this.chat.id,
       ballTexture: this.ballTexture,
+      score: this.score,
     };
   }
 

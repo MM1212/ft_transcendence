@@ -20,16 +20,6 @@ import { PongLobbyService } from './ponglobby.service';
 
 const Targets = PongModel.Endpoints.Targets;
 
-class NewLobbyDataDto implements EndpointData<PongModel.Endpoints.NewLobby> {
-  password: string | null = null;
-  name!: string;
-  spectators!: PongModel.Models.LobbySpectatorVisibility;
-  lobbyType!: PongModel.Models.LobbyType;
-  gameType!: PongModel.Models.LobbyGameType;
-}
-
-// ADICIONAR NONCE
-
 @Auth()
 @Controller()
 export class PongLobbyController {
@@ -40,7 +30,7 @@ export class PongLobbyController {
   @Put(Targets.NewLobby)
   async newLobby(
     @HttpCtx() ctx: HTTPContext<true>,
-    @Body() body: NewLobbyDataDto,
+    @Body() body: EndpointData<PongModel.Endpoints.NewLobby>,
   ): Promise<InternalEndpointResponse<PongModel.Endpoints.NewLobby>> {
     const newLobby = await this.service.createLobby(ctx.user, body);
     return newLobby.interface;

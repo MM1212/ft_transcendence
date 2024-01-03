@@ -30,6 +30,7 @@ export class ServerGame extends Game {
 
   public userIdToSocketId: Map<number, string> = new Map(); // matchId, socketId
 
+  public maxScore = 7;
   public nbConnectedPlayers = 0;
   public started = false;
 
@@ -43,7 +44,8 @@ export class ServerGame extends Game {
     public server: Server,
   ) {
     super(WINDOWSIZE_X, WINDOWSIZE_Y);
-
+    if (config.maxScore >= 1 && config.maxScore <= 100)
+      this.maxScore = config.maxScore;
     this.UUID = config.UUID;
     this.room = server.to(this.UUID);
     this.buildObjects();
@@ -85,7 +87,6 @@ export class ServerGame extends Game {
   }
 
   public start() {
-    
     console.log(`Game ${this.UUID}: started!`);
     this.room.emit(PongModel.Socket.Events.Start);
     this.startTick();
@@ -109,7 +110,14 @@ export class ServerGame extends Game {
         this,
       ),
     );
-    this.add(new Ball(this.width / 2, this.height / 2, this, this.config.ballTexture as keyof typeof ballsConfig));
+    this.add(
+      new Ball(
+        this.width / 2,
+        this.height / 2,
+        this,
+        this.config.ballTexture as keyof typeof ballsConfig,
+      ),
+    );
   }
 
   private buildPlayers(): void {
@@ -131,24 +139,26 @@ export class ServerGame extends Game {
       } else {
         direction = new Vector2D(1, 1);
       }
-      
+
       if (players[i].type === 'player') {
-        this.add( new Player(
-          startX,
-          this.height / 2,
-          p.keys!,
-          p.tag,
-          direction,
-          p.specialPower as PongModel.Models.LobbyParticipantSpecialPowerType,
-          this,
-          p.teamId,
-          p.paddle as keyof typeof paddleConfig,
-          p.userId,
-        ));
+        this.add(
+          new Player(
+            startX,
+            this.height / 2,
+            p.keys!,
+            p.tag,
+            direction,
+            p.specialPower as PongModel.Models.LobbyParticipantSpecialPowerType,
+            this,
+            p.teamId,
+            p.paddle as keyof typeof paddleConfig,
+            p.userId,
+          ),
+        );
       } else {
         // MISSING: SpecialPowers in bot
         //this.add( new Bot (
-        //  
+        //
         //))
       }
     }
@@ -209,6 +219,9 @@ export class ServerGame extends Game {
   }
 
   public update(delta: number): void {
+    if (this.score[0] >= this.maxScore || this.score[1] >= this.maxScore) {
+      this.stop();
+    }
     super.update(delta);
 
     this.emitMappedValues<GameObject, PongModel.Socket.Data.UpdateMovements>(
@@ -265,7 +278,6 @@ export class ServerGame extends Game {
       });
     }
   }
-
 
   /***/
   public getPlayerInstanceById(id: number): Player | undefined {

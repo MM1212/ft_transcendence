@@ -34,6 +34,7 @@ namespace PongModel {
     export enum LobbyAccess {
       Public = 'PUBLIC', // Anyone can join
       Protected = 'PROTECTED', // Password protected
+      Private = 'PRIVATE', // Queue mode
     }
     export enum LobbyStatus {
       Waiting = 'WAITING',
@@ -124,6 +125,7 @@ namespace PongModel {
       invited: number[];
       chatId: number;
       ballTexture: string;
+      score: number;
     }
 
     export interface IPlayerConfig {
@@ -150,6 +152,7 @@ namespace PongModel {
       teams: [IGameTeam, IGameTeam];
       spectators: number[];
       nPlayers: number;
+      maxScore: number;
       //backgroundTexture: string;
       ballTexture: string
     }
@@ -359,7 +362,9 @@ namespace PongModel {
           name: string;
           spectators: PongModel.Models.LobbySpectatorVisibility;
           lobbyType: PongModel.Models.LobbyType;
+          lobbyAccess: PongModel.Models.LobbyAccess;
           gameType: PongModel.Models.LobbyGameType;
+          score: number;
         }
       > {}
 

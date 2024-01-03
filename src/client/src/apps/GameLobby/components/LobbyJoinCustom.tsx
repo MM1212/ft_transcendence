@@ -97,11 +97,16 @@ export default function LobbyJoinCustom() {
   if (isLoading || error || !data || data.status !== 'ok')
     return <div>Loading...</div>;
 
+    // NEEDS REVISION
   return (
     <Stack spacing={0.5}>
-      {data.data.map((lobby) => (
-        <LobbyEntry key={lobby.id} {...lobby} />
-      ))}
+      {data.data.map((lobby) => {
+        if (lobby.authorization !== PongModel.Models.LobbyAccess.Private) {
+          <LobbyEntry key={lobby.id} {...lobby} />;
+        } else {
+          return null;
+        }
+      })}
     </Stack>
   );
 }

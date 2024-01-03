@@ -124,7 +124,9 @@ export class PongLobbyService {
         name: 'We Friends Playing Pong',
         spectators: PongModel.Models.LobbySpectatorVisibility.All,
         lobbyType: PongModel.Models.LobbyType.Custom,
+        lobbyAccess: PongModel.Models.LobbyAccess.Public,
         gameType: PongModel.Models.LobbyGameType.Powers,
+        score: 7,
       });
     else
       lobby =

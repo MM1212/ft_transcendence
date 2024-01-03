@@ -115,6 +115,7 @@ export class PongService {
       spectators: spectators,
       nPlayers: lobby.nPlayers,
       ballTexture: lobby.ballTexture,
+      maxScore: lobby.score,
     };
   }
 
