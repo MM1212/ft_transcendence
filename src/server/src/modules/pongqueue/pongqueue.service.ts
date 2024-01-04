@@ -67,9 +67,10 @@ export class PongQueueService {
         );
       }
 
-      console.log(`Merging ${provider.id} into ${receiver.id}'s lobby`);
-      receiver.teams[0].players[0].status = PongModel.Models.LobbyStatus.Ready;
-      receiver.teams[1].players[0].status = PongModel.Models.LobbyStatus.Ready;
+      receiver.allPlayers.forEach((p) => {
+        p.status = PongModel.Models.LobbyStatus.Ready;
+      })
+      
       this.lobbyService.startGame(receiver.teams[0].players[0].id, receiver.id);
     }
   }

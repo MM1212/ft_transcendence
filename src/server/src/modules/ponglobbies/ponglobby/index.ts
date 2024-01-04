@@ -279,7 +279,7 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
     );
   }
 
-  private get allPlayers(): PongModel.Models.ILobbyParticipant[] {
+  public get allPlayers(): PongModel.Models.ILobbyParticipant[] {
     return this.teams[0].players.concat(this.teams[1].players);
   }
 
