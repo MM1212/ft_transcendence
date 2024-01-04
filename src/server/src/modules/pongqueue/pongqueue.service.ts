@@ -35,7 +35,10 @@ export class PongQueueService {
   private queue1x1 = new Queue<PongLobby>();
   private queue2x2 = new Queue<PongLobby>();
 
-  constructor(private lobbyService: PongLobbyService, private userService: UsersService ) {
+  constructor(
+    private lobbyService: PongLobbyService,
+    private userService: UsersService,
+  ) {
     setInterval(() => {
       this.joinWaitingUsers(this.queue1x1);
       this.joinWaitingUsers(this.queue2x2);
@@ -49,15 +52,19 @@ export class PongQueueService {
       if (!receiver || !provider) return;
 
       for (const p of provider.teams[0].players) {
-        await this.lobbyService.leaveLobby(p.id);
-        // provider.sendToParticipant(p.id, PongModel.Sse.Events.Kick, null);
-
+        await this.lobbyService.leaveLobby(p.id, true);
         const user = await this.userService.get(p.id);
         if (!user) {
-          console.error("error")
+          console.error('error');
           continue;
         }
-        await this.lobbyService.joinLobby(user, receiver.id, receiver.authorization, receiver.nonce);
+        await this.lobbyService.joinLobby(
+          user,
+          receiver.id,
+          receiver.authorization,
+          receiver.nonce,
+          true,
+        );
       }
 
       console.log(`Merging ${provider.id} into ${receiver.id}'s lobby`);

@@ -212,6 +212,9 @@ export class PongLobbyService {
       },
       false,
     );
+    if (syncToUser === true) {
+      lobby.sendToParticipant(newUser.id, PongModel.Sse.Events.Join, lobby.interface);
+    }
     lobby.syncParticipants();
     return lobby;
   }
@@ -237,6 +240,9 @@ export class PongLobbyService {
     await lobby.removePlayer(userId);
     lobby.syncParticipants();
     this.usersInGames.delete(userId);
+    if (syncToUser === true) {
+      lobby.sendToParticipant(userId, PongModel.Sse.Events.Leave, null);
+    }
     if (lobby.nPlayers === 0 && lobby.spectators.length === 0) {
       await lobby.delete();
       this.games.delete(lobby.id);

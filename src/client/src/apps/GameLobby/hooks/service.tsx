@@ -56,6 +56,25 @@ const useLobbyService = () => {
     []
   );
 
+  const onLeaveEvent = useRecoilCallback(
+    (ctx) => async () => {
+      const lobby = await ctx.snapshot.getPromise(pongGamesState.gameLobby);
+      if (!lobby) return;
+      ctx.set(pongGamesState.gameLobby, null);
+    },
+    []
+  );
+
+  const onJoinEvent = useRecoilCallback(
+    (ctx) => async (ev: PongModel.Sse.Join) => {
+      const lobby = await ctx.snapshot.getPromise(pongGamesState.gameLobby);
+      if (!lobby) {
+        ctx.set(pongGamesState.gameLobby, ev.data); 
+      }
+    },
+    []
+  );
+
   const onStartEvent = useRecoilCallback(
     (ctx) => async (ev: PongModel.Sse.Start) => {
       const lobby = await ctx.snapshot.getPromise(pongGamesState.gameLobby);
@@ -82,6 +101,15 @@ const useLobbyService = () => {
       ctx.setRouteTo('/pong/play/');
       //ctx.setOnClick
     }
+  );
+
+  useSseEvent<PongModel.Sse.Join>(
+    PongModel.Sse.Events.Join,
+    onJoinEvent
+  );
+  useSseEvent<PongModel.Sse.Leave>(
+    PongModel.Sse.Events.Leave,
+    onLeaveEvent
   );
 
   useSseEvent<PongModel.Sse.Kick>(PongModel.Sse.Events.Kick, onKickEvent);

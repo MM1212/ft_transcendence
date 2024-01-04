@@ -178,21 +178,26 @@ namespace PongModel {
       ownerId: number;
     }
 
-    export interface ILobbyKickParticipantEvent extends ILobby {}
+    export interface ILobbyKickParticipantPayload extends ILobby {}
 
-    export interface ILobbyUpdateInvitedEvent extends Pick<ILobby, 'invited'> {}
+    export interface ILobbyUpdateInvitedPayload extends Pick<ILobby, 'invited'> {}
 
-    export interface IStartGameEvent extends Pick<ILobby, 'id' | 'status'> {}
-  
+    export interface ILobbyLeavePayload extends ILobby {}
+
+    export interface ILobbyJoinPayload extends ILobby {}
+
+    export interface IStartGamePayload extends Pick<ILobby, 'id' | 'status'> {}
+
     export enum InviteSource {
       Lobby = 'lobby',
       Chat = 'chat',
     }
 
-    export interface NotificationInvite extends NotificationsModel.Models.INotification <{
-      lobbyId: number;
-      nonce: number;
-    }>  {}
+    export interface NotificationInvite
+      extends NotificationsModel.Models.INotification<{
+        lobbyId: number;
+        nonce: number;
+      }> {}
   }
 
   export namespace Sse {
@@ -202,6 +207,8 @@ namespace PongModel {
       UpdateLobbyInvited = 'pong.update-lobby-invited',
       Kick = 'pong.kick-participant',
       Start = 'pong.start',
+      Leave = 'pong.leave',
+      Join = 'pong.join',
     }
 
     export interface UpdateLobbyParticipantEvent
@@ -212,20 +219,24 @@ namespace PongModel {
 
     export interface Kick
       extends SseModel.Models.Event<
-        Models.ILobbyKickParticipantEvent,
+        Models.ILobbyKickParticipantPayload,
         Events.Kick
       > {}
 
     export interface UpdateLobbyInvited
       extends SseModel.Models.Event<
-        Models.ILobbyUpdateInvitedEvent,
+        Models.ILobbyUpdateInvitedPayload,
         Events.UpdateLobbyInvited
       > {}
 
-      export interface Leave exten
+    export interface Leave
+      extends SseModel.Models.Event<Models.ILobbyLeavePayload, Events.Leave> {}
+
+    export interface Join
+      extends SseModel.Models.Event<Models.ILobbyJoinPayload, Events.Join> {}
 
     export interface Start
-      extends SseModel.Models.Event<Models.IStartGameEvent, Events.Start> {}
+      extends SseModel.Models.Event<Models.IStartGamePayload, Events.Start> {}
   }
 
   export namespace Socket {
@@ -386,7 +397,7 @@ namespace PongModel {
         Targets.AddToQueue,
         undefined,
         {
-          lobbyId: number
+          lobbyId: number;
         }
       > {}
 
@@ -523,7 +534,7 @@ namespace PongModel {
       [EndpointMethods.Put]: {
         [Targets.NewLobby]: NewLobby;
         [Targets.LeaveLobby]: LeaveLobby;
-        [Targets.AddToQueue] : AddToQueue;
+        [Targets.AddToQueue]: AddToQueue;
       };
       [EndpointMethods.Post]: {
         [Targets.JoinLobby]: JoinLobby;
