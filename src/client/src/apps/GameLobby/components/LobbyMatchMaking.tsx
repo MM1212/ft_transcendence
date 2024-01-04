@@ -56,6 +56,14 @@ export function LobbyMatchMaking() {
             lobbyId: lobby.id,
           });
         }
+        /*
+        alreaDY HAS LOBBY
+        else {
+          await tunnel.put(PongModel.Endpoints.Targets.AddToQueue, {
+            lobbyId: lobby.id,
+          });
+        }
+        */
       } catch {
         console.log('error in: create lobby and add to queue');
       }
