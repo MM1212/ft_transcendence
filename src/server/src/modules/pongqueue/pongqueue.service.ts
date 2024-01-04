@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common';
-import { PongLobby, PongLobbyParticipant } from '../ponglobbies/ponglobby';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { PongLobby } from '../ponglobbies/ponglobby';
 import User from '../users/user';
 import PongModel from '@typings/models/pong';
-import { PongService } from '../ponggame/pong.service';
 import { PongLobbyService } from '../ponglobbies/ponglobby.service';
+import { UsersService } from '../users/services/users.service';
 
 interface IQueue<T> {
   enqueue(item: T): void;
@@ -35,27 +35,35 @@ export class PongQueueService {
   private queue1x1 = new Queue<PongLobby>();
   private queue2x2 = new Queue<PongLobby>();
 
-  constructor(private serviceRef: PongLobbyService) {
+  constructor(private lobbyService: PongLobbyService, private userService: UsersService ) {
     setInterval(() => {
       this.joinWaitingUsers(this.queue1x1);
       this.joinWaitingUsers(this.queue2x2);
     }, 3000);
   }
 
-  private joinWaitingUsers(waintingQ: Queue<PongLobby>) {
+  private async joinWaitingUsers(waintingQ: Queue<PongLobby>) {
     while (waintingQ.size() > 1) {
       const receiver = waintingQ.dequeue();
       const provider = waintingQ.dequeue();
       if (!receiver || !provider) return;
 
-      provider.teams[0].players.forEach((p) => {
-        this.serviceRef.leaveLobby(p.id);
-        receiver.addPlayerToPlayers(p as PongLobbyParticipant);
-      });
+      for (const p of provider.teams[0].players) {
+        await this.lobbyService.leaveLobby(p.id);
+        // provider.sendToParticipant(p.id, PongModel.Sse.Events.Kick, null);
+
+        const user = await this.userService.get(p.id);
+        if (!user) {
+          console.error("error")
+          continue;
+        }
+        await this.lobbyService.joinLobby(user, receiver.id, receiver.authorization, receiver.nonce);
+      }
+
       console.log(`Merging ${provider.id} into ${receiver.id}'s lobby`);
-      receiver.teams[0].players[0].status = PongModel.Models.LobbyStatus.Ready
-      receiver.teams[1].players[0].status = PongModel.Models.LobbyStatus.Ready
-      this.serviceRef.startGame(receiver.teams[0].players[0].id, receiver.id); 
+      receiver.teams[0].players[0].status = PongModel.Models.LobbyStatus.Ready;
+      receiver.teams[1].players[0].status = PongModel.Models.LobbyStatus.Ready;
+      this.lobbyService.startGame(receiver.teams[0].players[0].id, receiver.id);
     }
   }
 
@@ -64,6 +72,6 @@ export class PongQueueService {
       this.queue1x1.enqueue(pongLobby);
     else if (pongLobby.queueType === PongModel.Models.LobbyType.Double)
       this.queue2x2.enqueue(pongLobby);
-    else console.log("Custom lobby shouldn't be queued");
+    else console.error("Custom lobby shouldn't be queued");
   }
 }

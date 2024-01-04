@@ -22,6 +22,7 @@ export const useListenerManager = () => {
     (data: PongModel.Socket.Data.SetUIGame) => {
       if (data) {
         game.current = new UIGame(socket, parentRef.current!, data.config, user.nickname);
+        console.log(`${user.nickname}`)
         if (data.state) {
           game.current.start();
         }

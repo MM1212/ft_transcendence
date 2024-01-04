@@ -222,6 +222,8 @@ namespace PongModel {
         Events.UpdateLobbyInvited
       > {}
 
+      export interface Leave exten
+
     export interface Start
       extends SseModel.Models.Event<Models.IStartGameEvent, Events.Start> {}
   }
