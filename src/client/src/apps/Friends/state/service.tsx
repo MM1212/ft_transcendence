@@ -67,13 +67,7 @@ export const useFriendsService = () => {
     (ctx) => {
       ctx
         .setIcon((notif) => {
-          const data = notif.data as {
-            targetId?: number;
-            sender?: boolean;
-            senderId?: boolean;
-            status: string;
-          };
-          if (data.sender) return <AccountPlusIcon />;
+          const data = notif.data
           if (data.status === 'pending') return <AccountPlusIcon />;
           if (data.status === 'accepted') return <AccountCheckIcon />;
           return <AccountMinusIcon />;

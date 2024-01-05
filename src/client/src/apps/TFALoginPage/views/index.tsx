@@ -16,7 +16,7 @@ import { useIsLoggedIn } from '@hooks/user';
 import { Redirect } from 'wouter';
 import CodeArrayIcon from '@components/icons/CodeArrayIcon';
 import TFAInput from '@apps/Profile/components/2FAInput';
-import { buildTunnelEndpoint, useTunnelEndpoint } from '@hooks/tunnel';
+import { buildTunnelEndpoint, useRawTunnelEndpoint } from '@hooks/tunnel';
 import { AuthModel } from '@typings/models';
 import React from 'react';
 import tunnel from '@lib/tunnel';
@@ -26,7 +26,7 @@ import { mutate } from 'swr';
 export default function TFALoginPage() {
   const [code, setCode] = React.useState('');
   const loggedIn = useIsLoggedIn();
-  const { data, isLoading } = useTunnelEndpoint(
+  const { data, isLoading } = useRawTunnelEndpoint(
     AuthModel.Endpoints.Targets.IsLoggingInTFA
   );
   if (loggedIn) {

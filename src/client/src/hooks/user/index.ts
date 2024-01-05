@@ -2,7 +2,7 @@ import { AuthModel, EndpointResponse } from '@typings/api';
 import {
   FetchError,
   buildTunnelEndpoint,
-  useTunnelEndpoint,
+  useRawTunnelEndpoint,
 } from '@/hooks/tunnel';
 import React from 'react';
 import {} from 'wouter';
@@ -54,7 +54,7 @@ export const useSession = (
   options: SWRConfiguration<EndpointResponse<AuthModel.Endpoints.Session>> = {}
 ): Session => {
   const { data, isLoading, isValidating, error } =
-    useTunnelEndpoint<AuthModel.Endpoints.Session>(
+    useRawTunnelEndpoint<AuthModel.Endpoints.Session>(
       AuthModel.Endpoints.Targets.Session,
       undefined,
       options

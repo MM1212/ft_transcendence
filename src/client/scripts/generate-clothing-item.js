@@ -5,7 +5,7 @@ const generateCloth = async (clothId, backPaper = false) => {
   if (!clothId || isNaN(clothId))
     throw new Error('Please provide a valid clothing id');
 
-  const REPOSITORY = 'https://media.cplegacy.net/assets/media/clothing/';
+  const REPOSITORY = 'https://de7j6vhmj5vf1.cloudfront.net/assets/media/clothing';
   const TARGET_DIR = `public/assets/penguin/clothing/${clothId}`;
 
   console.log(`Fetching sprite icon...`);

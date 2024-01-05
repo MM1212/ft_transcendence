@@ -1,4 +1,4 @@
-import { useCurrentUser, useUser, usersAtom } from "@hooks/user";
+import { useCurrentUser, usersAtom } from "@hooks/user";
 import {
   Button,
   ButtonGroup,

@@ -1,14 +1,17 @@
 import MatchHistoryEntryHeader from '@apps/MatchHistory/components/MatchHistoryEntryHeader';
+import { useCurrentUser } from '@hooks/user';
 import { Sheet } from '@mui/joy';
+import PongHistoryModel from '@typings/models/pong/history';
 import { navigate } from 'wouter/use-location';
 
 export default function SingleMatchHist({
-  matchId,
   profileId,
+  ...rest
 }: {
-  matchId: number;
   profileId?: number;
-}) {
+} & PongHistoryModel.Models.Match) {
+  const user = useCurrentUser();
+  if (!user) return null;
   return (
     <Sheet
       variant="plain"
@@ -23,10 +26,10 @@ export default function SingleMatchHist({
         },
       }}
       onClick={() =>
-        navigate(`/pong/history/${profileId ?? 'me'}?match_id=${matchId}`)
+        navigate(`/pong/history/${profileId ?? 'me'}?match_id=${rest.id}`)
       }
     >
-      <MatchHistoryEntryHeader />
+      <MatchHistoryEntryHeader {...rest} targetId={profileId ?? user.id} />
     </Sheet>
   );
 }

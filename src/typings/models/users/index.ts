@@ -134,7 +134,7 @@ namespace UsersModel {
 
     export interface FriendRequestNotification
       extends NotificationsModel.Models.INotification<
-        Record<string, unknown> & {
+        {
           type: 'sender' | 'receiver';
           uId: number;
           status: 'pending' | 'accepted' | 'declined';
