@@ -15,7 +15,6 @@ import HomeIcon from '@components/icons/HomeIcon';
 import InboxIcon from '@components/icons/InboxIcon';
 import PlayIcon from '@components/icons/PlayIcon';
 import PodiumIcon from '@components/icons/PodiumIcon';
-import StoreIcon from '@components/icons/StoreIcon';
 import TableTennisIcon from '@components/icons/TableTennisIcon';
 import TrophyIcon from '@components/icons/TrophyIcon';
 import React from 'react';
