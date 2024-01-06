@@ -6,7 +6,6 @@ import {
   InternalServerErrorException,
   NotFoundException,
   Param,
-  ParseArrayPipe,
   ParseBoolPipe,
   ParseIntPipe,
   Patch,
@@ -119,7 +118,8 @@ export class ChatsController {
   @ChatAuth()
   async createMessage(
     @ChatCtx() chat: Chat,
-    @Body() data: ChatsModel.DTO.NewMessage,
+    @Body(new ObjectValidationPipe(chatValidator.newMessageSchema))
+    data: ChatsModel.DTO.NewMessage,
     @HttpCtx() { user }: HTTPContext<true>,
   ): Promise<InternalEndpointResponse<ChatsModel.Endpoints.CreateMessage>> {
     return await chat.addMessage(user, data);
@@ -129,7 +129,8 @@ export class ChatsController {
   @ChatOPAuth()
   async updateChatInfo(
     @ChatCtx() chat: Chat,
-    @Body() data: ChatsModel.DTO.DB.UpdateChatInfo,
+    @Body(new ObjectValidationPipe(chatValidator.updateChatInfoSchema))
+    data: ChatsModel.DTO.DB.UpdateChatInfo,
   ): Promise<InternalEndpointResponse<ChatsModel.Endpoints.UpdateChatInfo>> {
     await chat.updateInfo(data);
   }
@@ -140,7 +141,8 @@ export class ChatsController {
     @ChatCtx() chat: Chat,
     @Param('participantId', new ParseIntPipe({ errorHttpStatusCode: 400 }))
     participantId: number,
-    @Body() data: ChatsModel.DTO.DB.UpdateParticipant,
+    @Body(new ObjectValidationPipe(chatValidator.updateParticipantSchema))
+    data: ChatsModel.DTO.DB.UpdateParticipant,
     @HttpCtx() { user }: HTTPContext<true>,
   ): Promise<InternalEndpointResponse<ChatsModel.Endpoints.UpdateParticipant>> {
     await chat.updateParticipant(user, participantId, data);
@@ -245,7 +247,7 @@ export class ChatsController {
   @ChatAuth()
   async sendInviteToTargets(
     @ChatCtx() chat: Chat,
-    @Body(new ParseArrayPipe({ errorHttpStatusCode: 400 }))
+    @Body(new ObjectValidationPipe(chatValidator.sendInviteToTargetsSchema))
     targets: ChatsModel.DTO.SendInviteToTarget[],
     @HttpCtx() { user: op }: HTTPContext<true>,
   ): Promise<
@@ -272,33 +274,10 @@ export class ChatsController {
   async joinChat(
     @ChatCtx() chat: Chat,
     @HttpCtx() { user }: HTTPContext<true>,
-    @Body() data: EndpointData<ChatsModel.Endpoints.JoinChat> = {},
+    @Body(new ObjectValidationPipe(chatValidator.joinChatSchema))
+    data: EndpointData<ChatsModel.Endpoints.JoinChat>,
   ): Promise<InternalEndpointResponse<ChatsModel.Endpoints.JoinChat>> {
     await this.service.joinChat(chat.id, user, data);
     if (data.returnChatInfo) return chat.display;
   }
 }
-// @Patch(Targets.UpdateMessage)
-// @ChatAuth()
-// async updateMessage(
-//   @ChatCtx() chat: Chat,
-//   @Param('messageId', new ParseIntPipe({ errorHttpStatusCode: 400 }))
-//   messageId: number,
-//   @Body() data: ChatsModel.DTO.DB.UpdateMessage,
-// ): Promise<InternalEndpointResponse<ChatsModel.Endpoints.UpdateMessage>> {
-//   const [ok, resp] = await chat.updateMessage(messageId, data);
-//   if (!ok) return buildErrorResponse(resp);
-//   return (resp);
-// }
-
-// @Delete(Targets.DeleteMessage)
-// @ChatAuth()
-// async deleteMessage(
-//   @ChatCtx() chat: Chat,
-//   @Param('messageId', new ParseIntPipe({ errorHttpStatusCode: 400 }))
-//   messageId: number,
-// ): Promise<InternalEndpointResponse<ChatsModel.Endpoints.DeleteMessage>> {
-//   const [ok, resp] = await chat.deleteMessage(messageId);
-//   if (!ok) return buildErrorResponse(resp);
-//   return (resp);
-// }
