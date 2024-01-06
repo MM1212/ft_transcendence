@@ -25,6 +25,8 @@ import { EndpointData, InternalEndpointResponse } from '@typings/api';
 import { ChatAuth, ChatOPAuth } from './decorators/Role.guard';
 import UserCtx from '../users/decorators/User.pipe';
 import User from '../users/user';
+import { ObjectValidationPipe } from '@/helpers/decorators/validator';
+import chatValidator from './chats.validator';
 
 const Targets = ChatsModel.Endpoints.Targets;
 
@@ -106,7 +108,8 @@ export class ChatsController {
   @Put(Targets.CreateChat)
   async create(
     @HttpCtx() { user }: HTTPContext<true>,
-    @Body() data: ChatsModel.DTO.NewChat,
+    @Body(new ObjectValidationPipe(chatValidator.newChatSchema))
+    data: ChatsModel.DTO.NewChat,
   ): Promise<InternalEndpointResponse<ChatsModel.Endpoints.CreateChat>> {
     const chat = await this.service.create(data, user);
     return chat.id;
