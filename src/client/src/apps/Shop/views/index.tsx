@@ -1,17 +1,23 @@
-import { Sheet } from "@mui/joy";
+import { Modal, ModalDialog, Sheet, Typography } from "@mui/joy";
 import ShopTabs from "../components/ShopTabs";
+import { useOpenShopModal } from "../hooks/useOpenShopModal";
 
 export default function ShopView() {
+  const { close, isOpened, data } = useOpenShopModal();
   return (
-    <Sheet
-      sx={{
-        width: "80dvh",
-        height: "100%",
-        borderLeft: "1px solid",
-        borderColor: "divider",
-      }}
-    >
-      <ShopTabs></ShopTabs>
-    </Sheet>
+    <Modal open={isOpened} onClose={close}>
+      <ModalDialog
+        sx={{
+          width: "86dvh",
+          height: "60dvh",
+          borderLeft: "1px solid",
+          borderColor: "divider",
+          overflow: "hidden",
+          p: 0
+        }}
+      >
+        <ShopTabs></ShopTabs>
+      </ModalDialog>
+    </Modal>
   );
 }

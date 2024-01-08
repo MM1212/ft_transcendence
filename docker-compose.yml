@@ -9,7 +9,7 @@ services:
       POSTGRES_USER: ${BACKEND_DB_USER}
       POSTGRES_PASSWORD: ${BACKEND_DB_PASSWORD}
       POSTGRES_DB: ${BACKEND_DB_NAME}
-    expose:
+    ports:
       - "${BACKEND_DB_PORT}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
@@ -17,19 +17,19 @@ services:
     privileged: false
     networks:
       - transcendence
-  ft_transcendence:
-    container_name: ft_transcendence
-    image: ft_transcendence
-    build:
-      context: .
-      dockerfile: production/Dockerfile
-    ports:
-      - "3000:3000"
-    depends_on:
-      - postgresql
-    networks:
-      - transcendence
-    restart: unless-stopped
+  # ft_transcendence:
+  #   container_name: ft_transcendence
+  #   image: ft_transcendence
+  #   build:
+  #     context: .
+  #     dockerfile: production/Dockerfile
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - postgresql
+  #   networks:
+  #     - transcendence
+  #   restart: unless-stopped
 
   
 volumes:

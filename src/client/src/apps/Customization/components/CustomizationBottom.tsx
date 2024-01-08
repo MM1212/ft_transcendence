@@ -6,6 +6,7 @@ import { Stack, TabPanel } from '@mui/joy';
 import CustomizationBox from './CustomizationBox';
 import {
   InventoryCategory,
+  categoryTabNames,
   getClothIcon,
   inventoryBoughtCategoryItems,
 } from '../state';
@@ -13,39 +14,7 @@ import { useRecoilValue } from 'recoil';
 import { Box } from '@mui/joy';
 import { useLobbyPenguinClothes } from '@apps/Lobby/state';
 
-const categoryTabNames: {
-  category: InventoryCategory;
-  label: string;
-}[] = [
-  {
-    category: 'head',
-    label: 'Head',
-  },
-  {
-    category: 'face',
-    label: 'Face',
-  },
-  {
-    category: 'neck',
-    label: 'Neck',
-  },
-  {
-    category: 'body',
-    label: 'Body',
-  },
-  {
-    category: 'hand',
-    label: 'Hand',
-  },
-  {
-    category: 'feet',
-    label: 'Feet',
-  },
-  {
-    category: 'color',
-    label: 'Skin Color',
-  },
-];
+
 
 function CustomizationItems({
   category,

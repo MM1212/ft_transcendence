@@ -18,7 +18,6 @@ export default function LeaderBoard() {
     useUser(9),
     useUser(10),
     useUser(11),
-    useUser(12),
   ];
   return (
     <Sheet

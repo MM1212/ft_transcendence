@@ -4,7 +4,6 @@ import UsersModel from "@typings/models/users";
 import MedalIcon from "@components/icons/MedalIcon";
 import LobbyGameTypography from "@apps/GameLobby/components/LobbyGameTypography";
 import ProfileTooltip from "@components/ProfileTooltip";
-import { fourth } from "../styles";
 
 export default function LeaderBoardUser({
   user,
@@ -49,6 +48,7 @@ export default function LeaderBoardUser({
           <LobbyGameTypography
             level="h3"
             sx={{
+              pl: 1.5,
               display: "grid",
               gridTemplateColumns: "subgrid",
               gridColumnStart: "1",
