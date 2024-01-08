@@ -2,11 +2,7 @@ namespace ShopModel {
   export namespace Models {
     export enum CategoryType {
       Clothes = 'CLOTHES',
-      Colors = 'COLORS',
-      SpecialPowers = 'SPECIAL_POWERS',
-      Paddles = 'PADDLES',
-      Arenas = 'ARENAS',
-      Balls = 'BALLS',
+      Pong = 'PONG',
     }
     export enum ItemFlags {
       Hidden = 'HIDDEN', // hidden from shop
@@ -16,11 +12,7 @@ namespace ShopModel {
     }
     export interface SubCategories extends Record<CategoryType, string[]> {
       [CategoryType.Clothes]: [];
-      [CategoryType.Colors]: [];
-      [CategoryType.SpecialPowers]: [];
-      [CategoryType.Paddles]: [];
-      [CategoryType.Arenas]: [];
-      [CategoryType.Balls]: [];
+      [CategoryType.Pong]: [];
     }
     export interface Item {
       id: string; // composed of parent + sub1 + sub2 + sub3 + subn + id in cfg
@@ -32,11 +24,15 @@ namespace ShopModel {
       meta: Record<string, unknown>;
       flags: ItemFlags[];
     }
-    export interface Category {
+    export interface SubCategory {
       id: string;
       label: string;
       items: Item[];
-      children: Category[];
+    }
+    export interface Category {
+      id: string;
+      label: string;
+      subCategories: SubCategory[];
     }
     export interface Shop {
       categories: Category[];

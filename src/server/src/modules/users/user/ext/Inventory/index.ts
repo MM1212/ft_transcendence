@@ -90,27 +90,32 @@ class UserExtInventory extends UserExtBase {
       meta,
     );
     this.user.set('inventory', (prev) => [...prev, item]);
+    this.sync();
     return item;
   }
   public async remove(id: number): Promise<void> {
     await this.helpers.db.users.inventory.delete(id);
     this.user.set('inventory', (prev) => prev.filter((item) => item.id !== id));
+    this.sync();
   }
   public async removeAllByType(type: string): Promise<void> {
     await this.helpers.db.users.inventory.deleteByType(this.user.id, type);
     this.user.set('inventory', (prev) =>
       prev.filter((item) => item.type !== type),
     );
+    this.sync();
   }
   public async removeAllByName(name: string): Promise<void> {
     await this.helpers.db.users.inventory.deleteByName(this.user.id, name);
     this.user.set('inventory', (prev) =>
       prev.filter((item) => item.name !== name),
     );
+    this.sync();
   }
   public async removeAll(): Promise<void> {
     await this.helpers.db.users.inventory.deleteAll(this.user.id);
     this.user.set('inventory', []);
+    this.sync();
   }
 
   public sync(): void {
