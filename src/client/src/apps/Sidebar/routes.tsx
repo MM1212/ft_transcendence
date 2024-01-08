@@ -37,6 +37,7 @@ export interface ISidebarNestedRoute {
   icon: React.ReactNode;
   label: string;
   children: ISidebarRoute[];
+  fallbackRoute?: string;
 }
 
 export type ISidebarRoute = ISidebarSingleRoute | ISidebarNestedRoute;
@@ -89,7 +90,8 @@ const routes: ISidebarRoute[] = [
   },
   {
     label: 'Achievements',
-    path: '/achievements',
+    path: '/achievements/me',
+    routePath: '/achievements/:rest*',
     icon: <TrophyIcon />,
     exact: false,
     Component: React.lazy(() => import('@apps/Achievements/views')),
@@ -116,6 +118,7 @@ const routes: ISidebarRoute[] = [
         label: 'Pong',
         path: '/pong',
         icon: <TableTennisIcon />,
+        fallbackRoute: '/pong/play/',
         children: [
           {
             label: 'Play',
@@ -127,7 +130,8 @@ const routes: ISidebarRoute[] = [
           },
           {
             label: 'Match History',
-            path: '/history',
+            path: '/history/me',
+            routePath: '/history/:id',
             icon: <HistoryIcon />,
             exact: false,
             Component: React.lazy(() => import('@apps/MatchHistory/views')),

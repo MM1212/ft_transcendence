@@ -1,4 +1,3 @@
-import LobbyGameTypography from "@apps/GameLobby/components/LobbyGameTypography";
 import { Box, Divider, Stack, Tooltip, Typography } from "@mui/joy";
 import PlayerStatsRow from "./PlayerStatsRow";
 import CurrencyTwdIcon from "@components/icons/CurrencyTwdIcon";
@@ -7,9 +6,7 @@ import { randomInt } from "@utils/random";
 import FireIcon from "@components/icons/FireIcon";
 import React, { ReactElement } from "react";
 import ShimmerIcon from "@components/icons/ShimmerIcon";
-import WalletIcon from "@components/icons/WalletIcon";
 import WallIcon from "@components/icons/WallIcon";
-import CrownCircleOutlineIcon from "@components/icons/CrownCircleOutlineIcon";
 import StarFourPointsIcon from "@components/icons/StarFourPointsIcon";
 
 

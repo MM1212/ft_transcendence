@@ -31,7 +31,14 @@ export default function SidebarSwitchComposer() {
               FallBackComponent: elem.FallBackComponent,
             },
           ];
-        return elem.children.flatMap(getPossibleRoutes(elem));
+        const array = elem.children.flatMap(getPossibleRoutes(elem));
+        if (elem.fallbackRoute) {
+          array.push({
+            Component: () => <Redirect href={elem.fallbackRoute!} replace={true} />,
+            path: `${elem.path}:rest*`,
+          })
+        }
+        return array;
       };
     return routes
       .flatMap(getPossibleRoutes(null))

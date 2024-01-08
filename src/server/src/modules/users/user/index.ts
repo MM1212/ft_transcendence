@@ -13,6 +13,7 @@ import UserExtCharacter from './ext/Character';
 import UserExtQuests from './ext/Quests';
 import UserExtInventory from './ext/Inventory';
 import UserExtNotifications from './ext/Notifications';
+import { UserExtCredits } from './ext/Credits';
 
 class User extends CacheObserver<UsersModel.Models.IUser> {
   public readonly friends: UserExtFriends = new UserExtFriends(this);
@@ -22,6 +23,7 @@ class User extends CacheObserver<UsersModel.Models.IUser> {
   public readonly inventory: UserExtInventory = new UserExtInventory(this);
   public readonly notifications: UserExtNotifications =
     new UserExtNotifications(this);
+  public readonly credits: UserExtCredits = new UserExtCredits(this);
 
   constructor(
     data: UsersModel.Models.IUser,
@@ -41,6 +43,8 @@ class User extends CacheObserver<UsersModel.Models.IUser> {
       connected,
       character,
       quests,
+      notifications,
+      inventory,
       ...user
     } = this.get();
     return user satisfies UsersModel.Models.IUserInfo;

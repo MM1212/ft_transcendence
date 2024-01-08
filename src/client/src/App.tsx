@@ -52,9 +52,9 @@ function App() {
           <ConfirmationModalView />
           <ChatSelectModal />
           <ChatPasswordInputModalView />
+          <SseWarning />
         </AuthRoute>
       </Switch>
-      <SseWarning />
     </div>
   );
 }

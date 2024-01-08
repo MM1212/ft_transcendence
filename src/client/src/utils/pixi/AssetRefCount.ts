@@ -16,9 +16,12 @@ class AssetRefCount {
   public async loadOne(asset: string): Promise<PIXI.Texture | null> {
     const refCount = this.store.get(asset) || 0;
     this.store.set(asset, refCount + 1);
-
+    if (PIXI.Assets.cache.has(asset))
+      return PIXI.Assets.get(asset) as PIXI.Texture;
     return await PIXI.Assets.load(asset);
   }
+
+
 
   public async unload(asset: string): Promise<void> {
     const refCount = this.store.get(asset) || 0;
@@ -29,6 +32,12 @@ class AssetRefCount {
     if (refCount === 1) {
       await PIXI.Assets.unload(asset);
     }
+  }
+
+  public async unloadAll(): Promise<void> {
+    await Promise.all(
+      Array.from(this.store.keys()).map((asset) => this.unload(asset))
+    );
   }
 }
 

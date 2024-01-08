@@ -5,8 +5,6 @@ import CustomizationBottom from '../components/CustomizationBottom';
 import {
   InventoryCategory,
   backClothingItemsAtom,
-  penguinClothingPriority,
-  penguinColorPalette,
 } from '../state';
 import { useRecoilCallback, useRecoilValue } from 'recoil';
 import React from 'react';
@@ -16,6 +14,7 @@ import { lobbyAtom } from '@apps/Lobby/state';
 import { INetPlayerClothesEvent } from '@apps/Lobby/src/Network';
 import LobbyModel from '@typings/models/lobby';
 import { useIsLobbyLoading } from '@apps/Lobby/hooks';
+import { ClientCharacter } from '@apps/Lobby/src/Character';
 
 export default function CustomizationPanel() {
   const [penguinBelly, setPenguinBelly] = React.useState<Pixi.Sprite | null>(
@@ -54,7 +53,7 @@ export default function CustomizationPanel() {
               ? Pixi.Texture.EMPTY
               : publicPath(`/penguin/clothing/${clothId}/paper.webp`)
           );
-          sprite.zIndex = backItem ? -1 : penguinClothingPriority[clothPiece];
+          sprite.zIndex = backItem ? -1 : ClientCharacter.clothingPriority[clothPiece];
           sprite.name = clothPiece;
           sprite.anchor.set(0.5);
           sprite.position.set(0, 0);
@@ -78,7 +77,7 @@ export default function CustomizationPanel() {
       if (!lobby || !lobby.mainPlayer) return;
       await lobby.mainPlayer.character.dress('color', id);
       penguinBelly.tint =
-        penguinColorPalette[id.toString() as keyof typeof penguinColorPalette];
+      ClientCharacter.colorPalette[id.toString() as any];
     },
     [penguinBelly]
   );
@@ -106,7 +105,7 @@ export default function CustomizationPanel() {
       }
       penguinClothes.current[piece].zIndex = backItems.includes(id)
         ? -1
-        : penguinClothingPriority[piece];
+        : ClientCharacter.clothingPriority[piece];
       penguinClothes.current[piece].scale.set(
         backItems.includes(id) ? 0.92 : 0.73
       );
@@ -133,8 +132,8 @@ export default function CustomizationPanel() {
           if (piece === 'color') {
             if (!penguinBelly) continue;
             penguinBelly.tint =
-              penguinColorPalette[
-                id.toString() as keyof typeof penguinColorPalette
+              ClientCharacter.colorPalette[
+                id.toString() as any
               ];
             continue;
           }
@@ -150,7 +149,7 @@ export default function CustomizationPanel() {
           }
           penguinClothes.current[piece].zIndex = backItems.includes(id)
             ? -1
-            : penguinClothingPriority[piece];
+            : ClientCharacter.clothingPriority[piece];
           penguinClothes.current[piece].scale.set(
             backItems.includes(id) ? 0.92 : 0.73
           );

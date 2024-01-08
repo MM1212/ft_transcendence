@@ -25,8 +25,11 @@ export function SidebarSingleRoute({
   path,
   routePath,
   endDecoration,
-}: ISidebarSingleRoute): JSX.Element {
-  const [matches] = useRoute(routePath ?? path);
+  parentPath,
+}: ISidebarSingleRoute & {
+  parentPath?: string;
+}): JSX.Element {
+  const [matches] = useRoute(`${parentPath || ''}${routePath ?? path}`);
 
   return React.useMemo(
     () => (
@@ -49,7 +52,10 @@ export function SidebarNestedRoute({
   label,
   children,
   path,
-}: ISidebarNestedRoute): JSX.Element {
+  parentPath,
+}: ISidebarNestedRoute & {
+  parentPath?: string;
+}): JSX.Element {
   return (
     <ListItem nested>
       <Toggler
@@ -76,6 +82,7 @@ export function SidebarNestedRoute({
                   ? `${path}${route.path}`
                   : route.path) as ISidebarSingleRoute['path']
               }
+              parentPath={(parentPath ?? '') + (path ?? '')}
             />
           ))}
         </List>
@@ -84,17 +91,36 @@ export function SidebarNestedRoute({
   );
 }
 
-function SidebarRoute(route: ISidebarRoute): JSX.Element {
+function SidebarRoute(
+  route: ISidebarRoute & {
+    parentPath?: string;
+  }
+): JSX.Element {
   if (route.children)
-    return <SidebarNestedRoute {...(route as ISidebarNestedRoute)} />;
+    return (
+      <SidebarNestedRoute
+        {...(route as ISidebarNestedRoute)}
+        parentPath={(route.parentPath ?? '')}
+      />
+    );
   const { exact = true } = route as ISidebarSingleRoute;
   if (exact)
     return (
       <Router ssrPath={window.location.pathname}>
-        <SidebarSingleRoute {...(route as ISidebarSingleRoute)} />
+        <SidebarSingleRoute
+          {...(route as ISidebarSingleRoute)}
+          parentPath={
+            (route.parentPath ?? '')
+          }
+        />
       </Router>
     );
-  return <SidebarSingleRoute {...(route as ISidebarSingleRoute)} />;
+  return (
+    <SidebarSingleRoute
+      {...(route as ISidebarSingleRoute)}
+      parentPath={(route.parentPath ?? '')}
+    />
+  );
 }
 
 export default function SidebarRoutes(): JSX.Element {

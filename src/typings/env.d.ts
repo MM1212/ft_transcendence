@@ -14,12 +14,15 @@ interface ImportMetaEnv {
   readonly BACKEND_42_REQUEST_TOKEN_URI: string;
   readonly BACKEND_TFA_ISSUER: string;
   readonly BACKEND_TFA_SECRET_LENGTH: number;
+  // CONFIG
+  readonly BACKEND_USER_USE_DEFAULT_INTRA_CREDITS: boolean;
 
   readonly FRONTEND_PORT: number;
   readonly FRONTEND_HOST: string;
   readonly FRONTEND_URL: string;
   readonly FRONTEND_API_ENDPOINT: string;
   readonly FRONTEND_PUBLIC_PATH: string;
+  readonly FRONTEND_PUBLIC_CDN_URL: string;
 }
 
 interface ImportMeta {

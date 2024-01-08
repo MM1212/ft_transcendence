@@ -17,6 +17,7 @@ namespace AuthModel {
   export namespace DTO {
     export interface Session extends UsersModel.Models.IUserInfo {
       tfaEnabled: boolean;
+      credits: number;
     }
   }
   export namespace Endpoints {
