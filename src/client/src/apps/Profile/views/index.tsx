@@ -1,4 +1,4 @@
-import { useCurrentUser, usersAtom } from "@hooks/user";
+import { useCurrentUser, usersAtom } from '@hooks/user';
 import {
   Button,
   ButtonGroup,
@@ -78,17 +78,18 @@ function UserProfile({
   affiliation,
 }: {
   user: UsersModel.Models.IUserInfo;
-  affiliation: "me" | "friend" | "unknown";
+  affiliation: 'me' | 'friend' | 'unknown';
+  affiliation: 'me' | 'friend' | 'unknown';
 }) {
   const { open: openUpdateModal } = useUpdateUserModalActions();
 
   return (
     <Sheet
       sx={{
-        width: "45dvh",
-        height: "100%",
-        borderLeft: "1px solid",
-        borderColor: "divider",
+        width: '45dvh',
+        height: '100%',
+        borderLeft: '1px solid',
+        borderColor: 'divider',
       }}
     >
       <Stack
@@ -96,27 +97,32 @@ function UserProfile({
         justifyContent="center"
         alignItems="center"
         height="100%"
+        overflow="hidden"
       >
         <Stack
           direction="column"
           alignItems="center"
           justifyContent="center"
           sx={{
-            width: "100%",
+            width: '100%',
           }}
           position="relative"
           p={1}
           spacing={1}
         >
-          {affiliation === "me" ? (
+          {affiliation === 'me' ? (
             <UserAvatar
               sx={(theme) => ({
                 width: theme.spacing(17),
                 height: theme.spacing(17),
-                transition: theme.transitions.create("opacity"),
-                "&:hover": {
-                  cursor: "pointer",
-                  opacity: 0.8,
+                transition: theme.transitions.create('opacity'),
+                '&:hover': {
+                  cursor: 'pointer',
+                  transition: theme.transitions.create('opacity'),
+                  '&:hover': {
+                    cursor: 'pointer',
+                    opacity: 0.8,
+                  },
                 },
               })}
               src={user?.avatar}
@@ -131,7 +137,8 @@ function UserProfile({
               src={user?.avatar}
               status={user?.status}
               badgeProps={{
-                size: "lg",
+                size: 'lg',
+                size: 'lg',
               }}
             />
           )}
@@ -175,7 +182,8 @@ function UserProfileById() {
   useLayoutEffect(() => {
     if (user) return;
     const searchParams = new URLSearchParams();
-    searchParams.append("t", "Profile Not Found");
+    searchParams.append('t', 'Profile Not Found');
+    searchParams.append('t', 'Profile Not Found');
     navigate(`/error?${searchParams.toString()}`);
   }, [user]);
 
@@ -185,14 +193,16 @@ function UserProfileById() {
   return (
     <UserProfile
       user={user!}
-      affiliation={friends.includes(parseInt(userId!)) ? "friend" : "unknown"}
+      affiliation={friends.includes(parseInt(userId!)) ? 'friend' : 'unknown'}
+      affiliation={friends.includes(parseInt(userId!)) ? 'friend' : 'unknown'}
     />
   );
 }
 
 function UserProfileByMe() {
   const user = useCurrentUser();
-  return <UserProfile user={user!} affiliation={"me"} />;
+  return <UserProfile user={user!} affiliation={'me'} />;
+  return <UserProfile user={user!} affiliation={'me'} />;
 }
 
 export default function ProfileView() {
