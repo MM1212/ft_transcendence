@@ -1,4 +1,12 @@
-import { Box, ListItemDecorator, Stack, TabPanel, tabClasses } from "@mui/joy";
+import {
+  Box,
+  Chip,
+  ListItemDecorator,
+  Stack,
+  TabPanel,
+  Typography,
+  tabClasses,
+} from "@mui/joy";
 import { Tab, TabList, Tabs } from "@mui/joy";
 import {
   InventoryCategory,
@@ -17,6 +25,10 @@ import TshirtVIcon from "@components/icons/TshirtVIcon";
 import MixedMartialArtsIcon from "@components/icons/MixedMartialArtsIcon";
 import ShoeSneakerIcon from "@components/icons/ShoeSneakerIcon";
 import FormatColorFillIcon from "@components/icons/FormatColorFillIcon";
+import { useCurrentUser } from "@hooks/user";
+import { randomInt } from "@utils/random";
+import { Sheet } from "@mui/joy";
+import CurrencyTwdIcon from "@components/icons/CurrencyTwdIcon";
 
 function CustomizationItems({
   category,
@@ -25,31 +37,27 @@ function CustomizationItems({
   selected: number;
 }) {
   const items = useRecoilValue(inventoryNotBoughtCategoryItems(category));
+  const user = useCurrentUser();
   return (
-    <Stack
-      position="absolute"
-      sx={{
-        mt: 2,
-        overflowX: "hidden",
-        overflowY: "auto",
-        flexWrap: "wrap",
-        flexDirection: "row",
-        alignItems: "top",
-        gap: (theme) => theme.spacing(2),
-      }}
+    <Box
+      display="flex"
+      mt={2}
+      flexWrap="wrap"
+      alignItems="flex-start"
+      gap={(theme) => theme.spacing(2)}
     >
       {items.map((clothId) => (
-        <Box key={clothId}
-        sx={{height:'fit-content'}}>
+        <Box key={clothId} sx={{ height: "fit-content" }}>
           <ShopCard
             key={clothId}
             imageUrl={getClothIcon(clothId)}
             category={category}
             itemId={clothId}
+            canBuy={true}
           />
         </Box>
       ))}
-    </Stack>
+    </Box>
   );
 }
 
@@ -65,26 +73,19 @@ function ShopTabs() {
   ];
 
   const inventory = useLobbyPenguinClothes();
-  const [index, setIndex] = React.useState(0);
   return (
     <Tabs
       size="lg"
       aria-label="vertical tabs"
       orientation="vertical"
-      value={index}
-      onChange={(event, value) => setIndex(value as number)}
       sx={(theme) => ({
-        borderRadius: 16,
         height: "100%",
-        flexDirection: "row",
         mx: "auto",
+        width: "100%",
         boxShadow: theme.shadow.sm,
         [`& .${tabClasses.root}`]: {
           py: 1,
-          flex: 1,
-          transition: "0.3s",
-          fontWeight: "md",
-          fontSize: "md",
+          transition: (theme) => theme.transitions.create("opacity"),
           [`&:not(.${tabClasses.selected}):not(:hover)`]: {
             opacity: 0.7,
           },
@@ -94,14 +95,17 @@ function ShopTabs() {
       <TabList
         variant="plain"
         size="sm"
-        sx={{ mt:4.5, borderRadius: "md", p: 0, height: 2, gap: 2 }}
+        sx={{ height: "100%", borderRadius: "md", p: 1, gap: 1, width: "20%" }}
       >
+        <Stack spacing={1} width="100%">
+          <Typography level="h3">Shop</Typography>
+        </Stack>
         {categoryTabNames.map((catTabName, index) => (
           <Tab
             value={index}
             key={index}
+            disableIndicator
             sx={{
-              width: 200,
               gap: 2,
             }}
           >
@@ -109,12 +113,44 @@ function ShopTabs() {
             {catTabName.label}
           </Tab>
         ))}
+        <Sheet
+          variant="outlined"
+          sx={{
+            mt: "auto",
+            width: "100%",
+            p: 1,
+            borderRadius: "md",
+            backgroundColor: "background.level1",
+          }}
+        >
+          <Box
+            display="flex"
+            width="100%"
+            flexGrow={1}
+            alignItems="center"
+            justifyContent="space-between"
+          >
+            <Typography level="title-sm">Credits:</Typography>
+            <Chip
+              startDecorator={<CurrencyTwdIcon size="xs" />}
+              color="success"
+            >
+              10
+            </Chip>
+          </Box>
+        </Sheet>
       </TabList>
       {categoryTabNames.map((cat, tabIndex) => (
         <TabPanel
           key={tabIndex}
           value={tabIndex}
-          sx={{overflow: "auto", width:'100%', height: "90vh"}}
+          sx={{
+            flexGrow: 0,
+            width: "80%",
+            height: "100%",
+            backgroundColor: "background.level1",
+            overflowY: 'auto'
+          }}
         >
           <CustomizationItems
             category={cat.category}

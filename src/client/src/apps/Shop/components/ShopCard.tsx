@@ -4,7 +4,7 @@ import {
 import { useConfirmationModalActions } from "@apps/Modals/Confirmation/hooks";
 import CurrencyTwdIcon from "@components/icons/CurrencyTwdIcon";
 import ShoppingIcon from "@components/icons/ShoppingIcon";
-import { useCurrentUser, useSession, useUser } from "@hooks/user";
+import { Sheet } from "@mui/joy";
 import { AspectRatio, Button, Card, CardContent, Typography } from "@mui/joy";
 import { randomInt } from "@utils/random";
 import { useRecoilCallback } from "recoil";
@@ -12,14 +12,15 @@ import { useRecoilCallback } from "recoil";
 export default function ShopCard({
   category,
   imageUrl,
-  itemId
+  itemId,
+  canBuy,
 }: {
   category: InventoryCategory;
   itemId: number;
   imageUrl?: string;
+  canBuy: boolean;
 }) {
   const value = randomInt(100, 2000).toString();
-  const user = useCurrentUser();
   const { confirm } = useConfirmationModalActions();
   const buyItem = useRecoilCallback(ctx => async () => {
     const confirmed = await confirm({
@@ -44,10 +45,11 @@ export default function ShopCard({
       return inv;
     })
 
-  }, [category, itemId, confirm, user]);
+  }, [category, itemId, confirm]);
   return (
-    <Card sx={{ width: 250 }}>
-      <AspectRatio minHeight="120px" maxHeight="200px">
+    <Card sx={{ width: '20dvh' }}>
+      <Sheet variant="soft" sx={{p: 1}}>
+      <AspectRatio ratio={2/1.1} variant="plain">
         <img
           src={imageUrl}
           srcSet="https://images.unsplash.com/photo-1527549993586-dff825b37782?auto=format&fit=crop&w=286&dpr=2 2x"
@@ -55,6 +57,7 @@ export default function ShopCard({
           style={{ objectFit: "scale-down" }}
         />
       </AspectRatio>
+      </Sheet>
       <CardContent orientation="horizontal">
         <div>
           <Typography level="body-xs">Price:</Typography>
@@ -71,10 +74,10 @@ export default function ShopCard({
         <Button
           onClick={buyItem}
           variant="outlined"
-          color='warning'
+          color='success'
           size="md"
-          aria-label="Explore Bahamas Islands"
-          sx={{ ml: "auto", alignSelf: "center", fontWeight: 600 }}
+          disabled={!canBuy}
+          sx={{ ml: "auto", alignSelf: "center" }}
         >
           Buy
         </Button>
@@ -82,48 +85,3 @@ export default function ShopCard({
     </Card>
   );
 }
-//     <Card
-//       variant="outlined"
-//       sx={{
-//         p: 1,
-//         height: 200,
-//         width: 100,
-//         display: 'flex',
-//         justifyContent: 'center',
-//         alignItems: 'center',
-//         cursor: !disabled ? 'pointer' : undefined,
-//         bgcolor:
-//           selected && !disabled && !loading ? 'background.level2' : undefined,
-//         borderRadius: (theme) => theme.radius.sm,
-//         transition: (theme) => theme.transitions.create('background-color'),
-//         '&:hover':
-//           !disabled && !loading
-//             ? {
-//                 bgcolor: 'background.level1',
-//               }
-//             : undefined,
-//         flex,
-//         overflow: 'hidden',
-//         ...imgProps,
-//       }}
-//       onClick={!disabled && !loading ? onClick : undefined}
-//     >
-//       {loading ? (
-//         <CircularProgress variant="plain" />
-//       ) : imageUrl ? (
-//         <img
-//           src={imageUrl}
-//           style={{
-//             width: '100%',
-//             height: '100%',
-//             objectFit: 'scale-down',
-//           }}
-//         />
-//       ) : (
-//         children
-//       )}
-//       <Typography>Name of Element</Typography>
-//       <Typography>89</Typography>
-//     </Card>
-//   );
-// }
