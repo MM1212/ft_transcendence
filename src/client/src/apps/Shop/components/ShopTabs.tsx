@@ -29,15 +29,16 @@ import { useCurrentUser } from "@hooks/user";
 import { randomInt } from "@utils/random";
 import { Sheet } from "@mui/joy";
 import CurrencyTwdIcon from "@components/icons/CurrencyTwdIcon";
+import { Tooltip } from "@mui/joy";
 
 function CustomizationItems({
   category,
+  credits
 }: {
   category: InventoryCategory;
-  selected: number;
+  credits: number
 }) {
   const items = useRecoilValue(inventoryNotBoughtCategoryItems(category));
-  const user = useCurrentUser();
   return (
     <Box
       display="flex"
@@ -53,13 +54,19 @@ function CustomizationItems({
             imageUrl={getClothIcon(clothId)}
             category={category}
             itemId={clothId}
-            canBuy={true}
+            canBuy={credits >= 100}
           />
         </Box>
       ))}
     </Box>
   );
 }
+
+const numberFormatter = new Intl.NumberFormat("en-US", {
+  notation: 'compact',
+  compactDisplay: 'short',
+  maximumFractionDigits: 3,
+});
 
 function ShopTabs() {
   const iconMapping: ReactElement[] = [
@@ -72,7 +79,10 @@ function ShopTabs() {
     <FormatColorFillIcon key={6} />,
   ];
 
-  const inventory = useLobbyPenguinClothes();
+  const user = useCurrentUser();
+  if (!user) {
+    return null;
+  }
   return (
     <Tabs
       size="lg"
@@ -131,12 +141,14 @@ function ShopTabs() {
             justifyContent="space-between"
           >
             <Typography level="title-sm">Credits:</Typography>
+            <Tooltip title={user.credits}>
             <Chip
-              startDecorator={<CurrencyTwdIcon size="xs" />}
+              startDecorator={<CurrencyTwdIcon/>}
               color="success"
             >
-              10
+              {numberFormatter.format(user.credits)}
             </Chip>
+            </Tooltip>
           </Box>
         </Sheet>
       </TabList>
@@ -154,7 +166,7 @@ function ShopTabs() {
         >
           <CustomizationItems
             category={cat.category}
-            selected={inventory[cat.category]}
+            credits={user.credits}
           />
         </TabPanel>
       ))}
