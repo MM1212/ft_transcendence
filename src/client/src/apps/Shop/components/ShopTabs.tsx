@@ -20,7 +20,6 @@ import FormatColorFillIcon from "@components/icons/FormatColorFillIcon";
 
 function CustomizationItems({
   category,
-  selected,
 }: {
   category: InventoryCategory;
   selected: number;
@@ -44,10 +43,9 @@ function CustomizationItems({
         sx={{height:'fit-content'}}>
           <ShopCard
             key={clothId}
-            selected={clothId === selected}
             imageUrl={getClothIcon(clothId)}
-            flex={0.1}
             category={category}
+            itemId={clothId}
           />
         </Box>
       ))}
@@ -96,7 +94,7 @@ function ShopTabs() {
       <TabList
         variant="plain"
         size="sm"
-        sx={{ mt:4.5, borderRadius: "lg", p: 0, height: 2, gap: 2 }}
+        sx={{ mt:4.5, borderRadius: "md", p: 0, height: 2, gap: 2 }}
       >
         {categoryTabNames.map((catTabName, index) => (
           <Tab
@@ -116,7 +114,7 @@ function ShopTabs() {
         <TabPanel
           key={tabIndex}
           value={tabIndex}
-          sx={{ overflow: "auto", width:'100%', height: "90vh"}}
+          sx={{overflow: "auto", width:'100%', height: "90vh"}}
         >
           <CustomizationItems
             category={cat.category}

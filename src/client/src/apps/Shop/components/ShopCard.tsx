@@ -1,34 +1,50 @@
 import {
-  InventoryCategory
+  InventoryCategory, inventoryAtom
 } from "@apps/Customization/state";
+import { useConfirmationModalActions } from "@apps/Modals/Confirmation/hooks";
 import CurrencyTwdIcon from "@components/icons/CurrencyTwdIcon";
+import ShoppingIcon from "@components/icons/ShoppingIcon";
+import { useCurrentUser, useSession, useUser } from "@hooks/user";
 import { AspectRatio, Button, Card, CardContent, Typography } from "@mui/joy";
-import { SxProps } from "@mui/joy/styles/types";
 import { randomInt } from "@utils/random";
-import React from "react";
+import { useRecoilCallback } from "recoil";
 
 export default function ShopCard({
-  flex = 1,
   category,
-  onClick,
   imageUrl,
-  selected,
-  children,
-  disabled = false,
-  imgProps,
-  loading = false,
+  itemId
 }: {
-  disabled?: boolean;
   category: InventoryCategory;
+  itemId: number;
   imageUrl?: string;
-  selected?: boolean;
-  flex?: React.CSSProperties["flex"];
-  onClick?: () => void;
-  children?: React.ReactNode;
-  imgProps?: SxProps;
-  loading?: boolean;
 }) {
   const value = randomInt(100, 2000).toString();
+  const user = useCurrentUser();
+  const { confirm } = useConfirmationModalActions();
+  const buyItem = useRecoilCallback(ctx => async () => {
+    const confirmed = await confirm({
+      content: `
+        Are you sure you want to buy this item?
+    `,
+      confirmText: 'Purchase',
+      confirmColor: 'success',
+      headerIcon: ShoppingIcon
+    });
+    if (!confirmed) return;
+    ctx.set(inventoryAtom, prev =>  {
+      const inv = {...prev};
+      inv.notBought = {
+        ...inv.notBought,
+        [category]: inv.notBought[category].filter(id => id !== itemId)
+      }
+      inv.bought = {
+        ...inv.bought,
+        [category]: [...inv.bought[category], itemId]
+      }
+      return inv;
+    })
+
+  }, [category, itemId, confirm, user]);
   return (
     <Card sx={{ width: 250 }}>
       <AspectRatio minHeight="120px" maxHeight="200px">
@@ -53,9 +69,10 @@ export default function ShopCard({
           </div>
         </div>
         <Button
-          variant="solid"
+          onClick={buyItem}
+          variant="outlined"
+          color='warning'
           size="md"
-          color="primary"
           aria-label="Explore Bahamas Islands"
           sx={{ ml: "auto", alignSelf: "center", fontWeight: 600 }}
         >
