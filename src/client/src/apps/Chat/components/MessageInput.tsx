@@ -14,6 +14,7 @@ import TimelapseIcon from '@components/icons/TimelapseIcon';
 import MessageInputBlocked from './MessageInputBlocked';
 import { urlRegex } from './NewChat';
 import { useDebounce, useThrottle } from '@hooks/lodash';
+import escape from 'lodash.escape';
 
 function _ParticipantsTyping({ id }: { id: number; selfId: number }) {
   const participantNames = useChat(id).useParticipantNamesTyping();
@@ -104,7 +105,7 @@ function MessageInput({
         );
         const nonce = Math.random().toString(36).slice(2);
         const messagePayload: ChatsModel.DTO.NewMessage = {
-          message: input.trim(),
+          message: escape(input.trim()),
           type: ChatsModel.Models.ChatMessageType.Normal,
           meta: {},
         };

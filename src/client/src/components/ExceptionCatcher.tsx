@@ -17,6 +17,9 @@ class ErrorBoundary extends React.Component<
     notifications.error('Runtime Error', error.message);
     console.error(error, errorInfo);
   }
+  static getDerivedStateFromError?() {
+    return { hasError: true };
+  }
 
   render() {
     return this.props.children;

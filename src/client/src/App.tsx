@@ -54,9 +54,9 @@ function App() {
           <ChatSelectModal />
           <ChatPasswordInputModalView />
           <ShopView />
+          <SseWarning />
         </AuthRoute>
       </Switch>
-      <SseWarning />
     </div>
   );
 }

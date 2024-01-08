@@ -23,15 +23,6 @@ import { useChatInfoEditModalActions } from '../modals/ChatInfoEdit/hooks/useCha
 import { MenuItem } from '@mui/joy';
 import { ListItemDecorator } from '@mui/joy';
 import TableTennisIcon from '@components/icons/TableTennisIcon';
-import PongModel from '@typings/models/pong';
-import tunnel from '@lib/tunnel';
-import { useRecoilCallback, useRecoilValue } from 'recoil';
-import pongGamesState from '@apps/GameLobby/state';
-import { ChatSelectedData } from '../modals/ChatSelectModal/hooks/useChatSelectModal';
-import { ChatModel } from '@typings/models';
-import { sessionAtom } from '@hooks/user';
-import chatsState from '../state';
-import notifications from '@lib/notifications/hooks';
 
 function DirectOptions({ self }: { self: ChatsModel.Models.IChatParticipant }) {
   const participants = useSelectedChat().useParticipants();
@@ -55,22 +46,26 @@ function DirectOptions({ self }: { self: ChatsModel.Models.IChatParticipant }) {
     [navigate]
   );
 
-  const {inviteToPongLobby} = useChatManageActions();
+  const { inviteToPongLobby } = useChatManageActions();
 
   return (
     <>
       <MenuOption icon={AccountIcon} onClick={goToProfile}>
         Go to Profile
       </MenuOption>
-      <MenuOption icon={AccountMultiplePlusIcon} onClick={sendInviteFromDM}>
-        Invite to Group
-      </MenuOption>
-      <MenuItem onClick={() => inviteToPongLobby(self.chatId)}>
-        <ListItemDecorator>
-          <TableTennisIcon />
-        </ListItemDecorator>
-        Invite to Pong
-      </MenuItem>
+      {!isBlocked && (
+        <>
+          <MenuOption icon={AccountMultiplePlusIcon} onClick={sendInviteFromDM}>
+            Invite to Group
+          </MenuOption>
+          <MenuItem onClick={() => inviteToPongLobby(self.chatId)}>
+            <ListItemDecorator>
+              <TableTennisIcon />
+            </ListItemDecorator>
+            Invite to Pong
+          </MenuItem>
+        </>
+      )}
       {isFriend ? (
         <MenuOption
           icon={AccountRemoveIcon}
@@ -80,9 +75,11 @@ function DirectOptions({ self }: { self: ChatsModel.Models.IChatParticipant }) {
           Remove Friend
         </MenuOption>
       ) : (
-        <MenuOption icon={AccountPlusIcon} disabled={isBlocked}>
-          Send Friend Request
-        </MenuOption>
+        !isBlocked && (
+          <MenuOption icon={AccountPlusIcon} disabled={isBlocked}>
+            Send Friend Request
+          </MenuOption>
+        )
       )}
       <MenuOption
         icon={isBlocked ? CloseOctagonOutlineIcon : AccountCancelIcon}
@@ -109,7 +106,7 @@ function GroupOptions({
   const { open: openMembersModal } = useModal();
   const { open: openChatInfoEditModal } = useChatInfoEditModalActions();
 
-  const {inviteToPongLobby} = useChatManageActions();
+  const { inviteToPongLobby } = useChatManageActions();
 
   return (
     <>

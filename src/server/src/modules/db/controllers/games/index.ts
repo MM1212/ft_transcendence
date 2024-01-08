@@ -1,10 +1,8 @@
 import { Injectable } from "@nestjs/common";
-import { PrismaService } from "../../prisma";
-import PongModel from "@typings/models/pong";
-import { JsonObject } from "@prisma/client/runtime/library";
+import { Pong } from "./pong";
 
 @Injectable()
 export class Games {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(public readonly pong: Pong) {}
 
 }

@@ -48,9 +48,7 @@ export default function PlayerStatsRow({ id }: { id: number }) {
         gridTemplateColumns: "5fr 7fr 4fr 4fr 4fr 4fr 4fr",
         justifyItems: "left",
         p: 1,
-        borderRadius: "md",
         justifyContent: "space-between",
-        backgroundColor: "background.level1",
       }}
     >
       <Box style={{ display: "grid", gridColumnStart: "1", alignSelf: "left" }}>
@@ -65,7 +63,11 @@ export default function PlayerStatsRow({ id }: { id: number }) {
           <ProfileTooltip user={user} placement="left-start">
             <UserAvatar src={user.avatar} size="md" />
           </ProfileTooltip>
-          <Typography textColor={textColor} level="body-sm">
+          <Typography
+            textColor={textColor}
+            level="body-sm"
+            textOverflow="ellipsis"
+          >
             {user.nickname}
           </Typography>
         </Stack>

@@ -7,11 +7,12 @@ MODE = $(mode)
 SERVER_DIR = src/server
 CLIENT_DIR = src/client
 PROD_DIR = production
+DEV_DIR = dev
 
 
 DB_FILE = $(SERVER_DIR)/prisma/schema.prisma
 DB_MIGRATE_FILE = $(SERVER_DIR)/prisma/migrations/.schema.prisma
-DB_COMPOSE_FILE = $(PROD_DIR)/docker-compose.yml
+DB_COMPOSE_FILE = $(DEV_DIR)/docker-compose.yml
 
 IS_LINUX = 1
 ifeq ($(OS), Windows_NT)
@@ -32,7 +33,7 @@ endif
 	npm i -g pnpm
 	cd $(CLIENT_DIR) && pnpm i
 	$(MAKE) client_gen_icon icon=--all
-	$(MAKE) db_start
+	$(MAKE) db_start_dev
 	cd $(SERVER_DIR) && pnpm i && pnpx prisma generate && pnpx prisma migrate dev --name init
 
 create_session_tokens:
@@ -72,6 +73,7 @@ endif
 	cp envs/.env.tmp .env
 	cp envs/.env.tmp $(CLIENT_DIR)/.env
 	cp envs/.env.tmp $(PROD_DIR)/.env
+	cp envs/.env.tmp $(DEV_DIR)/.env
 	cp envs/.env.tmp envs/.active.env
 	rm envs/.env.tmp
 
@@ -103,13 +105,13 @@ else
 	@cd $(CLIENT_DIR) && node scripts/generate-clothing-item.js $(id) $(BACK_PAPER_FLAG)
 endif
 
-db_start:
+db_start_dev:
 ifneq ($(IS_LINUX), 1)
 	$(error This Makefile is only for Linux atm)
 endif
 	docker compose -f $(DB_COMPOSE_FILE) up -d
 
-db_stop:
+db_stop_dev:
 ifneq ($(IS_LINUX), 1)
 	$(error This Makefile is only for Linux atm)
 endif

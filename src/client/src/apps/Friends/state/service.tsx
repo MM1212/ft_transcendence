@@ -67,13 +67,7 @@ export const useFriendsService = () => {
     (ctx) => {
       ctx
         .setIcon((notif) => {
-          const data = notif.data as {
-            targetId?: number;
-            sender?: boolean;
-            senderId?: boolean;
-            status: string;
-          };
-          if (data.sender) return <AccountPlusIcon />;
+          const data = notif.data
           if (data.status === 'pending') return <AccountPlusIcon />;
           if (data.status === 'accepted') return <AccountCheckIcon />;
           return <AccountMinusIcon />;
@@ -84,14 +78,14 @@ export const useFriendsService = () => {
           label: 'Accept',
           Icon: AccountCheckIcon,
           color: 'success',
-          show: (n) => n.data.status === 'pending',
+          show: (n) => n.data.type === 'receiver' && n.data.status === 'pending',
         })
         .addCustomAction({
           id: 'reject',
           label: 'Reject',
           Icon: AccountMinusIcon,
           color: 'danger',
-          show: (n) => n.data.status === 'pending',
+          show: (n) => n.data.type === 'receiver' && n.data.status === 'pending',
         });
     },
     []

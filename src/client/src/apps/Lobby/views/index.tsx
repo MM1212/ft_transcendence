@@ -100,6 +100,12 @@ export default function LobbyView(): JSX.Element {
     lobbyRef.current.snapshot = snapshot;
   });
 
+  React.useEffect(() => {
+    if (!lobbyRef.current) return;
+    if (connected) return;
+    lobbyRef.current.loading = true;
+  }, [connected])
+
   const targetElem = React.useMemo(
     () => (
       <div
