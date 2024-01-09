@@ -59,6 +59,21 @@ namespace PongHistoryModel {
         stats: any;
         teams: Team[];
       }
+
+      export interface CreatePlayer
+        extends Pick<
+          Models.Player,
+          'gear' | 'stats' | 'score' | 'owner' | 'mvp' | 'userId' | 'teamId'
+        > {}
+
+      export interface CreateTeam
+        extends Pick<Models.Team, 'won' | 'stats' | 'score'> {
+        players: CreatePlayer[];
+        }
+      export interface CreateMatch
+        extends Pick<Models.Match, 'stats' | 'winnerTeamId'> {
+        teams: CreateTeam[];
+        }
     }
 
     export interface GetByUserIdParams extends Record<string, unknown> {

@@ -16,3 +16,17 @@ export function drawLines(lineColor: number, canvas: PIXI.Application): void {
     circle.closePath();
     canvas.stage.addChild(circle);
 }
+
+export const scoreStyleSettings: Partial<PIXI.ITextStyle> = {
+    fontFamily: "arial",
+    fontSize: 36,
+    fontWeight: "bold",
+    fill: ["#FF2C05", "#FFCE03"], // gradient
+    stroke: "#4a1850",
+    strokeThickness: 4,
+    dropShadow: true,
+    dropShadowColor: "#000000",
+    dropShadowBlur: 3,
+    dropShadowAngle: Math.PI / 4,
+    dropShadowDistance: 2,
+  }

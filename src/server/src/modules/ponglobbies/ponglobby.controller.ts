@@ -17,30 +17,32 @@ import HttpCtx from '@/helpers/decorators/httpCtx';
 import { HTTPContext } from '@typings/http';
 import { EndpointData, InternalEndpointResponse } from '@typings/api';
 import { PongLobbyService } from './ponglobby.service';
+import { PongQueueService } from '../pongqueue/pongqueue.service';
 
 const Targets = PongModel.Endpoints.Targets;
-
-class NewLobbyDataDto implements EndpointData<PongModel.Endpoints.NewLobby> {
-  password: string | null = null;
-  name!: string;
-  spectators!: PongModel.Models.LobbySpectatorVisibility;
-  lobbyType!: PongModel.Models.LobbyType;
-  gameType!: PongModel.Models.LobbyGameType;
-}
-
-// ADICIONAR NONCE
 
 @Auth()
 @Controller()
 export class PongLobbyController {
   constructor(
     private readonly service: PongLobbyService,
+    private readonly queueService: PongQueueService,
   ) {}
+
+  @Put(Targets.AddToQueue)
+  async addToQueue(
+    @HttpCtx() ctx: HTTPContext<true>,
+    @Body() body: EndpointData<PongModel.Endpoints.AddToQueue>,
+  ): Promise<InternalEndpointResponse<PongModel.Endpoints.AddToQueue>> {
+    const lobby = await this.service.getLobby(body.lobbyId)
+    this.queueService.addToQueue(lobby, ctx.user);
+    //TODO: return
+  }
 
   @Put(Targets.NewLobby)
   async newLobby(
     @HttpCtx() ctx: HTTPContext<true>,
-    @Body() body: NewLobbyDataDto,
+    @Body() body: EndpointData<PongModel.Endpoints.NewLobby>,
   ): Promise<InternalEndpointResponse<PongModel.Endpoints.NewLobby>> {
     const newLobby = await this.service.createLobby(ctx.user, body);
     return newLobby.interface;
@@ -54,7 +56,7 @@ export class PongLobbyController {
     const lobby = this.service.getLobbyByUser(ctx.user);
     if (lobby.id !== body.lobbyId)
       throw new BadRequestException('Lobby ID does not match');
-    await this.service.leaveLobby(ctx.user);
+    await this.service.leaveLobby(ctx.user.id);
   }
 
   @Post(Targets.StartGame)
@@ -130,7 +132,7 @@ export class PongLobbyController {
     @Body() body: EndpointData<PongModel.Endpoints.Invite>,
   ): Promise<InternalEndpointResponse<PongModel.Endpoints.Invite>> {
     console.log(body);
-    const lobby = await this.service.invite(ctx.user, body.data, body.lobbyId);
+    const lobby = await this.service.invite(ctx.user, body.data, body.source, body.lobbyId);
     return lobby.interface;
   }
 
