@@ -208,7 +208,7 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
     console.log('ALL READY');
     this.status = PongModel.Models.LobbyStatus.Playing;
 
-    const game = await this.helpers.gameService.initGameSession(this);
+    const game = await this.helpers.gameService.initGameSession(this, this.service, this.helpers.gameService);
     this.gameUUId = game.UUID;
     return true;
   }

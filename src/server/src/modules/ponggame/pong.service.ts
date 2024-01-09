@@ -5,13 +5,15 @@ import { ServerGame } from './pong';
 import PongModel from '@typings/models/pong';
 import { Server } from 'socket.io';
 import { ClientSocket } from '@typings/ws';
+import { PongHistoryService } from '../ponghistory/history.service';
+import { PongLobbyService } from '../ponglobbies/ponglobby.service';
 
 @Injectable()
 export class PongService {
   public clientInGames = new Map<number, string>(); // userId, gameUUID
-  private games = new Map<string, ServerGame>();
+  public games = new Map<string, ServerGame>();
   public readonly server: Server;
-  constructor() {}
+  constructor(public historyService: PongHistoryService) {}
 
   // maybe create a new node js thread for each game (?)
 
@@ -19,11 +21,11 @@ export class PongService {
     return this.games.get(uuid);
   }
 
-  public async initGameSession(lobby: PongLobby): Promise<ServerGame> {
+  public async initGameSession(lobby: PongLobby, lobbyService: PongLobbyService, pongService: PongService): Promise<ServerGame> {
     const lobbyInterface = lobby.interface;
     const uuid = this.createUUID();
     const gameConfig = this.parseLobbyPlayers(lobbyInterface, uuid);
-    const newGame = new ServerGame(lobbyInterface, gameConfig, this.server);
+    const newGame = new ServerGame(lobbyInterface, gameConfig, this.server, this.historyService, lobbyService, pongService);
     this.games.set(uuid, newGame);
     return newGame;
   }
@@ -95,6 +97,7 @@ export class PongService {
             avatar: player.avatar,
             nickname: player.nickname,
             connected: false,
+            scored: 0,
           };
         },
       );
@@ -116,6 +119,7 @@ export class PongService {
       nPlayers: lobby.nPlayers,
       ballTexture: lobby.ballTexture,
       maxScore: lobby.score,
+      ownerId: lobby.ownerId,
     };
   }
 

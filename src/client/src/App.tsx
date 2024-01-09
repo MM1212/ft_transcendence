@@ -13,12 +13,13 @@ import TFALoginPage from '@apps/TFALoginPage/views';
 import SseWarning from '@hooks/sse/Warning';
 import ChatPasswordInputModalView from '@apps/Chat/modals/ChatPasswordInputModal';
 import ShopView from '@apps/Shop/views';
+import { PostGameModal } from '@apps/GamePong/modals/openPostGameModal';
 
 const MainRoute = memo(() => {
   return React.useMemo(
     () => (
       <>
-        {/* <Lobby /> */}
+        <Lobby />
         <SideBar />
       </>
     ),
@@ -55,6 +56,7 @@ function App() {
           <ChatPasswordInputModalView />
           <ShopView />
           <SseWarning />
+          <PostGameModal />
         </AuthRoute>
       </Switch>
     </div>

@@ -14,7 +14,7 @@ import User from '../users/user';
 
 @Injectable()
 export class PongLobbyService {
-  private readonly games: Map<number, PongLobby> = new Map();
+  public readonly games: Map<number, PongLobby> = new Map();
   public readonly usersInGames: Map<number, number> = new Map(); // userId, lobbyId
   private lobbyId = 0;
 

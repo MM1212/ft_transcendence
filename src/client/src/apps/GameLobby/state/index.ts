@@ -49,6 +49,14 @@ const pongGamesState = new (class GamesState {
       if (!lobby) return false;
       return lobby.status === PongModel.Models.LobbyStatus.Playing;
     },
+    set: ({ get, set }, value) => {
+      const lobby = get(this.gameLobby);
+      if (!lobby) return;
+      set(this.gameLobby, prev => ({
+        ...prev!,
+        status: value ? PongModel.Models.LobbyStatus.Playing : PongModel.Models.LobbyStatus.Finished,
+      }))
+    }
   });
 })();
 

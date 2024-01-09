@@ -142,6 +142,7 @@ namespace PongModel {
       avatar: string;
       nickname: string;
       connected: boolean;
+      scored: number;
     }
 
     export interface IGameTeam {
@@ -155,6 +156,7 @@ namespace PongModel {
       spectators: number[];
       nPlayers: number;
       maxScore: number;
+      ownerId: number;
       //backgroundTexture: string;
       ballTexture: string;
     }
@@ -247,6 +249,7 @@ namespace PongModel {
       UpdateMovements = 'object-movements',
       SetUI = 'set-ui-game',
       Start = 'start-game',
+      Stop = 'stop-game',
       RemovePower = 'remove-power',
       CreatePower = 'create-power',
       ShootPower = 'shoot-power',
@@ -260,6 +263,7 @@ namespace PongModel {
       UpdatePaddleSizes = 'update-paddle-sizes',
       UpdateDisconnected = 'update-disconnected',
     }
+
 
     export namespace Data {
       export interface SetUIGame {

@@ -116,10 +116,11 @@ export class UIGame extends Game {
     // change this
     this.scoreElementLeft = new PIXI.Text(this.score[0], this.scoreStyle);
     this.scoreElementRight = new PIXI.Text(this.score[1], this.scoreStyle);
-    this.scoreElementLeft.x = this.app.view.width / 2 - this.app.view.width / 4;
+    this.scoreElementLeft.anchor.set(0.5);
+    this.scoreElementRight.anchor.set(0.5);
+    this.scoreElementLeft.x = this.app.view.width / 2 - this.app.view.width / 12;
     this.scoreElementLeft.y = this.app.view.height / 16;
-    this.scoreElementRight.x =
-      this.app.view.width / 2 + this.app.view.width / 4;
+    this.scoreElementRight.x = this.app.view.width / 2 + this.app.view.width / 12;
     this.scoreElementRight.y = this.app.view.height / 16;
     this.app.stage.addChild(this.scoreElementLeft);
     this.app.stage.addChild(this.scoreElementRight);
@@ -293,8 +294,18 @@ export class UIGame extends Game {
     }
   }
 
+  private tickRef: PIXI.TickerCallback<any> | undefined;
   start() {
-    this.app.ticker.add(this.update.bind(this));
+    this.tickRef = (_delta: number) => {
+      this.update();
+    }
+    this.app.ticker.add(this.tickRef);
+  }
+
+  gameOver() {
+    if (this.tickRef)
+      this.app.ticker.remove(this.tickRef);
+    this.tickRef = undefined;
   }
 
   updateScore(

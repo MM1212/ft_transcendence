@@ -6,6 +6,7 @@ import { PongHistoryController } from "./history.controller";
 @Module({
   imports: [DbModule],
   providers: [PongHistoryService],
-  controllers: [PongHistoryController]
+  controllers: [PongHistoryController],
+  exports: [PongHistoryService],
 })
 export class PongHistoryModule {}
