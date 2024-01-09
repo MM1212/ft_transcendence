@@ -72,4 +72,9 @@ export class UsersController {
       );
     return user.public;
   }
+
+  @Get(UsersModel.Endpoints.Targets.GetCredits)
+  async getCredits(@UserCtx() user: User) {
+    return user.credits;
+  }
 }

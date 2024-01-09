@@ -1,4 +1,6 @@
-import { useTunnelEndpoint } from '@hooks/tunnel';
+import { useRecoilCallback } from 'recoil';
+import pongGamesState from '../state';
+import { useRawTunnelEndpoint } from '@hooks/tunnel';
 import PongModel from '@typings/models/pong';
 import { Sheet, Stack, Typography } from '@mui/joy';
 import { alpha } from '@theme';
@@ -93,7 +95,7 @@ function LobbyEntry(lobby: PongModel.Models.ILobbyInfoDisplay) {
 
 export default function LobbyJoinCustom() {
   const { isLoading, data, error } =
-    useTunnelEndpoint<PongModel.Endpoints.GetAllLobbies>(
+    useRawTunnelEndpoint<PongModel.Endpoints.GetAllLobbies>(
       PongModel.Endpoints.Targets.GetAllLobbies,
       { active: false },
       { revalidateOnFocus: false, refreshInterval: 5000 }

@@ -102,7 +102,7 @@ export default function ClothingShowcase(): JSX.Element {
                 }}
               >
                 <img
-                  src={`https://media.cplegacy.net/assets/media/clothing/paper/${clothId}_back.webp`}
+                  src={`https://de7j6vhmj5vf1.cloudfront.net/assets/media/clothing/paper/${clothId}_back.webp`}
                   alt={`Clothing ${clothId}`}
                   style={{
                     backgroundColor: 'cyan',
@@ -110,7 +110,7 @@ export default function ClothingShowcase(): JSX.Element {
                   }}
                 />
                 <img
-                  src={`https://media.cplegacy.net/assets/media/clothing/paper/${clothId}.webp`}
+                  src={`https://de7j6vhmj5vf1.cloudfront.net/assets/media/clothing/paper/${clothId}.webp`}
                   alt={`Clothing ${clothId}`}
                   style={{
                     position: 'absolute',
@@ -142,7 +142,7 @@ export default function ClothingShowcase(): JSX.Element {
                   }}
                 >
                   <img
-                    src={`https://media.cplegacy.net/assets/media/clothing/icon/${clothId}.webp`}
+                    src={`https://de7j6vhmj5vf1.cloudfront.net/assets/media/clothing/icon/${clothId}.webp`}
                     alt={`Clothing ${clothId}`}
                     style={{
                       backgroundColor: 'cyan',
@@ -154,7 +154,7 @@ export default function ClothingShowcase(): JSX.Element {
               </Stack>
             </Stack>
             <img
-              src={`https://media.cplegacy.net/assets/media/clothing/sprites/${clothId}-0.webp`}
+              src={`https://de7j6vhmj5vf1.cloudfront.net/assets/media/clothing/sprites/${clothId}-0.webp`}
               alt={`Clothing ${clothId}`}
               style={{
                 backgroundColor: 'cyan',

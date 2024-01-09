@@ -5,8 +5,8 @@ import { Avatar, Badge, Button, Skeleton, Stack, Typography } from '@mui/joy';
 import LockIcon from '@components/icons/LockIcon';
 import React, { useCallback } from 'react';
 import AlertIcon from '@components/icons/AlertIcon';
-import { useRecoilValue } from 'recoil';
-import { useTunnelEndpoint } from '@hooks/tunnel';
+import { useRecoilCallback, useRecoilValue } from 'recoil';
+import { useRawTunnelEndpoint } from '@hooks/tunnel';
 import { randomInt } from '@utils/random';
 import pongGamesState from '@apps/GameLobby/state';
 import { useCurrentUser } from '@hooks/user';
@@ -50,7 +50,7 @@ function _ChatEmbedGameInviteBubble({
   ...props
 }: IChatEmbedAttachmentsBubbleProps) {
   const { data, error, isLoading } =
-    useTunnelEndpoint<PongModel.Endpoints.GetLobby>(
+    useRawTunnelEndpoint<PongModel.Endpoints.GetLobby>(
       brokenInvitesCache.has(`${embed.lobbyId}.${embed.nonce}`)
         ? null
         : PongModel.Endpoints.Targets.GetLobby,

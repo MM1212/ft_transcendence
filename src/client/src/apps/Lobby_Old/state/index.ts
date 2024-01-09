@@ -1,7 +1,6 @@
 import {
   IInventory,
   inventoryAtom,
-  penguinClothingPriority,
 } from '@apps/Customization/state';
 import penguinState, {
   AnimationConfigSet,
@@ -98,7 +97,6 @@ export const switchToAnimation = async (
           const textures = await getSequence(selected[clothPiece].toString());
           const sprite = new Pixi.AnimatedSprite(textures);
           sprite.name = clothPiece;
-          sprite.zIndex = penguinClothingPriority[clothPiece];
           sprite.anchor.set(0.5);
           sprite.x = 0;
           sprite.y = 0;

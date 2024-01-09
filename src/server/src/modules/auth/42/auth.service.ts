@@ -36,6 +36,11 @@ export class AuthService {
   private get requestTokenUri(): string {
     return this.config.get('BACKEND_42_REQUEST_TOKEN_URI')!;
   }
+  private get useIntraCredits(): boolean {
+    return new Boolean(
+      this.config.get('BACKEND_USER_USE_DEFAULT_INTRA_CREDITS')!,
+    ).valueOf();
+  }
 
   private genNonce(): string {
     return crypto.randomBytes(16).toString('hex');
@@ -133,12 +138,17 @@ export class AuthService {
           studentId: id,
           avatar: UsersModel.Models.DEFAULT_AVATAR,
           nickname: login,
+          credits: this.useIntraCredits ? apiData.wallet : 0,
         });
       const uSession = user.withSession(req.session);
       uSession.session.auth.updateNewToken(resp.data);
       if (user.get('tfa.enabled')) return this.handleTFA(uSession);
       uSession.session.sync().loggedIn = true;
-      console.log(`[Auth] [42] Logged in as `, user.public, resp.data.access_token);
+      console.log(
+        `[Auth] [42] Logged in as `,
+        user.public,
+        resp.data.access_token,
+      );
       return { url: `${this.config.get<string>('FRONTEND_URL')}` };
     } catch (e) {
       console.error(e);

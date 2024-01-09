@@ -1,4 +1,5 @@
 import publicPath from '@utils/public';
+import { ReactComponentElement } from 'react';
 import { atom, selector, selectorFamily } from 'recoil';
 
 export type InventoryCategory =
@@ -10,22 +11,33 @@ export type InventoryCategory =
   | 'feet'
   | 'color';
 
+
 export interface IInventory {
   bought: Record<InventoryCategory, number[]>;
+  notBought: Record<InventoryCategory, number[]>;
   selected: Record<InventoryCategory, number>;
 }
 
 export const inventoryAtom = atom<IInventory>({
   key: 'customization/inventory',
   default: {
+    notBought: {
+      head: [ 1968, 1970, 1973, 1998, 21012],
+      face: [138, 139],
+      neck: [316, 3041, 3186],
+      body: [231, 4572, 35130],
+      hand: [321, 5210, 5415, 5428],
+      feet: [383, 6006],
+      color: [12, 15, 18, 20, 4, 6, 8],
+    },
     bought: {
-      head: [1397, 401, 490, 497, 1277, 1950, 1968, 1970, 1973, 1998, 21012],
-      face: [110, 138, 139],
-      neck: [195, 168, 194, 316, 3041, 3186],
-      body: [258, 205, 212, 231, 4572, 35130],
-      hand: [321, 343, 220, 321, 5210, 5415, 5428],
-      feet: [374, 383, 6006],
-      color: [1, 11, 13, 16, 2, 3, 5, 7, 9, 10, 12, 15, 18, 20, 4, 6, 8],
+      head: [1397, 401, 490, 497, 1277, 1950],
+      face: [110],
+      neck: [195, 168, 194],
+      body: [258, 205, 212],
+      hand: [321, 343, 220, 321],
+      feet: [374],
+      color: [1, 11, 13, 16, 2, 3, 5, 7, 9, 10],
     },
     selected: {
       head: 1397,
@@ -34,7 +46,7 @@ export const inventoryAtom = atom<IInventory>({
       body: 258,
       hand: 343,
       feet: 374,
-      color: 6,
+      color: 1,
     },
   },
 });
@@ -63,6 +75,55 @@ export const inventoryBoughtCategoryItems = selectorFamily<
       return inventory.bought[category];
     },
 });
+
+export const inventoryNotBoughtCategoryItems = selectorFamily<
+  number[],
+  InventoryCategory
+>({
+  key: 'customization/notbought/items',
+  get:
+    (category) =>
+    ({ get }) => {
+      const inventory = get(inventoryAtom);
+      return inventory.notBought[category];
+    },
+});
+
+
+export const categoryTabNames: {
+  category: InventoryCategory;
+  label: string;
+}[] = [
+  {
+    category: 'head',
+    label: 'Head',
+  },
+  {
+    category: 'face',
+    label: 'Face',
+  },
+  {
+    category: 'neck',
+    label: 'Neck',
+  },
+  {
+    category: 'body',
+    label: 'Body',
+  },
+  {
+    category: 'hand',
+    label: 'Hand',
+  },
+  {
+    category: 'feet',
+    label: 'Feet',
+  },
+  {
+    category: 'color',
+    label: 'Skin Color',
+  },
+];
+
 
 export const penguinClothingPriority = {
   face: 0,

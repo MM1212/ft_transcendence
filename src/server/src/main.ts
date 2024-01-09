@@ -7,6 +7,7 @@ import {
 import ConfigService, { ConfigServiceClass } from '@/modules/config';
 import secureSessionModule from '@fastify/secure-session';
 import cookiesModule from '@fastify/cookie';
+import compressionModule from '@fastify/compress';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import { AppService } from './app.service';
 import setupLogger from './helpers/logger';
@@ -46,6 +47,10 @@ async function bootstrap() {
       domain: configService.get<string>('DOMAIN'),
     },
   });
+
+  // Compression
+  await app.register(compressionModule, { encodings: ['gzip', 'deflate'] });
+
 
   // Websockets
 

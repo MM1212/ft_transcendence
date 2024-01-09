@@ -38,6 +38,9 @@ dependencies:
   lodash.debounce:
     specifier: ^4.0.8
     version: 4.0.8
+  lodash.escape:
+    specifier: ^4.0.1
+    version: 4.0.1
   lodash.isequal:
     specifier: ^4.5.0
     version: 4.5.0
@@ -89,6 +92,9 @@ dependencies:
 
 devDependencies:
   '@types/lodash.debounce':
+    specifier: ^4.0.9
+    version: 4.0.9
+  '@types/lodash.escape':
     specifier: ^4.0.9
     version: 4.0.9
   '@types/lodash.isequal':
@@ -1463,6 +1469,12 @@ packages:
 
   /@types/lodash.debounce@4.0.9:
     resolution: {integrity: sha512-Ma5JcgTREwpLRwMM+XwBR7DaWe96nC38uCBDFKZWbNKD+osjVzdpnUSwBcqCptrp16sSOLBAUb50Car5I0TCsQ==}
+    dependencies:
+      '@types/lodash': 4.14.202
+    dev: true
+
+  /@types/lodash.escape@4.0.9:
+    resolution: {integrity: sha512-YR9R6RU9D36OWrhVZ+r4fY8mMXQtofnLXAcE6CkKIxdH66uiCdEjkhxx/eiJnYpxjOFmPbWBUUvdv8lckO823Q==}
     dependencies:
       '@types/lodash': 4.14.202
     dev: true
@@ -3139,6 +3151,10 @@ packages:
 
   /lodash.debounce@4.0.8:
     resolution: {integrity: sha512-FT1yDzDYEoYWhnSGnpE/4Kj1fLZkDFyqRb7fNt6FdYOSxlUWAtp42Eh6Wb0rGIv/m9Bgo7x4GhQbm5Ys4SG5ow==}
+    dev: false
+
+  /lodash.escape@4.0.1:
+    resolution: {integrity: sha512-nXEOnb/jK9g0DYMr1/Xvq6l5xMD7GDG55+GSYIYmS0G4tBk/hURD4JR9WCavs04t33WmJx9kCyp9vJ+mr4BOUw==}
     dev: false
 
   /lodash.isequal@4.5.0:
