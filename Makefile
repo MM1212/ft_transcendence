@@ -11,7 +11,7 @@ PROD_DIR = production
 
 DB_FILE = $(SERVER_DIR)/prisma/schema.prisma
 DB_MIGRATE_FILE = $(SERVER_DIR)/prisma/migrations/.schema.prisma
-DB_COMPOSE_FILE = $(PROD_DIR)/docker-compose.yml
+DB_COMPOSE_FILE = docker-compose.yml
 
 IS_LINUX = 1
 ifeq ($(OS), Windows_NT)

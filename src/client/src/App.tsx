@@ -17,7 +17,7 @@ const MainRoute = memo(() => {
   return React.useMemo(
     () => (
       <>
-        <Lobby />
+        {/* <Lobby /> */}
         <SideBar />
       </>
     ),

@@ -7,8 +7,9 @@ import { useRecoilValue } from "recoil";
 import { useListenerManager } from "./events/ListenerManager";
 
 export function OpenGameModal({ isPlaying }: { isPlaying: boolean }) {
-  const lobby = useRecoilValue(pongGamesState.gameLobby)!;
+  const lobby = useRecoilValue(pongGamesState.gameLobby);
 
+  console.log(lobby?.id);
   if (lobby === null) return;
   return (
     <>
