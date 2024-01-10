@@ -80,8 +80,8 @@ export default function LobbyRoom() {
       await tunnel.post(PongModel.Endpoints.Targets.JoinSpectators, {
         lobbyId: lobby.id,
       });
-    } catch {
-      console.log('Failed to join spectators');
+    } catch (error) {
+      notifications.error('Failed to join spectators', (error as Error).message);
     }
   }, [lobby.id]);
 

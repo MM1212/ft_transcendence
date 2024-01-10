@@ -29,7 +29,7 @@ import SoccerIcon from '@components/icons/SoccerIcon';
 export default function LobbyCreateCustom() {
   const [name, setName] = React.useState<string>('');
   const [password, setPassword] = React.useState<string>('');
-  const user = useCurrentUser(); 
+  const user = useCurrentUser();
   const [spectators, setSpectators] = React.useState<string>(
     PongModel.Models.LobbySpectatorVisibility.All
   );
@@ -65,7 +65,7 @@ export default function LobbyCreateCustom() {
       const pass = password.trim() === '' ? null : password.trim();
       const payload = {
         password: pass,
-        name: name.trim(),
+        name: name.trim() as string,
         spectators: spectators as PongModel.Models.LobbySpectatorVisibility,
         lobbyType: PongModel.Models.LobbyType.Custom,
         lobbyAccess: pass !== '' ? PongModel.Models.LobbyAccess.Protected : PongModel.Models.LobbyAccess.Public,
