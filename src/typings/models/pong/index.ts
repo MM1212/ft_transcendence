@@ -333,7 +333,48 @@ namespace PongModel {
   }
 
   export namespace DTO {
-    export namespace DB {}
+    export interface CreateLobby {
+      password: string | null;
+      name: string;
+      spectators: PongModel.Models.LobbySpectatorVisibility;
+      lobbyType: PongModel.Models.LobbyType;
+      lobbyAccess: PongModel.Models.LobbyAccess;
+      gameType: PongModel.Models.LobbyGameType;
+      score: number;
+    }
+
+    export interface CheckId {
+      lobbyId: number;
+    }
+
+    export interface JoinLobby {
+      lobbyId: number;
+      nonce: number;
+      password: string | null;
+    }
+
+    export interface ChangeTeam {
+      teamId: Models.TeamSide;
+      teamPosition: number;
+      lobbyId: number;
+    }
+
+    export interface ChangeOwner {
+      lobbyId: number;
+      ownerToBe: number;
+    }
+
+    export interface Kick {
+      lobbyId: number;
+      userId: number;
+    }
+
+    export interface Invite {
+      lobbyId?: number;
+      data: Endpoints.ChatSelectedData[];
+      source: Models.InviteSource;
+    }
+
   }
 
   export namespace Endpoints {
@@ -377,25 +418,17 @@ namespace PongModel {
         EndpointMethods.Put,
         Targets.NewLobby,
         Models.ILobby,
-        {
-          password: string | null;
-          name: string;
-          spectators: PongModel.Models.LobbySpectatorVisibility;
-          lobbyType: PongModel.Models.LobbyType;
-          lobbyAccess: PongModel.Models.LobbyAccess;
-          gameType: PongModel.Models.LobbyGameType;
-          score: number;
-        }
+        DTO.CreateLobby
       > {}
+
+        //criar interface
 
     export interface LeaveLobby
       extends Endpoint<
         EndpointMethods.Put,
         Targets.LeaveLobby,
         undefined,
-        {
-          lobbyId: number;
-        }
+        DTO.CheckId
       > {}
 
     export interface AddToQueue
@@ -403,9 +436,7 @@ namespace PongModel {
         EndpointMethods.Put,
         Targets.AddToQueue,
         undefined,
-        {
-          lobbyId: number;
-        }
+        DTO.CheckId
       > {}
 
     /* POST methods */
@@ -414,11 +445,7 @@ namespace PongModel {
         EndpointMethods.Post,
         Targets.JoinLobby,
         Models.ILobby,
-        {
-          lobbyId: number;
-          nonce: number;
-          password: string | null;
-        }
+        DTO.JoinLobby
       > {}
 
     export interface ChangeTeam
@@ -426,11 +453,7 @@ namespace PongModel {
         EndpointMethods.Post,
         Targets.ChangeTeam,
         undefined,
-        {
-          teamId: Models.TeamSide;
-          teamPosition: number;
-          lobbyId: number;
-        }
+        DTO.ChangeTeam
       > {}
 
     export interface ChangeOwner
@@ -438,7 +461,7 @@ namespace PongModel {
         EndpointMethods.Post,
         Targets.ChangeOwner,
         undefined,
-        { lobbyId: number; ownerToBe: number }
+        DTO.ChangeOwner
       > {}
 
     export interface JoinSpectators
@@ -446,7 +469,7 @@ namespace PongModel {
         EndpointMethods.Post,
         Targets.JoinSpectators,
         undefined,
-        { lobbyId: number }
+        DTO.CheckId
       > {}
 
     export interface Ready
@@ -454,9 +477,7 @@ namespace PongModel {
         EndpointMethods.Post,
         Targets.Ready,
         undefined,
-        {
-          lobbyId: number;
-        }
+        DTO.CheckId
       > {}
 
     export interface Kick
@@ -464,10 +485,7 @@ namespace PongModel {
         EndpointMethods.Post,
         Targets.Kick,
         undefined,
-        {
-          lobbyId: number;
-          userId: number;
-        }
+        DTO.Kick
       > {}
 
     export interface KickInvited
@@ -475,10 +493,7 @@ namespace PongModel {
         EndpointMethods.Post,
         Targets.KickInvited,
         undefined,
-        {
-          lobbyId: number;
-          userId: number;
-        }
+        DTO.Kick
       > {}
 
     export interface ChatSelectedData {
@@ -491,11 +506,7 @@ namespace PongModel {
         EndpointMethods.Post,
         Targets.Invite,
         Models.ILobby,
-        {
-          lobbyId?: number;
-          data: ChatSelectedData[];
-          source: Models.InviteSource;
-        }
+        DTO.Invite
       > {}
 
     export interface StartGame
@@ -503,9 +514,7 @@ namespace PongModel {
         EndpointMethods.Post,
         Targets.StartGame,
         undefined,
-        {
-          lobbyId: number;
-        }
+        DTO.CheckId
       > {}
 
     /* GET methods */

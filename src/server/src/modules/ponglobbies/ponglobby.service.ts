@@ -60,7 +60,7 @@ export class PongLobbyService {
       console.log(lobby.interface);
       console.log(lobby.interface.teams[0].players);
       console.log(lobby.interface.teams[1].players);
-      
+
       lobby.syncParticipants();
       lobby.emitGameStart();
       return lobby;
@@ -125,7 +125,7 @@ export class PongLobbyService {
     if (!lobbyId && !this.usersInGames.has(user.id))
       lobby = await this.createLobby(user, {
         password: null,
-        name: 'We Friends Playing Pong',
+        name: 'Custom Lobby',
         spectators: PongModel.Models.LobbySpectatorVisibility.All,
         lobbyType: PongModel.Models.LobbyType.Custom,
         lobbyAccess: PongModel.Models.LobbyAccess.Public,
