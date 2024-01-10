@@ -7,44 +7,27 @@ import { alpha } from '@theme';
 import { useUser } from '@hooks/user';
 import AvatarWithStatus from '@components/AvatarWithStatus';
 import ProfileTooltip from '@components/ProfileTooltip';
-import tunnel from '@lib/tunnel';
 import { navigate } from 'wouter/use-location';
-import { useChatPasswordInputModalActions } from '@apps/Chat/modals/ChatPasswordInputModal/hooks/useChatPasswordInputModal';
-import notifications from '@lib/notifications/hooks';
 import LockIcon from '@components/icons/LockIcon';
+import { useLobbyActions } from '../hooks/actions';
+import { useCallback } from 'react';
 
 function LobbyEntry(lobby: PongModel.Models.ILobbyInfoDisplay) {
   const owner = useUser(lobby.ownerId);
 
-  const { prompt } = useChatPasswordInputModalActions();
+  const { joinGame } = useLobbyActions();
 
-  const handleJoinGame = useRecoilCallback(
-    (ctx) => async () => {
-      try {
-        let pass: string | null = null;
-        if (lobby.authorization === PongModel.Models.LobbyAccess.Protected) {
-          console.log('prompting for password');
-          pass = await prompt({
-            chatName: lobby.name,
-          });
-          if (!pass) return;
-        }
-        const lobbyJoined = await tunnel.post(
-          PongModel.Endpoints.Targets.JoinLobby,
-          {
-            lobbyId: lobby.id,
-            password: pass,
-          }
-        );
-        if (lobbyJoined === null) return;
-        navigate('/pong/play/create', { replace: true });
-        ctx.set(pongGamesState.gameLobby, lobbyJoined);
-      } catch (error) {
-        notifications.error('Failed to join lobby', (error as Error).message);
-      }
-    },
-    [lobby.id, lobby.authorization, lobby.name, prompt]
-  );
+  const handleJoinGame = useCallback(async () => {
+    const joined = await joinGame(
+      lobby.id,
+      lobby.nonce,
+      lobby.authorization,
+      lobby.name
+    );
+    if (!joined) return;
+    navigate('/pong/play/', { replace: true });
+  }, [lobby.id, lobby.authorization, lobby.name, lobby.nonce, joinGame]);
+
   if (owner === null) return null;
   return (
     <Sheet
@@ -74,8 +57,16 @@ function LobbyEntry(lobby: PongModel.Models.ILobbyInfoDisplay) {
     >
       <Stack spacing={0.25}>
         <Typography level="title-sm">Lobby Name</Typography>
-        <Typography level="body-sm"
-        endDecorator={lobby.authorization === PongModel.Models.LobbyAccess.Protected && <LockIcon size="xs" />}>{lobby.name}</Typography>
+        <Typography
+          level="body-sm"
+          endDecorator={
+            lobby.authorization === PongModel.Models.LobbyAccess.Protected && (
+              <LockIcon color="warning" size="xs" />
+            )
+          }
+        >
+          {lobby.name}
+        </Typography>
       </Stack>
       <Stack spacing={0.25}>
         <Typography level="title-sm">Owner</Typography>
@@ -113,9 +104,12 @@ export default function LobbyJoinCustom() {
   if (isLoading || error || !data || data.status !== 'ok')
     return <div>Loading...</div>;
 
+  const lobbies = data.data.filter(
+    (lobby) => lobby.authorization !== PongModel.Models.LobbyAccess.Private
+  );
   return (
     <Stack spacing={0.5}>
-      {data.data.map((lobby) => (
+      {lobbies.map((lobby) => (
         <LobbyEntry key={lobby.id} {...lobby} />
       ))}
     </Stack>

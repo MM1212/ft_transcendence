@@ -26,6 +26,7 @@ export abstract class Bar extends GameObject {
   public teamId: number = 0;
 
   public power: SpecialPower | undefined = undefined;
+  public scored: number = 0;
 
   public shooter: Shooter | undefined = undefined;
   protected isShooting: boolean = false;

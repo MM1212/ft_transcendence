@@ -17,4 +17,8 @@ export class PongHistoryService {
   ): Promise<PongHistoryModel.Models.Match[]> {
     return await this.db.games.pong.history.getAllFromUserId(user.id, filter);
   }
+
+  async saveGame(match: PongHistoryModel.DTO.DB.CreateMatch): Promise<PongHistoryModel.Models.Match> {
+    return await this.db.games.pong.history.create(match);
+  }
 }

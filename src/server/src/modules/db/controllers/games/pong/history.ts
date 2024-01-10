@@ -52,8 +52,6 @@ export class PongHistory {
       cursor?: number;
     },
   ): Promise<PongHistoryModel.Models.Match[]> {
-    console.log(id, filter);
-    
     return (
       await this.prisma.matchHistory.findMany({
         where: {
@@ -86,5 +84,58 @@ export class PongHistory {
         },
       })
     ).map(this.formatMatch.bind(this));
+  }
+  public async get(id: number): Promise<PongHistoryModel.Models.Match> {
+    return this.formatMatch(
+      await this.prisma.matchHistory.findUnique({
+        where: {
+          id,
+        },
+        include: {
+          teams: {
+            include: {
+              players: true,
+            },
+          },
+        },
+      }),
+    );
+  }
+  public async create(
+    matchData: PongHistoryModel.DTO.DB.CreateMatch,
+  ): Promise<PongHistoryModel.Models.Match> {
+    const match = await this.prisma.matchHistory.create({
+      data: {
+        ...matchData,
+        teams: {
+          createMany: {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            data: matchData.teams.map(({ players: _, ...team }) => ({
+              ...team,
+              stats: team.stats as any,
+            })),
+          },
+        },
+        stats: matchData.stats as any,
+      },
+      select: {
+        teams: {
+          select: { id: true },
+        },
+        id: true,
+      },
+    });
+    const playersToInsert = matchData.teams[0].players.concat(
+      matchData.teams[1].players,
+    );
+    await this.prisma.matchHistoryPlayer.createMany({
+      data: playersToInsert.map((player) => ({
+        ...player,
+        stats: player.stats as any,
+        gear: player.gear as any,
+        teamId: match.teams[player.teamId].id,
+      })),
+    });
+    return await this.get(match.id);
   }
 }

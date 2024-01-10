@@ -18,6 +18,10 @@ import { Vector2D } from '@shared/Pong/utils/Vector';
 import { Ball } from '@shared/Pong/Ball';
 import { Bar } from '@shared/Pong/Paddles/Bar';
 import { ballsConfig, paddleConfig } from '@shared/Pong/config/configInterface';
+import { PongHistoryService } from '@/modules/ponghistory/history.service';
+import PongHistoryModel from '@typings/models/pong/history';
+import { PongLobbyService } from '@/modules/ponglobbies/ponglobby.service';
+import { PongService } from '../pong.service';
 // import { Bot } from '@shared/Pong/Paddles/Bot';
 
 type Room = BroadcastOperator<DefaultEventsMap, any>;
@@ -30,6 +34,7 @@ export class ServerGame extends Game {
 
   public userIdToSocketId: Map<number, string> = new Map(); // matchId, socketId
 
+  public maxScore = 7;
   public nbConnectedPlayers = 0;
   public started = false;
 
@@ -41,9 +46,13 @@ export class ServerGame extends Game {
     public lobbyInterface: PongModel.Models.ILobby,
     public config: PongModel.Models.IGameConfig,
     public server: Server,
+    public historyService: PongHistoryService,
+    public lobbyService: PongLobbyService,
+    public pongService: PongService,
   ) {
     super(WINDOWSIZE_X, WINDOWSIZE_Y);
-
+    if (config.maxScore >= 1 && config.maxScore <= 100)
+      this.maxScore = config.maxScore;
     this.UUID = config.UUID;
     this.room = server.to(this.UUID);
     this.buildObjects();
@@ -85,7 +94,6 @@ export class ServerGame extends Game {
   }
 
   public start() {
-    
     console.log(`Game ${this.UUID}: started!`);
     this.room.emit(PongModel.Socket.Events.Start);
     this.startTick();
@@ -109,7 +117,14 @@ export class ServerGame extends Game {
         this,
       ),
     );
-    this.add(new Ball(this.width / 2, this.height / 2, this, this.config.ballTexture as keyof typeof ballsConfig));
+    this.add(
+      new Ball(
+        this.width / 2,
+        this.height / 2,
+        this,
+        this.config.ballTexture as keyof typeof ballsConfig,
+      ),
+    );
   }
 
   private buildPlayers(): void {
@@ -131,24 +146,26 @@ export class ServerGame extends Game {
       } else {
         direction = new Vector2D(1, 1);
       }
-      
+
       if (players[i].type === 'player') {
-        this.add( new Player(
-          startX,
-          this.height / 2,
-          p.keys!,
-          p.tag,
-          direction,
-          p.specialPower as PongModel.Models.LobbyParticipantSpecialPowerType,
-          this,
-          p.teamId,
-          p.paddle as keyof typeof paddleConfig,
-          p.userId,
-        ));
+        this.add(
+          new Player(
+            startX,
+            this.height / 2,
+            p.keys!,
+            p.tag,
+            direction,
+            p.specialPower as PongModel.Models.LobbyParticipantSpecialPowerType,
+            this,
+            p.teamId,
+            p.paddle as keyof typeof paddleConfig,
+            p.userId,
+          ),
+        );
       } else {
         // MISSING: SpecialPowers in bot
         //this.add( new Bot (
-        //  
+        //
         //))
       }
     }
@@ -172,10 +189,85 @@ export class ServerGame extends Game {
     this.updateHandle = setInterval(tick, 16);
   }
 
-  public stop() {
+  public async stop() {
     if (this.updateHandle) {
       clearInterval(this.updateHandle);
       this.updateHandle = undefined;
+      console.log(`Game ${this.UUID}: stopped!`);
+
+      const calculateMVPId = 0;
+
+      const getPlayerStats = (
+        player: PongModel.Models.IPlayerConfig,
+      ): PongHistoryModel.DTO.DB.CreatePlayer => {
+        return {
+          gear: {
+            paddle: player.paddle,
+            specialPower: player.specialPower,
+          },
+          stats: {},
+          mvp: player.userId === calculateMVPId ? true : false,
+          owner: this.config.ownerId === player.userId ? true : false,
+          userId: player.userId,
+          score: player.scored,
+          teamId: player.teamId,
+        };
+      };
+
+      const getTeamStats = (
+        team: PongModel.Models.IGameTeam,
+      ): PongHistoryModel.DTO.DB.CreateTeam => {
+        let wonVal: boolean;
+        if (team.id === 0) {
+          wonVal = this.score[0] > this.score[1] ? true : false;
+        } else {
+          wonVal = this.score[0] > this.score[1] ? false : true;
+        }
+        return {
+          players: team.players.map<PongHistoryModel.DTO.DB.CreatePlayer>(
+            (player) => {
+              return getPlayerStats(player);
+            },
+          ),
+          score: team.score,
+          stats: {},
+          won: wonVal,
+        };
+      };
+
+      const creatorMatchHistory: PongHistoryModel.DTO.DB.CreateMatch = {
+        winnerTeamId: this.score[0] > this.score[1] ? 0 : 1,
+        stats: {},
+        teams: this.config.teams.map<PongHistoryModel.DTO.DB.CreateTeam>(
+          (team) => {
+            return getTeamStats(team);
+          },
+        ),
+      };
+
+      const matchHistory =
+        await this.historyService.saveGame(creatorMatchHistory);
+      this.room.emit(PongModel.Socket.Events.Stop, matchHistory);
+      setImmediate(async () => {
+        this.server.socketsLeave(this.UUID);
+        this.shutdown();
+        const lobby = await this.lobbyService.getLobby(
+          this.lobbyService.usersInGames.get(this.config.ownerId)!,
+        );
+
+        for (const userId of this.lobbyService.usersInGames.keys()) {
+          if (this.lobbyService.usersInGames.get(userId) === lobby.id) {
+            this.lobbyService.usersInGames.delete(userId);
+          }
+        }
+        this.lobbyService.games.delete(lobby.id);
+        for (const userId of this.pongService.clientInGames.keys()) {
+          if (this.pongService.clientInGames.get(userId) === this.UUID) {
+            this.pongService.clientInGames.delete(userId);
+          }
+        }
+        this.pongService.games.delete(this.UUID);
+      });
     }
   }
 
@@ -209,6 +301,9 @@ export class ServerGame extends Game {
   }
 
   public update(delta: number): void {
+    if (this.score[0] >= this.maxScore || this.score[1] >= this.maxScore) {
+      this.stop();
+    }
     super.update(delta);
 
     this.emitMappedValues<GameObject, PongModel.Socket.Data.UpdateMovements>(
@@ -265,7 +360,6 @@ export class ServerGame extends Game {
       });
     }
   }
-
 
   /***/
   public getPlayerInstanceById(id: number): Player | undefined {

@@ -1,10 +1,15 @@
-import { useCurrentUser } from "@hooks/user";
-import { styled } from "@mui/joy";
-import { useState } from "react";
-import MatchMakingCounter from "./MatchMakingCounter";
-import LobbyPongButton from "./LobbyPongBottom";
-import LobbyPlayerBanner from "./LobbyPlayerBanner";
-import { ChangePower } from "./PlayerSettingsModals/ChangePower";
+import { useCurrentUser } from '@hooks/user';
+import { styled } from '@mui/joy';
+import { useState } from 'react';
+import MatchMakingCounter from './MatchMakingCounter';
+import LobbyPongButton from './LobbyPongBottom';
+import LobbyPlayerBanner from './LobbyPlayerBanner';
+import { ChangePower } from './PlayerSettingsModals/ChangePower';
+import tunnel from '@lib/tunnel';
+import PongModel from '@typings/models/pong';
+import { useRecoilCallback, useRecoilValue } from 'recoil';
+import pongGamesState from '../state';
+import { OpenGameModal } from '@apps/GamePong/PongModal';
 
 export const FindMatchWrapper = styled('div')(({ theme }) => ({
   '& > img': {
@@ -25,12 +30,53 @@ export const FindMatchWrapper = styled('div')(({ theme }) => ({
 }));
 export function LobbyMatchMaking() {
   const [isMatchmakingStarted, setIsMatchmakingStarted] = useState(false);
+  const isPlaying = useRecoilValue(pongGamesState.isPlaying);
   const user = useCurrentUser();
 
-  const handleStartMatchmaking = () => {
-    if (!isMatchmakingStarted) setIsMatchmakingStarted(true);
-    else setIsMatchmakingStarted(false);
-  };
+  const handleStartMatchmaking = useRecoilCallback(
+    (ctx) => async () => {
+      if (!isMatchmakingStarted) setIsMatchmakingStarted(true);
+      else setIsMatchmakingStarted(false);
+      try {
+        let lobby = await ctx.snapshot.getPromise(pongGamesState.gameLobby);
+        if (!lobby) {
+          lobby = await tunnel.put(PongModel.Endpoints.Targets.NewLobby, {
+            password: null,
+            name: user!.nickname,
+            spectators: PongModel.Models.LobbySpectatorVisibility.All,
+            lobbyType: PongModel.Models.LobbyType.Single,
+            gameType: PongModel.Models.LobbyGameType.Powers,
+            lobbyAccess: PongModel.Models.LobbyAccess.Private,
+            score: 7
+          });
+          ctx.set(pongGamesState.gameLobby, lobby);
+          console.log('newLobby');
+
+          await tunnel.put(PongModel.Endpoints.Targets.AddToQueue, {
+            lobbyId: lobby.id,
+          });
+        }
+        /*
+        alreaDY HAS LOBBY
+        else {
+          await tunnel.put(PongModel.Endpoints.Targets.AddToQueue, {
+            lobbyId: lobby.id,
+          });
+        }
+        */
+      } catch {
+        console.log('error in: create lobby and add to queue');
+      }
+
+      // else {
+      //   tunnel.put(PongModel.Endpoints.Targets.LeaveLobby, {
+      //     lobbyId: lobby.id,
+      //   });
+      //   console.log('leaveLobby');
+      // }
+    },
+    [isMatchmakingStarted, user]
+  );
 
   if (user === null) return;
   return (
@@ -44,15 +90,15 @@ export function LobbyMatchMaking() {
     >
       <div
         style={{
-          display: "flex",
-          flexDirection: "row",
-          height: "100%",
+          display: 'flex',
+          flexDirection: 'row',
+          height: '100%',
           width: '100%',
-          justifyContent: "space-around",
+          justifyContent: 'space-around',
         }}
       >
-      <LobbyPlayerBanner id={user.id} />
-      <LobbyPlayerBanner id={undefined}  />
+        <LobbyPlayerBanner id={user.id} />
+        <LobbyPlayerBanner id={undefined} />
       </div>
       <div
         style={{
@@ -80,6 +126,7 @@ export function LobbyMatchMaking() {
             />
           </FindMatchWrapper>
         )}
+      <OpenGameModal isPlaying={isPlaying} />
       </div>
     </div>
   );

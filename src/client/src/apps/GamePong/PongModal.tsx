@@ -5,10 +5,14 @@ import PongModel from "@typings/models/pong";
 import React from "react";
 import { useRecoilValue } from "recoil";
 import { useListenerManager } from "./events/ListenerManager";
+import PongHistoryModel from "@typings/models/pong/history";
+import { useModalActions } from "@hooks/useModal";
+import { useCurrentUser } from "@hooks/user";
 
 export function OpenGameModal({ isPlaying }: { isPlaying: boolean }) {
-  const lobby = useRecoilValue(pongGamesState.gameLobby)!;
+  const lobby = useRecoilValue(pongGamesState.gameLobby);
 
+  console.log(lobby?.id);
   if (lobby === null) return;
   return (
     <>
@@ -35,12 +39,4 @@ function PongComponent({ lobby }: { lobby: PongModel.Models.ILobby }) {
   ) : (
     <>{mountRef}</>
   );
-
-  //  return connectedPlayers.length !== lobby.nPlayers && game === null ? (
-  //    connectedPlayers.map((player) => (
-  //      <Typography key={player.userId}>connected: {player.nickname}</Typography>
-  //    ))
-  //  ) : (
-  //    <DialogContent ref={parentRef} />
-  //  );
 }
