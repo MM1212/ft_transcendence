@@ -67,7 +67,7 @@ const chatValidator = new (class ChatControllerValidator {
           .optional() as any,
         chatId: z.number().int().positive().optional(),
         inviteNonce: z.string().optional(),
-        lobbyId: z.number().int().positive().optional(),
+        lobbyId: z.number().int().nonnegative().optional(),
         nonce: z.number().optional(),
         urls: z.array(z.string().url()).optional(),
         userId: z.number().int().positive().optional(),
@@ -156,7 +156,7 @@ const chatValidator = new (class ChatControllerValidator {
         )
         .optional(),
       mutedUntil: z.number().int().positive().nullable().optional(),
-      toReadPings: z.number().int().positive().optional(),
+      toReadPings: z.number().int().nonnegative().optional(),
     } satisfies ComputeToZodKeys<ChatsModel.DTO.DB.UpdateParticipant>);
 
   // ChatsModel.Endpoints.Targets.SendInviteToTargets
