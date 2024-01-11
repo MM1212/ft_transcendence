@@ -1,27 +1,32 @@
-import { GameObject } from "../GameObject";
-import { BarPolygon } from "../Collisions/Polygon";
-import { Vector2D } from "../utils/Vector";
-import { Mana } from "./Mana";
-import { Energy } from "./Energy";
-import { SpecialPower } from "../SpecialPowers/SpecialPower";
-import { Shooter } from "../SpecialPowers/Shooter";
+import { GameObject } from '../GameObject';
+import { BarPolygon } from '../Collisions/Polygon';
+import { Vector2D } from '../utils/Vector';
+import { Mana } from './Mana';
+import { Energy } from './Energy';
+import { SpecialPower } from '../SpecialPowers/SpecialPower';
+import { Shooter } from '../SpecialPowers/Shooter';
 
-import { Bubble } from "../SpecialPowers/Bubble";
-import { Ice } from "../SpecialPowers/Ice";
-import { Fire } from "../SpecialPowers/Fire";
-import { Spark } from "../SpecialPowers/Spark";
-import { Ghost } from "../SpecialPowers/Ghost";
+import { Bubble } from '../SpecialPowers/Bubble';
+import { Ice } from '../SpecialPowers/Ice';
+import { Fire } from '../SpecialPowers/Fire';
+import { Spark } from '../SpecialPowers/Spark';
+import { Ghost } from '../SpecialPowers/Ghost';
 
-import { paddleConfig, specialpowerConfig } from "../config/configInterface";
-import { Game } from "../Game";
+import {
+  gameConfig,
+  paddleConfig,
+  specialpowerConfig,
+} from '../config/configInterface';
+import { Game } from '../Game';
 
-import PongModel from "../../../typings/models/pong/index";
-import { Collider } from "../Collisions/Collider";
+import PongModel from '../../../typings/models/pong/index';
+import { Collider } from '../Collisions/Collider';
+import { BarStatistics } from '../Stats/BarStats';
 
 export abstract class Bar extends GameObject {
   protected mana: Mana;
   protected energy: Energy;
-  protected specialPowerType: PongModel.Models.LobbyParticipantSpecialPowerType;
+  public specialPowerType: PongModel.Models.LobbyParticipantSpecialPowerType;
 
   public teamId: number = 0;
 
@@ -31,13 +36,15 @@ export abstract class Bar extends GameObject {
   public shooter: Shooter | undefined = undefined;
   protected isShooting: boolean = false;
 
+  public stats: BarStatistics;
+
   constructor(
     x: number,
     y: number,
     tag: string,
     public direction: Vector2D,
     game: Game,
-    paddle: keyof typeof paddleConfig,
+    paddle: keyof typeof paddleConfig
   ) {
     super(tag, game);
 
@@ -58,6 +65,9 @@ export abstract class Bar extends GameObject {
     this.energy = new Energy();
     this.effect = undefined;
     this.shooter = undefined;
+    this.stats = new BarStatistics(
+      specialpowerConfig[this.specialPowerType].manaCost
+    );
   }
 
   get HeightVal(): number {
@@ -132,6 +142,7 @@ export abstract class Bar extends GameObject {
     shooter: Bar,
     tag: string
   ) {
+    shooter.stats.shotFired();
     switch (specialPower) {
       case PongModel.Models.LobbyParticipantSpecialPowerType.bubble:
         return new Bubble(

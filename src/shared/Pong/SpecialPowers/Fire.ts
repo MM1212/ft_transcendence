@@ -33,6 +33,7 @@ export class Fire extends SpecialPower {
 
   onCollide(target: GameObject): any {
     if (target instanceof Ball) {
+      this.shooter.stats.iHitMyPower(undefined);
       if (
         target.getEffect === undefined ||
         target.getEffect.name !== 'CANNON'

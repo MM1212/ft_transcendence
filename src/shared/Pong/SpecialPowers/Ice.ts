@@ -22,6 +22,7 @@ export class Ice extends SpecialPower {
 
         if (target instanceof Bar)
         {
+            this.shooterObject.stats.iHitMyPower(target);
             console.log("ICE HIT BAR");
             if (target.getEffect === undefined)
                 target.setEffect(new Effect("SLOW", target));

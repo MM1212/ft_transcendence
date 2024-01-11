@@ -4,12 +4,12 @@ import { SpecialPower } from './SpecialPower';
 import { specialpowerConfig } from '../config/configInterface';
 import { Bar } from '../Paddles/Bar';
 import { Ball } from '../Ball';
-import PongModel from "../../../typings/models/pong";
+import PongModel from '../../../typings/models/pong';
 
 export class Bubble extends SpecialPower {
-  constructor(center: Vector2D, velocity: Vector2D, shooter: Bar) {
+  constructor(center: Vector2D, velocity: Vector2D, public shooter: Bar) {
     super(
-      PongModel.Models.LobbyParticipantSpecialPowerType.bubble ,
+      PongModel.Models.LobbyParticipantSpecialPowerType.bubble,
       center,
       velocity,
       shooter,
@@ -28,6 +28,7 @@ export class Bubble extends SpecialPower {
   onCollide(target: GameObject): boolean {
     if (!(target instanceof SpecialPower)) {
       if (target instanceof Ball) {
+        this.shooter.stats.iHitMyPower(undefined);
         //let newVelX = target.getVelocity.x * -1;
         //let newVelY = target.getVelocity.y;
         //if (centerDiff.y > 0) {

@@ -20,6 +20,11 @@ export class Ghost extends SpecialPower {
     onCollide(target: GameObject): boolean {
         if (!(target instanceof SpecialPower))
         {
+            if (target instanceof Bar) {
+                this.shooterObject.stats.iHitMyPower(target);
+            } else {
+                this.shooterObject.stats.iHitMyPower(undefined);
+            }
             target.setEffect(new Effect("INVISIBLE", target));
             this.game.remove(this);
             return true;

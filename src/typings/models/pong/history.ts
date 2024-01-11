@@ -16,7 +16,7 @@ namespace PongHistoryModel {
       userId: number;
       score: number;
       gear: PlayerGear;
-      stats: Record<string, unknown>;
+      stats: string;
       owner: boolean;
       mvp: boolean;
       teamId: number;
@@ -28,14 +28,14 @@ namespace PongHistoryModel {
       matchId: number;
       players: Player[];
       won: boolean;
-      stats: Record<string, unknown>;
+      stats: string;
       createdAt: number;
     }
     export interface Match {
       id: number;
       teams: Team[];
       winnerTeamId: number;
-      stats: Record<string, unknown>;
+      stats: string;
       createdAt: number;
     }
   }

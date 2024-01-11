@@ -1,5 +1,7 @@
 import { GameObject, effectSendOption } from "./GameObject";
 import { Collider } from "./Collisions/Collider";
+import { GameStatistics } from "./Stats/GameStats";
+
 export class Game {
   public run = true;
   public gameObjects: GameObject[] = [];
@@ -15,6 +17,8 @@ export class Game {
   protected sendShooter: GameObject[] = [];
   protected sendEffects: GameObject[] = [];
   public scored: boolean = false;
+
+  public gameStats: GameStatistics = new GameStatistics();
 
   public delta: number = 0;
 

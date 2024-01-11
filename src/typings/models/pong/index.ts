@@ -60,12 +60,12 @@ namespace PongModel {
       Owner = 'OWNER', // Lobby "admin"
     }
     export enum LobbyParticipantSpecialPowerType {
-      bubble = 'BUBBLE',
-      spark = 'SPARK',
-      ice = 'ICE',
-      fire = 'FIRE',
-      ghost = 'GHOST',
-      none = 'NONE',
+      bubble = 'bubble',
+      spark = 'spark',
+      ice = 'ice',
+      fire = 'fire',
+      ghost = 'ghost',
+      none = 'none',
     }
     export enum TeamSide {
       Left,

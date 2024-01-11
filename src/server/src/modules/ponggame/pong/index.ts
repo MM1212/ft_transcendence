@@ -175,6 +175,8 @@ export class ServerGame extends Game {
     let lastTimeStamp = performance.now();
     let lastFPSTimestamp = performance.now();
     const fixedDeltaTime: number = 0.01667; // 60 FPS in seconds
+    this.gameStats.startTimer();
+    this.gameStats.startNewRound();
     const tick = () => {
       const timestamp = performance.now();
       const deltaTime = (timestamp - lastTimeStamp) / 1000;
@@ -195,6 +197,20 @@ export class ServerGame extends Game {
       this.updateHandle = undefined;
       console.log(`Game ${this.UUID}: stopped!`);
 
+      this.gameStats.gameOver();
+      this.gameStats.teamStats.gameOver();
+
+      // execute all players stats game over
+      for (const player of this.gameObjects) {
+        if (player instanceof Bar) {
+          player.stats.gameOver();
+          console.log(player.tag, player.stats.exportStats());
+        }
+      }
+      console.log("team0" + this.gameStats.teamStats.exportStats(0));
+      console.log("team1" + this.gameStats.teamStats.exportStats(1));
+      console.log("game" + this.gameStats.exportStats());
+
       const calculateMVPId = 0;
 
       const getPlayerStats = (
@@ -205,7 +221,7 @@ export class ServerGame extends Game {
             paddle: player.paddle,
             specialPower: player.specialPower,
           },
-          stats: {},
+          stats: this.gameStats.exportStats(),
           mvp: player.userId === calculateMVPId ? true : false,
           owner: this.config.ownerId === player.userId ? true : false,
           userId: player.userId,
@@ -230,14 +246,14 @@ export class ServerGame extends Game {
             },
           ),
           score: team.score,
-          stats: {},
+          stats: this.gameStats.teamStats.exportStats(team.id),
           won: wonVal,
         };
       };
 
       const creatorMatchHistory: PongHistoryModel.DTO.DB.CreateMatch = {
         winnerTeamId: this.score[0] > this.score[1] ? 0 : 1,
-        stats: {},
+        stats: this.gameStats.exportStats(),
         teams: this.config.teams.map<PongHistoryModel.DTO.DB.CreateTeam>(
           (team) => {
             return getTeamStats(team);
