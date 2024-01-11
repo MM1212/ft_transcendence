@@ -7,6 +7,7 @@ import { useAlertsService } from '@lib/notifications/service';
 import useLobbyService from '@apps/GameLobby/hooks/service';
 import useNotificationsService from '@apps/Inbox/state/service';
 import { useShopService } from '@apps/Shop/hooks/service';
+import { useInventoryService } from '@apps/Inventory/hooks/service';
 
 const useAppService = () => {
   useLocationService();
@@ -19,6 +20,7 @@ const useAppService = () => {
   useAlertsService();
   useNotificationsService();
   useShopService();
+  useInventoryService();
 };
 
 export default useAppService;

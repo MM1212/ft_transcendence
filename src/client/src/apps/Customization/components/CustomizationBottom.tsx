@@ -8,13 +8,10 @@ import {
   InventoryCategory,
   categoryTabNames,
   getClothIcon,
-  inventoryBoughtCategoryItems,
+  useClothingItemsBoughtByCategory,
 } from '../state';
-import { useRecoilValue } from 'recoil';
 import { Box } from '@mui/joy';
 import { useLobbyPenguinClothes } from '@apps/Lobby/state';
-
-
 
 function CustomizationItems({
   category,
@@ -27,7 +24,7 @@ function CustomizationItems({
   updateCloth: (piece: InventoryCategory, id: number) => void;
   disabled?: boolean;
 }) {
-  const items = useRecoilValue(inventoryBoughtCategoryItems(category));
+  const items = useClothingItemsBoughtByCategory(category);
   return (
     <Stack
       direction="row"
@@ -35,23 +32,22 @@ function CustomizationItems({
         display: 'flex',
         width: '100%',
         flexWrap: 'wrap',
-        gap: (theme) => theme.spacing(1.2),
+        gap: 1.2,
       }}
     >
-      {items.map((clothId) => (
+      {items.map((item) => (
         <Box
-          key={clothId}
+          key={item.id}
           sx={{
             aspectRatio: '1/1',
             width: '8.7dvh',
           }}
         >
           <CustomizationBox
-            key={clothId}
-            selected={clothId === selected}
-            imageUrl={getClothIcon(clothId)}
+            selected={item.meta.clothId === selected}
+            imageUrl={getClothIcon(item.meta.clothId)}
             flex={0.1}
-            onClick={() => updateCloth(category, clothId)}
+            onClick={() => updateCloth(category, item.meta.clothId)}
             disabled={disabled}
           />
         </Box>
@@ -62,8 +58,7 @@ function CustomizationItems({
 
 export default function CustomizationBottom({
   updateCloth,
-  isLobbyLoading
-
+  isLobbyLoading,
 }: {
   updateCloth: (piece: InventoryCategory, id: number) => void;
   isLobbyLoading: boolean;

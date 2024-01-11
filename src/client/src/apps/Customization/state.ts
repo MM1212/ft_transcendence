@@ -1,6 +1,7 @@
+import inventoryState from '@apps/Inventory/state';
+import InventoryModel from '@typings/models/users/inventory';
 import publicPath from '@utils/public';
-import { ReactComponentElement } from 'react';
-import { atom, selector, selectorFamily } from 'recoil';
+import { atom, selector, selectorFamily, useRecoilValue } from 'recoil';
 
 export type InventoryCategory =
   | 'head'
@@ -10,7 +11,6 @@ export type InventoryCategory =
   | 'hand'
   | 'feet'
   | 'color';
-
 
 export interface IInventory {
   bought: Record<InventoryCategory, number[]>;
@@ -22,7 +22,7 @@ export const inventoryAtom = atom<IInventory>({
   key: 'customization/inventory',
   default: {
     notBought: {
-      head: [ 1968, 1970, 1973, 1998, 21012],
+      head: [1968, 1970, 1973, 1998, 21012],
       face: [138, 139],
       neck: [316, 3041, 3186],
       body: [231, 4572, 35130],
@@ -89,7 +89,6 @@ export const inventoryNotBoughtCategoryItems = selectorFamily<
     },
 });
 
-
 export const categoryTabNames: {
   category: InventoryCategory;
   label: string;
@@ -124,7 +123,6 @@ export const categoryTabNames: {
   },
 ];
 
-
 export const penguinClothingPriority = {
   face: 0,
   head: 1,
@@ -157,3 +155,34 @@ export const penguinColorPalette = {
 
 export const getClothIcon = (clothId: number) =>
   publicPath(`/penguin/clothing/${clothId}/icon.webp`);
+
+export type TClothingItem = InventoryModel.Models.IItem<{
+  clothId: number;
+  category: InventoryCategory;
+}>;
+
+const customizationState = new (class CustomizationState {
+  clothingItems = selector<TClothingItem[]>({
+    key: 'customization/clothing/items',
+    get: async ({ get }) => {
+      const inventory = get(inventoryState.inventory);
+      return inventory.filter(
+        (item) => item.type === 'clothing'
+      ) as TClothingItem[];
+    },
+  });
+  clothingCategoryItems = selectorFamily<TClothingItem[], InventoryCategory>({
+    key: 'customization/clothing/category/items',
+    get:
+      (category) =>
+      ({ get }) => {
+        const items = get(this.clothingItems);
+        return items.filter((item) => item.meta.category === category);
+      },
+  });
+})();
+
+export const useClothingItemsBoughtByCategory = (category: InventoryCategory) =>
+  useRecoilValue(customizationState.clothingCategoryItems(category));
+
+export default customizationState;

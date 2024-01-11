@@ -1,0 +1,6 @@
+{
+  "id": "neck",
+  "label": "Neck",
+  "icon": "{ICON_PATH}/cat/Neck.tsx",
+  "env": {}
+}

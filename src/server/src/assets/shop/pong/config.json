@@ -1,0 +1,10 @@
+{
+  "id": "pong",
+  "label": "Pong",
+  "icon": "{ICON_PATH}/Pong.tsx",
+  "subCategories": [
+  ],
+  "env": {
+    "ICON_PATH": "pong"
+  }
+}

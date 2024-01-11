@@ -1,8 +1,14 @@
+import {
+  EndpointMethods,
+  GetEndpoint,
+  GroupEndpointTargets,
+} from '@typings/api';
+
 namespace ShopModel {
   export namespace Models {
-    export enum CategoryType {
-      Clothes = 'CLOTHES',
-      Pong = 'PONG',
+    export enum ItemType {
+      Normal,
+      Bundle,
     }
     export enum ItemFlags {
       Hidden = 'HIDDEN', // hidden from shop
@@ -10,36 +16,86 @@ namespace ShopModel {
       LockedByLevel = 'LOCKED_BY_LEVEL', // locked by level in meta
       LockedChangePrice = 'LOCKED_CHANGE_PRICE', // if locked by quests or level, price is 0 or defined in meta
     }
-    export interface SubCategories extends Record<CategoryType, string[]> {
-      [CategoryType.Clothes]: [];
-      [CategoryType.Pong]: [];
-    }
     export interface Item {
       id: string; // composed of parent + sub1 + sub2 + sub3 + subn + id in cfg
+      type: ItemType;
       label: string;
       description: string;
       price: number;
-      category: CategoryType;
-      subCategory: SubCategories[CategoryType];
+      category: string;
+      subCategory: string;
       meta: Record<string, unknown>;
       flags: ItemFlags[];
     }
     export interface SubCategory {
       id: string;
+      category: string;
       label: string;
-      items: Item[];
+      icon: string;
+      Icon?: any;
+      items: string[];
     }
     export interface Category {
       id: string;
       label: string;
-      subCategories: SubCategory[];
+      icon: string;
+      Icon?: any;
+      subCategories: string[];
     }
     export interface Shop {
-      categories: Category[];
+      categories: Record<string, Category>;
+      subCategories: Record<string, SubCategory>;
+      items: Record<string, Item>;
+    }
+
+    export namespace Config {
+      export type SubCategoryItems = Models.Item[];
+      export interface SubCategory extends Omit<Models.SubCategory, 'items'> {
+        env: Record<string, string>;
+      }
+      export interface Category extends Omit<Models.Category, 'subCategories'> {
+        subCategories: string[];
+        env: Record<string, string>;
+      }
+      export type Shop = string[];
     }
   }
-  export namespace DTO {}
-  export namespace Endpoints {}
+  export namespace DTO {
+    export interface GetInitialData {
+      categories: Models.Category[];
+      subCategories: Record<string, Models.SubCategory>;
+    }
+
+    export interface GetItemsParams extends Record<string, unknown> {
+      page?: number;
+      limit?: number;
+      category: string;
+      sub_category: string;
+    }
+  }
+  export namespace Endpoints {
+    export enum Targets {
+      GetInitialData = '/shop',
+      GetItems = '/shop/:category/:sub_category/items',
+    }
+    export type All = GroupEndpointTargets<Targets>;
+
+    export interface GetInitialData
+      extends GetEndpoint<Targets.GetInitialData, DTO.GetInitialData> {}
+    export interface GetItems
+      extends GetEndpoint<
+        Targets.GetItems,
+        Models.Item[],
+        DTO.GetItemsParams
+      > {}
+
+    export interface Registry {
+      [EndpointMethods.Get]: {
+        [Targets.GetInitialData]: GetInitialData;
+        [Targets.GetItems]: GetItems;
+      };
+    }
+  }
 }
 
 export default ShopModel;
