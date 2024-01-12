@@ -1,23 +1,7 @@
-import {
-  Box,
-  Chip,
-  ListItemDecorator,
-  Stack,
-  TabPanel,
-  Typography,
-  tabClasses,
-} from "@mui/joy";
+import { Box, Chip, Stack, TabPanel, Typography, tabClasses } from "@mui/joy";
 import { Tab, TabList, Tabs } from "@mui/joy";
-import {
-  InventoryCategory,
-  categoryTabNames,
-  getClothIcon,
-  inventoryNotBoughtCategoryItems,
-} from "@apps/Customization/state";
-import { useRecoilCallback, useRecoilValue } from "recoil";
-import ShopCard from "./ShopCard";
+import { categoryTabNames } from "@apps/Customization/state";
 import React, { ReactElement } from "react";
-import { lobbyAtom, useLobbyPenguinClothes } from "@apps/Lobby/state";
 import WizardHatIcon from "@components/icons/WizardHatIcon";
 import SafetyGogglesIcon from "@components/icons/SafetyGogglesIcon";
 import NecklaceIcon from "@components/icons/NecklaceIcon";
@@ -26,45 +10,14 @@ import MixedMartialArtsIcon from "@components/icons/MixedMartialArtsIcon";
 import ShoeSneakerIcon from "@components/icons/ShoeSneakerIcon";
 import FormatColorFillIcon from "@components/icons/FormatColorFillIcon";
 import { useCurrentUser } from "@hooks/user";
-import { randomInt } from "@utils/random";
 import { Sheet } from "@mui/joy";
 import CurrencyTwdIcon from "@components/icons/CurrencyTwdIcon";
 import { Tooltip } from "@mui/joy";
-
-function CustomizationItems({
-  category,
-  credits
-}: {
-  category: InventoryCategory;
-  credits: number
-}) {
-  const items = useRecoilValue(inventoryNotBoughtCategoryItems(category));
-  return (
-    <Box
-      display="flex"
-      mt={2}
-      flexWrap="wrap"
-      alignItems="flex-start"
-      gap={(theme) => theme.spacing(2)}
-    >
-      {items.map((clothId) => (
-        <Box key={clothId} sx={{ height: "fit-content" }}>
-          <ShopCard
-            key={clothId}
-            imageUrl={getClothIcon(clothId)}
-            category={category}
-            itemId={clothId}
-            canBuy={credits >= 100}
-          />
-        </Box>
-      ))}
-    </Box>
-  );
-}
+import ShopCustomizationItems from "./ShopCostumizationItems";
 
 const numberFormatter = new Intl.NumberFormat("en-US", {
-  notation: 'compact',
-  compactDisplay: 'short',
+  notation: "compact",
+  compactDisplay: "short",
   maximumFractionDigits: 3,
 });
 
@@ -105,7 +58,7 @@ function ShopTabs() {
       <TabList
         variant="plain"
         size="sm"
-        sx={{ height: "100%", borderRadius: "md", p: 1, gap: 1, width: "20%" }}
+        sx={{ height: "100%", p: 1, gap: 1, width: "20%" }}
       >
         <Stack spacing={1} width="100%">
           <Typography level="h3">Shop</Typography>
@@ -142,12 +95,9 @@ function ShopTabs() {
           >
             <Typography level="title-sm">Credits:</Typography>
             <Tooltip title={user.credits}>
-            <Chip
-              startDecorator={<CurrencyTwdIcon/>}
-              color="success"
-            >
-              {numberFormatter.format(user.credits)}
-            </Chip>
+              <Chip startDecorator={<CurrencyTwdIcon />} color="success">
+                {numberFormatter.format(user.credits)}
+              </Chip>
             </Tooltip>
           </Box>
         </Sheet>
@@ -161,13 +111,10 @@ function ShopTabs() {
             width: "80%",
             height: "100%",
             backgroundColor: "background.level1",
-            overflowY: 'auto'
+            overflowY: "auto",
           }}
         >
-          <CustomizationItems
-            category={cat.category}
-            credits={user.credits}
-          />
+          <ShopCustomizationItems category={cat.category} credits={user.credits} />
         </TabPanel>
       ))}
     </Tabs>

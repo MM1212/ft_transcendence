@@ -34,10 +34,10 @@ export default function LeaderBoard() {
       <Divider />
       <Sheet
         sx={{
+          width:'100%',
           margin: 1.2,
           display: "grid",
-          pl:1,
-          gridTemplateColumns: "1fr 4.5fr 10.4fr 6fr",
+          gridTemplateColumns: "2.1fr 3fr 8fr 6.2fr 2.5fr",
           rowGap: 4,
           alignItems: "center",
           justifyItems: "center",
@@ -70,7 +70,12 @@ export default function LeaderBoard() {
         >
           Points
         </LobbyGameTypography>
-        <LobbyGameTypography style={fourth} level="body-md">
+        <LobbyGameTypography
+          style={{
+            gridColumnStart: "5",
+          }}
+          level="body-md"
+        >
           Win Rate
         </LobbyGameTypography>
       </Sheet>

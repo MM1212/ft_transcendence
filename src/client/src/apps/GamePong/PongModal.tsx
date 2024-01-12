@@ -5,9 +5,6 @@ import PongModel from "@typings/models/pong";
 import React from "react";
 import { useRecoilValue } from "recoil";
 import { useListenerManager } from "./events/ListenerManager";
-import PongHistoryModel from "@typings/models/pong/history";
-import { useModalActions } from "@hooks/useModal";
-import { useCurrentUser } from "@hooks/user";
 
 export function OpenGameModal({ isPlaying }: { isPlaying: boolean }) {
   const lobby = useRecoilValue(pongGamesState.gameLobby);
@@ -20,7 +17,6 @@ export function OpenGameModal({ isPlaying }: { isPlaying: boolean }) {
         <ModalDialog layout="fullscreen">
           <ModalClose />
           <Typography>Room: {lobby.name}</Typography>
-
           <PongComponent lobby={lobby} />
         </ModalDialog>
       </Modal>

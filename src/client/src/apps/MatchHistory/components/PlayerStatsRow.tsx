@@ -31,7 +31,6 @@ export default function PlayerStatsRow({ id }: { id: number }) {
           display: "grid",
           gridColumnStart: gridColumnStart,
           alignItems: "center",
-          alignSelf: "left",
           justifySelf: "right",
         }}
         level="body-md"
@@ -42,15 +41,7 @@ export default function PlayerStatsRow({ id }: { id: number }) {
   }
 
   return (
-    <Stack
-      sx={{
-        display: "grid",
-        gridTemplateColumns: "5fr 7fr 4fr 4fr 4fr 4fr 4fr",
-        justifyItems: "left",
-        p: 1,
-        justifyContent: "space-between",
-      }}
-    >
+    <>
       <Box style={{ display: "grid", gridColumnStart: "1", alignSelf: "left" }}>
         <Stack spacing={1} direction="row" alignItems="center">
           <Avatar
@@ -91,6 +82,6 @@ export default function PlayerStatsRow({ id }: { id: number }) {
         {randomInt(0, 10).toString()}
       </Typography>
 
-    </Stack>
+    </>
   );
 }
