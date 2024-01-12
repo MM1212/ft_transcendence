@@ -3,7 +3,7 @@ import ShopTabs from "../components/ShopTabs";
 import { useOpenShopModal } from "../hooks/useOpenShopModal";
 
 export default function ShopView() {
-  const { close, isOpened, data } = useOpenShopModal();
+  const { close, isOpened} = useOpenShopModal();
   return (
     <Modal open={isOpened} onClose={close}>
       <ModalDialog

@@ -7,60 +7,62 @@ import {
   Input,
   RadioGroup,
   Sheet,
-} from '@mui/joy';
-import { Stack } from '@mui/joy';
-import React from 'react';
-import LobbyPlayerBanner from './LobbyPlayerBanner';
-import LabelIcon from '@components/icons/LabelIcon';
-import { Typography } from '@mui/joy';
-import { Box } from '@mui/joy';
-import { Radio } from '@mui/joy';
-import LobbyRoom from './LobbyRoom';
-import LobbyGameTypography from './LobbyGameTypography';
-import tunnel from '@lib/tunnel';
-import PongModel from '@typings/models/pong';
-import notifications from '@lib/notifications/hooks';
-import { useRecoilCallback, useRecoilValue } from 'recoil';
-import pongGamesState from '../state';
-import { useCurrentUser, useSession } from '@hooks/user';
+} from "@mui/joy";
+import { Stack } from "@mui/joy";
+import React from "react";
+import LobbyPlayerBanner from "./LobbyPlayerBanner";
+import LabelIcon from "@components/icons/LabelIcon";
+import { Typography } from "@mui/joy";
+import { Box } from "@mui/joy";
+import { Radio } from "@mui/joy";
+import LobbyRoom from "./LobbyRoom";
+import LobbyGameTypography from "./LobbyGameTypography";
+import tunnel from "@lib/tunnel";
+import PongModel from "@typings/models/pong";
+import notifications from "@lib/notifications/hooks";
+import { useRecoilCallback, useRecoilValue } from "recoil";
+import pongGamesState from "../state";
+import { useCurrentUser, useSession } from "@hooks/user";
+import LobbyPongButton from "./LobbyPongBottom";
+import { FindMatchWrapper } from "./LobbyMatchMaking";
 
 export default function LobbyCreateCustom() {
-  const [name, setName] = React.useState<string>('');
-  const [password, setPassword] = React.useState<string>('');
+  const [name, setName] = React.useState<string>("");
+  const [password, setPassword] = React.useState<string>("");
   const [gameType, setGameType] = React.useState<string>(
     PongModel.Models.LobbyGameType.Powers
   );
-  const user = useCurrentUser(); 
+  const user = useCurrentUser();
   const [spectators, setSpectators] = React.useState<string>(
     PongModel.Models.LobbySpectatorVisibility.All
   );
   const [errors, setErrors] = React.useState({
-    name: '',
+    name: "",
   });
   const isCustom = useRecoilValue(pongGamesState.isInLobby);
 
   const validateForm = () => {
     const newErrors = {
-      name: name.trim() === '' ? 'Name is required' : '',
+      name: name.trim() === "" ? "Name is required" : "",
     };
     if (name.trim().length > 20) {
-      newErrors.name = 'Name cannot exceed 20 characters';
+      newErrors.name = "Name cannot exceed 20 characters";
     }
     setErrors(newErrors);
-    return !Object.values(newErrors).some((error) => error !== '');
+    return !Object.values(newErrors).some((error) => error !== "");
   };
 
   const [loading, setLoading] = React.useState(false);
   const handleCreateRoom = useRecoilCallback((ctx) => async () => {
     if (validateForm()) {
       const payload = {
-        password: password.trim() === '' ? null : password.trim(),
+        password: password.trim() === "" ? null : password.trim(),
         name: name.trim(),
         spectators: spectators as PongModel.Models.LobbySpectatorVisibility,
         lobbyType: PongModel.Models.LobbyType.Custom,
         gameType: gameType as PongModel.Models.LobbyGameType,
       };
-      const notif = notifications.default('Creating lobby...');
+      const notif = notifications.default("Creating lobby...");
       try {
         setLoading(true);
         const lobby = await tunnel.put(
@@ -68,59 +70,38 @@ export default function LobbyCreateCustom() {
           payload
         );
         notif.update({
-          message: 'Lobby created successfully!',
-          color: 'success',
+          message: "Lobby created successfully!",
+          color: "success",
         });
 
         ctx.set(pongGamesState.gameLobby, lobby);
 
         console.log(lobby);
       } catch (error) {
-        notifications.error('Failed to create lobby', (error as Error).message);
+        notifications.error("Failed to create lobby", (error as Error).message);
       } finally {
         setLoading(false);
       }
     }
   });
 
-  // BEFORE:
-  //const handleCreateRoom = async () => {
-  //  if (validateForm()) {
-  //    try {
-  //      const lobby = await tunnel.put(
-  //        PongModel.Endpoints.Targets.NewLobby,
-  //        {
-  //          password: password.trim() === "" ? null : password.trim(),
-  //          name: name.trim(),
-  //          spectators: spectators as PongModel.Models.LobbySpectatorVisibility,
-  //          lobbyType: PongModel.Models.LobbyType.Custom,
-  //          gameType: gameType as PongModel.Models.LobbyGameType,
-  //        }
-  //      )
-  //      console.log(lobby);
-  //    } catch (error) {
-  //      notifications.error('Failed to create lobby', (error as Error).message);
-  //    }
-  //  }
-  //};
-
   return (
     <Sheet
       sx={{
-        display: 'flex',
-        width: '100%',
-        height: '100%',
-        backgroundColor: 'unset',
-        flexDirection: 'column',
-        alignItems: 'center',
+        display: "flex",
+        width: "100%",
+        height: "100%",
+        backgroundColor: "unset",
+        flexDirection: "column",
+        alignItems: "center",
       }}
     >
       {!isCustom ? (
         <>
           <LobbyPlayerBanner id={user?.id} />
           <Divider sx={{ mt: 4 }} />
-          <Box sx={{ width: '100%', display: 'flex', flexDirection: 'row' }}>
-            <Stack spacing={2} sx={{ display: 'flex', mt: 5 }}>
+          <Box sx={{ width: "100%", display: "flex", flexDirection: "row" }}>
+            <Stack spacing={2} sx={{ display: "flex", mt: 5 }}>
               <FormControl>
                 <FormLabel required>
                   <LobbyGameTypography level="body-sm">
@@ -128,7 +109,7 @@ export default function LobbyCreateCustom() {
                   </LobbyGameTypography>
                 </FormLabel>
                 <Input
-                  color={errors.name ? 'danger' : 'warning'}
+                  color={errors.name ? "danger" : "warning"}
                   required
                   placeholder="Enter room name"
                   startDecorator={<LabelIcon />}
@@ -136,7 +117,7 @@ export default function LobbyCreateCustom() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                 />
-                {errors.name && <FormHelperText>{errors.name}</FormHelperText>}{' '}
+                {errors.name && <FormHelperText>{errors.name}</FormHelperText>}{" "}
               </FormControl>
               <FormControl>
                 <FormLabel>
@@ -154,18 +135,18 @@ export default function LobbyCreateCustom() {
             </Stack>
             <Stack
               sx={{
-                alignItems: 'center',
-                width: '100%',
-                display: 'flex',
+                alignItems: "center",
+                width: "100%",
+                display: "flex",
                 mt: 5,
-                flexDirection: 'column',
+                flexDirection: "column",
               }}
             >
               <FormControl
-                sx={{ mt: 2, display: 'flex', flexDirection: 'column' }}
+                sx={{ mt: 2, display: "flex", flexDirection: "column" }}
               >
                 <FormLabel>
-                  {' '}
+                  {" "}
                   <LobbyGameTypography level="body-md">
                     ALLOW SPECTATORS
                   </LobbyGameTypography>
@@ -205,17 +186,14 @@ export default function LobbyCreateCustom() {
               </FormControl>
             </Stack>
           </Box>
-          <Button
-            sx={{ width: '25%', mt: 5 }}
-            fullWidth
-            type="submit"
-            variant="outlined"
+          <FindMatchWrapper
+            sx={{
+              position: "relative",
+            }}
             onClick={handleCreateRoom}
-            loading={loading}
-            color="warning"
           >
-            Create
-          </Button>
+            <LobbyPongButton label="Create" />
+          </FindMatchWrapper>
         </>
       ) : (
         <LobbyRoom />

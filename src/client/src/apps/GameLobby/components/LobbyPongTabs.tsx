@@ -50,14 +50,14 @@ function LobbyTop() {
   );
   React.useEffect(() => {
     console.log(tabId);
-
-    if (!actualTabs.some((tab) => tab.value === tabId))
-      navigate(`${actualTabs[0].value}`, { replace: true });
+    
+    if (!actualTabs.some((tab) => tab.value === tabId) && actualTabs.length > 0)
+      navigate(`/pong/play/${actualTabs[0].value}`, { replace: true });
   }, [actualTabs, tabId]);
 
   return (
     <Tabs
-      value={tabId ?? 'queue'}
+      value={tabId ?? tabs[0]?.value}
       sx={{
         height: '100%',
         display: 'flex',

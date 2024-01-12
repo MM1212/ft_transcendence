@@ -9,7 +9,7 @@ export default function GameLobby() {
   return (
     <Sheet
       sx={{
-        width: '100dvh',
+        width: '80dvh',
         height: '100%',
         backgroundImage: `url(${publicPath(
           '/matchMaking/backgroundLobby.webp'

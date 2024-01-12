@@ -16,7 +16,6 @@ export function OpenGameModal({ isPlaying }: { isPlaying: boolean }) {
         <ModalDialog layout="fullscreen">
           <ModalClose />
           <Typography>Room: {lobby.name}</Typography>
-
           <PongComponent lobby={lobby} />
         </ModalDialog>
       </Modal>

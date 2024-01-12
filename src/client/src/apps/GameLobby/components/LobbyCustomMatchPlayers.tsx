@@ -3,6 +3,7 @@ import { Stack } from '@mui/joy';
 import LobbyPlayerPlaceholder from './LobbyPlayerPlacehoder';
 import LobbyGameTypography from './LobbyGameTypography';
 import PongModel from '@typings/models/pong';
+import { useCurrentUser } from '@hooks/user';
 
 export default function LobbbyCustomMatchPlayers({
   leftTeam,
@@ -35,6 +36,9 @@ export default function LobbbyCustomMatchPlayers({
     rightPlayer1?.teamPosition === PongModel.Models.TeamPosition.Bottom
       ? rightPlayer1
       : rightPlayer2;
+
+  const myUser = useCurrentUser();
+  if (!myUser) return null;
   return (
     <Stack direction="row" width="100%" alignItems="center" alignSelf="center">
       <Box width="100%">
@@ -42,19 +46,22 @@ export default function LobbbyCustomMatchPlayers({
           Team 1
         </LobbyGameTypography>
         <LobbyPlayerPlaceholder
+          isMe={leftTopPlayer?.id === myUser.id}
           id={leftTopPlayer?.id}
           teamId={PongModel.Models.TeamSide.Left}
           teamPosition={PongModel.Models.TeamPosition.Top}
           ready={leftTopPlayer?.status === PongModel.Models.LobbyStatus.Ready || leftTopPlayer?.status === PongModel.Models.LobbyStatus.Playing}
+          specialPower={leftTopPlayer?.specialPower}
         />
         <LobbyPlayerPlaceholder
+          isMe={leftBottomPlayer?.id === myUser.id}
           id={leftBottomPlayer?.id}
           teamId={PongModel.Models.TeamSide.Left}
           teamPosition={PongModel.Models.TeamPosition.Bottom}
-          warnForPositionShift={leftBottomPlayer && !leftTopPlayer}
           ready={
             leftBottomPlayer?.status === PongModel.Models.LobbyStatus.Ready || leftBottomPlayer?.status === PongModel.Models.LobbyStatus.Playing
           }
+          specialPower={leftBottomPlayer?.specialPower}
         />
       </Box>
       <Box width="20%"></Box>
@@ -68,16 +75,19 @@ export default function LobbbyCustomMatchPlayers({
           Team 2
         </LobbyGameTypography>
         <LobbyPlayerPlaceholder
+          isMe={rightTopPlayer?.id === myUser.id}
           id={rightTopPlayer?.id}
           teamId={PongModel.Models.TeamSide.Right}
           teamPosition={PongModel.Models.TeamPosition.Top}
           ready={rightTopPlayer?.status === PongModel.Models.LobbyStatus.Ready || rightTopPlayer?.status === PongModel.Models.LobbyStatus.Playing}
+          specialPower={rightTopPlayer?.specialPower}
         />
         <LobbyPlayerPlaceholder
+          isMe={rightBottomPlayer?.id === myUser.id}
           id={rightBottomPlayer?.id}
           teamId={PongModel.Models.TeamSide.Right}
           teamPosition={PongModel.Models.TeamPosition.Bottom}
-          warnForPositionShift={rightBottomPlayer && !rightTopPlayer}
+          specialPower={rightBottomPlayer?.specialPower}
           ready={
             rightBottomPlayer?.status === PongModel.Models.LobbyStatus.Ready || rightBottomPlayer?.status === PongModel.Models.LobbyStatus.Playing
           }

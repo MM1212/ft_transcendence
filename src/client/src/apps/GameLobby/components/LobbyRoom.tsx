@@ -1,28 +1,28 @@
-import { Box, Button, Stack, Typography } from '@mui/joy';
-import LobbyGameTypography from './LobbyGameTypography';
-import ShurikenIcon from '@components/icons/ShurikenIcon';
-import LobbbyCustomMatchPlayers from './LobbyCustomMatchPlayers';
-import { useRecoilCallback, useRecoilValue } from 'recoil';
-import { useCurrentUser } from '@hooks/user';
-import React from 'react';
+import { Box, Button, Stack, Typography } from "@mui/joy";
+import LobbyGameTypography from "./LobbyGameTypography";
+import ShurikenIcon from "@components/icons/ShurikenIcon";
+import LobbbyCustomMatchPlayers from "./LobbyCustomMatchPlayers";
+import { useRecoilCallback, useRecoilValue } from "recoil";
+import { useCurrentUser } from "@hooks/user";
+import React from "react";
 // import AddFriendRoom from "./AddFriendRoom";
-import { FindMatchWrapper } from './LobbyMatchMaking';
-import LobbyPongButton from './LobbyPongBottom';
-import pongGamesState from '../state';
-import notifications from '@lib/notifications/hooks';
-import tunnel from '@lib/tunnel';
-import PongModel from '@typings/models/pong';
-import LogoutIcon from '@components/icons/LogoutIcon';
-import AccountPlusIcon from '@components/icons/AccountPlusIcon';
-import LobbyPongCustomMatchTabs from './LobbyPongCustomMatchTabs';
-import EyeArrowRightIcon from '@components/icons/EyeArrowRightIcon';
-import { LobbySettings } from './LobbySettings';
-import { useModalActions } from '@hooks/useModal';
+import { FindMatchWrapper } from "./LobbyMatchMaking";
+import LobbyPongButton from "./LobbyPongBottom";
+import pongGamesState from "../state";
+import notifications from "@lib/notifications/hooks";
+import tunnel from "@lib/tunnel";
+import PongModel from "@typings/models/pong";
+import LogoutIcon from "@components/icons/LogoutIcon";
+import AccountPlusIcon from "@components/icons/AccountPlusIcon";
+import LobbyPongCustomMatchTabs from "./LobbyPongCustomMatchTabs";
+import EyeArrowRightIcon from "@components/icons/EyeArrowRightIcon";
+import { LobbySettings } from "./LobbySettings";
+import { useModalActions } from "@hooks/useModal";
 import {
   ChatSelectedData,
   useChatSelectModalActions,
-} from '@apps/Chat/modals/ChatSelectModal/hooks/useChatSelectModal';
-import { OpenGameModal } from '@apps/GamePong/PongModal';
+} from "@apps/Chat/modals/ChatSelectModal/hooks/useChatSelectModal";
+import { OpenGameModal } from "@apps/GamePong/PongModal";
 
 export default function LobbyRoom() {
   const lobby = useRecoilValue(pongGamesState.gameLobby)!;
@@ -41,10 +41,10 @@ export default function LobbyRoom() {
       await tunnel.post(PongModel.Endpoints.Targets.StartGame, {
         lobbyId: lobby.id,
       });
-      notifications.success('Game is starting soon!');
+      notifications.success("Game is starting soon!");
     } catch {
-      console.log('Failed to start game');
-      notifications.error('Failed to start game');
+      console.log("Failed to start game");
+      notifications.error("Failed to start game");
     }
   });
 
@@ -54,26 +54,26 @@ export default function LobbyRoom() {
         lobbyId: lobby.id,
       });
     } catch (error) {
-      console.log('Failed to ready up');
+      console.log("Failed to ready up");
     }
   }, [lobby.id]);
 
   const handleLeaveLobby = useRecoilCallback((ctx) => async () => {
-    const notif = notifications.default('Leaving lobby...');
+    const notif = notifications.default("Leaving lobby...");
     try {
       const payload = {
         lobbyId: lobby.id,
       };
       await tunnel.put(PongModel.Endpoints.Targets.LeaveLobby, payload);
       notif.update({
-        message: 'Left lobby successfully!',
-        color: 'success',
+        message: "Left lobby successfully!",
+        color: "success",
       });
 
       ctx.set(pongGamesState.gameLobby, null);
       console.log(pongGamesState.gameLobby);
     } catch (error) {
-      notifications.error('Failed to leave lobby', (error as Error).message);
+      notifications.error("Failed to leave lobby", (error as Error).message);
     }
   });
 
@@ -83,26 +83,26 @@ export default function LobbyRoom() {
         lobbyId: lobby.id,
       });
     } catch {
-      console.log('Failed to join spectators');
+      console.log("Failed to join spectators");
     }
   }, [lobby.id]);
 
   const handleInviteList = React.useCallback(async () => {
     try {
       const selected = await selectInvites({
-        body: 'Invite to Lobby:',
+        body: "Invite to Lobby:",
         includeDMs: true,
         multiple: true,
         exclude: lobby.teams[0].players
           .concat(lobby.teams[1].players)
           .concat(lobby.spectators)
           .map<ChatSelectedData>((player) => ({
-            type: 'user',
+            type: "user",
             id: player.id,
           }))
           .concat(
             lobby.invited.map<ChatSelectedData>((id) => ({
-              type: 'user',
+              type: "user",
               id,
             }))
           ),
@@ -134,21 +134,21 @@ export default function LobbyRoom() {
         color="warning"
         level="title-lg"
         sx={{
-          dispaly: 'flex',
-          alignItems: 'left',
-          border: 'unset',
+          dispaly: "flex",
+          alignItems: "left",
+          border: "unset",
         }}
       >
         DOJO PONG CUSTOM MATCH
       </Typography>
-      <Stack sx={{ ml: 'auto' }} direction="row" spacing={1}>
+      <Stack sx={{ ml: "auto" }} direction="row" spacing={1}>
         <Button
           onClick={handleJoinSpectators}
           type="submit"
           color="warning"
           variant="plain"
           startDecorator={<EyeArrowRightIcon />}
-          sx={{ justifyContent: 'flex-end' }}
+          sx={{ justifyContent: "flex-end" }}
         >
           Spectate
         </Button>
@@ -157,7 +157,7 @@ export default function LobbyRoom() {
           color="warning"
           variant="plain"
           startDecorator={<AccountPlusIcon />}
-          sx={{ justifyContent: 'flex-end' }}
+          sx={{ justifyContent: "flex-end" }}
           onClick={handleInviteList}
         >
           Invite
@@ -168,13 +168,12 @@ export default function LobbyRoom() {
           color="warning"
           variant="plain"
           startDecorator={<LogoutIcon />}
-          sx={{ justifyContent: 'flex-end' }}
+          sx={{ justifyContent: "flex-end" }}
         >
           Leave
         </Button>
       </Stack>
-      {/* <AddFriendRoom open={open} setOpen={setOpen} roomSize={teamSizeInt} /> */}
-      <Stack sx={{ display: 'flex', flexDirection: 'row' }}>
+      <Stack sx={{ display: "flex", flexDirection: "row" }}>
         <LobbyGameTypography level="body-sm">{lobby.name}</LobbyGameTypography>
         <ShurikenIcon size="xs" sx={{ ml: 1, mr: 1, mt: 0.7 }} />
         {
@@ -186,38 +185,32 @@ export default function LobbyRoom() {
       <LobbbyCustomMatchPlayers leftTeam={leftTeam} rightTeam={rightTeam} />
       <Box display="flex" width="100%" flexGrow={1} mt={2} gap={8}>
         <LobbyPongCustomMatchTabs />
-        <Box flex={1}>
           <LobbySettings key={3} />
-        </Box>
       </Box>
       {user?.id === lobby.ownerId ? (
         <FindMatchWrapper
           sx={{
-            position: 'relative',
-            m: 'auto!important',
+            position: "relative",
+            m: "auto!important",
           }}
           onClick={handleStartMatch}
         >
-          <LobbyPongButton
-            label="Start Match"
-            src="/matchMaking/button1.webp"
-          />
+          <LobbyPongButton label="Start Match" />
         </FindMatchWrapper>
       ) : (
         <FindMatchWrapper
           sx={{
-            position: 'relative',
-            m: 'auto!important',
+            position: "relative",
+            m: "auto!important",
           }}
           onClick={handleReady}
         >
           <LobbyPongButton
             label={
               player.status === PongModel.Models.LobbyStatus.Ready
-                ? 'Ready'
-                : 'Not Ready'
+                ? "Ready"
+                : "Not Ready"
             }
-            src="/matchMaking/button1.webp"
           />
         </FindMatchWrapper>
       )}

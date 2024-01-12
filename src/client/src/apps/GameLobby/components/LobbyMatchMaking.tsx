@@ -38,7 +38,6 @@ export function LobbyMatchMaking() {
       style={{
         display: 'flex',
         flexDirection: 'column',
-        height: '100%',
         alignItems: 'center',
       }}
     >
@@ -48,7 +47,7 @@ export function LobbyMatchMaking() {
           flexDirection: "row",
           height: "100%",
           width: '100%',
-          justifyContent: "space-around",
+          justifyContent: "space-evenly",
         }}
       >
       <LobbyPlayerBanner id={user.id} />
@@ -62,8 +61,6 @@ export function LobbyMatchMaking() {
           marginTop: '10dvh',
         }}
       >
-        <ChangePower />
-
         {isMatchmakingStarted && (
           <MatchMakingCounter stop={handleStartMatchmaking} />
         )}
@@ -76,7 +73,6 @@ export function LobbyMatchMaking() {
           >
             <LobbyPongButton
               label="Find Match"
-              src="/matchMaking/button1.webp"
             />
           </FindMatchWrapper>
         )}
