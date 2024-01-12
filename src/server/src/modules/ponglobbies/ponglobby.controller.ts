@@ -155,7 +155,6 @@ export class PongLobbyController {
     @Body(new ObjectValidationPipe(ponglobbyValidator.inviteSchema))
     body: EndpointData<PongModel.Endpoints.Invite>,
   ): Promise<InternalEndpointResponse<PongModel.Endpoints.Invite>> {
-    console.log(body);
     const lobby = await this.service.invite(
       ctx.user,
       body.data,
@@ -200,8 +199,6 @@ export class PongLobbyController {
     @Query('nonce', new ParseIntPipe({ errorHttpStatusCode: 400 }))
     nonce: number,
   ): Promise<InternalEndpointResponse<PongModel.Endpoints.GetLobby>> {
-    console.log(id, typeof id);
-
     const lobby = await this.service.getLobby(id);
     if (lobby.nonce !== nonce)
       throw new BadRequestException('Nonce does not match');

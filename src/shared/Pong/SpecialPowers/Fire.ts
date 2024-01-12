@@ -25,6 +25,7 @@ export class Fire extends SpecialPower {
     );
     this.tag += this.id;
     shooter.manaBar.spendMana(this.manaCost);
+    shooter.manaBar.manaStep = shooter.manaBar.mana;
   }
 
   get manaCost(): number {

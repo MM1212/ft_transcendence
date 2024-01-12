@@ -24,8 +24,9 @@ import { Collider } from '../Collisions/Collider';
 import { BarStatistics } from '../Stats/BarStats';
 
 export abstract class Bar extends GameObject {
-  protected mana: Mana;
-  protected energy: Energy;
+  public mana: Mana;
+  public energy: Energy;
+
   public specialPowerType: PongModel.Models.LobbyParticipantSpecialPowerType;
 
   public teamId: number = 0;

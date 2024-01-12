@@ -60,7 +60,6 @@ export class BarStatistics {
 
   public iHitMyPower(opponent: Bar | undefined): void {
     this.shotHit++;
-    console.log(this.shotHit);
     if (opponent === undefined) return;
     opponent.stats.increaseGotHit();
   }

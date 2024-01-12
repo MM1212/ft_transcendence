@@ -83,6 +83,13 @@ export class ServerGame extends Game {
             tag: player.tag,
             powertag: powertag,
           });
+          this.room.emit(PongModel.Socket.Events.EnergyManaUpdate, [
+            {
+              tag: player.tag,
+              mana: player.mana.manaCur,
+              energy: player.energy.energyCur,
+            },
+          ]);
           break;
         case SHOOT_ACTION.SHOOT:
           this.room.emit(PongModel.Socket.Events.ShootPower, {
@@ -171,24 +178,36 @@ export class ServerGame extends Game {
     }
   }
 
+  handleFocusLoss(userId: number): void {
+    const player = this.getPlayerInstanceById(userId);
+    if (player) {
+      console.log('turning off keys');
+      this.handleKeys(userId, player.keys.up, false);
+      this.handleKeys(userId, player.keys.down, false);
+      this.handleKeys(userId, player.keys.boost, false);
+      this.handleKeys(userId, player.keys.shoot, false);
+      console.log(player.keys);
+    }
+  }
+
+  static readonly fixedDeltaTime: number = 1000 / 60; // 60 FPS in seconds
   public startTick() {
     let lastTimeStamp = performance.now();
     let lastFPSTimestamp = performance.now();
-    const fixedDeltaTime: number = 0.01667; // 60 FPS in seconds
     this.gameStats.startTimer();
     this.gameStats.startNewRound();
     const tick = () => {
       const timestamp = performance.now();
-      const deltaTime = (timestamp - lastTimeStamp) / 1000;
+      const deltaTime = timestamp - lastTimeStamp;
       lastTimeStamp = timestamp;
-      this.delta = deltaTime / fixedDeltaTime;
+      this.delta = deltaTime / ServerGame.fixedDeltaTime;
       this.update(this.delta);
 
       if (timestamp - lastFPSTimestamp > 1000) {
         lastFPSTimestamp = timestamp;
       }
     };
-    this.updateHandle = setInterval(tick, 16);
+    this.updateHandle = setInterval(tick, ServerGame.fixedDeltaTime);
   }
 
   private calculateMoneyEarned(
@@ -395,6 +414,8 @@ export class ServerGame extends Game {
   }
 
   public update(delta: number): void {
+    console.log(delta);
+
     if (this.score[0] >= this.maxScore || this.score[1] >= this.maxScore) {
       const ball = this.getObjectByTag(PongModel.InGame.ObjType.Ball) as Ball;
 
@@ -408,6 +429,42 @@ export class ServerGame extends Game {
       this.stop();
     }
     super.update(delta);
+
+    const players = this.gameObjects.filter(
+      (obj) => obj instanceof Bar,
+    ) as Bar[];
+
+    const manaEnergyUpdate: PongModel.Socket.Data.EnergyManaUpdate[] = [];
+    players.forEach((player) => {
+      let push = false;
+      if (
+        !player.mana.isManaFull() &&
+        player.mana.manaCur > player.mana.manaStep + 10
+      ) {
+        player.mana.manaStep += 10;
+        push = true;
+      }
+      if (
+        !player.energy.isEnergyFull() &&
+        player.energy.energyCur > player.energy.energyStep + 10
+      ) {
+        player.energy.energyStep += 10;
+        push = true;
+      }
+      if (push) {
+        manaEnergyUpdate.push({
+          tag: player.tag,
+          mana: player.mana.manaCur,
+          energy: player.energy.energyCur,
+        });
+      }
+    });
+    if (manaEnergyUpdate.length > 0) {
+      this.room.emit(
+        PongModel.Socket.Events.EnergyManaUpdate,
+        manaEnergyUpdate,
+      );
+    }
 
     this.emitMappedValues<GameObject, PongModel.Socket.Data.UpdateMovements>(
       PongModel.Socket.Events.UpdateMovements,
@@ -468,7 +525,6 @@ export class ServerGame extends Game {
   public getPlayerInstanceById(id: number): Player | undefined {
     return this.gameObjects.find((gameObject: GameObject) => {
       if (gameObject instanceof Player) {
-        console.log(gameObject.userId, id);
         return gameObject.userId === id;
       }
       return false;

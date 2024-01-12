@@ -263,6 +263,8 @@ namespace PongModel {
       AlreadyConnected = 'already-connected',
       UpdatePaddleSizes = 'update-paddle-sizes',
       UpdateDisconnected = 'update-disconnected',
+      EnergyManaUpdate = 'energy-mana-update',
+      FocusLoss = 'focus-loss',
     }
 
     export namespace Data {
@@ -328,6 +330,12 @@ namespace PongModel {
       export interface Reconnected {
         tag: string;
         nickname: string;
+      }
+
+      export interface EnergyManaUpdate {
+        tag: string;
+        energy: number;
+        mana: number;
       }
     }
   }

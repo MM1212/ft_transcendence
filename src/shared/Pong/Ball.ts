@@ -27,7 +27,6 @@ export class Ball extends GameObject {
     this.startBall();
     this.acceleration = 1;
     this._move = true;
-    console.log('ball skin: ' + ballSkinName);
     this.height = ballsConfig[ballSkinName].diameter;
     this.width = ballsConfig[ballSkinName].diameter;
 

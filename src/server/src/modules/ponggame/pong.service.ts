@@ -46,6 +46,12 @@ export class PongService {
     });
   }
 
+  public handleFocusLoss(client: ClientSocket, roomId: string): void {
+    const game = this.getGame(roomId.toString());
+    if (!game || game.started === false) return;
+    game.handleFocusLoss(client.data.user.id);
+  }
+
   public handleKeys(
     client: ClientSocket,
     data: { key: string; state: boolean },

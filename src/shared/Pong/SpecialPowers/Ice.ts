@@ -12,6 +12,7 @@ export class Ice extends SpecialPower {
         super(PongModel.Models.LobbyParticipantSpecialPowerType.ice, center, velocity, shooter, specialpowerConfig.ice.diameter, specialpowerConfig.ice.vertices);
         this.tag += this.id;
         shooter.manaBar.spendMana(this.manaCost);
+        shooter.manaBar.manaStep = shooter.manaBar.mana;
     }
 
     get manaCost(): number {
@@ -23,7 +24,6 @@ export class Ice extends SpecialPower {
         if (target instanceof Bar)
         {
             this.shooterObject.stats.iHitMyPower(target);
-            console.log("ICE HIT BAR");
             if (target.getEffect === undefined)
                 target.setEffect(new Effect("SLOW", target));
             else

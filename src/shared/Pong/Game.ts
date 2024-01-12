@@ -42,7 +42,6 @@ export class Game {
 
   update(delta: number) {
     if (this.run) {
-      //console.log(delta);
       this.zeroS();
       this.collider_gameObjects.forEach((target: GameObject) => {
         this.gameObjects.forEach((gameObject: GameObject) => {

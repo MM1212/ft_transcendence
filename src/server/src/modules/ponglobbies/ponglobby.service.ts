@@ -57,10 +57,6 @@ export class PongLobbyService {
     if (lobby.nPlayers < 2)
       throw new ForbiddenException('Lobby does not have enough players');
     if (await lobby.startGame(userId)) {
-      console.log(lobby.interface);
-      console.log(lobby.interface.teams[0].players);
-      console.log(lobby.interface.teams[1].players);
-
       lobby.syncParticipants();
       lobby.emitGameStart();
       return lobby;
@@ -93,7 +89,6 @@ export class PongLobbyService {
       throw new ForbiddenException('User is not in a lobby/game');
     if (lobbyId !== this.usersInGames.get(userId))
       throw new ForbiddenException('User is not in the specified lobby');
-    console.log(ownerToBeId, this.usersInGames);
     if (!this.usersInGames.has(ownerToBeId))
       throw new ForbiddenException('Owner to be is not in a lobby/game');
     if (lobbyId !== this.usersInGames.get(ownerToBeId))
@@ -232,7 +227,6 @@ export class PongLobbyService {
   }
 
   public async leaveLobby(userId: number, syncToUser: boolean = false): Promise<PongLobby> {
-    console.log(this.usersInGames, userId);
     if (!this.usersInGames.has(userId))
       throw new Error('User is not in a lobby/game');
     const lobby = this.games.get(this.usersInGames.get(userId)!);

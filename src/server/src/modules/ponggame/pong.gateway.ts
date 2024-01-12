@@ -42,11 +42,17 @@ export class PongGateway
     private lobbyService: PongLobbyService,
   ) {}
 
+  @SubscribeMessage(PongModel.Socket.Events.FocusLoss)
+  handleFocusLoss(client: Socket, data: {roomId: string}): void {
+    console.log('focus loss');
+    this.service.handleFocusLoss(client, data.roomId);
+  }
+
   @SubscribeMessage(PongModel.Socket.Events.KeyPress)
   handleKeyPress(client: Socket, data: { key: string; state: boolean }): void {
     this.service.handleKeys(client, data);
   }
-  
+
   @SubscribeMessage(PongModel.Socket.Events.UpdateDisconnected)
   handleUpdateDisconnected(client: Socket, data: { roomId: string }): void {
     this.service.handleUpdateDisconnected(client, data.roomId);
