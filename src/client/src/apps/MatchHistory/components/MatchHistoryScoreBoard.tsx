@@ -9,12 +9,8 @@ import ShimmerIcon from "@components/icons/ShimmerIcon";
 import WallIcon from "@components/icons/WallIcon";
 import StarFourPointsIcon from "@components/icons/StarFourPointsIcon";
 
-
-
 export default function MatchHistoryScoreBoard() {
   const teams = ["Team 1", "Team 2"];
-   
-
 
   const iconMapping: ReactElement[] = [
     <WallIcon key={0} />,
@@ -22,10 +18,17 @@ export default function MatchHistoryScoreBoard() {
     <FireIcon key={2} />,
     <SoccerIcon key={3} />,
     <CurrencyTwdIcon key={4} />,
-    <StarFourPointsIcon  key={5} />,
+    <StarFourPointsIcon key={5} />,
   ];
 
-  const labelMapping: string[] = ["Bonces on your paddle", "Most Bounces", "Special Power", "Goals Scored", "Gold", "Player Score"];
+  const labelMapping: string[] = [
+    "Bonces on your paddle",
+    "Most Bounces",
+    "Special Power",
+    "Goals Scored",
+    "Gold",
+    "Player Score",
+  ];
 
   function GetIconStats({
     icon,
@@ -61,7 +64,7 @@ export default function MatchHistoryScoreBoard() {
           >
             {nbGols}
           </Typography>
-          <Tooltip title={message} >{icon}</Tooltip>
+          <Tooltip title={message}>{icon}</Tooltip>
         </Stack>
       </Box>
     );
@@ -70,14 +73,14 @@ export default function MatchHistoryScoreBoard() {
     <>
       {teams.map((team, index) => (
         <>
-          <Stack
+          <Box
             sx={{
+              gap:  2,
               display: "grid",
               gridTemplateColumns: "5fr 7fr 4fr 4fr 4fr 4fr 4fr",
-              justifyItems: "left",
               p: 1,
               borderRadius: "md",
-              justifyContent: "space-between",
+              justifySelf: "left",
             }}
           >
             <Typography
@@ -100,9 +103,9 @@ export default function MatchHistoryScoreBoard() {
                 message={labelMapping[index]}
               />
             ))}
-          </Stack>
-          <PlayerStatsRow id={randomInt(1, 10)} />
-          <PlayerStatsRow id={randomInt(1, 10)} />
+            <PlayerStatsRow id={randomInt(1, 10)} />
+            <PlayerStatsRow id={randomInt(1, 10)} />
+          </Box>
           {index === 0 && <Divider />}
         </>
       ))}
