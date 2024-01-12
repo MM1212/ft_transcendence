@@ -217,7 +217,6 @@ enum MatchHistoryGameType {
 
 model MatchHistory {
   id           Int                  @id @default(autoincrement())
-  name      String
   type         MatchHistoryGameType @default(SINGLE)
   teams        MatchHistoryTeam[]
   winnerTeamId Int                  @map("winner_team_id")

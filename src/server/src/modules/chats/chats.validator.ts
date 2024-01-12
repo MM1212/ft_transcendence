@@ -8,10 +8,10 @@ const chatValidator = new (class ChatControllerValidator {
     type: z.enum([ChatsModel.Models.ChatType.Group], {
       description: 'Chat type',
     }),
-    name: z.string().min(3).length(50, {
+    name: z.string().min(3).max(50, {
       message: 'Chat name must be between 3 and 50 characters',
     }),
-    topic: z.string().length(200, {
+    topic: z.string().max(200, {
       message: 'Chat topic cannot be more than 200 characters',
     }),
     authorization: z.enum(
@@ -26,7 +26,7 @@ const chatValidator = new (class ChatControllerValidator {
     ),
     authorizationData: z
       .object({
-        password: z.string().length(50, {
+        password: z.string().max(50, {
           message: 'Chat password cannot be more than 50 characters',
         }),
       })
@@ -67,7 +67,7 @@ const chatValidator = new (class ChatControllerValidator {
           .optional() as any,
         chatId: z.number().int().positive().optional(),
         inviteNonce: z.string().optional(),
-        lobbyId: z.number().int().positive().optional(),
+        lobbyId: z.number().int().nonnegative().optional(),
         nonce: z.number().optional(),
         urls: z.array(z.string().url()).optional(),
         userId: z.number().int().positive().optional(),
@@ -102,7 +102,7 @@ const chatValidator = new (class ChatControllerValidator {
       .optional(),
     authorizationData: z
       .object({
-        password: z.string().length(50, {
+        password: z.string().max(50, {
           message: 'Chat password cannot be more than 50 characters',
         }),
       })
@@ -111,7 +111,7 @@ const chatValidator = new (class ChatControllerValidator {
     name: z
       .string()
       .min(3)
-      .length(50, {
+      .max(50, {
         message: 'Chat name must be between 3 and 50 characters',
       })
       .optional(),
@@ -122,7 +122,7 @@ const chatValidator = new (class ChatControllerValidator {
       .optional() as unknown as z.ZodNullable<z.ZodString>,
     topic: z
       .string()
-      .length(200, {
+      .max(200, {
         message: 'Chat topic cannot be more than 200 characters',
       })
       .optional(),
@@ -156,7 +156,7 @@ const chatValidator = new (class ChatControllerValidator {
         )
         .optional(),
       mutedUntil: z.number().int().positive().nullable().optional(),
-      toReadPings: z.number().int().positive().optional(),
+      toReadPings: z.number().int().nonnegative().optional(),
     } satisfies ComputeToZodKeys<ChatsModel.DTO.DB.UpdateParticipant>);
 
   // ChatsModel.Endpoints.Targets.SendInviteToTargets
@@ -174,7 +174,7 @@ const chatValidator = new (class ChatControllerValidator {
   joinChatSchema: ZodType<ChatsModel.DTO.JoinChat> = z.object({
     password: z
       .string()
-      .length(50, {
+      .max(50, {
         message: 'Chat password cannot be more than 50 characters',
       })
       .optional(),

@@ -2,7 +2,9 @@ import PongModel from '@typings/models/pong';
 import { useRecoilCallback } from 'recoil';
 import pongGamesState from '../state';
 import { useSseEvent } from '@hooks/sse';
-import { OpenGameModal } from '@apps/GamePong/PongModal';
+import { useRegisterNotificationTemplate } from '@apps/Inbox/state/hooks';
+import NotificationsModel from '@typings/models/notifications';
+import TableTennisIcon from '@components/icons/TableTennisIcon';
 
 const useLobbyService = () => {
   const onUpdateLobbyEvent = useRecoilCallback(
@@ -35,21 +37,43 @@ const useLobbyService = () => {
       const lobby = await ctx.snapshot.getPromise(pongGamesState.gameLobby);
       if (!lobby) return;
       ctx.set(pongGamesState.gameLobby, null);
-    }, []
-  )
+    },
+    []
+  );
 
   const onInviteEvent = useRecoilCallback(
     (ctx) => async (ev: PongModel.Sse.UpdateLobbyInvited) => {
-    const lobby = await ctx.snapshot.getPromise(pongGamesState.gameLobby);
-    if (!lobby) return;
-    ctx.set(pongGamesState.gameLobby, (prev) => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        invited: ev.data.invited,
-      };
-    });
-  }, []);
+      const lobby = await ctx.snapshot.getPromise(pongGamesState.gameLobby);
+      if (!lobby) return;
+      ctx.set(pongGamesState.gameLobby, (prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          invited: ev.data.invited,
+        };
+      });
+    },
+    []
+  );
+
+  const onLeaveEvent = useRecoilCallback(
+    (ctx) => async () => {
+      const lobby = await ctx.snapshot.getPromise(pongGamesState.gameLobby);
+      if (!lobby) return;
+      ctx.set(pongGamesState.gameLobby, null);
+    },
+    []
+  );
+
+  const onJoinEvent = useRecoilCallback(
+    (ctx) => async (ev: PongModel.Sse.Join) => {
+      const lobby = await ctx.snapshot.getPromise(pongGamesState.gameLobby);
+      if (!lobby) {
+        ctx.set(pongGamesState.gameLobby, ev.data); 
+      }
+    },
+    []
+  );
 
   const onStartEvent = useRecoilCallback(
     (ctx) => async (ev: PongModel.Sse.Start) => {
@@ -66,13 +90,29 @@ const useLobbyService = () => {
       console.log('START EVENT', ev.data);
       // navigate (?)
       // open modal
-    }, []);
-
-
-  useSseEvent<PongModel.Sse.Kick>(
-    PongModel.Sse.Events.Kick,
-    onKickEvent
+    },
+    []
   );
+
+  useRegisterNotificationTemplate<PongModel.Models.NotificationInvite>(
+    NotificationsModel.Models.Tags.PongLobbyInvite,
+    (ctx) => {
+      ctx.setIcon(<TableTennisIcon />);
+      ctx.setRouteTo('/pong/play/');
+      //ctx.setOnClick
+    }
+  );
+
+  useSseEvent<PongModel.Sse.Join>(
+    PongModel.Sse.Events.Join,
+    onJoinEvent
+  );
+  useSseEvent<PongModel.Sse.Leave>(
+    PongModel.Sse.Events.Leave,
+    onLeaveEvent
+  );
+
+  useSseEvent<PongModel.Sse.Kick>(PongModel.Sse.Events.Kick, onKickEvent);
   useSseEvent<PongModel.Sse.UpdateLobbyParticipantEvent>(
     PongModel.Sse.Events.UpdateLobbyParticipants,
     onUpdateLobbyEvent
@@ -81,10 +121,7 @@ const useLobbyService = () => {
     PongModel.Sse.Events.UpdateLobbyInvited,
     onInviteEvent
   );
-  useSseEvent<PongModel.Sse.Start>(
-    PongModel.Sse.Events.Start,
-    onStartEvent
-  );
+  useSseEvent<PongModel.Sse.Start>(PongModel.Sse.Events.Start, onStartEvent);
 };
 
 export default useLobbyService;

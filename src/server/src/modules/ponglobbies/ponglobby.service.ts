@@ -14,7 +14,7 @@ import User from '../users/user';
 
 @Injectable()
 export class PongLobbyService {
-  private readonly games: Map<number, PongLobby> = new Map();
+  public readonly games: Map<number, PongLobby> = new Map();
   public readonly usersInGames: Map<number, number> = new Map(); // userId, lobbyId
   private lobbyId = 0;
 
@@ -57,6 +57,10 @@ export class PongLobbyService {
     if (lobby.nPlayers < 2)
       throw new ForbiddenException('Lobby does not have enough players');
     if (await lobby.startGame(userId)) {
+      console.log(lobby.interface);
+      console.log(lobby.interface.teams[0].players);
+      console.log(lobby.interface.teams[1].players);
+
       lobby.syncParticipants();
       lobby.emitGameStart();
       return lobby;
@@ -114,16 +118,19 @@ export class PongLobbyService {
   public async invite(
     user: User,
     data: PongModel.Endpoints.ChatSelectedData[],
+    source: PongModel.Models.InviteSource,
     lobbyId?: number,
   ): Promise<PongLobby> {
     let lobby: PongLobby;
     if (!lobbyId && !this.usersInGames.has(user.id))
       lobby = await this.createLobby(user, {
         password: null,
-        name: 'We Friends Playing Pong',
+        name: 'Custom Lobby',
         spectators: PongModel.Models.LobbySpectatorVisibility.All,
         lobbyType: PongModel.Models.LobbyType.Custom,
+        lobbyAccess: PongModel.Models.LobbyAccess.Public,
         gameType: PongModel.Models.LobbyGameType.Powers,
+        score: 7,
       });
     else
       lobby =
@@ -136,7 +143,7 @@ export class PongLobbyService {
       lobby.ownerId !== user.id
     )
       throw new ForbiddenException('User is not authorized to invite');
-    await lobby.invite(user, data);
+    await lobby.invite(user, data, source);
     lobby.updateInvited();
     return lobby;
   }
@@ -180,6 +187,7 @@ export class PongLobbyService {
     lobbyId: number,
     password: string | null,
     nonce?: number,
+    syncToUser: boolean = false
   ): Promise<PongLobby> {
     if (this.usersInGames.has(user.id))
       throw new ForbiddenException('User is already in a lobby/game');
@@ -204,6 +212,9 @@ export class PongLobbyService {
       },
       false,
     );
+    if (syncToUser === true) {
+      lobby.sendToParticipant(newUser.id, PongModel.Sse.Events.Join, lobby.interface);
+    }
     lobby.syncParticipants();
     return lobby;
   }
@@ -220,15 +231,18 @@ export class PongLobbyService {
     else throw new ForbiddenException('Could not join spectators');
   }
 
-  public async leaveLobby(user: User): Promise<PongLobby> {
-    console.log(this.usersInGames, user.id);
-    if (!this.usersInGames.has(user.id))
+  public async leaveLobby(userId: number, syncToUser: boolean = false): Promise<PongLobby> {
+    console.log(this.usersInGames, userId);
+    if (!this.usersInGames.has(userId))
       throw new Error('User is not in a lobby/game');
-    const lobby = this.games.get(this.usersInGames.get(user.id)!);
+    const lobby = this.games.get(this.usersInGames.get(userId)!);
     if (!lobby) throw new Error('User is in a non-existent lobby/game');
-    await lobby.removePlayer(user.id);
+    await lobby.removePlayer(userId);
     lobby.syncParticipants();
-    this.usersInGames.delete(user.id);
+    this.usersInGames.delete(userId);
+    if (syncToUser === true) {
+      lobby.sendToParticipant(userId, PongModel.Sse.Events.Leave, null);
+    }
     if (lobby.nPlayers === 0 && lobby.spectators.length === 0) {
       await lobby.delete();
       this.games.delete(lobby.id);

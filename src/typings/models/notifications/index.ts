@@ -9,6 +9,7 @@ namespace NotificationsModel {
     }
     export enum Tags {
       UserFriendsRequest = 'user.friends.request',
+      PongLobbyInvite = 'pong.lobby.invite',
     }
     export interface INotification<
       T extends Record<string, unknown> = Record<string, unknown>

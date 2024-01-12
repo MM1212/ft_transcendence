@@ -9,18 +9,23 @@ import React from 'react';
 import Link from '@components/Link';
 import { useRecoilValue } from 'recoil';
 import pongGamesState from '../state';
+import PongModel from '@typings/models/pong';
 
-const tabs: {
+interface ITab {
   value: string;
   label: string;
-  disableIfInLobby?: boolean;
+  disableIfInLobby?: boolean; // default: false
+  disableIfInQueue?: boolean; // default: true
   component: React.ComponentType;
-}[] = [
+}
+
+const tabs: ITab[] = [
   {
     value: 'queue',
     label: 'Matchmaking',
     component: LobbyMatchMaking,
     disableIfInLobby: true,
+    disableIfInQueue: false
   },
   {
     value: 'create',
@@ -43,10 +48,22 @@ const tabs: {
 
 function LobbyTop() {
   const { tabId } = useParams<{ tabId: string }>();
-  const inLobby = useRecoilValue(pongGamesState.isInLobby);
-  const actualTabs = React.useMemo(
-    () => tabs.filter((tab) => !tab.disableIfInLobby || !inLobby),
-    [inLobby]
+  const lobbyType = useRecoilValue(pongGamesState.lobbyType);
+  const inLobby = !!lobbyType;
+  const actualTabs = React.useMemo<ITab[]>(
+    () => tabs.filter((tab) => {
+      if (inLobby) {
+        const inQueue = lobbyType !== PongModel.Models.LobbyType.Custom;
+        console.log(inQueue, tab);
+        
+        if (inQueue)
+          return tab.disableIfInQueue === false;
+        if (tab.disableIfInLobby)
+          return false;
+      }
+      return true;
+    }),
+    [inLobby, lobbyType]
   );
   React.useEffect(() => {
     console.log(tabId);
@@ -79,7 +96,7 @@ function LobbyTop() {
       >
         {tabs.map((tab, index) => (
           <Tab
-            disabled={tab.disableIfInLobby && inLobby}
+            disabled={!actualTabs.includes(tab)}
             value={tab.value}
             key={index}
             component={Link}

@@ -411,6 +411,7 @@ const useChatManageActions = () => {
         lobby = await tunnel.post(PongModel.Endpoints.Targets.Invite, {
           lobbyId: lobbyId,
           data: selected,
+          source: PongModel.Models.InviteSource.Chat,
         });
         ctx.set(pongGamesState.gameLobby, lobby);
         notifications.success('Invite sent');

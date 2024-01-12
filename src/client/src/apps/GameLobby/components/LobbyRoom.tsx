@@ -1,23 +1,21 @@
-import { Box, Button, Stack, Typography } from "@mui/joy";
-import LobbyGameTypography from "./LobbyGameTypography";
-import ShurikenIcon from "@components/icons/ShurikenIcon";
-import LobbbyCustomMatchPlayers from "./LobbyCustomMatchPlayers";
-import { useRecoilCallback, useRecoilValue } from "recoil";
-import { useCurrentUser } from "@hooks/user";
-import React from "react";
-// import AddFriendRoom from "./AddFriendRoom";
-import { FindMatchWrapper } from "./LobbyMatchMaking";
-import LobbyPongButton from "./LobbyPongBottom";
-import pongGamesState from "../state";
-import notifications from "@lib/notifications/hooks";
-import tunnel from "@lib/tunnel";
-import PongModel from "@typings/models/pong";
-import LogoutIcon from "@components/icons/LogoutIcon";
-import AccountPlusIcon from "@components/icons/AccountPlusIcon";
-import LobbyPongCustomMatchTabs from "./LobbyPongCustomMatchTabs";
-import EyeArrowRightIcon from "@components/icons/EyeArrowRightIcon";
-import { LobbySettings } from "./LobbySettings";
-import { useModalActions } from "@hooks/useModal";
+import { Box, Button, Stack, Typography } from '@mui/joy';
+import LobbyGameTypography from './LobbyGameTypography';
+import ShurikenIcon from '@components/icons/ShurikenIcon';
+import LobbbyCustomMatchPlayers from './LobbyCustomMatchPlayers';
+import { useRecoilCallback, useRecoilValue } from 'recoil';
+import { useCurrentUser } from '@hooks/user';
+import React from 'react';
+import { FindMatchWrapper } from './LobbyMatchMaking';
+import LobbyPongButton from './LobbyPongBottom';
+import pongGamesState from '../state';
+import notifications from '@lib/notifications/hooks';
+import tunnel from '@lib/tunnel';
+import PongModel from '@typings/models/pong';
+import LogoutIcon from '@components/icons/LogoutIcon';
+import AccountPlusIcon from '@components/icons/AccountPlusIcon';
+import LobbyPongCustomMatchTabs from './LobbyPongCustomMatchTabs';
+import EyeArrowRightIcon from '@components/icons/EyeArrowRightIcon';
+import { LobbySettings } from './LobbySettings';
 import {
   ChatSelectedData,
   useChatSelectModalActions,
@@ -82,8 +80,8 @@ export default function LobbyRoom() {
       await tunnel.post(PongModel.Endpoints.Targets.JoinSpectators, {
         lobbyId: lobby.id,
       });
-    } catch {
-      console.log("Failed to join spectators");
+    } catch (error) {
+      notifications.error('Failed to join spectators', (error as Error).message);
     }
   }, [lobby.id]);
 
@@ -111,6 +109,7 @@ export default function LobbyRoom() {
       await tunnel.post(PongModel.Endpoints.Targets.Invite, {
         lobbyId: lobby.id,
         data: selected,
+        source: PongModel.Models.InviteSource.Lobby,
       });
     } catch (error) {
       console.log(error);
