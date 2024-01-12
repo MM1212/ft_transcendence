@@ -7,6 +7,23 @@ import {
 
 namespace PongHistoryModel {
   export namespace Models {
+
+    export interface PlayerStats {
+      goalsScored: number;
+      shotsFired: number;
+      shotHit: number;
+      hittenByPower: number;
+      powerAccuracy: number;
+      manaSpent: number;
+      bubble_DirectGoal: number;
+      fire_DirectGoal: number;
+      ice_ScoredOpponentAffected: number;
+      spark_ScoredOpponentAffected: number;
+      ghost_ScoredOpponentInvisible: number;
+      winningGoal: number;
+      moneyEarned: number;
+      playerScore: number;
+    }
     export interface PlayerGear extends Record<string, unknown> {
       paddle: string;
       specialPower: string;
@@ -16,7 +33,7 @@ namespace PongHistoryModel {
       userId: number;
       score: number;
       gear: PlayerGear;
-      stats: string;
+      stats: PlayerStats;
       owner: boolean;
       mvp: boolean;
       teamId: number;
@@ -28,14 +45,14 @@ namespace PongHistoryModel {
       matchId: number;
       players: Player[];
       won: boolean;
-      stats: string;
+      stats: {};
       createdAt: number;
     }
     export interface Match {
       id: number;
       teams: Team[];
       winnerTeamId: number;
-      stats: string;
+      stats: {};
       createdAt: number;
     }
   }

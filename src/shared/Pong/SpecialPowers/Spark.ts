@@ -21,6 +21,7 @@ export class Spark extends SpecialPower {
     onCollide(target: GameObject): boolean {
         if (target instanceof Bar)
         {
+            this.shooterObject.stats.iHitMyPower(target);
             if (target.getEffect === undefined)
                 target.setEffect(new Effect("REVERSE", target));
         }

@@ -52,9 +52,6 @@ export class PongService {
   ): void {
     const game = this.getGameByPlayerId(client.data.user.id);
     if (!game || game.started === false) return;
-    console.log(
-      `Game ${game.UUID}: received keypress from ${client.data.user.id}`,
-    );
     game.handleKeys(client.data.user.id, data.key, data.state);
   }
 
@@ -83,7 +80,7 @@ export class PongService {
             position = 'front';
             player.teamId === 0 ? (playerNbr = PongModel.InGame.ObjType.Player3) : (playerNbr = PongModel.InGame.ObjType.Player4);
           }
-          
+
           return {
             tag: playerNbr,
             teamId: team.id,

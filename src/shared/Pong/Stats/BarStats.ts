@@ -1,3 +1,4 @@
+import PongHistoryModel from '@typings/models/pong/history';
 import PongModel from '../../../typings/models/pong/index';
 import { Bar } from '../Paddles/Bar';
 
@@ -7,6 +8,11 @@ export class BarStatistics {
   private shotHit: number = 0; // increment when power hit something
   private hittenByPower: number = 0; // increment when hit by power
   private powerAccuracy: number = 0; // (shotHit / shotsFired) * 100
+
+  private winningGoal: number = 0; // set to true when goal is scored and team wins
+
+  private moneyEarned: number = 0; // calculated at the end
+  private playerScore: number = 0; // calculated at the end
 
   private manaSpent: number = 0; // shotsFired * powerCost
 
@@ -33,12 +39,28 @@ export class BarStatistics {
       this.ghost_ScoredOpponentInvisible++;
   }
 
+  public setMoneyEarned(value: number) {
+    this.moneyEarned = value;
+  }
+  public setPlayerScore(value: number) {
+    this.playerScore = value;
+  }
+
+  public setPowerCost(value: number) {
+    this.powerCost = value;
+  }
+
+  public scoredWinningGoal(): void {
+    this.winningGoal = 1;
+  }
+
   public increaseGotHit(): void {
     this.hittenByPower++;
   }
 
   public iHitMyPower(opponent: Bar | undefined): void {
     this.shotHit++;
+    console.log(this.shotHit);
     if (opponent === undefined) return;
     opponent.stats.increaseGotHit();
   }
@@ -56,8 +78,8 @@ export class BarStatistics {
     this.goalsScored++;
   }
 
-  public exportStats(): string {
-    return JSON.stringify({
+  public exportStats(): PongHistoryModel.Models.PlayerStats {
+    return {
       goalsScored: this.goalsScored,
       shotsFired: this.shotsFired,
       shotHit: this.shotHit,
@@ -69,6 +91,9 @@ export class BarStatistics {
       ice_ScoredOpponentAffected: this.ice_ScoredOpponentAffected,
       spark_ScoredOpponentAffected: this.spark_ScoredOpponentAffected,
       ghost_ScoredOpponentInvisible: this.ghost_ScoredOpponentInvisible,
-    });
+      winningGoal: this.winningGoal,
+      moneyEarned: this.moneyEarned,
+      playerScore: this.playerScore,
+    };
   }
 }

@@ -28,6 +28,7 @@ export class Bubble extends SpecialPower {
   onCollide(target: GameObject): boolean {
     if (!(target instanceof SpecialPower)) {
       if (target instanceof Ball) {
+
         this.shooter.stats.iHitMyPower(undefined);
         //let newVelX = target.getVelocity.x * -1;
         //let newVelY = target.getVelocity.y;

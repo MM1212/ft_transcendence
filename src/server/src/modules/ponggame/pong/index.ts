@@ -191,6 +191,85 @@ export class ServerGame extends Game {
     this.updateHandle = setInterval(tick, 16);
   }
 
+  private calculateMoneyEarned(
+    player: Bar,
+    playerScore: number,
+    winner: number,
+  ): void {
+    let moneyEarned = 0;
+
+    const baseReward = 5;
+    const rarePerformanceMultiplier = 2;
+    const epicPerformanceMultiplier = 4;
+
+    moneyEarned = baseReward * (playerScore / 100);
+
+    if (winner === player.teamId) {
+      moneyEarned *= 1.5;
+    }
+
+    if (moneyEarned > baseReward * 2) {
+      moneyEarned *= rarePerformanceMultiplier;
+    }
+    if (moneyEarned > baseReward * 10) {
+      moneyEarned *= epicPerformanceMultiplier;
+    }
+    moneyEarned = Math.round(moneyEarned * 100);
+    player.stats.setMoneyEarned(moneyEarned);
+  }
+
+  private calculatePlayerStats(mvpScores: {
+    tag: string;
+    score: number;
+  }): void {
+    const winner = this.score[0] > this.score[1] ? 0 : 1;
+    for (const player of this.gameObjects) {
+      if (player instanceof Bar) {
+        player.stats.gameOver();
+        const stats = player.stats.exportStats();
+
+        const normalizedGoalScored = stats.goalsScored / 100;
+        const normalizedSpecialPowerAccuracy = stats.powerAccuracy / 100;
+        const normalizedHittenByPower = stats.hittenByPower / 100;
+        const normalizedDirectGoal =
+          (stats.bubble_DirectGoal +
+            stats.fire_DirectGoal +
+            stats.ghost_ScoredOpponentInvisible +
+            stats.ice_ScoredOpponentAffected +
+            stats.spark_ScoredOpponentAffected) /
+          100;
+
+        const normalizedWinningGoal = stats.winningGoal ? 1 : 0;
+        const normalizedWinningTeam = winner;
+
+        const weightGoalScored = 0.2;
+        const weightSpecialPowerAccuracy = 0.2;
+        const weightHittenByPower = 0.1;
+        const weightWinningGoal = 0.2;
+        const weightWinningTeam = 0.3;
+        const weightDirectGoal = 0.2;
+
+        let weightedSum = 0;
+        weightedSum =
+          normalizedGoalScored * weightGoalScored +
+          normalizedSpecialPowerAccuracy * weightSpecialPowerAccuracy -
+          normalizedHittenByPower * weightHittenByPower +
+          normalizedWinningGoal * weightWinningGoal +
+          normalizedDirectGoal * weightDirectGoal +
+          normalizedWinningTeam * weightWinningTeam;
+
+        const playerScore = Math.round(weightedSum * 100);
+
+        player.stats.setPlayerScore(playerScore / 10);
+        if (playerScore > mvpScores.score) {
+          mvpScores.score = playerScore;
+          mvpScores.tag = player.tag;
+        }
+        this.calculateMoneyEarned(player, playerScore, winner);
+      }
+    }
+  }
+
   public async stop() {
     if (this.updateHandle) {
       clearInterval(this.updateHandle);
@@ -200,18 +279,17 @@ export class ServerGame extends Game {
       this.gameStats.gameOver();
       this.gameStats.teamStats.gameOver();
 
-      // execute all players stats game over
-      for (const player of this.gameObjects) {
-        if (player instanceof Bar) {
-          player.stats.gameOver();
-          console.log(player.tag, player.stats.exportStats());
-        }
-      }
-      console.log("team0" + this.gameStats.teamStats.exportStats(0));
-      console.log("team1" + this.gameStats.teamStats.exportStats(1));
-      console.log("game" + this.gameStats.exportStats());
+      const mvpScores = {
+        tag: '',
+        score: 0,
+      };
 
-      const calculateMVPId = 0;
+      // execute all players stats game over
+      this.calculatePlayerStats(mvpScores);
+
+      console.log('team0' + this.gameStats.teamStats.exportStats(0));
+      console.log('team1' + this.gameStats.teamStats.exportStats(1));
+      console.log('game' + this.gameStats.exportStats());
 
       const getPlayerStats = (
         player: PongModel.Models.IPlayerConfig,
@@ -221,8 +299,8 @@ export class ServerGame extends Game {
             paddle: player.paddle,
             specialPower: player.specialPower,
           },
-          stats: this.gameStats.exportStats(),
-          mvp: player.userId === calculateMVPId ? true : false,
+          stats: (this.getObjectByTag(player.tag) as Bar).stats.exportStats(),
+          mvp: player.tag === mvpScores.tag ? true : false,
           owner: this.config.ownerId === player.userId ? true : false,
           userId: player.userId,
           score: player.scored,
@@ -318,6 +396,15 @@ export class ServerGame extends Game {
 
   public update(delta: number): void {
     if (this.score[0] >= this.maxScore || this.score[1] >= this.maxScore) {
+      const ball = this.getObjectByTag(PongModel.InGame.ObjType.Ball) as Ball;
+
+      if (ball.collider === undefined) return;
+      for (const player of this.gameObjects) {
+        if (player instanceof Bar) {
+          if (ball.lastPlayerToTouch === player)
+            player.stats.scoredWinningGoal();
+        }
+      }
       this.stop();
     }
     super.update(delta);

@@ -4,7 +4,7 @@ import { SpecialPower } from '../SpecialPowers/SpecialPower';
 import { Game } from '../Game';
 import { GameObject } from '../GameObject';
 import PongModel from '../../../typings/models/pong';
-import { paddleConfig } from '../config/configInterface';
+import { paddleConfig, specialpowerConfig } from '../config/configInterface';
 
 /* ----------------- Velocity ----------------- */
 const UP = new Vector2D(0, -5);
@@ -57,6 +57,7 @@ export class Player extends Bar {
   ) {
     super(x, y, tag, direction, game, paddle);
     this.specialPowerType = specialPower;
+    this.stats.setPowerCost(specialpowerConfig[specialPower].manaCost);
     this.teamId = teamId;
   }
 

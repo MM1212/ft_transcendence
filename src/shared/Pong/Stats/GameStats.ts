@@ -77,8 +77,8 @@ export class GameStatistics {
     this.gameDuration = this.endTime - this.startTime;
   }
 
-  public exportStats(): string {
-    return JSON.stringify({
+  public exportStats(): {} {
+    return ({
       totalBounces: this.totalBounces,
       longestBounceWithoutArenaBounce: this.longestBounceWithoutArenaBounce,
       goalsScored: this.goalsScored,

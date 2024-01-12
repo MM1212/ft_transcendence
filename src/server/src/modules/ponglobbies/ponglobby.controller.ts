@@ -31,6 +31,18 @@ export class PongLobbyController {
     private readonly queueService: PongQueueService,
   ) {}
 
+  @Put(Targets.LeaveQueue)
+  async leaveQueue(
+    @HttpCtx() ctx: HTTPContext<true>,
+    @Body(new ObjectValidationPipe(ponglobbyValidator.checkIdSchema))
+    body: EndpointData<PongModel.Endpoints.LeaveLobby>,
+  ): Promise<InternalEndpointResponse<PongModel.Endpoints.LeaveLobby>> {
+    const lobby = this.service.getLobbyByUser(ctx.user);
+    if (lobby.id !== body.lobbyId)
+      throw new BadRequestException('Lobby ID does not match');
+    this.queueService.leaveQueue(lobby, ctx.user.id);
+  }
+
   @Put(Targets.AddToQueue)
   async addToQueue(
     @HttpCtx() ctx: HTTPContext<true>,

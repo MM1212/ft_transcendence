@@ -35,26 +35,33 @@ export function LobbyMatchMaking() {
 
   const handleStartMatchmaking = useRecoilCallback(
     (ctx) => async () => {
-      if (!isMatchmakingStarted) setIsMatchmakingStarted(true);
-      else setIsMatchmakingStarted(false);
       try {
         let lobby = await ctx.snapshot.getPromise(pongGamesState.gameLobby);
-        if (!lobby) {
-          lobby = await tunnel.put(PongModel.Endpoints.Targets.NewLobby, {
-            password: null,
-            name: user!.nickname,
-            spectators: PongModel.Models.LobbySpectatorVisibility.All,
-            lobbyType: PongModel.Models.LobbyType.Single,
-            gameType: PongModel.Models.LobbyGameType.Powers,
-            lobbyAccess: PongModel.Models.LobbyAccess.Private,
-            score: 7
-          });
-          ctx.set(pongGamesState.gameLobby, lobby);
-          console.log('newLobby');
-
-          await tunnel.put(PongModel.Endpoints.Targets.AddToQueue, {
-            lobbyId: lobby.id,
-          });
+        if (!isMatchmakingStarted) {
+          if (!lobby) {
+            lobby = await tunnel.put(PongModel.Endpoints.Targets.NewLobby, {
+              password: null,
+              name: user!.nickname,
+              spectators: PongModel.Models.LobbySpectatorVisibility.All,
+              lobbyType: PongModel.Models.LobbyType.Single,
+              gameType: PongModel.Models.LobbyGameType.Powers,
+              lobbyAccess: PongModel.Models.LobbyAccess.Private,
+              score: 7,
+            });
+            ctx.set(pongGamesState.gameLobby, lobby);
+            setIsMatchmakingStarted(true);
+            await tunnel.put(PongModel.Endpoints.Targets.AddToQueue, {
+              lobbyId: lobby.id,
+            });
+          }
+        } else {
+          setIsMatchmakingStarted(false);
+          if (lobby) {
+            await tunnel.put(PongModel.Endpoints.Targets.LeaveQueue, {
+              lobbyId: lobby.id,
+            });
+            ctx.set(pongGamesState.gameLobby, null);
+          }
         }
         /*
         alreaDY HAS LOBBY
@@ -65,7 +72,7 @@ export function LobbyMatchMaking() {
         }
         */
       } catch {
-        console.log('error in: create lobby and add to queue');
+        console.log('error in: create lobby and add to queue or leave lobby');
       }
 
       // else {
@@ -126,7 +133,7 @@ export function LobbyMatchMaking() {
             />
           </FindMatchWrapper>
         )}
-      <OpenGameModal isPlaying={isPlaying} />
+        <OpenGameModal isPlaying={isPlaying} />
       </div>
     </div>
   );

@@ -22,14 +22,14 @@ export class TeamStatistics {
     }
   }
 
-  public exportStats(teamId: number): string {
-    if (teamId === 0) return JSON.stringify({
+  public exportStats(teamId: number): {} {
+    if (teamId === 0) return {
       longestGoalStreak: this.longestGoalStreak[0],
-    });
+    };
     else {
-      return JSON.stringify({
+      return {
         longestGoalStreak: this.longestGoalStreak[1],
-      });
+      };
     }
   }
 }

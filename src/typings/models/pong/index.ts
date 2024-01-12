@@ -185,7 +185,8 @@ namespace PongModel {
 
     export interface ILobbyKickParticipantPayload extends ILobby {}
 
-    export interface ILobbyUpdateInvitedPayload extends Pick<ILobby, 'invited'> {}
+    export interface ILobbyUpdateInvitedPayload
+      extends Pick<ILobby, 'invited'> {}
 
     export interface ILobbyLeavePayload extends ILobby {}
 
@@ -263,7 +264,6 @@ namespace PongModel {
       UpdatePaddleSizes = 'update-paddle-sizes',
       UpdateDisconnected = 'update-disconnected',
     }
-
 
     export namespace Data {
       export interface SetUIGame {
@@ -374,7 +374,6 @@ namespace PongModel {
       data: Endpoints.ChatSelectedData[];
       source: Models.InviteSource;
     }
-
   }
 
   export namespace Endpoints {
@@ -393,6 +392,7 @@ namespace PongModel {
       Invite = '/pong/lobby/invite',
       KickInvited = '/pong/lobby/kick-invited',
       StartGame = '/pong/lobby/start',
+      LeaveQueue = '/pong/lobby/leaveQueue',
       //GET
       GetSessionLobby = '/pong/lobby/session',
       GetAllLobbies = '/pong/lobby/all',
@@ -421,7 +421,7 @@ namespace PongModel {
         DTO.CreateLobby
       > {}
 
-        //criar interface
+    //criar interface
 
     export interface LeaveLobby
       extends Endpoint<
@@ -435,6 +435,14 @@ namespace PongModel {
       extends Endpoint<
         EndpointMethods.Put,
         Targets.AddToQueue,
+        undefined,
+        DTO.CheckId
+      > {}
+
+    export interface LeaveQueue
+      extends Endpoint<
+        EndpointMethods.Put,
+        Targets.LeaveQueue,
         undefined,
         DTO.CheckId
       > {}
@@ -551,6 +559,7 @@ namespace PongModel {
         [Targets.NewLobby]: NewLobby;
         [Targets.LeaveLobby]: LeaveLobby;
         [Targets.AddToQueue]: AddToQueue;
+        [Targets.LeaveQueue]: LeaveQueue;
       };
       [EndpointMethods.Post]: {
         [Targets.JoinLobby]: JoinLobby;
