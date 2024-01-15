@@ -3,6 +3,9 @@
   "label": "Pong",
   "icon": "{ICON_PATH}/Pong.tsx",
   "subCategories": [
+    "special_power",
+    "paddle",
+    "ball"
   ],
   "env": {
     "ICON_PATH": "pong"

@@ -161,28 +161,9 @@ export type TClothingItem = InventoryModel.Models.IItem<{
   category: InventoryCategory;
 }>;
 
-const customizationState = new (class CustomizationState {
-  clothingItems = selector<TClothingItem[]>({
-    key: 'customization/clothing/items',
-    get: async ({ get }) => {
-      const inventory = get(inventoryState.inventory);
-      return inventory.filter(
-        (item) => item.type === 'clothing'
-      ) as TClothingItem[];
-    },
-  });
-  clothingCategoryItems = selectorFamily<TClothingItem[], InventoryCategory>({
-    key: 'customization/clothing/category/items',
-    get:
-      (category) =>
-      ({ get }) => {
-        const items = get(this.clothingItems);
-        return items.filter((item) => item.meta.category === category);
-      },
-  });
-})();
-
-export const useClothingItemsBoughtByCategory = (category: InventoryCategory) =>
-  useRecoilValue(customizationState.clothingCategoryItems(category));
-
-export default customizationState;
+export const useClothingItemsBoughtByCategory = (
+  category: InventoryCategory
+): TClothingItem[] =>
+  useRecoilValue(
+    inventoryState.inventoryByType(`clothing-${category}`)
+  ) as TClothingItem[];

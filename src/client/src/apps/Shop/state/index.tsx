@@ -3,7 +3,7 @@ import tunnel from '@lib/tunnel';
 import { SvgIconProps } from '@mui/joy';
 import ShopModel from '@typings/models/shop';
 import React from 'react';
-import { atom, selector, selectorFamily } from 'recoil';
+import { atom, atomFamily, selector, selectorFamily } from 'recoil';
 
 const createLazyAppIcon =
   (Icon: React.LazyExoticComponent<any>): React.FC<SvgIconProps> =>
@@ -48,6 +48,26 @@ const shopState = new (class ShopState {
         }));
         return subCategories;
       },
+  });
+
+  items = atomFamily<ShopModel.Models.Item[], string>({
+    key: 'shop/items',
+    default: selectorFamily({
+      key: 'shop/items/default',
+      get:
+        (id) =>
+        async () => {
+          const [category, subCategory] = id.split('-');
+          try {
+            return tunnel.get(ShopModel.Endpoints.Targets.GetItems, {
+              category,
+              sub_category: subCategory,
+            });
+          } catch (error) {
+            return [];
+          }
+        },
+    }),
   });
 })();
 

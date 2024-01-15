@@ -1,3 +1,3 @@
-import WizardHatIcon from '@components/icons/WizardHatIcon';
+import FormatColorFillIcon from '@components/icons/FormatColorFillIcon';
 
-export default WizardHatIcon;
+export default FormatColorFillIcon;

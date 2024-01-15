@@ -5,6 +5,7 @@ import { ShopController } from "./shop.controller";
 
 @Module({
   providers: [ShopConfigParser, ShopService],
-  controllers: [ShopController]
+  controllers: [ShopController],
+  exports: [ShopService],
 })
 export class ShopModule {}

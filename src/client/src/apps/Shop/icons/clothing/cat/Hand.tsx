@@ -1,3 +1,3 @@
-import WizardHatIcon from '@components/icons/WizardHatIcon';
+import MixedMartialArtsIcon from '@components/icons/MixedMartialArtsIcon';
 
-export default WizardHatIcon;
+export default MixedMartialArtsIcon;

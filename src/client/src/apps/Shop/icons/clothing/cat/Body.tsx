@@ -1,3 +1,3 @@
-import WizardHatIcon from '@components/icons/WizardHatIcon';
+import TshirtVIcon from '@components/icons/TshirtVIcon';
 
-export default WizardHatIcon;
+export default TshirtVIcon;

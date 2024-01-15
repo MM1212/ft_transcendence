@@ -16,6 +16,6 @@ export class UsersInventoryController {
   ): Promise<
     InternalEndpointResponse<InventoryModel.Endpoints.GetSessionInventory>
   > {
-    return user.inventory.items;
+    return user.inventory.rawItems;
   }
 }

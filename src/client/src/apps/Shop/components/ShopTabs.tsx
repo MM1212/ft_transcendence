@@ -1,45 +1,33 @@
-import {
-  Box,
-  Chip,
-  Stack,
-  SvgIconProps,
-  TabPanel,
-  Typography,
-  tabClasses,
-} from '@mui/joy';
+import { Box, Chip, Stack, TabPanel, Typography, tabClasses } from '@mui/joy';
 import { Tab, TabList, Tabs } from '@mui/joy';
 import {
   InventoryCategory,
-  categoryTabNames,
   getClothIcon,
   inventoryNotBoughtCategoryItems,
 } from '@apps/Customization/state';
 import { useRecoilValue } from 'recoil';
 import ShopCard from './ShopCard';
 import React from 'react';
-import SafetyGogglesIcon from '@components/icons/SafetyGogglesIcon';
-import NecklaceIcon from '@components/icons/NecklaceIcon';
-import TshirtVIcon from '@components/icons/TshirtVIcon';
-import MixedMartialArtsIcon from '@components/icons/MixedMartialArtsIcon';
-import ShoeSneakerIcon from '@components/icons/ShoeSneakerIcon';
-import FormatColorFillIcon from '@components/icons/FormatColorFillIcon';
 import { useCurrentUser } from '@hooks/user';
 import { Sheet } from '@mui/joy';
 import CurrencyTwdIcon from '@components/icons/CurrencyTwdIcon';
 import { Tooltip } from '@mui/joy';
-import AppsIcon from '@components/icons/AppsIcon';
 import ShopModel from '@typings/models/shop';
-import { useShopCategories, useShopSubCategories } from '../hooks';
-import ErrorBoundary from '@components/ExceptionCatcher';
+import { useShopCategories, useShopItems, useShopSubCategories } from '../hooks';
+import { useInventoryByType } from '@apps/Inventory/hooks/useInventory';
 
 function CustomizationItems({
   category,
+  subCategory,
   credits,
 }: {
-  category: InventoryCategory;
+  category: string;
+  subCategory: string;
   credits: number;
 }) {
-  const items = useRecoilValue(inventoryNotBoughtCategoryItems(category));
+  
+  const items = useShopItems(category, subCategory);
+  const inventory = useInventoryByType(`${category}-${subCategory}`);
   return (
     <Box
       display="flex"
@@ -48,14 +36,13 @@ function CustomizationItems({
       alignItems="flex-start"
       gap={(theme) => theme.spacing(2)}
     >
-      {items.map((clothId) => (
-        <Box key={clothId} sx={{ height: 'fit-content' }}>
+      {items.map((item) => (
+        <Box key={item.id} sx={{ height: 'fit-content' }}>
           <ShopCard
-            key={clothId}
-            imageUrl={getClothIcon(clothId)}
-            category={category}
-            itemId={clothId}
-            canBuy={credits >= 100}
+            key={item.id}
+            canBuy={credits >= item.price}
+            owned={inventory.some((i) => i.name === item.id)}
+            {...item}
           />
         </Box>
       ))}
@@ -141,16 +128,25 @@ function ShopTabs() {
       <TabList
         variant="plain"
         size="sm"
-        sx={{ height: '100%', borderRadius: 'md', p: 1, width: '20%' }}
+        sx={{ height: '100%', borderRadius: 'md', p: 1, width: '25%' }}
       >
         <Stack spacing={1} width="100%" mb={1}>
           <Typography level="h3">Shop</Typography>
         </Stack>
-        <React.Suspense fallback={<></>}>
-          {categories.map((cat) => (
-            <ShopCategoryTab key={cat.id} {...cat} />
-          ))}
-        </React.Suspense>
+        <Box
+          display="flex"
+          overflow="hidden auto"
+          flexDirection="column"
+          pr={1}
+          flexGrow={1}
+          mb={1}
+        >
+          <React.Suspense fallback={<></>}>
+            {categories.map((cat) => (
+              <ShopCategoryTab key={cat.id} {...cat} />
+            ))}
+          </React.Suspense>
+        </Box>
         <Sheet
           variant="outlined"
           sx={{
@@ -177,21 +173,23 @@ function ShopTabs() {
           </Box>
         </Sheet>
       </TabList>
-      {/* {categoryTabNames.map((cat, tabIndex) => (
-        <TabPanel
-          key={tabIndex}
-          value={tabIndex}
-          sx={{
-            flexGrow: 0,
-            width: '80%',
-            height: '100%',
-            backgroundColor: 'background.level1',
-            overflowY: 'auto',
-          }}
-        >
-          <CustomizationItems category={cat.category} credits={user.credits} />
-        </TabPanel>
-      ))} */}
+      {categories.map((cat, tabIndex) =>
+        cat.subCategories.map((sub, subTabIndex) => (
+          <TabPanel
+            key={`${cat.id}-${sub}`}
+            value={sub}
+            sx={{
+              flexGrow: 0,
+              width: '80%',
+              height: '100%',
+              backgroundColor: 'background.level1',
+              overflowY: 'auto',
+            }}
+          >
+            <CustomizationItems category={cat.id} subCategory={sub} credits={user.credits} />
+          </TabPanel>
+        ))
+      )}
     </Tabs>
   );
 }

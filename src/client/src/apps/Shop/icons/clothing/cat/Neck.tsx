@@ -1,3 +1,3 @@
-import WizardHatIcon from '@components/icons/WizardHatIcon';
+import NecklaceIcon from '@components/icons/NecklaceIcon';
 
-export default WizardHatIcon;
+export default NecklaceIcon;

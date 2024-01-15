@@ -9,7 +9,7 @@ export default function ShopView() {
     <Modal open={isOpened} onClose={close}>
       <ModalDialog
         sx={{
-          width: '87dvh',
+          width: '90dvh',
           height: '60dvh',
           borderLeft: '1px solid',
           borderColor: 'divider',

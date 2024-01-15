@@ -1,8 +1,10 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, Post } from '@nestjs/common';
 import { ShopService } from './shop.service';
 import { Auth } from '../auth/decorators';
 import ShopModel from '@typings/models/shop';
 import { InternalEndpointResponse } from '@typings/api';
+import HttpCtx from '@/helpers/decorators/httpCtx';
+import { HTTPContext } from '@typings/http';
 
 @Auth()
 @Controller()
@@ -22,5 +24,13 @@ export class ShopController {
     @Param('sub_category') subCategoryId: string,
   ): Promise<InternalEndpointResponse<ShopModel.Endpoints.GetItems>> {
     return await this.service.getItems(categoryId, subCategoryId);
+  }
+
+  @Post(ShopModel.Endpoints.Targets.BuyItem)
+  public async buyItem(
+    @HttpCtx() { user }: HTTPContext<true>,
+    @Param('item_id') itemId: string,
+  ): Promise<InternalEndpointResponse<ShopModel.Endpoints.BuyItem>> {
+    return await this.service.buyItem(user, itemId);
   }
 }

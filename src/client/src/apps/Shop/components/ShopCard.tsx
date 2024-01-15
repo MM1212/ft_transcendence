@@ -1,85 +1,68 @@
-import {
-  InventoryCategory, inventoryAtom
-} from "@apps/Customization/state";
-import { useConfirmationModalActions } from "@apps/Modals/Confirmation/hooks";
-import CurrencyTwdIcon from "@components/icons/CurrencyTwdIcon";
-import ShoppingIcon from "@components/icons/ShoppingIcon";
-import { Sheet } from "@mui/joy";
-import { AspectRatio, Button, Card, CardContent, Typography } from "@mui/joy";
-import { randomInt } from "@utils/random";
-import { useRecoilCallback } from "recoil";
+import CurrencyTwdIcon from '@components/icons/CurrencyTwdIcon';
+import { Box, Sheet, styled } from '@mui/joy';
+import {  Button, Card, CardContent, Typography } from '@mui/joy';
+import ShopModel from '@typings/models/shop';
+import { useShopActions } from '../hooks/useShopActions';
+
+const StyledImg = styled('img')(() => ({}));
 
 export default function ShopCard({
-  category,
-  imageUrl,
-  itemId,
+  id,
   canBuy,
-}: {
-  category: InventoryCategory;
-  itemId: number;
-  imageUrl?: string;
+  price,
+  label,
+  description,
+  listingMeta,
+  owned
+}: ShopModel.Models.Item & {
   canBuy: boolean;
+  owned: boolean;
 }) {
-  const value = randomInt(100, 2000).toString();
-  const { confirm } = useConfirmationModalActions();
-  const buyItem = useRecoilCallback(ctx => async () => {
-    const confirmed = await confirm({
-      content: `
-        Are you sure you want to buy this item?
-    `,
-      confirmText: 'Purchase',
-      confirmColor: 'success',
-      headerIcon: ShoppingIcon
-    });
-    if (!confirmed) return;
-    ctx.set(inventoryAtom, prev =>  {
-      const inv = {...prev};
-      inv.notBought = {
-        ...inv.notBought,
-        [category]: inv.notBought[category].filter(id => id !== itemId)
-      }
-      inv.bought = {
-        ...inv.bought,
-        [category]: [...inv.bought[category], itemId]
-      }
-      return inv;
-    })
+  const {buyItem, loading} = useShopActions();
 
-  }, [category, itemId, confirm]);
   return (
     <Card sx={{ width: '20dvh' }}>
-      <Sheet variant="soft" sx={{p: 1}}>
-      <AspectRatio ratio={2/1.1} variant="plain">
-        <img
-          src={imageUrl}
-          srcSet="https://images.unsplash.com/photo-1527549993586-dff825b37782?auto=format&fit=crop&w=286&dpr=2 2x"
+      <Typography level="title-lg">{label}</Typography>
+      <Sheet
+        variant="soft"
+        sx={{
+          p: 1,
+          borderRadius: 'sm',
+          aspectRatio: 2 / 1.1,
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        <StyledImg
+          src={listingMeta.previewUrl}
           loading="lazy"
-          style={{ objectFit: "scale-down" }}
+          style={{ objectFit: 'scale-down', width: '10dvh', height: '10dvh' }}
+          sx={listingMeta.css}
         />
-      </AspectRatio>
       </Sheet>
+      <Typography level="body-xs">{description}</Typography>
+
       <CardContent orientation="horizontal">
         <div>
           <Typography level="body-xs">Price:</Typography>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            <Typography fontSize="sm">{value}</Typography>
+          <Box display="flex" alignItems="center" gap={0.25}>
             <CurrencyTwdIcon size="xs" />
-          </div>
+            <Typography level="title-sm" component="span">
+              {price}
+            </Typography>
+          </Box>
         </div>
         <Button
-          onClick={buyItem}
+          onClick={!owned ? () => buyItem(id) : undefined}
           variant="outlined"
-          color='success'
+          color={owned ? 'warning' : "success"}
           size="md"
-          disabled={!canBuy}
-          sx={{ ml: "auto", alignSelf: "center" }}
+          loading={loading}
+          disabled={!owned && !canBuy}
+          sx={{ ml: 'auto', alignSelf: 'center' }}
         >
-          Buy
+          {owned ? 'Owned' : 'Buy'}
         </Button>
       </CardContent>
     </Card>

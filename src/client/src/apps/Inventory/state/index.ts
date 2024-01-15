@@ -1,6 +1,6 @@
 import tunnel from '@lib/tunnel';
 import InventoryModel from '@typings/models/users/inventory';
-import { atom, selector } from 'recoil';
+import { atom, selector, selectorFamily } from 'recoil';
 
 const inventoryState = new (class InventoryState {
   inventory = atom<InventoryModel.Models.IItem[]>({
@@ -18,6 +18,18 @@ const inventoryState = new (class InventoryState {
         }
       },
     }),
+  });
+  inventoryByType = selectorFamily<InventoryModel.Models.IItem[], string>({
+    key: 'inventory/byType',
+    cachePolicy_UNSTABLE: {
+      eviction: 'most-recent',
+    },
+    get:
+      (type) =>
+      async ({ get }) => {
+        const inventory = get(this.inventory);
+        return inventory.filter((item) => item.type === type);
+      },
   });
 })();
 
