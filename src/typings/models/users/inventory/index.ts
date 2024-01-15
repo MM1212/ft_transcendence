@@ -19,6 +19,8 @@ namespace InventoryModel {
         createdAt: Date;
         meta: any;
       }
+
+      export interface CreateItem extends Omit<IItem, 'id' | 'createdAt'> {}
     }
   }
 

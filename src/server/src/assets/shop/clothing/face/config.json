@@ -1,0 +1,6 @@
+{
+  "id": "face",
+  "label": "Face",
+  "icon": "{ICON_PATH}/cat/Face.tsx",
+  "env": {}
+}

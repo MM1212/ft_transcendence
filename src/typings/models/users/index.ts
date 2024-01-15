@@ -85,6 +85,7 @@ namespace UsersModel {
       export interface IUserCreate
         extends Pick<Models.IUserInfo, 'studentId' | 'nickname' | 'avatar'> {
         credits?: number;
+        inventory?: Omit<InventoryModel.DTO.DB.CreateItem,'userId'>[];
       }
       export interface GetLimits {
         limit?: number;

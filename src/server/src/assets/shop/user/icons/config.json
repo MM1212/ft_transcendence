@@ -1,0 +1,8 @@
+{
+  "id": "icons",
+  "label": "Icons",
+  "icon": "{ICON_PATH}/cat/Icons.tsx",
+  "env": {
+    "ASSET_PATH": "/assets/profile"
+  }
+}

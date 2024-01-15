@@ -34,9 +34,9 @@ export class AuthGatewayGuard {
       if (!user) throw new UnauthorizedException('Unknown User');
       return user;
     } catch (e) {
-      console.error(e);
       if (e instanceof HttpException)
-        throw new UnauthorizedException(e.message);
+      throw new UnauthorizedException(e.message);
+      console.error(e);
       throw new Error(e.message);
     }
   }

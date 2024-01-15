@@ -1,0 +1,6 @@
+{
+  "id": "ball",
+  "label": "Balls",
+  "icon": "{ICON_PATH}/cat/Ball.tsx",
+  "env": {}
+}

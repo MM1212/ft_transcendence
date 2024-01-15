@@ -1,22 +1,24 @@
 import { UserAvatar } from "@components/AvatarWithStatus";
 import ProfileTooltip from "@components/ProfileTooltip";
-import { useCurrentUser, useUser } from "@hooks/user";
+import FireIcon from "@components/icons/FireIcon";
+import { useUser } from "@hooks/user";
 import { Avatar } from "@mui/joy";
 import { Box, Stack, Typography } from "@mui/joy";
 import PongModel from "@typings/models/pong";
+import PongHistoryModel from "@typings/models/pong/history";
 import { randomInt } from "@utils/random";
 
-export default function PlayerStatsRow({ id }: { id: number }) {
-  const user = useUser(id);
-  const myUser = useCurrentUser();
+export default function PlayerStatsRow(player: PongHistoryModel.Models.Player & {
+  isSelf: boolean;
+}) {
+  const user = useUser(player.id);
   const superPowers = [
     PongModel.Endpoints.Targets.PowerIceTexture,
     PongModel.Endpoints.Targets.PowerSparkTexture,
     PongModel.Endpoints.Targets.PowerWaterTexture,
   ];
   if (user === null) return null;
-  if (myUser === null) return null;
-  const textColor = user.id === myUser.id ? "warning.300" : "neutral";
+  const textColor = player.isSelf ? "warning.300" : "neutral";
   function AddStatsBoard({
     gridColumnStart,
     value,
@@ -50,7 +52,9 @@ export default function PlayerStatsRow({ id }: { id: number }) {
             size="sm"
             src={superPowers[randomInt(0, 3)]}
             style={{}}
-          ></Avatar>
+          >
+            <FireIcon size="xs" />
+          </Avatar>
           <ProfileTooltip user={user} placement="left-start">
             <UserAvatar src={user.avatar} size="md" />
           </ProfileTooltip>

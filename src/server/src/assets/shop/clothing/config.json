@@ -1,0 +1,18 @@
+{
+  "id": "clothing",
+  "label": "Clothing",
+  "icon": "{ICON_PATH}/Clothing.tsx",
+  "subCategories": [
+    "head",
+    "body",
+    "hand",
+    "feet",
+    "neck",
+    "face",
+    "color"
+  ],
+  "env": {
+    "ICON_PATH": "clothing",
+    "ASSET_PATH": "/assets/penguin/clothing"
+  }
+}

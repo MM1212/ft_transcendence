@@ -42,7 +42,7 @@ const Entry = memo(function Entry({
         <MatchHistoryEntry size={5} {...match} />
       </AccordionSummary>
       <AccordionDetails>
-        {!firstMount.current && <MatchHistoryScoreBoard />}
+        {(!firstMount.current || selected) && <MatchHistoryScoreBoard {...match} />}
       </AccordionDetails>
     </Accordion>
   );

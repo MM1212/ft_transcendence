@@ -1,0 +1,6 @@
+{
+  "id": "special_power",
+  "label": "Special Powers",
+  "icon": "{ICON_PATH}/cat/SpecialPower.tsx",
+  "env": {}
+}

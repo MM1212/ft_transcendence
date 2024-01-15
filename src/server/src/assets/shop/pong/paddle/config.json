@@ -1,0 +1,6 @@
+{
+  "id": "paddle",
+  "label": "Paddles",
+  "icon": "{ICON_PATH}/cat/Paddle.tsx",
+  "env": {}
+}
