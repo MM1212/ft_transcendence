@@ -1,0 +1,16 @@
+[
+    {
+      "id": "cloth:1",
+      "label": "Dark Blue",
+      "description": "Dark Blue Skin Color",
+      "price": 50,
+      "meta": {
+        "clothId": 1,
+        "ICON": "{ASSET_PATH}/1/icon.webp"
+      },
+      "listingMeta": {
+        "previewUrl": "{ASSET_PATH}/1/icon.webp"
+      },
+      "flags": []
+    }
+]

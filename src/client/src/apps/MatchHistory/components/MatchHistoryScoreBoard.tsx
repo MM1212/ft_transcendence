@@ -1,108 +1,118 @@
-import { Box, Divider, Stack, Tooltip, Typography } from "@mui/joy";
-import PlayerStatsRow from "./PlayerStatsRow";
-import CurrencyTwdIcon from "@components/icons/CurrencyTwdIcon";
-import SoccerIcon from "@components/icons/SoccerIcon";
-import { randomInt } from "@utils/random";
-import FireIcon from "@components/icons/FireIcon";
-import React, { ReactElement } from "react";
-import ShimmerIcon from "@components/icons/ShimmerIcon";
-import WallIcon from "@components/icons/WallIcon";
-import StarFourPointsIcon from "@components/icons/StarFourPointsIcon";
+import { Box, Divider, Stack, Tooltip, Typography } from '@mui/joy';
+import PlayerStatsRow from './PlayerStatsRow';
+import CurrencyTwdIcon from '@components/icons/CurrencyTwdIcon';
+import SoccerIcon from '@components/icons/SoccerIcon';
+import { randomInt } from '@utils/random';
+import FireIcon from '@components/icons/FireIcon';
+import React, { ReactElement } from 'react';
+import ShimmerIcon from '@components/icons/ShimmerIcon';
+import WallIcon from '@components/icons/WallIcon';
+import StarFourPointsIcon from '@components/icons/StarFourPointsIcon';
+import PongHistoryModel from '@typings/models/pong/history';
+import { useCurrentUser } from '@hooks/user';
 
-
-
-export default function MatchHistoryScoreBoard() {
-  const teams = ["Team 1", "Team 2"];
-   
-
-
+export default function MatchHistoryScoreBoard(
+  match: PongHistoryModel.Models.Match
+) {
+  const session = useCurrentUser();
+  if (!session) return null;
   const iconMapping: ReactElement[] = [
     <WallIcon key={0} />,
     <ShimmerIcon key={1} />,
     <FireIcon key={2} />,
     <SoccerIcon key={3} />,
     <CurrencyTwdIcon key={4} />,
-    <StarFourPointsIcon  key={5} />,
+    <StarFourPointsIcon key={5} />,
   ];
 
-  const labelMapping: string[] = ["Bonces on your paddle", "Most Bounces", "Special Power", "Goals Scored", "Gold", "Player Score"];
+  const labelMapping: string[] = [
+    'Bonces on your paddle',
+    'Most Bounces',
+    'Special Power',
+    'Goals Scored',
+    'Gold',
+    'Player Score',
+  ];
 
   function GetIconStats({
     icon,
     gridColumnStart,
     nbGols,
-    team,
     message,
+    first,
   }: {
     icon: ReactElement;
     gridColumnStart: number;
     nbGols: number;
-    team: string;
     message: string;
+    first: boolean;
   }) {
     return (
       <Box
         style={{
-          justifySelf: "right",
-          display: "grid",
+          justifySelf: 'right',
+          display: 'grid',
           gridColumnStart: gridColumnStart,
         }}
       >
         <Stack
           gap={1.5}
           style={{
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
           }}
         >
-          <Typography
-            textColor={team === "Team 1" ? "primary.300" : "danger.400"}
-          >
+          <Typography textColor={first ? 'primary.300' : 'danger.400'}>
             {nbGols}
           </Typography>
-          <Tooltip title={message} >{icon}</Tooltip>
+          <Tooltip title={message}>{icon}</Tooltip>
         </Stack>
       </Box>
     );
   }
   return (
     <>
-      {teams.map((team, index) => (
+      {match.teams.map((team, index) => (
         <>
-          <Stack
+          <Box
             sx={{
-              display: "grid",
-              gridTemplateColumns: "5fr 7fr 4fr 4fr 4fr 4fr 4fr",
-              justifyItems: "left",
+              gap: 2,
+              display: 'grid',
+              gridTemplateColumns: '5fr 7fr 4fr 4fr 4fr 4fr 4fr',
               p: 1,
-              borderRadius: "md",
-              justifyContent: "space-between",
+              borderRadius: 'md',
+              justifySelf: 'left',
             }}
           >
             <Typography
               style={{
-                display: "grid",
-                gridColumnStart: "1",
-                alignSelf: "left",
+                display: 'grid',
+                gridColumnStart: '1',
+                alignSelf: 'left',
               }}
-              textColor={team === "Team 1" ? "primary.300" : "danger.400"}
+              textColor={index === 0 ? 'primary.300' : 'danger.400'}
             >
-              {team}
+              Team {index + 1}
             </Typography>
-            {iconMapping.map((icon, index) => (
+            {iconMapping.map((icon, iconIndex) => (
               <GetIconStats
-                key={index}
+                key={iconIndex}
                 icon={icon}
-                gridColumnStart={index + 2}
+                gridColumnStart={iconIndex + 2}
                 nbGols={randomInt(0, 10)}
-                team={team}
-                message={labelMapping[index]}
+                first={index === 0}
+                message={labelMapping[iconIndex]}
               />
             ))}
-          </Stack>
-          <PlayerStatsRow id={randomInt(1, 10)} />
-          <PlayerStatsRow id={randomInt(1, 10)} />
+            {team.players.map((player, i) => (
+              <PlayerStatsRow
+                key={i}
+                {...player}
+                isSelf={player.userId === session.id}
+              />
+            ))}
+          </Box>
           {index === 0 && <Divider />}
         </>
       ))}

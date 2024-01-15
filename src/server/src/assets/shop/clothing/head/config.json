@@ -1,0 +1,6 @@
+{
+  "id": "head",
+  "label": "Head",
+  "icon": "{ICON_PATH}/cat/Hats.tsx",
+  "env": {}
+}

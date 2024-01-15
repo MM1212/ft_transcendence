@@ -1,38 +1,15 @@
-import { Typography } from '@mui/joy';
-import publicPath from '@utils/public';
+import { Button } from "@mui/joy";
 
-export default function LobbyPongButton({
-  label,
-  src,
-}: {
-  label: string;
-  src: string;
-}) {
+export default function LobbyPongButton({ label }: { label: string }) {
   return (
-    <>
-      <img
-        src={publicPath(src)}
-        alt={src}
-        width="200" // Specify the desired width
-        height="70" // Specify the desired height
-      />
-      <Typography
-        component="span"
-        sx={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          fontWeight: 'bold',
-          fontFamily: 'chivo',
-          fontSize: '0.8rem',
-          width: '100%',
-          textAlign: 'center',
-        }}
-        textTransform="uppercase"
-      >
-        {label}
-      </Typography>
-    </>
+    <Button
+      sx={{ width: "20dvh", mt: 5 }}
+      fullWidth
+      type="submit"
+      variant="outlined"
+      color="warning"
+    >
+      {label}
+    </Button>
   );
 }

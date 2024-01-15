@@ -19,6 +19,7 @@ import { AuthTfaModule } from './modules/auth/2fa/2fa.module';
 import { PongModule } from './modules/ponggame/pong.module';
 import { PongLobbyModule } from './modules/ponglobbies/ponglobby.module';
 import { PongHistoryModule } from './modules/ponghistory/history.module';
+import { ShopModule } from './modules/shop/shop.module';
 
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import { PongHistoryModule } from './modules/ponghistory/history.module';
     forwardRef(() => PongModule),
     forwardRef(() => PongLobbyModule),
     PongHistoryModule,
+    ShopModule,
   ].filter(Boolean) as ModuleMetadata['imports'],
   providers: [AppService, { provide: APP_FILTER, useClass: GlobalFilter }],
   exports: [AppService],

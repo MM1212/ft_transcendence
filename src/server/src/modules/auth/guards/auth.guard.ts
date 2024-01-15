@@ -29,9 +29,9 @@ export class AuthGuard implements CanActivate {
       const uSession = user.useSession(request.session);
       if (!uSession.auth.isTokenValid()) await this.refreshToken(uSession);
     } catch (e) {
-      console.error(e);
       if (e instanceof UnauthorizedException)
-        throw e;
+      throw e;
+      console.error(e);
       throw new Error(e.message);
     }
     return true;

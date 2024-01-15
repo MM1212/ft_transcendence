@@ -138,6 +138,11 @@ export class Users {
           character: {
             create: {},
           },
+          inventory: {
+            createMany: {
+              data: [...(data.inventory ?? [])]
+            },
+          },
         },
         include: USER_EXT_QUERY,
       }),
