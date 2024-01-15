@@ -23,7 +23,6 @@ export default function MatchHistoryScoreBoard(
     <SoccerIcon key={3} />,
     <CurrencyTwdIcon key={4} />,
     <StarFourPointsIcon key={5} />,
-    <StarFourPointsIcon key={5} />,
   ];
 
   const labelMapping: string[] = [
@@ -67,7 +66,6 @@ export default function MatchHistoryScoreBoard(
           <Typography textColor={first ? 'primary.300' : 'danger.400'}>
             {nbGols}
           </Typography>
-          <Tooltip title={message}>{icon}</Tooltip>
           <Tooltip title={message}>{icon}</Tooltip>
         </Stack>
       </Box>
