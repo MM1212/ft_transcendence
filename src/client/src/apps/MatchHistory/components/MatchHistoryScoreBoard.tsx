@@ -40,7 +40,7 @@ export default function MatchHistoryScoreBoard(
     gridColumnStart,
     nbGols,
     message,
-    first
+    first,
   }: {
     icon: ReactElement;
     gridColumnStart: number;
@@ -78,7 +78,6 @@ export default function MatchHistoryScoreBoard(
       {match.teams.map((team, index) => (
         <>
           <Box
-          <Box
             sx={{
               gap: 2,
               display: 'grid',
@@ -109,7 +108,11 @@ export default function MatchHistoryScoreBoard(
               />
             ))}
             {team.players.map((player, i) => (
-              <PlayerStatsRow key={i} {...player} isSelf={player.userId === session.id} />
+              <PlayerStatsRow
+                key={i}
+                {...player}
+                isSelf={player.userId === session.id}
+              />
             ))}
           </Box>
           {index === 0 && <Divider />}

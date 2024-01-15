@@ -7,7 +7,11 @@ import { Sheet } from '@mui/joy';
 import CurrencyTwdIcon from '@components/icons/CurrencyTwdIcon';
 import { Tooltip } from '@mui/joy';
 import ShopModel from '@typings/models/shop';
-import { useShopCategories, useShopItems, useShopSubCategories } from '../hooks';
+import {
+  useShopCategories,
+  useShopItems,
+  useShopSubCategories,
+} from '../hooks';
 import { useInventoryByType } from '@apps/Inventory/hooks/useInventory';
 
 function CustomizationItems({
@@ -19,7 +23,6 @@ function CustomizationItems({
   subCategory: string;
   credits: number;
 }) {
-  
   const items = useShopItems(category, subCategory);
   const inventory = useInventoryByType(`${category}-${subCategory}`);
   return (
@@ -163,14 +166,11 @@ function ShopTabs() {
               <Chip startDecorator={<CurrencyTwdIcon />} color="success">
                 {numberFormatter.format(user.credits)}
               </Chip>
-              <Chip startDecorator={<CurrencyTwdIcon />} color="success">
-                {numberFormatter.format(user.credits)}
-              </Chip>
             </Tooltip>
           </Box>
         </Sheet>
       </TabList>
-      {categories.map((cat ) =>
+      {categories.map((cat) =>
         cat.subCategories.map((sub) => (
           <TabPanel
             key={`${cat.id}-${sub}`}
@@ -183,7 +183,11 @@ function ShopTabs() {
               overflowY: 'auto',
             }}
           >
-            <CustomizationItems category={cat.id} subCategory={sub} credits={user.credits} />
+            <CustomizationItems
+              category={cat.id}
+              subCategory={sub}
+              credits={user.credits}
+            />
           </TabPanel>
         ))
       )}
