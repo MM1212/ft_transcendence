@@ -4,7 +4,7 @@ import { useOpenShopModal } from '../hooks/useOpenShopModal';
 import React from 'react';
 
 export default function ShopView() {
-  const { close, isOpened, data } = useOpenShopModal();
+  const { close, isOpened} = useOpenShopModal();
   return (
     <Modal open={isOpened} onClose={close}>
       <ModalDialog

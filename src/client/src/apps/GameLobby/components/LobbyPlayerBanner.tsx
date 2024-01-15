@@ -1,12 +1,11 @@
 import { UserAvatar } from "@components/AvatarWithStatus";
 import PlusIcon from "@components/icons/PlusIcon";
 import { useUser } from "@hooks/user";
-import { IconButton } from "@mui/joy";
+import { Box } from "@mui/joy";
 import { Typography } from "@mui/joy";
-import publicPath from "@utils/public";
+import { ChangePower } from "./PlayerSettingsModals/ChangePower";
 
 export default function LobbyPlayerBanner({ id }: { id: number | undefined }) {
-  const handleInviteFriend = () => {};
   const user = useUser(id!);
   return (
     <div
@@ -20,7 +19,6 @@ export default function LobbyPlayerBanner({ id }: { id: number | undefined }) {
     >
       {id === undefined ? (
         <UserAvatar
-          onClick={handleInviteFriend}
           sx={(theme) => ({
             width: theme.spacing(17),
             height: theme.spacing(17),
@@ -37,6 +35,7 @@ export default function LobbyPlayerBanner({ id }: { id: number | undefined }) {
           variant="outlined"
         >
           <PlusIcon
+            // onClick={handleInvite}
             sx={{
               width: 35,
               height: 35,
@@ -45,40 +44,45 @@ export default function LobbyPlayerBanner({ id }: { id: number | undefined }) {
         </UserAvatar>
       ) : (
         <>
-          <UserAvatar
-            sx={(theme) => ({
-              width: theme.spacing(17),
-              height: theme.spacing(17),
-              position: "absolute",
-              marginTop: "7dvh",
-              zIndex: 1,
-            })}
-            variant="outlined"
-            src={user?.avatar}
-          />
-          <Typography
-            textAlign="center"
-            sx={{ position: "absolute", bottom: "50%" }}
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              flexDirection: "column",
+              width: "37vh",
+              height: "41dvh",
+              clipPath: "polygon(50% 90%, 76% 80%, 76% 0, 24% 0, 24% 80%)",
+              backgroundColor: "background.surface",
+            }}
           >
-            {user?.nickname}
-          </Typography>
-          <img
-            src={publicPath("/matchMaking/matchMakingFrame.webp")}
-            alt="Matchmaking Frame"
-            width="300"
-            height="500"
-          />
+            <Box
+              sx={{
+                display: "flex",
+                mt: "0.5dvh",
+                alignItems: "center",
+                flexDirection: "column",
+                pb: '20%',
+                pt: 2,
+                width: "35vh",
+                height: "40dvh",
+                justifyContent: "space-between",
+                clipPath: "polygon(50% 90%, 76% 80%, 76% 0, 24% 0, 24% 80%)",
+                backgroundColor: "background.level1",
+              }}
+            >
+              <UserAvatar
+                sx={(theme) => ({
+                  width: theme.spacing(17),
+                  height: theme.spacing(17),
+                })}
+                src={user?.avatar}
+              />
+              <Typography>{user?.nickname}</Typography>
+              <ChangePower />
+            </Box>
+          </Box>
         </>
       )}
-      <div
-        style={{
-          position: "absolute",
-          display: "flex",
-          flexDirection: "column",
-          marginTop: "auto",
-          bottom: "15%",
-        }}
-      ></div>
     </div>
   );
 }

@@ -1,11 +1,5 @@
 import { Box, Chip, Stack, TabPanel, Typography, tabClasses } from '@mui/joy';
 import { Tab, TabList, Tabs } from '@mui/joy';
-import {
-  InventoryCategory,
-  getClothIcon,
-  inventoryNotBoughtCategoryItems,
-} from '@apps/Customization/state';
-import { useRecoilValue } from 'recoil';
 import ShopCard from './ShopCard';
 import React from 'react';
 import { useCurrentUser } from '@hooks/user';
@@ -173,8 +167,8 @@ function ShopTabs() {
           </Box>
         </Sheet>
       </TabList>
-      {categories.map((cat, tabIndex) =>
-        cat.subCategories.map((sub, subTabIndex) => (
+      {categories.map((cat ) =>
+        cat.subCategories.map((sub) => (
           <TabPanel
             key={`${cat.id}-${sub}`}
             value={sub}

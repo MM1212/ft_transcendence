@@ -104,13 +104,6 @@ const routes: ISidebarRoute[] = [
     Component: React.lazy(() => import('@apps/Customization/views')),
   },
   {
-    label: 'Shop',
-    path: '/shop',
-    icon: <CartIcon />,
-    exact: false,
-    Component: React.lazy(() => import('@apps/Shop/views')),
-  },
-  {
     label: 'Games',
     icon: <ControllerIcon />,
     children: [

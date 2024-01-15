@@ -80,11 +80,9 @@ export default function LeaderBoardUser({
       </Box>
       <LobbyGameTypography
         style={{
-          display: "grid",
-          gridTemplateColumns: "subgrid",
-          gridColumnStart: "4",
-          justifySelf: "left",
+          left: "61%"
         }}
+        position = "absolute"
         level="body-md"
       >
         {points}
