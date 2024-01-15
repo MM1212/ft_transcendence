@@ -23,6 +23,7 @@ export default function MatchHistoryScoreBoard(
     <SoccerIcon key={3} />,
     <CurrencyTwdIcon key={4} />,
     <StarFourPointsIcon key={5} />,
+    <StarFourPointsIcon key={5} />,
   ];
 
   const labelMapping: string[] = [
@@ -67,6 +68,7 @@ export default function MatchHistoryScoreBoard(
             {nbGols}
           </Typography>
           <Tooltip title={message}>{icon}</Tooltip>
+          <Tooltip title={message}>{icon}</Tooltip>
         </Stack>
       </Box>
     );
@@ -75,6 +77,7 @@ export default function MatchHistoryScoreBoard(
     <>
       {match.teams.map((team, index) => (
         <>
+          <Box
           <Box
             sx={{
               gap: 2,

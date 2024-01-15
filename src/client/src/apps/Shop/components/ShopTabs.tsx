@@ -163,6 +163,9 @@ function ShopTabs() {
               <Chip startDecorator={<CurrencyTwdIcon />} color="success">
                 {numberFormatter.format(user.credits)}
               </Chip>
+              <Chip startDecorator={<CurrencyTwdIcon />} color="success">
+                {numberFormatter.format(user.credits)}
+              </Chip>
             </Tooltip>
           </Box>
         </Sheet>
