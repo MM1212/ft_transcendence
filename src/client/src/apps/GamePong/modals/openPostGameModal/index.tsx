@@ -19,7 +19,7 @@ function Content(data: PongHistoryModel.Models.Match) {
       <Typography>You {winLose}!</Typography>
       <React.Suspense fallback={<Typography>Loading...</Typography>}>
         <MatchHistoryEntryHeader {...data} targetId={user.id} />
-        <MatchHistoryScoreBoard />
+        <MatchHistoryScoreBoard {...data} />
       </React.Suspense>
     </>
   );

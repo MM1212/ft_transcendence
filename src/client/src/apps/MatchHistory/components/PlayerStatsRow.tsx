@@ -11,7 +11,7 @@ import { randomInt } from "@utils/random";
 export default function PlayerStatsRow(player: PongHistoryModel.Models.Player & {
   isSelf: boolean;
 }) {
-  const user = useUser(player.id);
+  const user = useUser(player.userId);
   const superPowers = [
     PongModel.Endpoints.Targets.PowerIceTexture,
     PongModel.Endpoints.Targets.PowerSparkTexture,
