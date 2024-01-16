@@ -60,6 +60,16 @@ export class ServerGame extends Game {
   }
   /***/
 
+  get gameInfo(): PongModel.Models.IGameInfoDisplay {
+    return {
+      UUID: this.UUID,
+      score: this.score,
+      teams: this.config.teams,
+      maxScore: this.maxScore,
+      spectatorVisibility: this.lobbyInterface.spectatorVisibility,
+    };
+  }
+
   public checkStart() {
     if (
       this.started === false &&
@@ -414,8 +424,6 @@ export class ServerGame extends Game {
   }
 
   public update(delta: number): void {
-    console.log(delta);
-
     if (this.score[0] >= this.maxScore || this.score[1] >= this.maxScore) {
       const ball = this.getObjectByTag(PongModel.InGame.ObjType.Ball) as Ball;
 
@@ -443,6 +451,18 @@ export class ServerGame extends Game {
       ) {
         player.mana.manaStep += 10;
         push = true;
+      }
+      if (
+        player instanceof Player &&
+        player.keyPressed[player.keys.boost] === true
+      ) {
+        if (
+          !player.energy.isEnergyFull() &&
+          player.energy.energyCur <= player.energy.energyStep - 10
+        ) {
+          player.energy.energyStep -= 10;
+          push = true;
+        }
       }
       if (
         !player.energy.isEnergyFull() &&

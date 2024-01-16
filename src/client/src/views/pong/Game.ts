@@ -28,7 +28,6 @@ import PongModel from '@typings/models/pong';
 import { Ball } from '@shared/Pong/Ball';
 import { ballsConfig, paddleConfig } from '@shared/Pong/config/configInterface';
 import { DisconnectWindowTex } from './utils';
-import { Bar } from '@shared/Pong/Paddles/Bar';
 
 type Powers = UIBubble | UIFire | UIGhost | UIIce | UISpark;
 
@@ -50,8 +49,9 @@ export class UIGame extends Game {
   constructor(
     public readonly socket: Socket,
     container: HTMLDivElement,
-    gameConfig: PongModel.Models.IGameConfig,
-    public readonly nickname: string
+    private gameConfig: PongModel.Models.IGameConfig,
+    public readonly nickname: string,
+    private readonly userId: number
   ) {
     super(WINDOWSIZE_X, WINDOWSIZE_Y);
 
@@ -222,12 +222,17 @@ export class UIGame extends Game {
   }
 
   handleLostOfFocus = () => {
+    if (this.gameConfig.spectators.includes(this.userId)) return;
+
     this.socket.emit(PongModel.Socket.Events.FocusLoss, {
       roomId: this.roomId,
     });
   };
 
   handleKeyDown = (e: KeyboardEvent) => {
+    if (this.gameConfig.spectators.includes(this.userId)) return;
+
+
     if (e.key && e.repeat === false && e.shiftKey === false) {
       // (this.AllPlayersNicks)
       this.socket.emit(PongModel.Socket.Events.KeyPress, {
@@ -241,6 +246,8 @@ export class UIGame extends Game {
   };
 
   handleKeyUp = (e: KeyboardEvent) => {
+    if (this.gameConfig.spectators.includes(this.userId)) return;
+
     this.socket.emit(PongModel.Socket.Events.KeyPress, {
       key: e.key.toLowerCase(),
       state: false,
@@ -334,8 +341,6 @@ export class UIGame extends Game {
   }
 
   update(delta: number) {
-    console.log(delta);
-
     if (this.run) {
       this.debug.debugDraw(this.gameObjects as UIGameObject[]);
 

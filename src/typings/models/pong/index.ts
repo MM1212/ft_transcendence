@@ -6,66 +6,66 @@ import {
   GetEndpoint,
   GroupEndpointTargets,
   SseModel,
-} from '@typings/api';
-import { GroupEnumValues } from '@typings/utils';
-import NotificationsModel from '../notifications';
+} from "@typings/api";
+import { GroupEnumValues } from "@typings/utils";
+import NotificationsModel from "../notifications";
 
 namespace PongModel {
   export namespace InGame {
     export enum ObjType {
-      Ball = 'Bolinha',
-      Player1 = 'Player 1',
-      Player2 = 'Player 2',
-      Player3 = 'Player 3',
-      Player4 = 'Player 4',
-      Arena = 'Arena',
+      Ball = "Bolinha",
+      Player1 = "Player 1",
+      Player2 = "Player 2",
+      Player3 = "Player 3",
+      Player4 = "Player 4",
+      Arena = "Arena",
     }
   }
 
   export namespace Models {
     export enum LobbyType {
-      Single = 'SINGLE', // Single Queue Mode
-      Double = 'DOUBLE', // Double Queue Mode
-      Custom = 'CUSTOM', // Custom mode
+      Single = "SINGLE", // Single Queue Mode
+      Double = "DOUBLE", // Double Queue Mode
+      Custom = "CUSTOM", // Custom mode
     }
     export enum LobbyGameType {
-      Classic = 'CLASSIC', // Classic pong
-      Powers = 'POWERS', // Pong with super powers
+      Classic = "CLASSIC", // Classic pong
+      Powers = "POWERS", // Pong with super powers
     }
     export enum LobbyAccess {
-      Public = 'PUBLIC', // Anyone can join
-      Protected = 'PROTECTED', // Password protected
-      Private = 'PRIVATE', // Queue mode
+      Public = "PUBLIC", // Anyone can join
+      Protected = "PROTECTED", // Password protected
+      Private = "PRIVATE", // Queue mode
     }
     export enum LobbyStatus {
-      Waiting = 'WAITING',
-      Ready = 'READY',
-      Playing = 'PLAYING',
-      Finished = 'FINISHED',
+      Waiting = "WAITING",
+      Ready = "READY",
+      Playing = "PLAYING",
+      Finished = "FINISHED",
     }
     export enum LobbySpectatorVisibility {
-      All = 'ALL', // Anyone can spectate
-      Friends = 'FRIENDS', // Only friends can spectate
-      None = 'NONE', // No one can spectate
+      All = "ALL", // Anyone can spectate
+      Friends = "FRIENDS", // Only friends can spectate
+      None = "NONE", // No one can spectate
     }
     export interface ILobbyAuthorizationData {
       password?: string;
     }
     export enum LobbyParticipantRole {
-      Player = 'PLAYER', // Player
-      Spectator = 'SPECTATOR', // Spectator
+      Player = "PLAYER", // Player
+      Spectator = "SPECTATOR", // Spectator
     }
     export enum LobbyParticipantPrivileges {
-      None = 'NONE', // No privileges
-      Owner = 'OWNER', // Lobby "admin"
+      None = "NONE", // No privileges
+      Owner = "OWNER", // Lobby "admin"
     }
     export enum LobbyParticipantSpecialPowerType {
-      bubble = 'bubble',
-      spark = 'spark',
-      ice = 'ice',
-      fire = 'fire',
-      ghost = 'ghost',
-      none = 'none',
+      bubble = "bubble",
+      spark = "spark",
+      ice = "ice",
+      fire = "fire",
+      ghost = "ghost",
+      none = "none",
     }
     export enum TeamSide {
       Left,
@@ -76,13 +76,13 @@ namespace PongModel {
       Bottom,
     }
 
-    export type IGameKeyTypes = 'up' | 'down' | 'boost' | 'shoot';
+    export type IGameKeyTypes = "up" | "down" | "boost" | "shoot";
     export type IGamekeys = Record<IGameKeyTypes, string>;
     export const DEFAULT_GAME_KEYS: IGamekeys = {
-      up: 'w',
-      down: 's',
-      boost: 'a',
-      shoot: 'q',
+      up: "w",
+      down: "s",
+      boost: "a",
+      shoot: "q",
     };
 
     export interface ITeam {
@@ -92,7 +92,7 @@ namespace PongModel {
     }
     export const TemporaryLobbyParticipant = {
       keys: PongModel.Models.DEFAULT_GAME_KEYS,
-      paddle: 'PaddleRed',
+      paddle: "PaddleRed",
       specialPower: PongModel.Models.LobbyParticipantSpecialPowerType.bubble,
     };
     export interface ILobbyParticipant {
@@ -137,7 +137,7 @@ namespace PongModel {
       keys?: IGamekeys;
       specialPower: LobbyParticipantSpecialPowerType;
       paddle: string;
-      positionOrder: 'back' | 'front';
+      positionOrder: "back" | "front";
       userId: number;
       avatar: string;
       nickname: string;
@@ -164,39 +164,47 @@ namespace PongModel {
     export interface ILobbyInfoDisplay
       extends Pick<
         ILobby,
-        | 'id'
-        | 'name'
-        | 'gameType'
-        | 'spectatorVisibility'
-        | 'status'
-        | 'authorization'
-        | 'nPlayers'
-        | 'ownerId'
-        | 'score'
-        | 'nonce'
+        | "id"
+        | "name"
+        | "gameType"
+        | "spectatorVisibility"
+        | "status"
+        | "authorization"
+        | "nPlayers"
+        | "ownerId"
+        | "score"
+        | "nonce"
       > {
       spectators: number;
     }
 
+    export interface IGameInfoDisplay {
+      UUID: string;
+      score: [number, number];
+      teams: [IGameTeam, IGameTeam];
+      maxScore: number;
+      spectatorVisibility: GroupEnumValues<LobbySpectatorVisibility>;
+    }
+
     export interface ILobbyUpdateParticipantsEvent
-      extends Pick<ILobby, 'id' | 'teams' | 'spectators' | 'ownerId'> {
+      extends Pick<ILobby, "id" | "teams" | "spectators" | "ownerId"> {
       ownerId: number;
     }
 
     export interface ILobbyKickParticipantPayload extends ILobby {}
 
     export interface ILobbyUpdateInvitedPayload
-      extends Pick<ILobby, 'invited'> {}
+      extends Pick<ILobby, "invited"> {}
 
     export interface ILobbyLeavePayload extends ILobby {}
 
     export interface ILobbyJoinPayload extends ILobby {}
 
-    export interface IStartGamePayload extends Pick<ILobby, 'id' | 'status'> {}
+    export interface IStartGamePayload extends Pick<ILobby, "id" | "status"> {}
 
     export enum InviteSource {
-      Lobby = 'lobby',
-      Chat = 'chat',
+      Lobby = "lobby",
+      Chat = "chat",
     }
 
     export interface NotificationInvite
@@ -208,13 +216,13 @@ namespace PongModel {
 
   export namespace Sse {
     export enum Events {
-      NewLobby = 'pong.new-lobby',
-      UpdateLobbyParticipants = 'pong.update-lobby-participants',
-      UpdateLobbyInvited = 'pong.update-lobby-invited',
-      Kick = 'pong.kick-participant',
-      Start = 'pong.start',
-      Leave = 'pong.leave',
-      Join = 'pong.join',
+      NewLobby = "pong.new-lobby",
+      UpdateLobbyParticipants = "pong.update-lobby-participants",
+      UpdateLobbyInvited = "pong.update-lobby-invited",
+      Kick = "pong.kick-participant",
+      Start = "pong.start",
+      Leave = "pong.leave",
+      Join = "pong.join",
     }
 
     export interface UpdateLobbyParticipantEvent
@@ -247,24 +255,24 @@ namespace PongModel {
 
   export namespace Socket {
     export enum Events {
-      UpdateMovements = 'object-movements',
-      SetUI = 'set-ui-game',
-      Start = 'start-game',
-      Stop = 'stop-game',
-      RemovePower = 'remove-power',
-      CreatePower = 'create-power',
-      ShootPower = 'shoot-power',
-      UpdateShooter = 'update-shooter',
-      EffectCreateRemove = 'effect-create-remove',
-      UpdateScore = 'update-score',
-      KeyPress = 'keyPress',
-      Disconnected = 'disconnected',
-      Reconnected = 'reconnected',
-      AlreadyConnected = 'already-connected',
-      UpdatePaddleSizes = 'update-paddle-sizes',
-      UpdateDisconnected = 'update-disconnected',
-      EnergyManaUpdate = 'energy-mana-update',
-      FocusLoss = 'focus-loss',
+      UpdateMovements = "object-movements",
+      SetUI = "set-ui-game",
+      Start = "start-game",
+      Stop = "stop-game",
+      RemovePower = "remove-power",
+      CreatePower = "create-power",
+      ShootPower = "shoot-power",
+      UpdateShooter = "update-shooter",
+      EffectCreateRemove = "effect-create-remove",
+      UpdateScore = "update-score",
+      KeyPress = "keyPress",
+      Disconnected = "disconnected",
+      Reconnected = "reconnected",
+      AlreadyConnected = "already-connected",
+      UpdatePaddleSizes = "update-paddle-sizes",
+      UpdateDisconnected = "update-disconnected",
+      EnergyManaUpdate = "energy-mana-update",
+      FocusLoss = "focus-loss",
     }
 
     export namespace Data {
@@ -355,6 +363,10 @@ namespace PongModel {
       lobbyId: number;
     }
 
+    export interface JoinActive {
+      uuid: string;
+    }
+
     export interface JoinLobby {
       lobbyId: number;
       nonce: number;
@@ -387,36 +399,39 @@ namespace PongModel {
   export namespace Endpoints {
     export enum Targets {
       // PUT
-      NewLobby = '/pong/lobby',
-      LeaveLobby = '/pong/lobby/leave',
-      AddToQueue = '/pong/lobby/addToQueue',
+      NewLobby = "/pong/lobby",
+      LeaveLobby = "/pong/lobby/leave",
+      AddToQueue = "/pong/lobby/addToQueue",
       //POST
-      JoinLobby = '/pong/lobby/join',
-      ChangeTeam = '/pong/lobby/team',
-      ChangeOwner = '/pong/lobby/owner',
-      JoinSpectators = '/pong/lobby/spectators',
-      Ready = '/pong/lobby/ready',
-      Kick = '/pong/lobby/kick',
-      Invite = '/pong/lobby/invite',
-      KickInvited = '/pong/lobby/kick-invited',
-      StartGame = '/pong/lobby/start',
-      LeaveQueue = '/pong/lobby/leaveQueue',
+      JoinLobby = "/pong/lobby/join",
+      ChangeTeam = "/pong/lobby/team",
+      ChangeOwner = "/pong/lobby/owner",
+      JoinSpectators = "/pong/lobby/spectators",
+      Ready = "/pong/lobby/ready",
+      Kick = "/pong/lobby/kick",
+      Invite = "/pong/lobby/invite",
+      KickInvited = "/pong/lobby/kick-invited",
+      StartGame = "/pong/lobby/start",
+      LeaveQueue = "/pong/lobby/leaveQueue",
+      JoinActive = "/pong/lobby/joinActive",
       //GET
-      GetSessionLobby = '/pong/lobby/session',
-      GetAllLobbies = '/pong/lobby/all',
-      GetLobby = '/pong/lobby/:id',
+      GetSessionLobby = "/pong/lobby/session",
+      GetAllLobbies = "/pong/lobby/all",
+      GetLobby = "/pong/lobby/:id",
+
+      GetAllGames = "/pong/lobby/playing",
 
       // existed before
-      Connect = '/pong',
+      Connect = "/pong",
 
-      DisconnectWindow = '/pong/UI/disconnect-window.png',
-      PowerWaterTexture = '/pong/PowerWater.png',
-      PowerFireTexture = '/pong/PowerCannon.png',
-      PowerIceTexture = '/pong/PowerIce.png',
-      PowerSparkTexture = '/pong/PowerSpark.png',
-      PowerGhostTexture = '/pong/PowerGhost.png',
-      FireballJSON = '/pong/Fireball.json',
-      FireballAnimDict = '/pong/Fireball',
+      DisconnectWindow = "/pong/UI/disconnect-window.png",
+      PowerWaterTexture = "/pong/PowerWater.png",
+      PowerFireTexture = "/pong/PowerCannon.png",
+      PowerIceTexture = "/pong/PowerIce.png",
+      PowerSparkTexture = "/pong/PowerSpark.png",
+      PowerGhostTexture = "/pong/PowerGhost.png",
+      FireballJSON = "/pong/Fireball.json",
+      FireballAnimDict = "/pong/Fireball",
     }
     export type All = GroupEndpointTargets<Targets>;
 
@@ -533,6 +548,13 @@ namespace PongModel {
         DTO.CheckId
       > {}
 
+      export interface JoinActive
+      extends Endpoint<
+        EndpointMethods.Post,
+        Targets.JoinActive,
+        undefined,
+        DTO.JoinActive> {}
+
     /* GET methods */
 
     export interface GetSessionLobby
@@ -557,11 +579,18 @@ namespace PongModel {
         }
       > {}
 
+    export interface GetAllGames
+      extends GetEndpoint<
+        Targets.GetAllGames,
+        Models.IGameInfoDisplay[] | null,
+        {}
+      > {}
     export interface Registry extends EndpointRegistry {
       [EndpointMethods.Get]: {
         [Targets.GetSessionLobby]: GetSessionLobby;
         [Targets.GetAllLobbies]: GetAllLobbies;
         [Targets.GetLobby]: GetLobby;
+        [Targets.GetAllGames]: GetAllGames;
       };
       [EndpointMethods.Put]: {
         [Targets.NewLobby]: NewLobby;
@@ -579,6 +608,7 @@ namespace PongModel {
         [Targets.Invite]: Invite;
         [Targets.KickInvited]: KickInvited;
         [Targets.StartGame]: StartGame;
+        [Targets.JoinActive]: JoinActive;
       };
     }
   }

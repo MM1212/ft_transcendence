@@ -7,7 +7,7 @@ import PongHistoryModel from '@typings/models/pong/history';
 import { UIGame } from '@views/pong/Game';
 import { UIPlayer } from '@views/pong/Paddles/Player';
 import React from 'react';
-import { useRecoilCallback, useRecoilValue, useSetRecoilState } from 'recoil';
+import { useRecoilCallback, useSetRecoilState } from 'recoil';
 import { navigate } from 'wouter/use-location';
 import { usePostPongGameModalActions } from '../modals/openPostGameModal/hooks';
 
@@ -31,7 +31,8 @@ export const useListenerManager = () => {
           socket,
           parentRef.current!,
           data.config,
-          user.nickname
+          user.nickname,
+          user.id
         );
         console.log(`${user.nickname}`);
         if (data.state) {

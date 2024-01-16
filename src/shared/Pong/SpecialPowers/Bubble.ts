@@ -31,43 +31,21 @@ export class Bubble extends SpecialPower {
       if (target instanceof Ball) {
 
         this.shooter.stats.iHitMyPower(undefined);
-        //let newVelX = target.getVelocity.x * -1;
-        //let newVelY = target.getVelocity.y;
-        //if (centerDiff.y > 0) {
-        //    newVelY = Math.abs(newVelY);
-        //} else {
-        //    newVelY = Math.abs(newVelY) * -1;
-        //}
 
-        // where the ball hit
-        let collidePoint = this.getCenter.y - target.getCenter.y;
-        // normalize the value
-        collidePoint = collidePoint / (target.getHeight / 2);
-
-        // calculate the angle in Radian
-        const angleRad = collidePoint * (Math.PI / 6);
-
-        // Determine the direction based on the current X velocity
         const direction = this.getVelocity.x > 0 ? -1 : 1;
-        // Store the current speed (magnitude of velocity)
-        const currentSpeed = Math.sqrt(
-          this.getVelocity.x ** 2 + this.getVelocity.y ** 2
-        );
+        const targetDirection = target.getVelocity.x > 0 ? -1 : 1;
 
-        // Change the X and Y velocity direction
-        this.getVelocity.x = currentSpeed * Math.cos(angleRad) * direction;
-        this.getVelocity.y = currentSpeed * -Math.sin(angleRad);
-
-        let newVelX = target.getVelocity.x * -1;
-        let newVelY = target.getVelocity.y;
-        let centerDiff =
-          (this.getCenter.y - target.getCenter.y) / target.getHeight;
-        if (centerDiff > 0) {
-          newVelY = Math.abs(newVelY);
+        if (direction === targetDirection) {
+          target.setVelocity(target.getVelocity.multiply(1.4));
         } else {
-          newVelY = Math.abs(newVelY) * -1;
+          let normalVec = new Vector2D(0, 1);
+          if (target.getVelocity.y < 0) {
+            normalVec = normalVec.multiply(-1);
+          }
+
+          const newVelocity = target.getVelocity.reflect(normalVec).multiply(-1);
+          target.setVelocity(newVelocity);
         }
-        target.setVelocity(new Vector2D(newVelX, newVelY));
       }
 
       this.game.remove(this);
