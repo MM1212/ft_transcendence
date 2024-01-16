@@ -1,47 +1,46 @@
 
 export class Mana {
+  public manaCur: number;
+  protected manaMax: number;
+  public manaStep: number = 100;
+  constructor() {
+    this.manaCur = 100;
+    this.manaMax = 100;
+  }
 
-    protected manaCur: number;
-    protected manaMax: number;
+  get mana(): number {
+    return this.manaCur;
+  }
+  get manaMaxVal(): number {
+    return this.manaMax;
+  }
 
-    constructor() {
-        this.manaCur = 100;
-        this.manaMax = 100;
-    }
+  set mana(val: number) {
+    this.manaCur = val;
+  }
+  set manaMaxVal(val: number) {
+    this.manaMax = val;
+  }
 
-    get mana(): number {
-        return this.manaCur;
-    }
-    get manaMaxVal(): number {
-        return this.manaMax;
-    }
+  public spendMana(val: number): void {
+    this.manaCur -= val;
+  }
 
-    set mana(val: number) {
-        this.manaCur = val;
-    }
-    set manaMaxVal(val: number) {
-        this.manaMax = val;
-    }
+  public gainMana(val: number): void {
+    this.manaCur += val;
+  }
 
-    public spendMana(val: number): void {
-        this.manaCur -= val;
-    }
+  public isManaEnough(val: number): boolean {
+    return this.manaCur >= val;
+  }
 
-    public gainMana(val: number): void {
-        this.manaCur += val;
-    }
+  public isManaFull(): boolean {
+    return this.manaCur == this.manaMax;
+  }
 
-    public isManaEnough(val: number): boolean {
-        return this.manaCur >= val;
+  update(player: string, delta: number): void {
+    if (this.manaCur < this.manaMax) {
+      this.manaCur += 0.1 * delta;
     }
-
-    public isManaFull(): boolean {
-        return this.manaCur == this.manaMax;
-    }
-
-    update(player: string, delta: number): void {        
-        if (this.manaCur < this.manaMax) {
-            this.manaCur += 0.1 * delta;
-        }
-    }
+  }
 }

@@ -25,6 +25,7 @@ export class Fire extends SpecialPower {
     );
     this.tag += this.id;
     shooter.manaBar.spendMana(this.manaCost);
+    shooter.manaBar.manaStep = shooter.manaBar.mana;
   }
 
   get manaCost(): number {
@@ -33,6 +34,7 @@ export class Fire extends SpecialPower {
 
   onCollide(target: GameObject): any {
     if (target instanceof Ball) {
+      this.shooter.stats.iHitMyPower(undefined);
       if (
         target.getEffect === undefined ||
         target.getEffect.name !== 'CANNON'

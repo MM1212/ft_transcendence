@@ -1,31 +1,87 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable, forwardRef } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
-import { PongLobby } from '../ponglobbies/ponglobby';
+import { PongLobby, PongLobbyParticipant } from '../ponglobbies/ponglobby';
 import { ServerGame } from './pong';
 import PongModel from '@typings/models/pong';
 import { Server } from 'socket.io';
 import { ClientSocket } from '@typings/ws';
 import { PongHistoryService } from '../ponghistory/history.service';
 import { PongLobbyService } from '../ponglobbies/ponglobby.service';
+import User from '../users/user';
 
 @Injectable()
 export class PongService {
   public clientInGames = new Map<number, string>(); // userId, gameUUID
   public games = new Map<string, ServerGame>();
   public readonly server: Server;
-  constructor(public historyService: PongHistoryService) {}
+  constructor(
+    public historyService: PongHistoryService,
+    @Inject(forwardRef(() => PongLobbyService))
+    private readonly lobbyService: PongLobbyService,
+  ) {}
 
   // maybe create a new node js thread for each game (?)
+
+  public async joinActive(user: User, uuid: string): Promise<PongLobby> {
+    const game = this.getGame(uuid);
+    if (!game) throw new ForbiddenException('Game not found');
+
+    if (this.clientInGames.has(user.id))
+      throw new ForbiddenException('User already in game');
+
+    // check lobby type
+    const visibility = game.lobbyInterface.spectatorVisibility;
+    if (visibility === PongModel.Models.LobbySpectatorVisibility.None) {
+      throw new ForbiddenException('Spectators not allowed');
+    } else if (
+      visibility === PongModel.Models.LobbySpectatorVisibility.Friends
+    ) {
+      const players = game.config.teams[0].players.concat(
+        game.config.teams[1].players,
+      );
+      let isFriend = false;
+      players.filter((player) => {
+        if (user.friends.is(player.userId)) {
+          isFriend = true;
+        }
+      });
+      if (!isFriend) {
+        throw new ForbiddenException('You are not a friend');
+      }
+    }
+
+    const lobby = await this.lobbyService.getLobby(game.lobbyInterface.id);
+    if (!lobby) throw new ForbiddenException('Lobby not found');
+
+    await this.lobbyService.joinLobby(user, lobby.id, null, undefined, false, true);
+    await this.lobbyService.joinSpectators(user, lobby.id);
+    return lobby;
+  }
+
+  public getAllGames(): PongModel.Models.IGameInfoDisplay[] {
+    return Array.from(this.games.values()).map((game) => game.gameInfo);
+  }
 
   public getGame(uuid: string): ServerGame | undefined {
     return this.games.get(uuid);
   }
 
-  public async initGameSession(lobby: PongLobby, lobbyService: PongLobbyService, pongService: PongService): Promise<ServerGame> {
+  public async initGameSession(
+    lobby: PongLobby,
+    lobbyService: PongLobbyService,
+    pongService: PongService,
+  ): Promise<ServerGame> {
     const lobbyInterface = lobby.interface;
     const uuid = this.createUUID();
     const gameConfig = this.parseLobbyPlayers(lobbyInterface, uuid);
-    const newGame = new ServerGame(lobbyInterface, gameConfig, this.server, this.historyService, lobbyService, pongService);
+    const newGame = new ServerGame(
+      lobbyInterface,
+      gameConfig,
+      this.server,
+      this.historyService,
+      lobbyService,
+      pongService,
+    );
     this.games.set(uuid, newGame);
     return newGame;
   }
@@ -46,15 +102,18 @@ export class PongService {
     });
   }
 
+  public handleFocusLoss(client: ClientSocket, roomId: string): void {
+    const game = this.getGame(roomId.toString());
+    if (!game || game.started === false) return;
+    game.handleFocusLoss(client.data.user.id);
+  }
+
   public handleKeys(
     client: ClientSocket,
     data: { key: string; state: boolean },
   ): void {
     const game = this.getGameByPlayerId(client.data.user.id);
     if (!game || game.started === false) return;
-    console.log(
-      `Game ${game.UUID}: received keypress from ${client.data.user.id}`,
-    );
     game.handleKeys(client.data.user.id, data.key, data.state);
   }
 
@@ -78,12 +137,16 @@ export class PongService {
           let position: 'back' | 'front';
           if (player.teamPosition === PongModel.Models.TeamPosition.Top) {
             position = 'back';
-            player.teamId === 0 ? (playerNbr = PongModel.InGame.ObjType.Player1) : (playerNbr = PongModel.InGame.ObjType.Player2);
+            player.teamId === 0
+              ? (playerNbr = PongModel.InGame.ObjType.Player1)
+              : (playerNbr = PongModel.InGame.ObjType.Player2);
           } else {
             position = 'front';
-            player.teamId === 0 ? (playerNbr = PongModel.InGame.ObjType.Player3) : (playerNbr = PongModel.InGame.ObjType.Player4);
+            player.teamId === 0
+              ? (playerNbr = PongModel.InGame.ObjType.Player3)
+              : (playerNbr = PongModel.InGame.ObjType.Player4);
           }
-          
+
           return {
             tag: playerNbr,
             teamId: team.id,

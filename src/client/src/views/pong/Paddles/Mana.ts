@@ -13,7 +13,7 @@ export class UIMana extends Mana {
     }
 
     printMana(player: string): void {
-        
+
         const manaBarPosition = this.getManaBarPosition(player);
         this.manaBar.clear();
         this.manaBar.x = manaBarPosition.x;
@@ -38,8 +38,8 @@ export class UIMana extends Mana {
         if (player === PongModel.InGame.ObjType.Player1){
             position.x = 10;
             position.y = 10;
-        } 
-        else if (player === PongModel.InGame.ObjType.Player2) 
+        }
+        else if (player === PongModel.InGame.ObjType.Player2)
         {
             position.x = this.game.width - this.manaMax - 10;
             position.y = 10;
@@ -57,8 +57,12 @@ export class UIMana extends Mana {
         return position;
     }
 
+    updateMana(mana: number, tag: string): void {
+        this.manaCur = mana;
+        this.printMana(tag);
+    }
+
     update(player: string, delta: number): void {
-        super.update(player, delta);
         this.printMana(player);
     }
 }

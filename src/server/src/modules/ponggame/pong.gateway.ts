@@ -42,11 +42,21 @@ export class PongGateway
     private lobbyService: PongLobbyService,
   ) {}
 
+  getAllGames(): PongModel.Models.IGameInfoDisplay[] {
+    return this.service.getAllGames();
+  }
+
+  @SubscribeMessage(PongModel.Socket.Events.FocusLoss)
+  handleFocusLoss(client: Socket, data: {roomId: string}): void {
+    console.log('focus loss');
+    this.service.handleFocusLoss(client, data.roomId);
+  }
+
   @SubscribeMessage(PongModel.Socket.Events.KeyPress)
   handleKeyPress(client: Socket, data: { key: string; state: boolean }): void {
     this.service.handleKeys(client, data);
   }
-  
+
   @SubscribeMessage(PongModel.Socket.Events.UpdateDisconnected)
   handleUpdateDisconnected(client: Socket, data: { roomId: string }): void {
     this.service.handleUpdateDisconnected(client, data.roomId);
@@ -65,6 +75,13 @@ export class PongGateway
         const spectator = game.getSpectatorSocketByUserId(user.id);
         if (!spectator) {
           game.joinSpectators(client);
+          this.service.clientInGames.set(user.id, game.UUID);
+          console.log(`${client.data.user.nickname} connected`);
+          client.emit(PongModel.Socket.Events.SetUI, {
+            state: true,
+            config: game.config,
+          });
+          if (game.run === true) game.emitUpdateGame(client);
         }
       } else {
         if (
@@ -80,7 +97,10 @@ export class PongGateway
             nickname: player.nickname,
           });
         }
+        // if player
         game.joinPlayer(client, player);
+        // if spectator
+        //game.joinSpectators(client);
         this.service.clientInGames.set(user.id, game.UUID);
         console.log(`${client.data.user.nickname} connected`);
         client.emit(PongModel.Socket.Events.SetUI, {
@@ -111,7 +131,15 @@ export class PongGateway
         }
       } else {
         const spectator = game.getSpectatorSocketByUserId(user.id);
-        if (spectator) game.leaveSpectators(client);
+        if (spectator) {
+          game.leaveSpectators(client);
+          this.service.clientInGames.delete(user.id);
+          console.log(`${client.data.user.nickname} disconnected`);
+          client.emit(PongModel.Socket.Events.SetUI, {
+            state: false,
+            config: null,
+          });
+        }
       }
       if (game.run === true && player !== null) {
         game.room.emit(PongModel.Socket.Events.Disconnected, {

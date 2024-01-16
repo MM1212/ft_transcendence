@@ -193,7 +193,6 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
         (player) => player.status !== PongModel.Models.LobbyStatus.Ready,
       )
     ) {
-      console.log('NOT ALL READY');
       player!.status = PongModel.Models.LobbyStatus.Waiting;
       return false;
     }
@@ -205,7 +204,6 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
       if (team.players.length === 1)
         team.players[0].teamPosition = PongModel.Models.TeamPosition.Top;
     });
-    console.log('ALL READY');
     this.status = PongModel.Models.LobbyStatus.Playing;
 
     const game = await this.helpers.gameService.initGameSession(this, this.service, this.helpers.gameService);
@@ -306,12 +304,10 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
 
     for (const i in data) {
       if (data[i].type === 'user') {
-        console.log(data[i]);
         if (allPlayers.some((player) => player.id === data[i].id)) continue;
         if (this.invited.some((player) => player === data[i].id)) continue;
         this.invited.push(data[i].id);
         const target = await this.helpers.usersService.get(data[i].id);
-        console.log(target);
         if (!target) continue;
         if (source === PongModel.Models.InviteSource.Chat) {
           const [, chat] =
@@ -320,7 +316,6 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
               target,
             );
           if (!chat) continue;
-          console.log(chat);
           console.log(user.id + ' invited ' + target.id);
           await chat.addMessage(
             user,
@@ -411,7 +406,6 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
     // does this work?
     const newOwner = this.allInLobby.find((p) => p.id !== this.ownerId);
     if (newOwner) {
-      console.log('NEW OWNER : ', newOwner);
       await this.setAsOwner(newOwner as PongLobbyParticipant);
     }
   }
@@ -535,7 +529,6 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
       player.status === PongModel.Models.LobbyStatus.Ready
         ? PongModel.Models.LobbyStatus.Waiting
         : PongModel.Models.LobbyStatus.Ready;
-    console.log('new status: ', player.status);
     return true;
   }
 
@@ -584,7 +577,6 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
 
     currOwner.privileges = PongModel.Models.LobbyParticipantPrivileges.None;
     await this.setAsOwner(newOwner);
-    console.log('NEW OWNER : ', newOwner.nickname);
     return true;
   }
 

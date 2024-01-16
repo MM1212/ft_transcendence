@@ -54,6 +54,11 @@
       "diameter": 32,
       "vertices": 8,
       "manaCost": 40
+    },
+    "none": {
+      "diameter": 0,
+      "vertices": 0,
+      "manaCost": 0
     }
   }
 }

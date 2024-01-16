@@ -11,6 +11,7 @@ export class Ghost extends SpecialPower {
         super(PongModel.Models.LobbyParticipantSpecialPowerType.ghost, center, velocity, shooter, specialpowerConfig.ghost.diameter, specialpowerConfig.ghost.vertices);
         this.tag += this.id;
         shooter.manaBar.spendMana(this.manaCost);
+        shooter.manaBar.manaStep = shooter.manaBar.mana;
     }
 
     get manaCost(): number {
@@ -20,6 +21,11 @@ export class Ghost extends SpecialPower {
     onCollide(target: GameObject): boolean {
         if (!(target instanceof SpecialPower))
         {
+            if (target instanceof Bar) {
+                this.shooterObject.stats.iHitMyPower(target);
+            } else {
+                this.shooterObject.stats.iHitMyPower(undefined);
+            }
             target.setEffect(new Effect("INVISIBLE", target));
             this.game.remove(this);
             return true;

@@ -51,7 +51,7 @@ import { ShopModule } from './modules/shop/shop.module';
     UsersModule,
     ChatsModule,
     forwardRef(() => PongModule),
-    forwardRef(() => PongLobbyModule),
+    // forwardRef(() => PongLobbyModule),
     PongHistoryModule,
     ShopModule,
   ].filter(Boolean) as ModuleMetadata['imports'],

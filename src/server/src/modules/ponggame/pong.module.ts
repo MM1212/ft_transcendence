@@ -8,7 +8,12 @@ import { AuthGatewayGuard } from '../auth/guards/auth-gateway.guard';
 import { PongHistoryModule } from '../ponghistory/history.module';
 
 @Module({
-  imports: [forwardRef(() => AppModule), forwardRef(() => PongLobbyModule), UsersModule, PongHistoryModule],
+  imports: [
+    forwardRef(() => AppModule),
+    forwardRef(() => PongLobbyModule),
+    UsersModule,
+    PongHistoryModule,
+  ],
   providers: [PongService, PongGateway, AuthGatewayGuard],
   exports: [PongService],
 })
