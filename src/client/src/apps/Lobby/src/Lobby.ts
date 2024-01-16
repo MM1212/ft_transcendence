@@ -182,6 +182,15 @@ export class ClientLobby extends Lobby {
     const onKeyReleaseHandler = onKeyPress(false);
     window.addEventListener('keyup', onKeyReleaseHandler);
     this.domEvents.push([window, 'keyup', onKeyReleaseHandler]);
+
+    const focusChangeHandler = async (): Promise<void> => {
+      const mainPlayer = this.mainPlayer;
+      if (!mainPlayer) return;
+      if (!(await this.isInputEnabled())) return;
+      await mainPlayer.resetKeys();
+    }
+    window.addEventListener('blur', focusChangeHandler);
+    this.domEvents.push([window, 'blur', focusChangeHandler]);
   }
 
   public get snapshot(): ExtendedSnapshot | null {

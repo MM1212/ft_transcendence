@@ -4,6 +4,7 @@ import { Transform } from './Transform';
 import { Lobby } from './Lobby';
 import { IClassFeedbackLifeCycle, IClassLifeCycle } from './utils';
 import { IS_CLIENT } from './constants';
+import Vector2D from '../Vector/Vector2D';
 
 export class Player
   implements LobbyModel.Models.IPlayer, IClassFeedbackLifeCycle
@@ -93,19 +94,19 @@ export class Player
   handleMovement(key: string, pressed: boolean): boolean {
     switch (key) {
       case 'w': {
-        this.transform.direction.y = pressed ? -1 : 0;
+        this.transform.direction = new Vector2D(this.transform.direction.x, pressed ? -1 : 0);
         break;
       }
       case 's': {
-        this.transform.direction.y = pressed ? 1 : 0;
+        this.transform.direction = new Vector2D(this.transform.direction.x, pressed ? 1 : 0);
         break;
       }
       case 'a': {
-        this.transform.direction.x = pressed ? -1 : 0;
+        this.transform.direction = new Vector2D(pressed ? -1 : 0, this.transform.direction.y);
         break;
       }
       case 'd': {
-        this.transform.direction.x = pressed ? 1 : 0;
+        this.transform.direction = new Vector2D(pressed ? 1 : 0, this.transform.direction.y);
         break;
       }
       default:
@@ -148,6 +149,12 @@ export class Player
   async onKeyRelease(key: string): Promise<void> {
     if (await this.handleAction(key)) return;
     if (!this.handleMovement(key, false)) return;
+    await this.handleNewAnimation();
+  }
+  async resetKeys(): Promise<void> {
+    this.transform.direction = Vector2D.Zero;
+    this.transform.speed = 0;
+    if (IS_CLIENT && this.isMain) this.lobby.events.emit('self:movement', this);
     await this.handleNewAnimation();
   }
 }
