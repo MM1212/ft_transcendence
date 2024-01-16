@@ -29,6 +29,7 @@ export function PostGameModal() {
   const { close, isOpened, data } = usePostPongGameModal();
   console.log('ponggamemodal', data);
 
+
   return (
     <>
       <Modal open={isOpened} onClose={close}>

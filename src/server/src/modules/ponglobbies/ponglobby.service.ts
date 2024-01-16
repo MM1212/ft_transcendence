@@ -57,10 +57,6 @@ export class PongLobbyService {
     if (lobby.nPlayers < 2)
       throw new ForbiddenException('Lobby does not have enough players');
     if (await lobby.startGame(userId)) {
-      console.log(lobby.interface);
-      console.log(lobby.interface.teams[0].players);
-      console.log(lobby.interface.teams[1].players);
-
       lobby.syncParticipants();
       lobby.emitGameStart();
       return lobby;
@@ -93,7 +89,6 @@ export class PongLobbyService {
       throw new ForbiddenException('User is not in a lobby/game');
     if (lobbyId !== this.usersInGames.get(userId))
       throw new ForbiddenException('User is not in the specified lobby');
-    console.log(ownerToBeId, this.usersInGames);
     if (!this.usersInGames.has(ownerToBeId))
       throw new ForbiddenException('Owner to be is not in a lobby/game');
     if (lobbyId !== this.usersInGames.get(ownerToBeId))
@@ -187,17 +182,22 @@ export class PongLobbyService {
     lobbyId: number,
     password: string | null,
     nonce?: number,
-    syncToUser: boolean = false
+    syncToUser: boolean = false,
+    isJoiningActive: boolean = false,
   ): Promise<PongLobby> {
-    if (this.usersInGames.has(user.id))
-      throw new ForbiddenException('User is already in a lobby/game');
-    const lobby = this.games.get(lobbyId);
-    if (!lobby) throw new ForbiddenException('Lobby does not exist');
-    if (nonce && lobby.nonce !== nonce)
-      throw new ForbiddenException('Nonce is invalid');
-    if (lobby.status !== PongModel.Models.LobbyStatus.Waiting)
-      throw new ForbiddenException('Lobby is not available for joining');
-    lobby.verifyAuthorization(password);
+    let lobby;
+    if (isJoiningActive === false) {
+      if (this.usersInGames.has(user.id))
+        throw new ForbiddenException('User is already in a lobby/game');
+      lobby = this.games.get(lobbyId);
+      if (!lobby) throw new ForbiddenException('Lobby does not exist');
+      if (nonce && lobby.nonce !== nonce)
+        throw new ForbiddenException('Nonce is invalid');
+      if (lobby.status !== PongModel.Models.LobbyStatus.Waiting)
+        throw new ForbiddenException('Lobby is not available for joining');
+      lobby.verifyAuthorization(password);
+    }
+    lobby = this.games.get(lobbyId)!;
     const newUser = new PongLobbyParticipant(user, lobby);
     this.usersInGames.set(newUser.id, lobby.id);
     lobby.invited = lobby.invited.filter((id) => id !== newUser.id);
@@ -232,7 +232,6 @@ export class PongLobbyService {
   }
 
   public async leaveLobby(userId: number, syncToUser: boolean = false): Promise<PongLobby> {
-    console.log(this.usersInGames, userId);
     if (!this.usersInGames.has(userId))
       throw new Error('User is not in a lobby/game');
     const lobby = this.games.get(this.usersInGames.get(userId)!);

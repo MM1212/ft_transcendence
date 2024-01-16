@@ -10,8 +10,18 @@ import { PongQueueService } from '../pongqueue/pongqueue.service';
 import { UsersModule } from '../users/users.module';
 
 @Module({
-  imports: [DbModule, SseModule, ChatsModule, forwardRef(() => PongModule), UsersModule],
-  providers: [PongLobbyService, PongLobbyDependencies, PongQueueService],
+  imports: [
+    DbModule,
+    SseModule,
+    ChatsModule,
+    forwardRef(() => PongModule),
+    UsersModule,
+  ],
+  providers: [
+    PongLobbyService,
+    PongLobbyDependencies,
+    PongQueueService,
+  ],
   controllers: [PongLobbyController],
   exports: [PongLobbyService, PongQueueService],
 })

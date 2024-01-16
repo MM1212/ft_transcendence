@@ -1,30 +1,47 @@
-import { GameObject } from "./GameObject";
-import { BallPolygon } from "./Collisions/Polygon";
-import { Vector2D } from "./utils/Vector";
+import { GameObject } from './GameObject';
+import { BallPolygon } from './Collisions/Polygon';
+import { Vector2D } from './utils/Vector';
 // import { Bot } from './Paddles/Bot';
-import { Game } from "./Game";
-import { ballsConfig, gameConfig } from "./config/configInterface";
-import { ArenaWall } from "./Collisions/Arena";
-import { Bar } from "./Paddles/Bar";
-import { Collider } from "./Collisions/Collider";
-import PongModel from "../../typings/models/pong";
+import { Game } from './Game';
+import { ballsConfig, gameConfig } from './config/configInterface';
+import { ArenaWall } from './Collisions/Arena';
+import { Bar } from './Paddles/Bar';
+import { Collider } from './Collisions/Collider';
+import PongModel from '../../typings/models/pong';
+import { SpecialPower } from './SpecialPowers/SpecialPower';
+import { Bubble } from './SpecialPowers/Bubble';
+import { Fire } from './SpecialPowers/Fire';
 
 export class Ball extends GameObject {
-  constructor(x: number, y: number, game: Game, ballSkinName: keyof typeof ballsConfig) {
+  public powerScoredTheGoal: SpecialPower | undefined;
+  public lastPlayerToTouch: Bar | undefined;
+
+  constructor(
+    x: number,
+    y: number,
+    game: Game,
+    ballSkinName: keyof typeof ballsConfig
+  ) {
     super(PongModel.InGame.ObjType.Ball, game);
     this.center = new Vector2D(x, y);
     this.startBall();
     this.acceleration = 1;
     this._move = true;
-    console.log("ball skin: " + ballSkinName);
     this.height = ballsConfig[ballSkinName].diameter;
     this.width = ballsConfig[ballSkinName].diameter;
 
     this.collider = Collider.fromPolygon(
-      new BallPolygon(this.center, this.width, ballsConfig[ballSkinName].vertices)
+      new BallPolygon(
+        this.center,
+        this.width,
+        ballsConfig[ballSkinName].vertices
+      )
     );
     this.effect = undefined;
     this.effectVelocity = new Vector2D(1, 1);
+
+    this.powerScoredTheGoal = undefined;
+    this.lastPlayerToTouch = undefined;
 
     this.hasChanged = true;
   }
@@ -41,37 +58,115 @@ export class Ball extends GameObject {
       if (obj.collider === undefined) return;
       obj.collider.lastCollision = undefined;
     });
-    // todo: change this
-    this.velocity = new Vector2D(7.5, -5.5).normalize().multiply(4);
+
     this.velocity = this.getRandomVelocity();
     this.acceleration = 1;
     this._move = true;
     if (this.effect !== undefined) this.effect?.setStopEffect();
   }
 
-  resetBall(x: number): void {
+  private directGoal(backBar: Bar, frontBar?: Bar): boolean {
+    if (this.powerScoredTheGoal !== undefined) {
+      if (
+        this.powerScoredTheGoal instanceof Bubble ||
+        this.powerScoredTheGoal instanceof Fire
+      ) {
+        const shooter = this.powerScoredTheGoal.shooter;
+        shooter.stats.incrementSpecialPowerStat(shooter.specialPowerType);
+        shooter.stats.goalScored();
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private notDirectGoal(
+    backBar: Bar,
+    opponent1: Bar,
+    frontBar?: Bar,
+    opponent2?: Bar
+  ): void {
+    if (this.lastPlayerToTouch !== undefined) {
+      if (this.lastPlayerToTouch === backBar) {
+        backBar.stats.goalScored();
+        if (this.checkEffect(opponent1) || this.checkEffect(opponent2)) {
+          backBar.stats.incrementSpecialPowerStat(backBar.specialPowerType);
+        }
+      } else if (this.lastPlayerToTouch === frontBar) {
+        frontBar?.stats.goalScored();
+        if (this.checkEffect(opponent1) || this.checkEffect(opponent2)) {
+          frontBar?.stats.incrementSpecialPowerStat(frontBar.specialPowerType);
+        }
+      }
+    }
+  }
+
+  private checkEffect(bar: Bar | undefined): boolean {
+    if (bar === undefined) return false;
+    if (bar.effect !== undefined) {
+      if (
+        bar.effect.name === 'SLOW' ||
+        bar.effect.name === 'STOP' ||
+        bar.effect.name === 'REVERSE' ||
+        bar.effect.name === 'INVISIBLE'
+      ) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  updatePlayerThatScoredStats(
+    x: number,
+    p1: Bar,
+    p2: Bar,
+    p3: Bar | undefined,
+    p4: Bar | undefined
+  ): void {
     if (x <= 0) {
-      const p2 = this.game.getObjectByTag(
-        PongModel.InGame.ObjType.Player2
-      ) as Bar;
+      if (this.directGoal(p2, p4) === false) {
+        this.notDirectGoal(p2, p1, p4, p3);
+      }
+    } else {
+      if (this.directGoal(p1, p3) === false) {
+        this.notDirectGoal(p1, p2, p3, p4);
+      }
+    }
+  }
+
+  resetBall(x: number): void {
+    const p1 = this.game.getObjectByTag(
+      PongModel.InGame.ObjType.Player1
+    ) as Bar;
+    const p2 = this.game.getObjectByTag(
+      PongModel.InGame.ObjType.Player2
+    ) as Bar;
+    const p3 = this.game.getObjectByTag(
+      PongModel.InGame.ObjType.Player3
+    ) as Bar;
+    const p4 = this.game.getObjectByTag(
+      PongModel.InGame.ObjType.Player4
+    ) as Bar;
+
+    this.updatePlayerThatScoredStats(x, p1, p2, p3, p4);
+
+    if (x <= 0) {
       if (p2) p2.reduceScale();
-      const p4 = this.game.getObjectByTag(
-        PongModel.InGame.ObjType.Player4
-      ) as Bar;
       if (p4) p4.reduceScale();
+      this.game.gameStats.teamStats.goalScored(1);
       this.game.score[1] += 1;
     } else {
-      const p1 = this.game.getObjectByTag(
-        PongModel.InGame.ObjType.Player1
-      ) as Bar;
       if (p1) p1.reduceScale();
-      const p3 = this.game.getObjectByTag(
-        PongModel.InGame.ObjType.Player3
-      ) as Bar;
       if (p3) p3.reduceScale();
+      this.game.gameStats.teamStats.goalScored(0);
       this.game.score[0] += 1;
     }
     this.game.scored = true;
+    this.game.gameStats.goalScored();
+
+    this.powerScoredTheGoal = undefined;
+    this.lastPlayerToTouch = undefined;
+
     this.startBall();
   }
 
@@ -106,8 +201,17 @@ export class Ball extends GameObject {
 
   // Nao esquecer de adicionar aqui os powers que tenham colisao com a bola
   onCollide(target: GameObject): void {
+    this.game.gameStats.increaseBounces(target);
     if (this.collider === undefined) return;
     this.collider.lastCollision = target.collider;
+
+    if (target instanceof SpecialPower) {
+      this.powerScoredTheGoal = target;
+      this.lastPlayerToTouch = undefined;
+    } else if (target instanceof Bar) {
+      this.lastPlayerToTouch = target;
+      this.powerScoredTheGoal = undefined;
+    }
     if (target instanceof ArenaWall) {
       this.velocity.y = -this.velocity.y;
     } else if (target instanceof Bar) {

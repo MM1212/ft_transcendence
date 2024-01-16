@@ -9,7 +9,7 @@ interface GameConfig {
 const gameConfig: GameConfig = _gameConfig.game as GameConfig;
 export { gameConfig };
 
-export type BallsConfig = Record<"RedBall" | "default", 
+export type BallsConfig = Record<"RedBall" | "default",
 {
   diameter: number;
   vertices: number;
@@ -17,7 +17,7 @@ export type BallsConfig = Record<"RedBall" | "default",
 }
 >;
 const ballsConfig: BallsConfig = _gameConfig.balls as BallsConfig;
-export { ballsConfig }; 
+export { ballsConfig };
 
 type paddleObjectConfig = Record<
   "PaddleRed" | "default",
@@ -31,7 +31,7 @@ const paddleConfig: paddleObjectConfig = _gameConfig.paddles as paddleObjectConf
 export { paddleConfig };
 
 type specialPowerObjectConfig = Record<
-  "spark" | "fire" | "ghost" | "bubble" | "ice",
+  "spark" | "fire" | "ghost" | "bubble" | "ice" | "none",
   {
     diameter: number;
     vertices: number;

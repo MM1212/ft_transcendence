@@ -50,7 +50,6 @@ export class Effect {
     this.effectCur += delta * 0.5;
     if (this.effectCur >= this.effectMax) {
       obj.decreaseHitAmount();
-      console.log("decrease hit amount");
       if (obj.hitAmountEffect <= 0) {
         obj.setEffectVelocity(new Vector2D(0, 1));
         if (obj instanceof Ball) {

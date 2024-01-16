@@ -45,6 +45,19 @@ export class PongQueueService {
     }, 3000);
   }
 
+  public async leaveQueue(lobby: PongLobby, userId: number): Promise<void> {
+    if (lobby.queueType === PongModel.Models.LobbyType.Single) {
+      this.queue1x1.storage = this.queue1x1.storage.filter(
+        (l) => l.id !== lobby.id,
+      );
+    } else if (lobby.queueType === PongModel.Models.LobbyType.Double) {
+      this.queue2x2.storage = this.queue2x2.storage.filter(
+        (l) => l.id !== lobby.id,
+      );
+    }
+    await this.lobbyService.leaveLobby(userId, true);
+  }
+
   private async joinWaitingUsers(waintingQ: Queue<PongLobby>) {
     while (waintingQ.size() > 1) {
       const receiver = waintingQ.dequeue();
@@ -70,7 +83,7 @@ export class PongQueueService {
       receiver.allPlayers.forEach((p) => {
         p.status = PongModel.Models.LobbyStatus.Ready;
       })
-      
+
       this.lobbyService.startGame(receiver.teams[0].players[0].id, receiver.id);
     }
   }

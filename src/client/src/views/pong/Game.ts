@@ -49,8 +49,9 @@ export class UIGame extends Game {
   constructor(
     public readonly socket: Socket,
     container: HTMLDivElement,
-    gameConfig: PongModel.Models.IGameConfig,
-    public readonly nickname: string
+    private gameConfig: PongModel.Models.IGameConfig,
+    public readonly nickname: string,
+    private readonly userId: number
   ) {
     super(WINDOWSIZE_X, WINDOWSIZE_Y);
 
@@ -103,6 +104,7 @@ export class UIGame extends Game {
 
     document.addEventListener('keydown', this.handleKeyDown);
     document.addEventListener('keyup', this.handleKeyUp);
+    document.addEventListener('focusout', this.handleLostOfFocus);
 
     this.debug = new Debug(this.app);
     this.app.stage.sortableChildren = true;
@@ -118,9 +120,11 @@ export class UIGame extends Game {
     this.scoreElementRight = new PIXI.Text(this.score[1], this.scoreStyle);
     this.scoreElementLeft.anchor.set(0.5);
     this.scoreElementRight.anchor.set(0.5);
-    this.scoreElementLeft.x = this.app.view.width / 2 - this.app.view.width / 12;
+    this.scoreElementLeft.x =
+      this.app.view.width / 2 - this.app.view.width / 12;
     this.scoreElementLeft.y = this.app.view.height / 16;
-    this.scoreElementRight.x = this.app.view.width / 2 + this.app.view.width / 12;
+    this.scoreElementRight.x =
+      this.app.view.width / 2 + this.app.view.width / 12;
     this.scoreElementRight.y = this.app.view.height / 16;
     this.app.stage.addChild(this.scoreElementLeft);
     this.app.stage.addChild(this.scoreElementRight);
@@ -217,7 +221,18 @@ export class UIGame extends Game {
     }
   }
 
+  handleLostOfFocus = () => {
+    if (this.gameConfig.spectators.includes(this.userId)) return;
+
+    this.socket.emit(PongModel.Socket.Events.FocusLoss, {
+      roomId: this.roomId,
+    });
+  };
+
   handleKeyDown = (e: KeyboardEvent) => {
+    if (this.gameConfig.spectators.includes(this.userId)) return;
+
+
     if (e.key && e.repeat === false && e.shiftKey === false) {
       // (this.AllPlayersNicks)
       this.socket.emit(PongModel.Socket.Events.KeyPress, {
@@ -231,6 +246,8 @@ export class UIGame extends Game {
   };
 
   handleKeyUp = (e: KeyboardEvent) => {
+    if (this.gameConfig.spectators.includes(this.userId)) return;
+
     this.socket.emit(PongModel.Socket.Events.KeyPress, {
       key: e.key.toLowerCase(),
       state: false,
@@ -297,14 +314,19 @@ export class UIGame extends Game {
   private tickRef: PIXI.TickerCallback<any> | undefined;
   start() {
     this.tickRef = (_delta: number) => {
-      this.update();
-    }
+      this.update(_delta);
+    };
+    this.app.ticker.maxFPS = 60;
+    this.app.ticker.minFPS = 60;
     this.app.ticker.add(this.tickRef);
   }
 
   gameOver() {
-    if (this.tickRef)
+    if (this.tickRef) {
+      this.app.ticker.stop();
       this.app.ticker.remove(this.tickRef);
+      this.app.ticker.destroy();
+    }
     this.tickRef = undefined;
   }
 
@@ -318,9 +340,16 @@ export class UIGame extends Game {
     this.updatePaddleSizes(paddles);
   }
 
-  update() {
+  update(delta: number) {
     if (this.run) {
       this.debug.debugDraw(this.gameObjects as UIGameObject[]);
+
+      this.gameObjects.forEach((gameObject: GameObject) => {
+        if (gameObject instanceof UIPlayer) {
+          gameObject.mana.update(gameObject.tag, delta);
+          gameObject.energy.update(gameObject.tag, delta);
+        }
+      });
     }
   }
 
@@ -354,7 +383,7 @@ export class UIGame extends Game {
     this.removeObjects();
     this.app.stage.destroy();
     this.app.stop();
-    this.app.destroy(true);
+    this.app.destroy(true, { children: true });
     document.removeEventListener('keydown', this.handleKeyDown);
     document.removeEventListener('keyup', this.handleKeyUp);
     super.shutdown();

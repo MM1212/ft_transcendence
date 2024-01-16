@@ -60,6 +60,16 @@ export class ServerGame extends Game {
   }
   /***/
 
+  get gameInfo(): PongModel.Models.IGameInfoDisplay {
+    return {
+      UUID: this.UUID,
+      score: this.score,
+      teams: this.config.teams,
+      maxScore: this.maxScore,
+      spectatorVisibility: this.lobbyInterface.spectatorVisibility,
+    };
+  }
+
   public checkStart() {
     if (
       this.started === false &&
@@ -83,6 +93,13 @@ export class ServerGame extends Game {
             tag: player.tag,
             powertag: powertag,
           });
+          this.room.emit(PongModel.Socket.Events.EnergyManaUpdate, [
+            {
+              tag: player.tag,
+              mana: player.mana.manaCur,
+              energy: player.energy.energyCur,
+            },
+          ]);
           break;
         case SHOOT_ACTION.SHOOT:
           this.room.emit(PongModel.Socket.Events.ShootPower, {
@@ -171,22 +188,115 @@ export class ServerGame extends Game {
     }
   }
 
+  handleFocusLoss(userId: number): void {
+    const player = this.getPlayerInstanceById(userId);
+    if (player) {
+      console.log('turning off keys');
+      this.handleKeys(userId, player.keys.up, false);
+      this.handleKeys(userId, player.keys.down, false);
+      this.handleKeys(userId, player.keys.boost, false);
+      this.handleKeys(userId, player.keys.shoot, false);
+      console.log(player.keys);
+    }
+  }
+
+  static readonly fixedDeltaTime: number = 1000 / 60; // 60 FPS in seconds
   public startTick() {
     let lastTimeStamp = performance.now();
     let lastFPSTimestamp = performance.now();
-    const fixedDeltaTime: number = 0.01667; // 60 FPS in seconds
+    this.gameStats.startTimer();
+    this.gameStats.startNewRound();
     const tick = () => {
       const timestamp = performance.now();
-      const deltaTime = (timestamp - lastTimeStamp) / 1000;
+      const deltaTime = timestamp - lastTimeStamp;
       lastTimeStamp = timestamp;
-      this.delta = deltaTime / fixedDeltaTime;
+      this.delta = deltaTime / ServerGame.fixedDeltaTime;
       this.update(this.delta);
 
       if (timestamp - lastFPSTimestamp > 1000) {
         lastFPSTimestamp = timestamp;
       }
     };
-    this.updateHandle = setInterval(tick, 16);
+    this.updateHandle = setInterval(tick, ServerGame.fixedDeltaTime);
+  }
+
+  private calculateMoneyEarned(
+    player: Bar,
+    playerScore: number,
+    winner: number,
+  ): void {
+    let moneyEarned = 0;
+
+    const baseReward = 5;
+    const rarePerformanceMultiplier = 2;
+    const epicPerformanceMultiplier = 4;
+
+    moneyEarned = baseReward * (playerScore / 100);
+
+    if (winner === player.teamId) {
+      moneyEarned *= 1.5;
+    }
+
+    if (moneyEarned > baseReward * 2) {
+      moneyEarned *= rarePerformanceMultiplier;
+    }
+    if (moneyEarned > baseReward * 10) {
+      moneyEarned *= epicPerformanceMultiplier;
+    }
+    moneyEarned = Math.round(moneyEarned * 100);
+    player.stats.setMoneyEarned(moneyEarned);
+  }
+
+  private calculatePlayerStats(mvpScores: {
+    tag: string;
+    score: number;
+  }): void {
+    const winner = this.score[0] > this.score[1] ? 0 : 1;
+    for (const player of this.gameObjects) {
+      if (player instanceof Bar) {
+        player.stats.gameOver();
+        const stats = player.stats.exportStats();
+
+        const normalizedGoalScored = stats.goalsScored / 100;
+        const normalizedSpecialPowerAccuracy = stats.powerAccuracy / 100;
+        const normalizedHittenByPower = stats.hittenByPower / 100;
+        const normalizedDirectGoal =
+          (stats.bubble_DirectGoal +
+            stats.fire_DirectGoal +
+            stats.ghost_ScoredOpponentInvisible +
+            stats.ice_ScoredOpponentAffected +
+            stats.spark_ScoredOpponentAffected) /
+          100;
+
+        const normalizedWinningGoal = stats.winningGoal ? 1 : 0;
+        const normalizedWinningTeam = winner;
+
+        const weightGoalScored = 0.2;
+        const weightSpecialPowerAccuracy = 0.2;
+        const weightHittenByPower = 0.1;
+        const weightWinningGoal = 0.2;
+        const weightWinningTeam = 0.3;
+        const weightDirectGoal = 0.2;
+
+        let weightedSum = 0;
+        weightedSum =
+          normalizedGoalScored * weightGoalScored +
+          normalizedSpecialPowerAccuracy * weightSpecialPowerAccuracy -
+          normalizedHittenByPower * weightHittenByPower +
+          normalizedWinningGoal * weightWinningGoal +
+          normalizedDirectGoal * weightDirectGoal +
+          normalizedWinningTeam * weightWinningTeam;
+
+        const playerScore = Math.round(weightedSum * 100);
+
+        player.stats.setPlayerScore(playerScore / 10);
+        if (playerScore > mvpScores.score) {
+          mvpScores.score = playerScore;
+          mvpScores.tag = player.tag;
+        }
+        this.calculateMoneyEarned(player, playerScore, winner);
+      }
+    }
   }
 
   public async stop() {
@@ -195,7 +305,20 @@ export class ServerGame extends Game {
       this.updateHandle = undefined;
       console.log(`Game ${this.UUID}: stopped!`);
 
-      const calculateMVPId = 0;
+      this.gameStats.gameOver();
+      this.gameStats.teamStats.gameOver();
+
+      const mvpScores = {
+        tag: '',
+        score: 0,
+      };
+
+      // execute all players stats game over
+      this.calculatePlayerStats(mvpScores);
+
+      console.log('team0' + this.gameStats.teamStats.exportStats(0));
+      console.log('team1' + this.gameStats.teamStats.exportStats(1));
+      console.log('game' + this.gameStats.exportStats());
 
       const getPlayerStats = (
         player: PongModel.Models.IPlayerConfig,
@@ -205,8 +328,8 @@ export class ServerGame extends Game {
             paddle: player.paddle,
             specialPower: player.specialPower,
           },
-          stats: {},
-          mvp: player.userId === calculateMVPId ? true : false,
+          stats: (this.getObjectByTag(player.tag) as Bar).stats.exportStats(),
+          mvp: player.tag === mvpScores.tag ? true : false,
           owner: this.config.ownerId === player.userId ? true : false,
           userId: player.userId,
           score: player.scored,
@@ -230,14 +353,14 @@ export class ServerGame extends Game {
             },
           ),
           score: team.score,
-          stats: {},
+          stats: this.gameStats.teamStats.exportStats(team.id),
           won: wonVal,
         };
       };
 
       const creatorMatchHistory: PongHistoryModel.DTO.DB.CreateMatch = {
         winnerTeamId: this.score[0] > this.score[1] ? 0 : 1,
-        stats: {},
+        stats: this.gameStats.exportStats(),
         teams: this.config.teams.map<PongHistoryModel.DTO.DB.CreateTeam>(
           (team) => {
             return getTeamStats(team);
@@ -302,9 +425,66 @@ export class ServerGame extends Game {
 
   public update(delta: number): void {
     if (this.score[0] >= this.maxScore || this.score[1] >= this.maxScore) {
+      const ball = this.getObjectByTag(PongModel.InGame.ObjType.Ball) as Ball;
+
+      if (ball.collider === undefined) return;
+      for (const player of this.gameObjects) {
+        if (player instanceof Bar) {
+          if (ball.lastPlayerToTouch === player)
+            player.stats.scoredWinningGoal();
+        }
+      }
       this.stop();
     }
     super.update(delta);
+
+    const players = this.gameObjects.filter(
+      (obj) => obj instanceof Bar,
+    ) as Bar[];
+
+    const manaEnergyUpdate: PongModel.Socket.Data.EnergyManaUpdate[] = [];
+    players.forEach((player) => {
+      let push = false;
+      if (
+        !player.mana.isManaFull() &&
+        player.mana.manaCur > player.mana.manaStep + 10
+      ) {
+        player.mana.manaStep += 10;
+        push = true;
+      }
+      if (
+        player instanceof Player &&
+        player.keyPressed[player.keys.boost] === true
+      ) {
+        if (
+          !player.energy.isEnergyFull() &&
+          player.energy.energyCur <= player.energy.energyStep - 10
+        ) {
+          player.energy.energyStep -= 10;
+          push = true;
+        }
+      }
+      if (
+        !player.energy.isEnergyFull() &&
+        player.energy.energyCur > player.energy.energyStep + 10
+      ) {
+        player.energy.energyStep += 10;
+        push = true;
+      }
+      if (push) {
+        manaEnergyUpdate.push({
+          tag: player.tag,
+          mana: player.mana.manaCur,
+          energy: player.energy.energyCur,
+        });
+      }
+    });
+    if (manaEnergyUpdate.length > 0) {
+      this.room.emit(
+        PongModel.Socket.Events.EnergyManaUpdate,
+        manaEnergyUpdate,
+      );
+    }
 
     this.emitMappedValues<GameObject, PongModel.Socket.Data.UpdateMovements>(
       PongModel.Socket.Events.UpdateMovements,
@@ -365,7 +545,6 @@ export class ServerGame extends Game {
   public getPlayerInstanceById(id: number): Player | undefined {
     return this.gameObjects.find((gameObject: GameObject) => {
       if (gameObject instanceof Player) {
-        console.log(gameObject.userId, id);
         return gameObject.userId === id;
       }
       return false;

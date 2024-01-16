@@ -10,6 +10,7 @@ import Link from '@components/Link';
 import { useRecoilValue } from 'recoil';
 import pongGamesState from '../state';
 import PongModel from '@typings/models/pong';
+import { LobbySpectateActiveGame } from './LobbySpectateActiveGame';
 
 interface ITab {
   value: string;
@@ -41,7 +42,7 @@ const tabs: ITab[] = [
   {
     value: 'ongoing',
     label: 'Active Games',
-    component: () => <div>Ongoing</div>,
+    component: LobbySpectateActiveGame,
     disableIfInLobby: true,
   },
 ];
@@ -55,7 +56,7 @@ function LobbyTop() {
       if (inLobby) {
         const inQueue = lobbyType !== PongModel.Models.LobbyType.Custom;
         console.log(inQueue, tab);
-        
+
         if (inQueue)
           return tab.disableIfInQueue === false;
         if (tab.disableIfInLobby)
@@ -67,7 +68,7 @@ function LobbyTop() {
   );
   React.useEffect(() => {
     console.log(tabId);
-    
+
     if (!actualTabs.some((tab) => tab.value === tabId) && actualTabs.length > 0)
       navigate(`/pong/play/${actualTabs[0].value}`, { replace: true });
   }, [actualTabs, tabId]);

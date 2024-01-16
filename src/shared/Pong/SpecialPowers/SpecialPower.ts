@@ -54,8 +54,6 @@ export abstract class SpecialPower extends GameObject {
   }
 
   onCollide(target: GameObject): boolean {
-    console.log("collide");
-
     if (!(target instanceof SpecialPower)) return false;
     return true;
   }

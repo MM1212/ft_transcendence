@@ -62,6 +62,10 @@ const ponglobbyValidator = new (class PongLobbyControllerValidator {
     lobbyId: z.number().int().nonnegative(),
   } satisfies ComputeToZodKeys<PongModel.DTO.CheckId>);
 
+  joinActiveSchema: ZodType<PongModel.DTO.JoinActive> = z.object({
+    uuid: z.string(),
+  } satisfies ComputeToZodKeys<PongModel.DTO.JoinActive>);
+
   joinLobbySchema: ZodType<PongModel.DTO.JoinLobby> = z.object({
     lobbyId: z.number().int().nonnegative(),
     password: z
