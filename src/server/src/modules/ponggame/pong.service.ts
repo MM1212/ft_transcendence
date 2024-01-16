@@ -1,6 +1,6 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable, forwardRef } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
-import { PongLobby } from '../ponglobbies/ponglobby';
+import { PongLobby, PongLobbyParticipant } from '../ponglobbies/ponglobby';
 import { ServerGame } from './pong';
 import PongModel from '@typings/models/pong';
 import { Server } from 'socket.io';
@@ -14,11 +14,15 @@ export class PongService {
   public clientInGames = new Map<number, string>(); // userId, gameUUID
   public games = new Map<string, ServerGame>();
   public readonly server: Server;
-  constructor(public historyService: PongHistoryService, private lobbyService: PongLobbyService) {}
+  constructor(
+    public historyService: PongHistoryService,
+    @Inject(forwardRef(() => PongLobbyService))
+    private readonly lobbyService: PongLobbyService,
+  ) {}
 
   // maybe create a new node js thread for each game (?)
 
-  public joinActive(user: User, uuid: string): void {
+  public async joinActive(user: User, uuid: string): Promise<PongLobby> {
     const game = this.getGame(uuid);
     if (!game) throw new ForbiddenException('Game not found');
 
@@ -46,7 +50,12 @@ export class PongService {
       }
     }
 
-    this.lobbyService.joinSpectators(user, game.lobbyInterface.id);
+    const lobby = await this.lobbyService.getLobby(game.lobbyInterface.id);
+    if (!lobby) throw new ForbiddenException('Lobby not found');
+
+    await this.lobbyService.joinLobby(user, lobby.id, null, undefined, false, true);
+    await this.lobbyService.joinSpectators(user, lobby.id);
+    return lobby;
   }
 
   public getAllGames(): PongModel.Models.IGameInfoDisplay[] {

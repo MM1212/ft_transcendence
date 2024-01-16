@@ -222,6 +222,7 @@ export class PongLobbyController {
     @Body(new ObjectValidationPipe(ponglobbyValidator.joinActiveSchema))
     body: EndpointData<PongModel.Endpoints.JoinActive>,
   ): Promise<InternalEndpointResponse<PongModel.Endpoints.JoinActive>> {
-    this.ponggameService.joinActive(ctx.user, body.uuid);
+    const lobby = await this.ponggameService.joinActive(ctx.user, body.uuid);
+    return lobby.interface;
   }
 }

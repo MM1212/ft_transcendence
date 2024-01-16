@@ -5,20 +5,34 @@ import tunnel from "@lib/tunnel";
 import { Sheet, Stack, Typography } from "@mui/joy";
 import { alpha } from "@theme";
 import PongModel from "@typings/models/pong";
-import { useCallback } from "react";
 import { navigate } from "wouter/use-location";
+import pongGamesState from "../state";
+import { useRecoilCallback } from "recoil";
 
 function ViewGame(game: PongModel.Models.IGameInfoDisplay) {
-  const handleViewGame = useCallback(async () => {
-    try {
-      await tunnel.post(PongModel.Endpoints.Targets.JoinActive, {
-        uuid: game.UUID,
-      });
-      navigate("/pong/play/", { replace: true });
-    } catch (error) {
-      notifications.error("Failed to spectate game", (error as Error).message);
-    }
-  }, [game.UUID]);
+  const handleViewGame = useRecoilCallback(
+    (ctx) => async () => {
+      try {
+        const lobbyJoined = await tunnel.post(
+          PongModel.Endpoints.Targets.JoinActive,
+          {
+            uuid: game.UUID,
+          }
+        );
+        if (!lobbyJoined) return;
+        ctx.set(pongGamesState.gameLobby, lobbyJoined);
+        navigate("/pong/play/", { replace: true });
+      } catch (error) {
+        notifications.error(
+          "Failed to spectate game",
+          (error as Error).message
+        );
+      }
+    },
+    [game.UUID]
+  );
+
+  if (!game) return null;
 
   return (
     <Sheet

@@ -552,7 +552,7 @@ namespace PongModel {
       extends Endpoint<
         EndpointMethods.Post,
         Targets.JoinActive,
-        undefined,
+        Models.ILobby,
         DTO.JoinActive> {}
 
     /* GET methods */
