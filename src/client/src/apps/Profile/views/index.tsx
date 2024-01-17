@@ -38,7 +38,7 @@ function OtherOptions({
   user: UsersModel.Models.IUserInfo;
   friend: boolean;
 }) {
-  const { goToMessages, sentFriendRequest } = useFriend(user.id);
+  const { goToMessages, sendFriendRequest } = useFriend(user.id);
   return (
     <ButtonGroup size="sm" variant="outlined">
       <Button
@@ -52,7 +52,7 @@ function OtherOptions({
         <Button
           size="sm"
           startDecorator={<AccountPlusIcon size="sm" />}
-          onClick={sentFriendRequest}
+          onClick={sendFriendRequest}
         >
           Friend Request
         </Button>

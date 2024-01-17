@@ -12,6 +12,8 @@ import UsersModel from '@typings/models/users';
 import notifications from '@lib/notifications/hooks';
 import React from 'react';
 import friendsState from '@apps/Friends/state';
+import notificationsState from '@apps/Inbox/state';
+import NotificationsModel from '@typings/models/notifications';
 
 export default function UserSearch() {
   const [input, setInput] = useRecoilState(profileState.searchInput);
@@ -21,24 +23,27 @@ export default function UserSearch() {
   const _searchForUsers = useRecoilCallback(
     (ctx) => async (input: string) => {
       ctx.set(profileState.searchLoading, true);
-      console.log(input);
-
       try {
         const result = await tunnel.post(
           UsersModel.Endpoints.Targets.SearchUsers,
           { excluseSelf: true, query: input }
         );
-        console.log(result);
         if (result.length === 0) {
           ctx.set(profileState.searchResults, []);
           return;
         }
         const friends = await ctx.snapshot.getPromise(friendsState.friends);
+        const blocked = await ctx.snapshot.getPromise(friendsState.blocked);
+        const friendRequests = await ctx.snapshot.getPromise(
+          notificationsState.byTag(NotificationsModel.Models.Tags.UserFriendsRequest)
+        ) as UsersModel.DTO.FriendRequestNotification[];
         ctx.set(
           profileState.searchResults,
           result.map((user) => ({
             ...user,
             isFriend: friends.includes(user.id),
+            isBlocked: blocked.includes(user.id),
+            friendRequestSent: friendRequests.some((n) => n.data.uId === user.id),
           }))
         );
       } catch (e) {

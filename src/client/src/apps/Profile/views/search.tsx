@@ -1,4 +1,4 @@
-import { Box, Divider, Sheet, Stack } from '@mui/joy';
+import { Box, Divider, Sheet } from '@mui/joy';
 import UserSearch from '../components/UserSearchInput';
 import UserSearchResults from '../components/UserSearchResults';
 

@@ -1,4 +1,4 @@
-import { useBlocked, useFriends } from '@apps/Friends/hooks';
+import { useBlocked, useFriendRequests, useFriends } from '@apps/Friends/hooks';
 import useFriend from '@apps/Friends/hooks/useFriend';
 import AccountCancelIcon from '@components/icons/AccountCancelIcon';
 import AccountIcon from '@components/icons/AccountIcon';
@@ -7,7 +7,6 @@ import AccountRemoveIcon from '@components/icons/AccountRemoveIcon';
 import CloseOctagonOutlineIcon from '@components/icons/CloseOctagonOutlineIcon';
 import MessageIcon from '@components/icons/MessageIcon';
 import MenuOption from '@components/menu/MenuOption';
-import { useUser } from '@hooks/user';
 import UsersModel from '@typings/models/users';
 import React from 'react';
 import { useRoute } from 'wouter';
@@ -19,11 +18,15 @@ export default function UserMenuOptions({
 }): JSX.Element[] {
   const friends = useFriends();
   const blocked = useBlocked();
-  const [isFriend, isBlocked, friendId] = React.useMemo(() => {
+  const friendRequests = useFriendRequests();
+  const [isFriend, isBlocked, friendRequestSent, friendId] = React.useMemo(() => {
     const isFriend = friends.includes(user?.id ?? -1);
     const isBlocked = blocked.includes(user?.id ?? -1);
-    return [!!isFriend, isBlocked, user?.id ?? -1];
-  }, [blocked, friends, user?.id]);
+    const friendRequestSent = friendRequests.some(
+      (n) => n.data.uId === user?.id
+    );
+    return [!!isFriend, isBlocked, friendRequestSent, user?.id ?? -1];
+  }, [blocked, friends, user?.id, friendRequests]);
   const { remove, block, unblock, goToProfile, goToMessages } =
     useFriend(friendId);
   const [isInProfile] = useRoute('/profile/:rest*');
@@ -48,7 +51,7 @@ export default function UserMenuOptions({
       >
         Remove
       </MenuOption>
-    ) : (
+    ) : !friendRequestSent && (
       <MenuOption
         icon={AccountPlusIcon}
         disabled={isBlocked}
