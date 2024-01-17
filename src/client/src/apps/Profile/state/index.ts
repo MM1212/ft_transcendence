@@ -1,6 +1,11 @@
-import friendsState from '@apps/Friends/state';
 import UsersModel from '@typings/models/users';
-import { DefaultValue, atom } from 'recoil';
+import { atom } from 'recoil';
+
+export interface UserSearchResult extends UsersModel.Models.IUserInfo {
+  isFriend: boolean;
+  isBlocked: boolean;
+  friendRequestSent: boolean;
+}
 
 const profileState = new (class ProfileState {
   searchInput = atom<string>({
@@ -15,12 +20,10 @@ const profileState = new (class ProfileState {
     key: 'searchLoading',
     default: false,
   });
-  searchResults = atom<(UsersModel.Models.IUserInfo & { isFriend: boolean })[]>(
-    {
-      key: 'searchResults',
-      default: [],
-    }
-  );
+  searchResults = atom<UserSearchResult[]>({
+    key: 'searchResults',
+    default: [],
+  });
 })();
 
 export default profileState;
