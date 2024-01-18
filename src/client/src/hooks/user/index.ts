@@ -154,7 +154,6 @@ export const useUsersService = () => {
       }
       const { isActive } = ctx.snapshot.getInfo_UNSTABLE(usersAtom(id));
       if (!isActive) {
-        console.warn('User not found in cache, skipping update');
         return;
       }
       ctx.set(usersAtom(id), (prev) =>

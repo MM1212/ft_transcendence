@@ -34,11 +34,17 @@ export class UsersFriendsService {
     const { uId } =
       notif.dataAs<UsersModel.DTO.FriendRequestNotification['data']>();
     const target = await this.service.get(uId);
-    if (!target) return;
+    if (!target) {
+      await notif.delete(true);
+      return;
+    }
     const [targetNotif] = target.notifications.getByTag(
       NotificationsModel.Models.Tags.UserFriendsRequest,
     );
-    if (!targetNotif) return;
+    if (!targetNotif) {
+      await notif.delete(true);
+      return;
+    }
     const notifs = [notif, targetNotif];
     switch (action) {
       case 'cancel':

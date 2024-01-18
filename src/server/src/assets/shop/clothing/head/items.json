@@ -3,7 +3,7 @@
     "id": "cloth:1968",
     "label": "The Zeb",
     "description": "Star Wars: Rebels Theme - Zeb Mask",
-    "price": 500,
+    "price": 0,
     "meta": {
       "clothId": 1968,
       "ICON": "{ASSET_PATH}/1968/icon.webp",

@@ -1,5 +1,5 @@
 import { useRecoilValue } from 'recoil';
-import profileState from '../state';
+import profileState, { UserSearchResult } from '../state';
 import {
   ButtonGroup,
   CircularProgress,
@@ -11,7 +11,6 @@ import {
   Stack,
   Typography,
 } from '@mui/joy';
-import UsersModel from '@typings/models/users';
 import AvatarWithStatus, { UserAvatar } from '@components/AvatarWithStatus';
 import AccountPlusIcon from '@components/icons/AccountPlusIcon';
 import MessageIcon from '@components/icons/MessageIcon';
@@ -22,10 +21,10 @@ import EmoticonSadOutlineIcon from '@components/icons/EmoticonSadOutlineIcon';
 import React from 'react';
 
 function SearchResult(
-  user: UsersModel.Models.IUserInfo & { isFriend: boolean }
+  user: UserSearchResult
 ): JSX.Element {
-  const { avatar, nickname, status, isFriend } = user;
-  const { goToProfile, goToMessages } = useFriend(user.id);
+  const { avatar, nickname, status, isFriend, isBlocked, friendRequestSent } = user;
+  const { goToProfile, goToMessages, sendFriendRequest } = useFriend(user.id);
   return (
     <Sheet
       sx={{
@@ -59,13 +58,13 @@ function SearchResult(
         size="sm"
         onClick={(ev) => ev.stopPropagation()}
       >
-        {!isFriend ? (
-          <IconButton>
+        {!isFriend && !isBlocked && !friendRequestSent ? (
+          <IconButton onClick={sendFriendRequest}>
             <AccountPlusIcon />
           </IconButton>
         ) : undefined}
         <IconButton
-          {...(isFriend && { 'data-first-child': true })}
+          {...((isFriend || isBlocked || friendRequestSent) && { 'data-first-child': true })}
           onClick={goToMessages}
         >
           <MessageIcon />
