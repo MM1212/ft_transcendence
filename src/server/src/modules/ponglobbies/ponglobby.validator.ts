@@ -94,7 +94,7 @@ const ponglobbyValidator = new (class PongLobbyControllerValidator {
   } satisfies ComputeToZodKeys<PongModel.DTO.Kick>);
 
   inviteSchema: ZodType<PongModel.DTO.Invite> = z.object({
-    lobbyId: z.number().int().nonnegative(),
+    lobbyId: z.number().int().nonnegative().or(z.undefined()),
     source: z.enum(
       [PongModel.Models.InviteSource.Lobby, PongModel.Models.InviteSource.Chat],
       {
