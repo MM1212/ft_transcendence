@@ -31,8 +31,8 @@ export default function NotificationOptions(
     };
   const onActionClick = useRecoilCallback(
     (ctx) => async (action: NotificationBuilderTemplateAction) => {
-      const data = await action.onClick?.(props, ctx);
-      await performAction(action.id, data);
+      if (action.onClick) await Promise.resolve(action.onClick(props, ctx));
+      else await performAction(action.id);
     },
     [performAction, props]
   );

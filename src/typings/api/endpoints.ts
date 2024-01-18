@@ -16,6 +16,7 @@ import NotificationsModel from '@typings/models/notifications';
 import PongModel from '@typings/models/pong';
 import InventoryModel from '@typings/models/users/inventory';
 import PongHistoryModel from '@typings/models/pong/history';
+import ShopModel from '@typings/models/shop';
 
 export type All =
   | SseModel.Endpoints.All
@@ -26,7 +27,8 @@ export type All =
   | InventoryModel.Endpoints.All
   | NotificationsModel.Endpoints.All
   | PongModel.Endpoints.All
-  | PongHistoryModel.Endpoints.All;
+  | PongHistoryModel.Endpoints.All
+  | ShopModel.Endpoints.All;
 
 export type Registry = SseModel.Endpoints.Registry &
   AuthModel.Endpoints.Registry &
@@ -35,7 +37,8 @@ export type Registry = SseModel.Endpoints.Registry &
   ChatModel.Endpoints.Registry &
   PongModel.Endpoints.Registry &
   PongHistoryModel.Endpoints.Registry &
-  NotificationsModel.Endpoints.Registry & {
+  NotificationsModel.Endpoints.Registry &
+  ShopModel.Endpoints.Registry & {
     [EndpointMethods.Get]: Record<never, never>;
     [EndpointMethods.Post]: Record<never, never>;
     [EndpointMethods.Put]: Record<never, never>;

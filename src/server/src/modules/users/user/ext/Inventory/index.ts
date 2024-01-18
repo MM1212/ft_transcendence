@@ -68,6 +68,9 @@ class UserExtInventory extends UserExtBase {
   public get items(): Item[] {
     return this.user.get('inventory').map((item) => new Item(item, this));
   }
+  public get rawItems(): InventoryModel.Models.IItem[] {
+    return this.user.get('inventory');
+  }
 
   public getById(id: number): Item | undefined {
     return this.items.find((item) => item.id === id);
@@ -75,13 +78,14 @@ class UserExtInventory extends UserExtBase {
   public getByType(type: string): Item[] {
     return this.items.filter((item) => item.type === type);
   }
-  public getByName(name: string): Item[] {
-    return this.items.filter((item) => item.name === name);
+  public getByName(name: string): Item | undefined {
+    return this.items.find((item) => item.name === name);
   }
   public async add(
     type: string,
     name: string,
     meta?: Record<string, unknown>,
+    sync = true,
   ): Promise<InventoryModel.Models.IItem> {
     const item = await this.helpers.db.users.inventory.create(
       this.user.id,
@@ -90,27 +94,32 @@ class UserExtInventory extends UserExtBase {
       meta,
     );
     this.user.set('inventory', (prev) => [...prev, item]);
+    if (sync) this.sync();
     return item;
   }
-  public async remove(id: number): Promise<void> {
+  public async remove(id: number, sync = true): Promise<void> {
     await this.helpers.db.users.inventory.delete(id);
     this.user.set('inventory', (prev) => prev.filter((item) => item.id !== id));
+    if (sync) this.sync();
   }
-  public async removeAllByType(type: string): Promise<void> {
+  public async removeAllByType(type: string, sync = true): Promise<void> {
     await this.helpers.db.users.inventory.deleteByType(this.user.id, type);
     this.user.set('inventory', (prev) =>
       prev.filter((item) => item.type !== type),
     );
+    if (sync) this.sync();
   }
-  public async removeAllByName(name: string): Promise<void> {
+  public async removeAllByName(name: string, sync = true): Promise<void> {
     await this.helpers.db.users.inventory.deleteByName(this.user.id, name);
     this.user.set('inventory', (prev) =>
       prev.filter((item) => item.name !== name),
     );
+    if (sync) this.sync();
   }
-  public async removeAll(): Promise<void> {
+  public async removeAll(sync = true): Promise<void> {
     await this.helpers.db.users.inventory.deleteAll(this.user.id);
     this.user.set('inventory', []);
+    if (sync) this.sync();
   }
 
   public sync(): void {

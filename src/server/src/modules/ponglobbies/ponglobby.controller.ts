@@ -20,6 +20,7 @@ import { PongLobbyService } from './ponglobby.service';
 import { PongQueueService } from '../pongqueue/pongqueue.service';
 import { ObjectValidationPipe } from '@/helpers/decorators/validator';
 import ponglobbyValidator from './ponglobby.validator';
+import { PongService } from '../ponggame/pong.service';
 
 const Targets = PongModel.Endpoints.Targets;
 
@@ -29,7 +30,20 @@ export class PongLobbyController {
   constructor(
     private readonly service: PongLobbyService,
     private readonly queueService: PongQueueService,
+    private readonly ponggameService: PongService,
   ) {}
+
+  @Put(Targets.LeaveQueue)
+  async leaveQueue(
+    @HttpCtx() ctx: HTTPContext<true>,
+    @Body(new ObjectValidationPipe(ponglobbyValidator.checkIdSchema))
+    body: EndpointData<PongModel.Endpoints.LeaveLobby>,
+  ): Promise<InternalEndpointResponse<PongModel.Endpoints.LeaveLobby>> {
+    const lobby = this.service.getLobbyByUser(ctx.user);
+    if (lobby.id !== body.lobbyId)
+      throw new BadRequestException('Lobby ID does not match');
+    this.queueService.leaveQueue(lobby, ctx.user.id);
+  }
 
   @Put(Targets.AddToQueue)
   async addToQueue(
@@ -143,7 +157,6 @@ export class PongLobbyController {
     @Body(new ObjectValidationPipe(ponglobbyValidator.inviteSchema))
     body: EndpointData<PongModel.Endpoints.Invite>,
   ): Promise<InternalEndpointResponse<PongModel.Endpoints.Invite>> {
-    console.log(body);
     const lobby = await this.service.invite(
       ctx.user,
       body.data,
@@ -156,7 +169,8 @@ export class PongLobbyController {
   @Post(Targets.KickInvited)
   async kickInvited(
     @HttpCtx() ctx: HTTPContext<true>,
-    @Body(new ObjectValidationPipe(ponglobbyValidator.kickSchema)) body: EndpointData<PongModel.Endpoints.KickInvited>,
+    @Body(new ObjectValidationPipe(ponglobbyValidator.kickSchema))
+    body: EndpointData<PongModel.Endpoints.KickInvited>,
   ): Promise<InternalEndpointResponse<PongModel.Endpoints.KickInvited>> {
     await this.service.kickInvited(ctx.user.id, body.lobbyId, body.userId);
   }
@@ -188,11 +202,27 @@ export class PongLobbyController {
     @Query('nonce', new ParseIntPipe({ errorHttpStatusCode: 400 }))
     nonce: number,
   ): Promise<InternalEndpointResponse<PongModel.Endpoints.GetLobby>> {
-    console.log(id, typeof id);
-
     const lobby = await this.service.getLobby(id);
     if (lobby.nonce !== nonce)
       throw new BadRequestException('Nonce does not match');
     return lobby.infoDisplay;
+  }
+
+  @Get(Targets.GetAllGames)
+  async getAllGames(
+  ): Promise<
+    InternalEndpointResponse<PongModel.Endpoints.GetAllGames>
+  > {
+    return this.ponggameService.getAllGames();
+  }
+
+  @Post(Targets.JoinActive)
+  async joinActive(
+    @HttpCtx() ctx: HTTPContext<true>,
+    @Body(new ObjectValidationPipe(ponglobbyValidator.joinActiveSchema))
+    body: EndpointData<PongModel.Endpoints.JoinActive>,
+  ): Promise<InternalEndpointResponse<PongModel.Endpoints.JoinActive>> {
+    const lobby = await this.ponggameService.joinActive(ctx.user, body.uuid);
+    return lobby.interface;
   }
 }

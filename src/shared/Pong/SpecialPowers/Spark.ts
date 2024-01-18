@@ -12,6 +12,7 @@ export class Spark extends SpecialPower {
         super(PongModel.Models.LobbyParticipantSpecialPowerType.spark, center, velocity, shooter, specialpowerConfig.spark.diameter, specialpowerConfig.spark.vertices);
         this.tag += this.id;
         shooter.manaBar.spendMana(this.manaCost);
+        shooter.manaBar.manaStep = shooter.manaBar.mana;
     }
 
     get manaCost(): number {
@@ -21,6 +22,7 @@ export class Spark extends SpecialPower {
     onCollide(target: GameObject): boolean {
         if (target instanceof Bar)
         {
+            this.shooterObject.stats.iHitMyPower(target);
             if (target.getEffect === undefined)
                 target.setEffect(new Effect("REVERSE", target));
         }

@@ -1,0 +1,30 @@
+[
+  {
+    "id": "avatar:0011",
+    "label": "AVATAR_0011",
+    "description": "AVATAR_0011_DESC",
+    "price": 100,
+    "meta": {},
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/tile0011.webp",
+      "css": {
+        "borderRadius": "sm"
+      }
+    },
+    "flags": []
+  },
+  {
+    "id": "avatar:0013",
+    "label": "AVATAR_0013",
+    "description": "AVATAR_0013_DESC",
+    "price": 100,
+    "meta": {},
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/tile0013.webp",
+      "css": {
+        "borderRadius": "sm"
+      }
+    },
+    "flags": []
+  }
+]

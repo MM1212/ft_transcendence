@@ -19,7 +19,7 @@ function Content(data: PongHistoryModel.Models.Match) {
       <Typography>You {winLose}!</Typography>
       <React.Suspense fallback={<Typography>Loading...</Typography>}>
         <MatchHistoryEntryHeader {...data} targetId={user.id} />
-        <MatchHistoryScoreBoard />
+        <MatchHistoryScoreBoard {...data} />
       </React.Suspense>
     </>
   );
@@ -28,6 +28,7 @@ function Content(data: PongHistoryModel.Models.Match) {
 export function PostGameModal() {
   const { close, isOpened, data } = usePostPongGameModal();
   console.log('ponggamemodal', data);
+
 
   return (
     <>

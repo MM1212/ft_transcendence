@@ -9,17 +9,25 @@ import { useNotificationsTemplate } from '../state';
 import { navigate } from 'wouter/use-location';
 import useNotificationActions from '../state/hooks/useNotificationActions';
 import React from 'react';
+import { useRecoilCallback } from 'recoil';
 
 export default function InboxNotification(
   props: NotificationsModel.Models.INotification
 ): JSX.Element {
   const template = useNotificationsTemplate(props.tag);
   const { markAsRead } = useNotificationActions(props.id);
-  const attemptToRoute = () => {
-    if (!template.routeTo) return;
-    navigate(template.routeTo);
-    markAsRead();
-  };
+  const attemptToRoute = useRecoilCallback(
+    (ctx) => async () => {
+      if (template.routeTo) {
+        navigate(template.routeTo);
+      }
+      if (template.onClick) {
+        await Promise.resolve(template.onClick(props, ctx));
+      }
+      markAsRead();
+    },
+    [markAsRead, props, template]
+  );
   return (
     <NotificationWrapper
       read={props.read}
@@ -30,7 +38,11 @@ export default function InboxNotification(
       {!props.read && <UnReadAlert />}
       <NotificationBody {...props} />
       <Box display="flex" alignItems="flex-end">
-        <NotificationTimestamp createdAt={props.createdAt} id={props.id} dismissable={props.dismissable} />
+        <NotificationTimestamp
+          createdAt={props.createdAt}
+          id={props.id}
+          dismissable={props.dismissable}
+        />
         <NotificationOptions {...props} dismissable={props.dismissable} />
       </Box>
     </NotificationWrapper>

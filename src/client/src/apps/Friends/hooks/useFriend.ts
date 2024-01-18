@@ -134,7 +134,7 @@ const useFriend = (friendId: number) => {
     [select]
   );
 
-  const sentFriendRequest = useRecoilCallback(
+  const sendFriendRequest = useRecoilCallback(
     (ctx) => async () => {
       const self = await ctx.snapshot.getPromise(sessionAtom);
       if (!self) throw new Error('You are not logged in');
@@ -163,7 +163,7 @@ const useFriend = (friendId: number) => {
     useIsBlocked,
     useIsFriend,
     sendInviteFromDM,
-    sentFriendRequest,
+    sendFriendRequest,
   };
 };
 

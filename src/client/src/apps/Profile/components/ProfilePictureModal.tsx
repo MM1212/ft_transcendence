@@ -3,9 +3,10 @@ import Modal from '@mui/joy/Modal';
 import ModalDialog from '@mui/joy/ModalDialog';
 import ModalClose from '@mui/joy/ModalClose';
 import DialogTitle from '@mui/joy/DialogTitle';
-import { Box, Sheet, styled } from '@mui/joy';
+import { Box, CircularProgress, Sheet, styled } from '@mui/joy';
 import publicPath from '@utils/public';
 import { useSelectUserAvatar } from '../hooks/useUpdateAvatarModal';
+import { useInventoryByType } from '@apps/Inventory/hooks/useInventory';
 
 const AvatarDisplay = styled(Sheet, {
   shouldForwardProp: (prop) => prop !== 'selected',
@@ -31,17 +32,13 @@ const AvatarDisplay = styled(Sheet, {
   alignItems: 'center',
 }));
 
-export default function ProfilePictureModal() {
+function RenderAssets(): JSX.Element {
   const {
-    isOpened,
     close,
     data: { onSubmit, ...data },
     setData,
   } = useSelectUserAvatar();
-  const assetArray = React.useMemo(
-    () => Array.from({ length: 43 }).map((_, i) => i),
-    []
-  );
+  const assets = useInventoryByType('user-icons');
   const selectAsset = (assetId: number) => {
     setData({ avatar: assetId.toString() });
     onSubmit?.(assetId.toString());
@@ -49,47 +46,57 @@ export default function ProfilePictureModal() {
   };
 
   return (
+    <Box
+      sx={{
+        display: 'flex',
+        width: '100%',
+        flexWrap: 'wrap',
+        overflowY: 'auto',
+        gap: 1,
+      }}
+    >
+      {assets.map((item, index) => {
+        const [, id] = item.name.split(':');
+        const assetId = parseInt(id)!;
+        const selected = data.avatar === assetId.toString();
+        return (
+          <AvatarDisplay
+            variant="outlined"
+            color={selected ? 'warning' : 'neutral'}
+            selected={selected}
+            key={index}
+            onClick={() => selectAsset(assetId)}
+            title="Selecting closes the dialog"
+          >
+            <img
+              src={publicPath(`/profile/tile${id}.webp`)}
+              alt=""
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                objectPosition: 'center',
+              }}
+            />
+          </AvatarDisplay>
+        );
+      })}
+    </Box>
+  );
+}
+
+export default function ProfilePictureModal() {
+  const { isOpened } = useSelectUserAvatar();
+
+  return (
     <React.Fragment>
       <Modal open={isOpened} onClose={close}>
-        <ModalDialog minWidth="md">
+        <ModalDialog minWidth="xs" maxWidth="md">
           <ModalClose />
           <DialogTitle>Avatar Picker</DialogTitle>
-          <Box
-            sx={{
-              display: 'flex',
-              width: '100%',
-              flexWrap: 'wrap',
-              overflowY: 'auto',
-              gap: 1,
-            }}
-          >
-            {assetArray.map((asset, index) => {
-              const selected = data.avatar === asset.toString();
-              return (
-                <AvatarDisplay
-                  variant="outlined"
-                  color={selected ? 'warning' : 'neutral'}
-                  selected={selected}
-                  key={index}
-                  onClick={() => selectAsset(asset)}
-                  title="Selecting closes the dialog"
-                >
-                  <img
-                    src={publicPath(
-                      `/profile/tile${asset.toString().padStart(4, '0')}.webp`
-                    )}
-                    alt=""
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                      objectPosition: 'center',
-                    }}
-                  />
-                </AvatarDisplay>
-              );
-            })}
-          </Box>
+          <React.Suspense fallback={<CircularProgress />}>
+            <RenderAssets />
+          </React.Suspense>
         </ModalDialog>
       </Modal>
     </React.Fragment>

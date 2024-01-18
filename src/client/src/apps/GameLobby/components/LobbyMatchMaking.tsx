@@ -42,8 +42,6 @@ export function LobbyMatchMaking() {
 
   const handleStartMatchmaking = useRecoilCallback(
     (ctx) => async () => {
-      if (!isMatchmakingStarted) setIsMatchmakingStarted(true);
-      else setIsMatchmakingStarted(false);
       try {
          let lobby = await ctx.snapshot.getPromise(pongGamesState.gameLobby);
         if (!lobby) {
@@ -190,7 +188,7 @@ export function LobbyMatchMaking() {
             <LobbyPongButton label="Find Match" />
           </FindMatchWrapper>
         )}
-        <OpenGameModal isPlaying={isPlaying} />
+          <OpenGameModal isPlaying={isPlaying} />
         {/* <Button onClick={handleLeaveLobby}>Leave Lobby</Button> */}
       </div>
     </div>
