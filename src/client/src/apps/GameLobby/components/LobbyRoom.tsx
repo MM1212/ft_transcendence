@@ -27,7 +27,6 @@ export default function LobbyRoom() {
   const [leftTeam, rightTeam] = lobby.teams;
   const isPlaying = useRecoilValue(pongGamesState.isPlaying);
   const user = useCurrentUser();
-  //const {open} = useModalActions(LobbyInviteId)
   const { select: selectInvites } = useChatSelectModalActions();
   const player = leftTeam.players
     .concat(rightTeam.players)
