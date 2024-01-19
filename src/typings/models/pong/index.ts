@@ -211,6 +211,8 @@ namespace PongModel {
       extends NotificationsModel.Models.INotification<{
         lobbyId: number;
         nonce: number;
+        authorization: GroupEnumValues<LobbyAccess>;
+
       }> {}
   }
 

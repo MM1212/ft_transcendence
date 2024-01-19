@@ -341,6 +341,7 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
             data: {
               lobbyId: this.id,
               nonce: this.nonce,
+              authorization: this.authorization,
             },
             dismissable: true,
           });

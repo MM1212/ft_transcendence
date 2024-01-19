@@ -1,12 +1,18 @@
-import PongModel from '@typings/models/pong';
-import { useRecoilCallback } from 'recoil';
-import pongGamesState from '../state';
-import { useSseEvent } from '@hooks/sse';
-import { useRegisterNotificationTemplate } from '@apps/Inbox/state/hooks';
-import NotificationsModel from '@typings/models/notifications';
-import TableTennisIcon from '@components/icons/TableTennisIcon';
+import PongModel from "@typings/models/pong";
+import { useRecoilCallback } from "recoil";
+import pongGamesState from "../state";
+import { useSseEvent } from "@hooks/sse";
+import { useRegisterNotificationTemplate } from "@apps/Inbox/state/hooks";
+import NotificationsModel from "@typings/models/notifications";
+import TableTennisIcon from "@components/icons/TableTennisIcon";
+import { useLobbyActions } from "./actions";
+import { navigate } from "wouter/use-location";
+import tunnel from "@lib/tunnel";
 
 const useLobbyService = () => {
+  // can this be here?
+  const { joinGame } = useLobbyActions();
+
   const onUpdateLobbyEvent = useRecoilCallback(
     (ctx) => async (ev: PongModel.Sse.UpdateLobbyParticipantEvent) => {
       const { data } = ev;
@@ -14,7 +20,7 @@ const useLobbyService = () => {
       if (!lobby || lobby.id !== data.id) return;
       ctx.set(pongGamesState.gameLobby, (prev) => {
         if (!prev) return prev;
-        console.log('NEW LOBBY', {
+        console.log("NEW LOBBY", {
           ...prev,
           ownerId: data.ownerId,
           teams: data.teams,
@@ -69,7 +75,7 @@ const useLobbyService = () => {
     (ctx) => async (ev: PongModel.Sse.Join) => {
       const lobby = await ctx.snapshot.getPromise(pongGamesState.gameLobby);
       if (!lobby) {
-        ctx.set(pongGamesState.gameLobby, ev.data); 
+        ctx.set(pongGamesState.gameLobby, ev.data);
       }
     },
     []
@@ -87,7 +93,7 @@ const useLobbyService = () => {
           status: ev.data.status,
         };
       });
-      console.log('START EVENT', ev.data);
+      console.log("START EVENT", ev.data);
       // navigate (?)
       // open modal
     },
@@ -98,19 +104,22 @@ const useLobbyService = () => {
     NotificationsModel.Models.Tags.PongLobbyInvite,
     (ctx) => {
       ctx.setIcon(<TableTennisIcon />);
-      ctx.setRouteTo('/pong/play/');
-      //ctx.setOnClick
+      ctx.setOnClick(async (notif) => {
+        const data = notif.data;
+        const newlobby = await joinGame(
+          data.lobbyId,
+          data.nonce,
+          data.authorization,
+          "Enter lobby "
+        );
+        if (!newlobby) return;
+        navigate(`/pong/play/`);
+      });
     }
   );
 
-  useSseEvent<PongModel.Sse.Join>(
-    PongModel.Sse.Events.Join,
-    onJoinEvent
-  );
-  useSseEvent<PongModel.Sse.Leave>(
-    PongModel.Sse.Events.Leave,
-    onLeaveEvent
-  );
+  useSseEvent<PongModel.Sse.Join>(PongModel.Sse.Events.Join, onJoinEvent);
+  useSseEvent<PongModel.Sse.Leave>(PongModel.Sse.Events.Leave, onLeaveEvent);
 
   useSseEvent<PongModel.Sse.Kick>(PongModel.Sse.Events.Kick, onKickEvent);
   useSseEvent<PongModel.Sse.UpdateLobbyParticipantEvent>(
