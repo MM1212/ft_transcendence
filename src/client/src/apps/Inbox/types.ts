@@ -9,11 +9,10 @@ export interface NotificationBuilderTemplateAction<
 > {
   id: string;
   label: React.ReactNode;
-  // action is forwarded to the server
   onClick?: (
     notification: T,
     ctx: CallbackInterface
-  ) => Promise<Record<string, unknown> | undefined>;
+  ) => Promise<void>;
   show?: (notification: T) => boolean;
   Icon: React.ComponentType<SvgIconProps>;
   color?: ColorPaletteProp;
@@ -29,5 +28,5 @@ export type NotificationBuilderTemplate<
   MessageRenderer?: React.ComponentType<T>;
   customActions: NotificationBuilderTemplateAction[];
   routeTo?: string;
-  onClick?: (notification: T, ctx: CallbackInterface) => void;
+  onClick?: (notification: T, ctx: CallbackInterface) => (void | Promise<void>);
 };
