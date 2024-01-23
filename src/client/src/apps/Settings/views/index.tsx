@@ -1,3 +1,5 @@
+import CogIcon from '@components/icons/CogIcon';
+import HumanGreetingProximityIcon from '@components/icons/HumanGreetingProximityIcon';
 import TableTennisIcon from '@components/icons/TableTennisIcon';
 import {
   Accordion,
@@ -85,6 +87,18 @@ export default function SettingsView(): JSX.Element {
         <Typography level="h3" alignSelf="flex-start">
           Settings
         </Typography>
+        <Tab title="Lobby" icon={HumanGreetingProximityIcon}>
+          <Stack direction="column" spacing={1} p={1}>
+            <Typography level="body-sm" mb={1}>
+              Keys
+            </Typography>
+            <FormInput label="Move Up" placeholder="W" size="sm" />
+            <FormInput label="Move Down" placeholder="S" size="sm" />
+            <FormInput label="Move Left" placeholder="A" size="sm" />
+            <FormInput label="Move Right" placeholder="D" size="sm" />
+            <FormInput label="Dance" placeholder="G" size="sm" />
+          </Stack>
+        </Tab>
         <Tab title="Pong" icon={TableTennisIcon}>
           <Stack direction="column" spacing={1} p={1}>
             <Typography level="body-sm" mb={1}>
