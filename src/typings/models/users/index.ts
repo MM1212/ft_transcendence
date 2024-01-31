@@ -17,10 +17,10 @@ namespace UsersModel {
   export namespace Models {
     export const DEFAULT_AVATAR = '13';
     export enum Status {
-      Offline,
-      Online,
-      Busy,
-      Away,
+      Offline = "OFFLINE",
+      Online = "ONLINE",
+      Busy = "BUSY",
+      Away = "AWAY",
     }
     export interface ICharacter {
       id: number;
@@ -32,7 +32,7 @@ namespace UsersModel {
       nickname: string;
       avatar: string;
       createdAt: number;
-      status: Status;
+      status: GroupEnumValues<Status>;
       storedStatus: Status;
       firstLogin: boolean;
       friends: number[];
