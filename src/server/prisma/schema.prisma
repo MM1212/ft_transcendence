@@ -12,10 +12,16 @@ datasource db {
 
 // Infrastructure Modules
 
+enum UserType {
+  USER
+  BOT
+}
+
 model User {
   id            Int               @id @default(autoincrement())
   studentId     Int               @unique @map("student_id")
   nickname      String            @unique
+  type          UserType          @default(USER)
   avatar        String
   createdAt     DateTime          @default(now()) @map("created_at")
   storedStatus  Int               @default(1) @map("stored_status")
@@ -65,6 +71,8 @@ enum ChatParticipantMuteType {
   FOREVER
   UNTIL
 }
+
+
 
 model ChatParticipant {
   id           Int                 @id @default(autoincrement())
