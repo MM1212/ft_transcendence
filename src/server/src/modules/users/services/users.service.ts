@@ -107,6 +107,18 @@ export class UsersService {
   }
 
   public async create(data: UsersModel.DTO.DB.IUserCreate): Promise<User> {
+    let attempts = 0;
+    while (attempts < 5) {
+      try {
+        if (await this.db.users.exists(data.nickname)) {
+          data.nickname += `_${Math.floor(Math.random() * 100)}`;
+        } else break;
+        attempts++;
+      } catch (e) {
+        throw new HttpError('Failed to create user');
+      }
+    }
+    if (attempts >= 5) throw new HttpError('Failed to create user');
     const userData = await this.db.users.create(data);
     if (!userData) throw new HttpError('Failed to create user');
     return this.build(userData);
@@ -116,5 +128,9 @@ export class UsersService {
     if (!user) return false;
     this.users.delete(id);
     return !!(await this.db.users.delete(id));
+  }
+
+  public async exists(id: number | string): Promise<boolean> {
+    return await this.db.users.exists(id);
   }
 }

@@ -16,6 +16,10 @@ import NotificationsModel from '../notifications';
 namespace UsersModel {
   export namespace Models {
     export const DEFAULT_AVATAR = '13';
+    export enum Types {
+      User = 'USER',
+      Bot = 'BOT',
+    }
     export enum Status {
       Offline = "OFFLINE",
       Online = "ONLINE",
@@ -30,6 +34,7 @@ namespace UsersModel {
       id: number;
       studentId: number;
       nickname: string;
+      type: GroupEnumValues<Types>;
       avatar: string;
       createdAt: number;
       status: GroupEnumValues<Status>;
@@ -83,9 +88,13 @@ namespace UsersModel {
         createdAt: Date;
       }
       export interface IUserCreate
-        extends Pick<Models.IUserInfo, 'studentId' | 'nickname' | 'avatar'> {
+        extends Pick<
+          Models.IUserInfo,
+          'studentId' | 'nickname' | 'avatar'
+        > {
+        type?: Models.Types;
         credits?: number;
-        inventory?: Omit<InventoryModel.DTO.DB.CreateItem,'userId'>[];
+        inventory?: Omit<InventoryModel.DTO.DB.CreateItem, 'userId'>[];
       }
       export interface GetLimits {
         limit?: number;
@@ -134,13 +143,11 @@ namespace UsersModel {
     }
 
     export interface FriendRequestNotification
-      extends NotificationsModel.Models.INotification<
-        {
-          type: 'sender' | 'receiver';
-          uId: number;
-          status: 'pending' | 'accepted' | 'declined';
-        }
-      > {}
+      extends NotificationsModel.Models.INotification<{
+        type: 'sender' | 'receiver';
+        uId: number;
+        status: 'pending' | 'accepted' | 'declined';
+      }> {}
   }
   export namespace Endpoints {
     export enum Targets {
