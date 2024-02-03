@@ -4,7 +4,6 @@ import { useState } from 'react';
 import MatchMakingCounter from './MatchMakingCounter';
 import LobbyPongButton from './LobbyPongBottom';
 import LobbyPlayerBanner from './LobbyPlayerBanner';
-import { ChangePower } from './PlayerSettingsModals/ChangePower';
 import tunnel from '@lib/tunnel';
 import PongModel from '@typings/models/pong';
 import { useRecoilCallback, useRecoilValue } from 'recoil';

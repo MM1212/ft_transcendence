@@ -6,7 +6,7 @@ export default function LobbyPongButton({ label }: { label: string }) {
       sx={{ width: "20dvh", mt: 5 }}
       fullWidth
       type="submit"
-      variant="outlined"
+      variant="soft"
       color="warning"
     >
       {label}

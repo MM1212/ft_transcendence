@@ -71,8 +71,7 @@ const chatValidator = new (class ChatControllerValidator {
         nonce: z.number().optional(),
         urls: z.array(z.string().url()).optional(),
         userId: z.number().int().positive().optional(),
-      } satisfies ComputeToZodKeys<ChatsModel.DTO.NewMessage['meta']>)
-      .required() as z.ZodObject<NonNullable<unknown>>,
+      } satisfies ComputeToZodKeys<ChatsModel.DTO.NewMessage['meta']>) as z.ZodObject<NonNullable<unknown>>,
     type: z.enum(
       [
         ChatsModel.Models.ChatMessageType.Embed,

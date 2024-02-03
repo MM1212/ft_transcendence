@@ -225,6 +225,7 @@ export class ClientLobby extends Lobby {
   // Socket Calls
   public async __sockLobbyInit(data: LobbyModel.Models.ILobby): Promise<void> {
     this.loading = true;
+    this.chatId = data.chatId;
     await Promise.all(this.players.map((p) => p.destructor()));
 
     this.mainPlayerId = data.players.find((p) => p.main)!.id;

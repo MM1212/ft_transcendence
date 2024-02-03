@@ -19,7 +19,7 @@ import {
 import { useKeybindsToggle } from '@hooks/keybinds';
 import DEPRECATED_LobbyModel from '@typings/models/lobby_old';
 import { sessionAtom, useIsLoggedIn, usersAtom } from '@hooks/user';
-import ChatBox from '@apps/Lobby_Old/components/InGameChat';
+import ChatBox from '@apps/Lobby/components/InGameChat';
 import {
   inventoryAtom,
   penguinClothingPriority,
