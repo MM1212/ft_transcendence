@@ -68,6 +68,7 @@ export namespace LobbyModel {
 
     export interface ILobby {
       players: (IPlayer & { main: boolean })[];
+      chatId: number;
     }
   }
   export namespace DTO {}

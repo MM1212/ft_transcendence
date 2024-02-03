@@ -2,7 +2,6 @@ import * as React from "react";
 import Box from "@mui/joy/Box";
 import CircularProgress from "@mui/joy/CircularProgress";
 import { IconButton } from "@mui/joy";
-import CloseThickIcon from "@components/icons/CloseThickIcon";
 import CloseIcon from "@components/icons/CloseIcon";
 
 export default function MatchMakingCounter({ stop }: { stop: () => void }) {

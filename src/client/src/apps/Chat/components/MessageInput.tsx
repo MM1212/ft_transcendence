@@ -54,6 +54,7 @@ export interface ChatMessageInputProps {
   rootProps?: React.ComponentProps<typeof Stack>;
   inputProps?: React.ComponentProps<typeof Textarea>;
   submitBtnProps?: React.ComponentProps<typeof IconButton>;
+  autoFocus?: boolean; // @default true
 }
 
 function MessageInput({
@@ -61,6 +62,7 @@ function MessageInput({
   rootProps,
   inputProps,
   submitBtnProps,
+  autoFocus = true,
 }: ChatMessageInputProps) {
   const [input, setInput] = useRecoilState(chatsState.chatsInput(id));
   const formRef = React.useRef<HTMLFormElement>(null);
@@ -174,9 +176,10 @@ function MessageInput({
   );
   const inputRef = React.useRef<HTMLTextAreaElement>(null);
   React.useEffect(() => {
-    if (inputRef.current) {
+    if (inputRef.current && autoFocus) {
       inputRef.current.focus();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inputRef, id]);
 
   const self = useChat(id).useSelfParticipant();

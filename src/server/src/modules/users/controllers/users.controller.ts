@@ -46,12 +46,15 @@ export class UsersController {
     exclude: number[],
     @Body('excludeSelf', new DefaultValuePipe(true), ParseBoolPipe)
     excludeSelf: boolean,
+    @Body('excludeBots', new DefaultValuePipe(true), ParseBoolPipe)
+    excludeBots: boolean,
     @Query('limit', new DefaultValuePipe(50), ParseIntPipe) limit: number,
     @Query('offset', new DefaultValuePipe(0), ParseIntPipe) offset: number,
     @HttpCtx() { user }: HTTPContext<true>,
   ): Promise<InternalEndpointResponse<UsersModel.Endpoints.GetUsers>> {
     const users = await this.usersService.search(query, { limit, offset });
     return users.filter((u) => {
+      if (excludeBots && u.type === UsersModel.Models.Types.Bot) return false;
       if (exclude.includes(u.id)) return false;
       if (excludeSelf && u.id === user.id) return false;
       return true;

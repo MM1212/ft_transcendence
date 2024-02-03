@@ -4,15 +4,18 @@ import { Server } from 'socket.io';
 import { ClientSocket } from '@typings/ws';
 import { vector2 } from '@typings/vector';
 import LobbyModel from '@typings/models/lobby';
+import { LobbyServices } from './src/Services';
 
 @Injectable()
 export class LobbyService {
   public readonly instance: ServerLobby;
-  constructor() {}
+  constructor(
+    private readonly services: LobbyServices,
+  ) {}
 
   public async init(sock: Server) {
     // @ts-expect-error impl
-    this.instance = new ServerLobby(sock);
+    this.instance = new ServerLobby(sock, this.services);
     await this.instance.onMount()
   }
 

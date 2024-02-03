@@ -240,7 +240,7 @@ export class ChatsService {
     await chat.addParticipant(op);
   }
 
-  async leaveChat(id: number, user: User): Promise<void> {
+  async leaveChat(id: number, user: User, nuke: boolean = true): Promise<void> {
     const chat = await this.get(id);
     if (!chat) throw new BadRequestException('Chat does not exist.');
     const participant = chat.getParticipantByUserId(user.id);
@@ -249,6 +249,6 @@ export class ChatsService {
         'Participant validated but not found',
       );
     await chat.removeParticipant(participant.id);
-    if (chat.participants.length === 0) await this.nukeChat(chat.id);
+    if (nuke && chat.participants.length === 0) await this.nukeChat(chat.id);
   }
 }
