@@ -34,6 +34,12 @@ export default function LobbyPlayerBanner({ id }: { id: number | undefined }) {
               cursor: 'pointer',
               zIndex: 1,
               transition: theme.transitions.create('background-color'),
+              border: '2px solid',
+              borderColor: 'divider',
+              bgcolor: 'background.surface',
+              '&:hover': {
+                bgcolor: 'background.level1'
+              }
             })}
             color="neutral"
             variant="soft"
@@ -54,7 +60,7 @@ export default function LobbyPlayerBanner({ id }: { id: number | undefined }) {
               display: 'flex',
               alignItems: 'center',
               flexDirection: 'column',
-              width: '37vh',
+              width: '36vh',
               height: '41dvh',
               clipPath: 'polygon(50% 90%, 76% 80%, 76% 0, 24% 0, 24% 80%)',
               backgroundColor: 'background.surface',
