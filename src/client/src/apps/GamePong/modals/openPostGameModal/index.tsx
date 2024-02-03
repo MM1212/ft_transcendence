@@ -11,34 +11,22 @@ function Content(data: PongHistoryModel.Models.Match) {
   const user = useCurrentUser();
 
   if (user === null) return;
-  const teamWon = data.teams[data.winnerTeamId];
-  const hasPlayer = teamWon.players.some((p) => p.userId === user.id);
-  const winLose = hasPlayer ? 'won' : 'lost';
   return (
-    <>
-      <Typography>You {winLose}!</Typography>
-      <React.Suspense fallback={<Typography>Loading...</Typography>}>
-        <MatchHistoryEntryHeader {...data} targetId={user.id} />
-        <MatchHistoryScoreBoard {...data} />
-      </React.Suspense>
-    </>
+    <React.Suspense fallback={<Typography>Loading...</Typography>}>
+      <MatchHistoryEntryHeader {...data} targetId={user.id} />
+      <MatchHistoryScoreBoard {...data} />
+    </React.Suspense>
   );
 }
 
 export function PostGameModal() {
   const { close, isOpened, data } = usePostPongGameModal();
-  console.log('ponggamemodal', data);
-
 
   return (
-    <>
-      <Modal open={isOpened} onClose={close}>
-        <ModalDialog layout="center">
-          <DialogContent>
-            {data.history && <Content {...data.history} />}
-          </DialogContent>
-        </ModalDialog>
-      </Modal>
-    </>
+    <Modal open={isOpened} onClose={close}>
+      <ModalDialog layout="center">
+        {data.history && <Content {...data.history} />}
+      </ModalDialog>
+    </Modal>
   );
 }

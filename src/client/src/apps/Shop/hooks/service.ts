@@ -2,6 +2,9 @@
 // import { useOpenShopModalActions } from "./useOpenShopModal";
 // import React from "react";
 
+import { useRegisterInteraction } from "@apps/Lobby/state";
+import { ShopInteraction } from "../state/interactions";
+
 export const useShopService = () => {
   // const { toggle } = useOpenShopModalActions();
 
@@ -14,4 +17,6 @@ export const useShopService = () => {
   // );
 
   // useKeybindsToggle(["KeyB"], onClick, []);
+
+  useRegisterInteraction(ShopInteraction);
 };

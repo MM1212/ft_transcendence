@@ -57,6 +57,7 @@ const InputBox = React.forwardRef<HTMLInputElement, { chatId: number }>(
     return (
       <MessageInputSelector
         id={chatId}
+        autoFocus={false}
         rootProps={React.useMemo(
           () => ({
             sx: {
