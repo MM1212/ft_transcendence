@@ -40,6 +40,7 @@ export default function ProfileMatchHistory({ id }: { id?: number }) {
         justifyContent="center"
         gap={1}
         p={1}
+        overflow="none"
       >
         <ProfileTabHeader
           title="Match History"
@@ -57,6 +58,7 @@ export default function ProfileMatchHistory({ id }: { id?: number }) {
             justifyContent={"flex-start"}
             spacing={1.5}
             width="100%"
+            overflow="none"
           >
             {data.slice(0, 5).map((match, index) => (
               <React.Fragment key={index}>
