@@ -42,6 +42,8 @@ export function LobbyMatchMaking() {
 
   const handleStartMatchmaking = useRecoilCallback(
     (ctx) => async () => {
+      if (!isMatchmakingStarted) setIsMatchmakingStarted(true);
+      else  setIsMatchmakingStarted(false);
       try {
          let lobby = await ctx.snapshot.getPromise(pongGamesState.gameLobby);
         if (!lobby) {
@@ -68,59 +70,59 @@ export function LobbyMatchMaking() {
     [isMatchmakingStarted, user]
   );
   
-  const handleInviteList = useRecoilCallback(
-    (ctx) => async () => {
-      setIsLobbyActive(true); 
-      try {
-        let lobby = await ctx.snapshot.getPromise(pongGamesState.gameLobby);
-        if (!lobby) {
-          lobby = await tunnel.put(PongModel.Endpoints.Targets.NewLobby, {
-            password: null,
-            name: user!.nickname,
-            spectators: PongModel.Models.LobbySpectatorVisibility.None,
-            lobbyType: PongModel.Models.LobbyType.Double,
-            gameType: PongModel.Models.LobbyGameType.Powers,
-            lobbyAccess: PongModel.Models.LobbyAccess.Private,
-            score: 7,
-          });
-          ctx.set(pongGamesState.gameLobby, lobby);
-          console.log("newLobby");
-          try {
-            const selected = await selectInvites({
-              body: "Invite to Lobby",
-              includeDMs: true,
-              multiple: true,
-              exclude: lobby.teams[0].players
-              .concat(lobby.teams[1].players)
-              .concat(lobby.spectators)
-              .map<ChatSelectedData>((player) => ({
-                type: "user",
-                id: player.id,
-              }))
-              .concat(
-                lobby.invited.map<ChatSelectedData>((id) => ({
-                  type: "user",
-                  id,
-                }))
-              ),
-          });
-            if (selected.length === 0) return;
-            await tunnel.post(PongModel.Endpoints.Targets.Invite, {
-              lobbyId: lobby.id,
-              data: selected,
-              source: PongModel.Models.InviteSource.Lobby,
-            });
-          } catch {
-            console.log("error in: create lobby and add to queue");
-          }
-        }
-      } catch (error) {
-        console.error("Error:", error);
-      }
-      console.log("Lobby 2:" + lobby)
-    },
-    [user, selectInvites, setIsLobbyActive, lobby]
-  );
+  // const handleInviteList = useRecoilCallback(
+  //   (ctx) => async () => {
+  //     setIsLobbyActive(true); 
+  //     try {
+  //       let lobby = await ctx.snapshot.getPromise(pongGamesState.gameLobby);
+  //       if (!lobby) {
+  //         lobby = await tunnel.put(PongModel.Endpoints.Targets.NewLobby, {
+  //           password: null,
+  //           name: user!.nickname,
+  //           spectators: PongModel.Models.LobbySpectatorVisibility.None,
+  //           lobbyType: PongModel.Models.LobbyType.Double,
+  //           gameType: PongModel.Models.LobbyGameType.Powers,
+  //           lobbyAccess: PongModel.Models.LobbyAccess.Private,
+  //           score: 7,
+  //         });
+  //         ctx.set(pongGamesState.gameLobby, lobby);
+  //         console.log("newLobby");
+  //         try {
+  //           const selected = await selectInvites({
+  //             body: "Invite to Lobby",
+  //             includeDMs: true,
+  //             multiple: true,
+  //             exclude: lobby.teams[0].players
+  //             .concat(lobby.teams[1].players)
+  //             .concat(lobby.spectators)
+  //             .map<ChatSelectedData>((player) => ({
+  //               type: "user",
+  //               id: player.id,
+  //             }))
+  //             .concat(
+  //               lobby.invited.map<ChatSelectedData>((id) => ({
+  //                 type: "user",
+  //                 id,
+  //               }))
+  //             ),
+  //         });
+  //           if (selected.length === 0) return;
+  //           await tunnel.post(PongModel.Endpoints.Targets.Invite, {
+  //             lobbyId: lobby.id,
+  //             data: selected,
+  //             source: PongModel.Models.InviteSource.Lobby,
+  //           });
+  //         } catch {
+  //           console.log("error in: create lobby and add to queue");
+  //         }
+  //       }
+  //     } catch (error) {
+  //       console.error("Error:", error);
+  //     }
+  //     console.log("Lobby 2:" + lobby)
+  //   },
+  //   [user, selectInvites, setIsLobbyActive, lobby]
+  // );
   
   // const handleLeaveLobby = useRecoilCallback((ctx) => async () => {
   //   const notif = notifications.default("Leaving lobby...");

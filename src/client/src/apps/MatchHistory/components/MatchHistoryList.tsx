@@ -103,6 +103,7 @@ export default function MatchHistoryList({ targetId }: { targetId: number }) {
       {isLoading || isValidating ? (
         <CircularProgress variant="plain" />
       ) : !data || error ? (
+        
         <Box
           display="flex"
           flexDirection="column"

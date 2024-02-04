@@ -1,13 +1,16 @@
-import { Divider, IconButton, Typography } from '@mui/joy';
-import { Sheet, Stack } from '@mui/joy';
-import AvatarWithStatus from '@components/AvatarWithStatus';
-import React from 'react';
-import { userStatusToString } from '@utils/userStatus';
-import MessageIcon from '@components/icons/MessageIcon';
-import { useUser } from '@hooks/user';
-import FriendsOptionsMenu from './FriendsOptionsMenu';
-import useFriend from '../hooks/useFriend';
-import ProfileTooltip from '@components/ProfileTooltip';
+import { Divider, IconButton, Typography } from "@mui/joy";
+import { Sheet, Stack } from "@mui/joy";
+import AvatarWithStatus from "@components/AvatarWithStatus";
+import React from "react";
+import { userStatusToString } from "@utils/userStatus";
+import MessageIcon from "@components/icons/MessageIcon";
+import { useUser } from "@hooks/user";
+import FriendsOptionsMenu from "./FriendsOptionsMenu";
+import useFriend from "../hooks/useFriend";
+import ProfileTooltip from "@components/ProfileTooltip";
+import GenericPlaceholder from "@components/GenericPlaceholder";
+import TrophyBrokenIcon from "@components/icons/TrophyBrokenIcon";
+import AccountGroupIcon from "@components/icons/AccountGroupIcon";
 
 function FriendDisplay({ id }: { id: number }): JSX.Element | null {
   const user = useUser(id);
@@ -21,19 +24,19 @@ function FriendDisplay({ id }: { id: number }): JSX.Element | null {
       spacing={1.5}
       key={user.id}
       sx={{
-        width: '100%',
+        width: "100%",
         borderRadius: (theme) => theme.radius.sm,
         p: 1,
-        transition: (theme) => theme.transitions.create('background-color', {}),
-        '&:hover': {
-          backgroundColor: 'background.level1',
-          cursor: 'pointer',
+        transition: (theme) => theme.transitions.create("background-color", {}),
+        "&:hover": {
+          backgroundColor: "background.level1",
+          cursor: "pointer",
         },
       }}
       onClick={goToProfile}
     >
       <Stack direction="row" spacing={1.5}>
-        <ProfileTooltip user={user} placement='right-start'>
+        <ProfileTooltip user={user} placement="right-start">
           <AvatarWithStatus status={user.status} src={user.avatar} size="lg" />
         </ProfileTooltip>
         <Stack>
@@ -72,13 +75,15 @@ export function FriendsDisplayWrapper({
   length: number;
 }>): JSX.Element {
   return (
-    <Sheet
+    <Stack
       sx={{
-        overflowY: 'auto',
+        overflowY: "auto",
+        height: '100%',
+        alignItems:'flex-start'
       }}
     >
       <Typography
-        fontWeight={'light'}
+        fontWeight={"light"}
         textTransform="uppercase"
         fontSize={11}
         p={1}
@@ -86,10 +91,10 @@ export function FriendsDisplayWrapper({
         {label} - {length}
       </Typography>
       <Divider />
-      <Stack p={1.5} spacing={1} justifyContent="flex-end">
+      <Stack p={1.5} spacing={1} height='100%' width='100%' >
         {children}
       </Stack>
-    </Sheet>
+    </Stack>
   );
 }
 
@@ -102,9 +107,21 @@ export default function FriendsDisplay({
 }) {
   return (
     <FriendsDisplayWrapper label={label} length={ids.length}>
-      {ids.map((id) => (
-        <FriendDisplay id={id} key={id} />
-      ))}
+      {ids.length > 0 ? (
+        <>  
+          {ids.map((id) => (
+            <FriendDisplay id={id} key={id} />
+          ))}
+        </>
+      ) : (
+        <div style={{display:'flex', justifyContent:'center', alignItems:'center', height:'100%'}}>
+          <GenericPlaceholder
+            title="Add Friends to Add to the List"
+            icon={<AccountGroupIcon fontSize="xl4" />}
+            path="/pong/play/queue"
+          />
+        </div>
+      )}
     </FriendsDisplayWrapper>
   );
 }
