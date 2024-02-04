@@ -14,6 +14,7 @@ import { Socket } from 'socket.io-client';
 import LobbyModel from '@typings/models/lobby';
 import { Network } from './Network';
 import { enablePlayerInput } from '@apps/Lobby_Old/state';
+import { InteractionManager } from './Interaction';
 
 interface ExtendedSnapshot extends Snapshot {
   mutate: ClientLobby['mutateSnapshot'];
@@ -26,6 +27,9 @@ export class ClientLobby extends Lobby {
   private _snapshot: ExtendedSnapshot | null = null;
 
   public readonly network: Network = new Network(this);
+  public readonly interactions: InteractionManager = new InteractionManager(
+    this
+  );
 
   private readonly domEvents: [
     {
@@ -103,6 +107,11 @@ export class ClientLobby extends Lobby {
     ]);
 
     await super.onMount();
+  }
+  async onUpdate(delta: number): Promise<void> {
+    if (!this.app.stage || !this.stage || this.loading) return;
+    await super.onUpdate(delta);
+    await this.interactions.update();    
   }
 
   private async setupBackground(): Promise<void> {
@@ -188,7 +197,7 @@ export class ClientLobby extends Lobby {
       if (!mainPlayer) return;
       if (!(await this.isInputEnabled())) return;
       await mainPlayer.resetKeys();
-    }
+    };
     window.addEventListener('blur', focusChangeHandler);
     this.domEvents.push([window, 'blur', focusChangeHandler]);
   }
@@ -225,6 +234,7 @@ export class ClientLobby extends Lobby {
   // Socket Calls
   public async __sockLobbyInit(data: LobbyModel.Models.ILobby): Promise<void> {
     this.loading = true;
+    this.chatId = data.chatId;
     await Promise.all(this.players.map((p) => p.destructor()));
 
     this.mainPlayerId = data.players.find((p) => p.main)!.id;

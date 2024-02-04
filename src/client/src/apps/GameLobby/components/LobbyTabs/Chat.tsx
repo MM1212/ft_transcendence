@@ -65,7 +65,6 @@ export default function GameLobbyChat(): JSX.Element {
           []
         )}
       />
-      {/* <Input variant="outlined" size="sm" placeholder='Type something here..' color='warning' /> */}
     </Box>
   );
 }

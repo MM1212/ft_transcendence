@@ -11,6 +11,9 @@ import { UsersService } from '../users/services/users.service';
 import PongModel from '@typings/models/pong';
 import { ChatModel, EndpointData } from '@typings/api';
 import User from '../users/user';
+import { Mutex, ScopeLock } from '@/helpers/mutex';
+import botsSpecifications from '@/assets/pong/bots.json';
+import UsersModel from '@typings/models/users';
 
 @Injectable()
 export class PongLobbyService {
@@ -18,9 +21,47 @@ export class PongLobbyService {
   public readonly usersInGames: Map<number, number> = new Map(); // userId, lobbyId
   private lobbyId = 0;
 
+  private readonly createBotsMutex = new Mutex('pong:create-bots');
+  private readonly _bots: Map<string, User> = new Map();
+
   constructor(private readonly deps: PongLobbyDependencies) {
     // @ts-expect-error - circular dependency
     this.deps.service = this;
+
+    this.createBots();
+  }
+
+  private async createBots(): Promise<void> {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _lock = new ScopeLock(this.createBotsMutex);
+
+    for await (const botSpec of botsSpecifications) {
+      let user: User | null = await this.deps.usersService.getByNickname(
+        botSpec.nickname,
+      );
+      if (user) {
+        this._bots.set(botSpec.nickname, user);
+        continue;
+      }
+      user = await this.deps.usersService.create({
+        avatar: botSpec.avatar,
+        nickname: botSpec.nickname,
+        studentId: -botSpec.id,
+        inventory: botSpec.inventory,
+        type: UsersModel.Models.Types.Bot
+      });
+      this._bots.set(botSpec.nickname, user);
+    }
+  }
+  public getBot(nickname: string): User | null {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _lock = new ScopeLock(this.createBotsMutex);
+    return this._bots.get(nickname) ?? null;
+  }
+  public getBots(): User[] {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _lock = new ScopeLock(this.createBotsMutex);
+    return Array.from(this._bots.values());
   }
 
   public async getLobby(id: number): Promise<PongLobby> {
@@ -213,7 +254,11 @@ export class PongLobbyService {
       false,
     );
     if (syncToUser === true) {
-      lobby.sendToParticipant(newUser.id, PongModel.Sse.Events.Join, lobby.interface);
+      lobby.sendToParticipant(
+        newUser.id,
+        PongModel.Sse.Events.Join,
+        lobby.interface,
+      );
     }
     lobby.syncParticipants();
     return lobby;
@@ -231,7 +276,10 @@ export class PongLobbyService {
     else throw new ForbiddenException('Could not join spectators');
   }
 
-  public async leaveLobby(userId: number, syncToUser: boolean = false): Promise<PongLobby> {
+  public async leaveLobby(
+    userId: number,
+    syncToUser: boolean = false,
+  ): Promise<PongLobby> {
     if (!this.usersInGames.has(userId))
       throw new Error('User is not in a lobby/game');
     const lobby = this.games.get(this.usersInGames.get(userId)!);

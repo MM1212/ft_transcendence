@@ -1,4 +1,4 @@
-import ChatBox from '@apps/Lobby_Old/components/InGameChat';
+import ChatBox from '@apps/Lobby/components/InGameChat';
 import React from 'react';
 import { ClientLobby } from '../src/Lobby';
 import {
@@ -104,7 +104,7 @@ export default function LobbyView(): JSX.Element {
     if (!lobbyRef.current) return;
     if (connected) return;
     lobbyRef.current.loading = true;
-  }, [connected])
+  }, [connected]);
 
   const targetElem = React.useMemo(
     () => (
@@ -126,7 +126,9 @@ export default function LobbyView(): JSX.Element {
     () => (
       <div>
         {targetElem}
-        <ChatBox />
+        <React.Suspense fallback={null}>
+          <ChatBox />
+        </React.Suspense>
         <Modal
           open={!connected || isLobbyLoading}
           style={{

@@ -1,83 +1,108 @@
-import { UserAvatar } from "@components/AvatarWithStatus";
-import PlusIcon from "@components/icons/PlusIcon";
-import { useUser } from "@hooks/user";
-import { Box } from "@mui/joy";
-import { Typography } from "@mui/joy";
-import { ChangePower } from "./PlayerSettingsModals/ChangePower";
-
+import { UserAvatar } from '@components/AvatarWithStatus';
+import PlusIcon from '@components/icons/PlusIcon';
+import { useUser } from '@hooks/user';
+import { Box, Stack } from '@mui/joy';
+import { Typography } from '@mui/joy';
+import { ChangePower } from './PlayerSettingsModals/ChangePower';
+import PongLobbyMatchmakingBanner from './Banner';
 export default function LobbyPlayerBanner({ id }: { id: number | undefined }) {
   const user = useUser(id!);
   return (
     <div
       style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        marginTop: "3dvh",
-        position: "relative",
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        marginTop: '3dvh',
+        position: 'relative',
       }}
     >
       {id === undefined ? (
-        <UserAvatar
-          sx={(theme) => ({
-            width: theme.spacing(17),
-            height: theme.spacing(17),
-            position: "absolute",
-            marginTop: "7dvh",
-            cursor: "pointer",
-            zIndex: 1,
-            transition: theme.transitions.create("background-color"),
-            "&:hover": {
-              bgcolor: "warning.softBg",
-            },
-          })}
-          color="warning"
-          variant="outlined"
+        <Box
+          sx={{
+            width: '37vh',
+            height: '41dvh',
+            marginTop: '7dvh',
+            display: 'flex',
+            justifyContent: 'center',
+          }}
         >
-          <PlusIcon
-            // onClick={handleInvite}
-            sx={{
-              width: 35,
-              height: 35,
-            }}
-          />
-        </UserAvatar>
+          <UserAvatar
+            sx={(theme) => ({
+              width: theme.spacing(17),
+              height: theme.spacing(17),
+              cursor: 'pointer',
+              zIndex: 1,
+              transition: theme.transitions.create('background-color'),
+              border: '2px solid',
+              borderColor: 'warning.outlinedBorder',
+              bgcolor: 'background.surface',
+              '&:hover': {
+                bgcolor: 'background.level1',
+              },
+            })}
+            color="neutral"
+            variant="soft"
+          >
+            <PlusIcon
+              // onClick={handleInvite}
+              size="lg"
+            />
+          </UserAvatar>
+        </Box>
       ) : (
         <>
           <Box
             sx={{
-              display: "flex",
-              alignItems: "center",
-              flexDirection: "column",
-              width: "37vh",
-              height: "41dvh",
-              clipPath: "polygon(50% 90%, 76% 80%, 76% 0, 24% 0, 24% 80%)",
-              backgroundColor: "background.surface",
+              display: 'flex',
+              alignItems: 'center',
+              flexDirection: 'column',
+              height: '40dvh',
+              width: '40vh',
+              // clipPath: 'polygon(50% 90%, 76% 80%, 76% 0, 24% 0, 24% 80%)',
+              // backgroundColor: 'background.surface',
             }}
           >
-            <Box
+            <PongLobbyMatchmakingBanner
               sx={{
-                display: "flex",
-                mt: "0.5dvh",
-                alignItems: "center",
-                flexDirection: "column",
-                pb: '20%',
-                pt: 2,
-                width: "35vh",
-                height: "40dvh",
-                justifyContent: "space-between",
-                clipPath: "polygon(50% 90%, 76% 80%, 76% 0, 24% 0, 24% 80%)",
-                backgroundColor: "background.level1",
+                position: 'absolute',
+                zIndex: 0,
+                mt: -0.5,
+                color: 'warning.outlinedBorder',
+                width: '45vh',
+                height: '41dvh',
               }}
+            />
+            <PongLobbyMatchmakingBanner
+              sx={{
+                position: 'absolute',
+                zIndex: 0,
+                color: 'background.surface',
+                width: '40vh',
+                height: '40dvh',
+              }}
+            />
+            <Box
+              zIndex={1}
+              display="flex"
+              alignItems="center"
+              flexDirection="column"
+              justifyContent="space-between"
+              height="100%"
+              pt={3}
+              pb={5}
             >
-              <UserAvatar
-                sx={(theme) => ({
-                  width: theme.spacing(17),
-                  height: theme.spacing(17),
-                })}
-                src={user?.avatar}
-              />
-              <Typography>{user?.nickname}</Typography>
+              <Stack spacing={1} width="100%" alignItems="center">
+                <UserAvatar
+                  sx={(theme) => ({
+                    width: theme.spacing(15),
+                    height: theme.spacing(15),
+                    zIndex: 1,
+                  })}
+                  src={user?.avatar}
+                />
+                <Typography>{user?.nickname}</Typography>
+              </Stack>
               <ChangePower />
             </Box>
           </Box>

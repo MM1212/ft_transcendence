@@ -93,10 +93,13 @@ export class Users {
       status: UsersModel.Models.Status.Offline,
     }));
   }
-  async exists(id: number): Promise<boolean> {
+  async exists(id: number | string): Promise<boolean> {
     return (
       (await this.prisma.user.count({
-        where: { id },
+        where: {
+          ...(typeof id === 'number' && { id }),
+          ...(typeof id === 'string' && { nickname: id }),
+        },
       })) === 1
     );
   }
@@ -140,7 +143,7 @@ export class Users {
           },
           inventory: {
             createMany: {
-              data: [...(data.inventory ?? [])]
+              data: [...(data.inventory ?? [])],
             },
           },
         },

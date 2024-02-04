@@ -1,19 +1,14 @@
-import { useCurrentUser } from "@hooks/user";
-import { Button, styled } from "@mui/joy";
-import React, { useState } from "react";
-import MatchMakingCounter from "./MatchMakingCounter";
-import LobbyPongButton from "./LobbyPongBottom";
-import LobbyPlayerBanner from "./LobbyPlayerBanner";
-import tunnel from "@lib/tunnel";
-import PongModel from "@typings/models/pong";
-import { useRecoilCallback, useRecoilValue } from "recoil";
-import pongGamesState from "../state";
-import { OpenGameModal } from "@apps/GamePong/PongModal";
-import {
-  ChatSelectedData,
-  useChatSelectModalActions,
-} from "@apps/Chat/modals/ChatSelectModal/hooks/useChatSelectModal";
-import notifications from "@lib/notifications/hooks";
+import { useCurrentUser } from '@hooks/user';
+import { styled } from '@mui/joy';
+import { useState } from 'react';
+import MatchMakingCounter from './MatchMakingCounter';
+import LobbyPongButton from './LobbyPongBottom';
+import LobbyPlayerBanner from './LobbyPlayerBanner';
+import tunnel from '@lib/tunnel';
+import PongModel from '@typings/models/pong';
+import { useRecoilCallback, useRecoilValue } from 'recoil';
+import pongGamesState from '../state';
+import { OpenGameModal } from '@apps/GamePong/PongModal';
 
 export const FindMatchWrapper = styled("div")(({ theme }) => ({
   "& > img": {
