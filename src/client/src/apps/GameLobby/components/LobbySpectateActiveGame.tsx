@@ -8,6 +8,8 @@ import PongModel from "@typings/models/pong";
 import { navigate } from "wouter/use-location";
 import pongGamesState from "../state";
 import { useRecoilCallback } from "recoil";
+import GenericPlaceholder from "@components/GenericPlaceholder";
+import TableTennisIcon from "@components/icons/TableTennisIcon";
 
 function ViewGame(game: PongModel.Models.IGameInfoDisplay) {
   const handleViewGame = useRecoilCallback(
@@ -98,10 +100,30 @@ export function LobbySpectateActiveGame() {
       PongModel.Models.LobbySpectatorVisibility.None
   );
   return (
-    <Stack spacing={0.5}>
-      {games.map((game) => (
-        <ViewGame key={game.UUID} {...game} />
-      ))}
-    </Stack>
+    <>
+    {games.length > 0 ? (
+      <Stack spacing={0.5}>
+        {games.map((game) => (
+          <ViewGame key={game.UUID} {...game} />
+        ))}
+      </Stack>
+    ) : (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100%",
+        }}
+      >
+        <GenericPlaceholder
+          title="No Active Games to Spectate"
+          icon={<TableTennisIcon fontSize="xl4" />}
+          label="Play a Match"
+          path="/pong/play/queue"
+        />
+      </div>
+    )}
+  </>
   );
 }

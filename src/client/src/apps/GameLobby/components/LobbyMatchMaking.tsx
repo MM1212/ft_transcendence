@@ -33,7 +33,6 @@ export function LobbyMatchMaking() {
   const lobby = useRecoilValue(pongGamesState.gameLobby)!;
   const user = useCurrentUser();
   const [isLobbyActive, setIsLobbyActive] = useState(false);
-  const { select: selectInvites } = useChatSelectModalActions();
 
   const handleStartMatchmaking = useRecoilCallback(
     (ctx) => async () => {
