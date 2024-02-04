@@ -161,7 +161,7 @@ function UserProfile({
               {user.nickname}
             </Typography>
             ) : null}
-            <Typography>Rank Placeholder</Typography>
+            {/* <Typography>Rank Placeholder</Typography> */}
           </Stack>
           {affiliation !== 'me' && (
             <OtherOptions user={user} friend={affiliation === 'friend'} />

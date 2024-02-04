@@ -9,7 +9,7 @@ import GenericPlaceholder from "@components/GenericPlaceholder";
 import TableTennisIcon from "@components/icons/TableTennisIcon";
 
 export default function LeaderBoard() {
-  const users = [];
+  const users = [useUser(1), useUser(2)];
   return (
     <Sheet
       sx={{

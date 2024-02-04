@@ -13,6 +13,7 @@ import { useTunnelEndpoint } from "@hooks/tunnel";
 import PongHistoryModel from "@typings/models/pong/history";
 import TableTennisIcon from "@components/icons/TableTennisIcon";
 import GenericPlaceholder from "@components/GenericPlaceholder";
+import { Link } from "wouter";
 
 export default function ProfileMatchHistory({ id }: { id?: number }) {
   const { isLoading, error, data, isValidating } = useTunnelEndpoint<
@@ -33,7 +34,7 @@ export default function ProfileMatchHistory({ id }: { id?: number }) {
       <Box
         display="flex"
         width="100%"
-        height='100%'
+        height="100%"
         flexDirection="column"
         alignItems="center"
         justifyContent="center"
@@ -57,12 +58,20 @@ export default function ProfileMatchHistory({ id }: { id?: number }) {
             spacing={1.5}
             width="100%"
           >
-            {data.map((match, index) => (
+            {data.slice(0, 5).map((match, index) => (
               <React.Fragment key={index}>
                 <SingleMatchHist {...match} profileId={id} />
-                {index !== data.length - 1 && <Divider />}
+                {index !== 4 && <Divider />}
               </React.Fragment>
             ))}
+            {data.length > 5 && (
+              <Typography
+              component={Link}
+              to={`/pong/history/${id ?? "me"}`}
+              >
+                ...See Full Match History
+              </Typography>
+            )}
           </Stack>
         ) : (
           <Stack
@@ -70,7 +79,7 @@ export default function ProfileMatchHistory({ id }: { id?: number }) {
             justifyContent={"center"}
             spacing={1.5}
             width="100%"
-            height='100%'
+            height="100%"
           >
             <GenericPlaceholder
               label="Play a Match"
