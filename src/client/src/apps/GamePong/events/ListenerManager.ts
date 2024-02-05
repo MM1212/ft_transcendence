@@ -52,11 +52,15 @@ export const useListenerManager = () => {
         console.log(obj);
         const player = game?.current?.getObjectByTag(obj.tag) as UIPlayer; //| UIBot
         if (player) {
-          player.mana.updateMana(obj.mana, obj.tag);
-          player.energy.updateEnergy(obj.energy, obj.tag);
+          if (player.display.mana) {
+            player.display.mana.updateMana(obj.mana);
+          }
+          if (player.display.energy)
+            player.display.energy.updateEnergy(obj.energy);
         }
       });
-    }, [game]
+    },
+    [game]
   );
 
   const onStop = useRecoilCallback(

@@ -215,6 +215,7 @@ export class Ball extends GameObject {
     if (target instanceof ArenaWall) {
       this.velocity.y = -this.velocity.y;
     } else if (target instanceof Bar) {
+
       // || target instanceof Bot) {
       // where the ball hit
       let collidePoint = this.getCenter.y - target.getCenter.y;

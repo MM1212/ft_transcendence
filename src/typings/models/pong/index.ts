@@ -396,44 +396,55 @@ namespace PongModel {
       data: Endpoints.ChatSelectedData[];
       source: Models.InviteSource;
     }
+
+    export interface AddBot {
+      lobbyId: number;
+      teamId: number;
+      teamPosition: number;
+    }
   }
 
   export namespace Endpoints {
     export enum Targets {
       // PUT
-      NewLobby = "/pong/lobby",
-      LeaveLobby = "/pong/lobby/leave",
-      AddToQueue = "/pong/lobby/addToQueue",
+      NewLobby = '/pong/lobby',
+      LeaveLobby = '/pong/lobby/leave',
+      AddToQueue = '/pong/lobby/addToQueue',
       //POST
-      JoinLobby = "/pong/lobby/join",
-      ChangeTeam = "/pong/lobby/team",
-      ChangeOwner = "/pong/lobby/owner",
-      JoinSpectators = "/pong/lobby/spectators",
-      Ready = "/pong/lobby/ready",
-      Kick = "/pong/lobby/kick",
-      Invite = "/pong/lobby/invite",
-      KickInvited = "/pong/lobby/kick-invited",
-      StartGame = "/pong/lobby/start",
-      LeaveQueue = "/pong/lobby/leaveQueue",
-      JoinActive = "/pong/lobby/joinActive",
+      JoinLobby = '/pong/lobby/join',
+      ChangeTeam = '/pong/lobby/team',
+      ChangeOwner = '/pong/lobby/owner',
+      JoinSpectators = '/pong/lobby/spectators',
+      Ready = '/pong/lobby/ready',
+      Kick = '/pong/lobby/kick',
+      Invite = '/pong/lobby/invite',
+      KickInvited = '/pong/lobby/kick-invited',
+      StartGame = '/pong/lobby/start',
+      LeaveQueue = '/pong/lobby/leaveQueue',
+      JoinActive = '/pong/lobby/joinActive',
+      AddBot = '/pong/lobby/addBot',
       //GET
-      GetSessionLobby = "/pong/lobby/session",
-      GetAllLobbies = "/pong/lobby/all",
-      GetLobby = "/pong/lobby/:id",
+      GetSessionLobby = '/pong/lobby/session',
+      GetAllLobbies = '/pong/lobby/all',
+      GetLobby = '/pong/lobby/:id',
 
-      GetAllGames = "/pong/lobby/playing",
+      GetAllGames = '/pong/lobby/playing',
 
       // existed before
-      Connect = "/pong",
+      Connect = '/pong',
+      Borders = '/pong/UI/Borders',
+      ManaBars = '/pong/UI/UIBars/ManaBar',
+      EnergyBars = '/pong/UI/UIBars/EnergyBar',
+      SpecialPowers = '/pong/Powers',
 
-      DisconnectWindow = "/pong/UI/disconnect-window.png",
-      PowerWaterTexture = "/pong/PowerWater.png",
-      PowerFireTexture = "/pong/PowerCannon.png",
-      PowerIceTexture = "/pong/PowerIce.png",
-      PowerSparkTexture = "/pong/PowerSpark.png",
-      PowerGhostTexture = "/pong/PowerGhost.png",
-      FireballJSON = "/pong/Fireball.json",
-      FireballAnimDict = "/pong/Fireball",
+      DisconnectWindow = '/pong/UI/disconnect-window.png',
+      PowerWaterTexture = '/pong/PowerWater.png',
+      PowerFireTexture = '/pong/PowerCannon.png',
+      PowerIceTexture = '/pong/PowerIce.png',
+      PowerSparkTexture = '/pong/PowerSpark.png',
+      PowerGhostTexture = '/pong/PowerGhost.png',
+      FireballJSON = '/pong/Fireball.json',
+      FireballAnimDict = '/pong/Fireball',
     }
     export type All = GroupEndpointTargets<Targets>;
 
@@ -557,6 +568,9 @@ namespace PongModel {
         Models.ILobby,
         DTO.JoinActive> {}
 
+        export interface AddBot
+        extends Endpoint <EndpointMethods.Post, Targets.AddBot, undefined, DTO.AddBot> {}
+
     /* GET methods */
 
     export interface GetSessionLobby
@@ -611,6 +625,7 @@ namespace PongModel {
         [Targets.KickInvited]: KickInvited;
         [Targets.StartGame]: StartGame;
         [Targets.JoinActive]: JoinActive;
+        [Targets.AddBot]: AddBot;
       };
     }
   }

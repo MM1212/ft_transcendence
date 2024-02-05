@@ -1,48 +1,51 @@
-import * as PIXI from 'pixi.js';
-import { UIBall } from './Ball';
-import { Game } from '@shared/Pong/Game';
-import { UIGameObject } from './GameObject';
-import { Vector2D } from './utils/Vector';
-import { UIArenaWall } from './Collisions/Arena';
-import { Debug } from './utils/Debug';
-import { drawLines, scoreStyleSettings } from './utils/drawUtils';
-import { UIPlayer } from './Paddles/Player';
+import * as PIXI from "pixi.js";
+import { UIBall } from "./Ball";
+import { Game } from "@shared/Pong/Game";
+import { UIGameObject } from "./GameObject";
+import { Vector2D } from "./utils/Vector";
+import { UIArenaWall } from "./Collisions/Arena";
+import { Debug } from "./utils/Debug";
+import { drawLines, scoreStyleSettings } from "./utils/drawUtils";
+import { UIPlayer } from "./Paddles/Player";
 import {
   ARENA_SIZE,
   MULTIPLAYER_START_POS,
   P_START_DIST,
   WINDOWSIZE_X,
   WINDOWSIZE_Y,
-} from '@shared/Pong/main';
+} from "@shared/Pong/main";
 
 //import { UIBot } from "./Paddles/Bot";
-import { Socket } from 'socket.io-client';
-import { GameObject, effectSendOption } from '@shared/Pong/GameObject';
-import { UIBubble } from './SpecialPowers/Bubble';
-import { UIFire } from './SpecialPowers/Fire';
-import { UIGhost } from './SpecialPowers/Ghost';
-import { UIIce } from './SpecialPowers/Ice';
-import { UISpark } from './SpecialPowers/Spark';
-import { UIEffect } from './SpecialPowers/Effect';
-import PongModel from '@typings/models/pong';
-import { Ball } from '@shared/Pong/Ball';
-import { ballsConfig, paddleConfig } from '@shared/Pong/config/configInterface';
-import { DisconnectWindowTex } from './utils';
+import { Socket } from "socket.io-client";
+import { GameObject, effectSendOption } from "@shared/Pong/GameObject";
+import { UIBubble } from "./SpecialPowers/Bubble";
+import { UIFire } from "./SpecialPowers/Fire";
+import { UIGhost } from "./SpecialPowers/Ghost";
+import { UIIce } from "./SpecialPowers/Ice";
+import { UISpark } from "./SpecialPowers/Spark";
+import { UIEffect } from "./SpecialPowers/Effect";
+import PongModel from "@typings/models/pong";
+import { Ball } from "@shared/Pong/Ball";
+import { ballsConfig, paddleConfig } from "@shared/Pong/config/configInterface";
+import { DisconnectWindowTex } from "./utils";
+import { UIBot } from "./Paddles/Bot";
 
 type Powers = UIBubble | UIFire | UIGhost | UIIce | UISpark;
 
 export class UIGame extends Game {
   public app: PIXI.Application;
   public debug: Debug;
-  private scoreElementLeft: PIXI.Text = new PIXI.Text('');
-  private scoreElementRight: PIXI.Text = new PIXI.Text('');
+  private scoreElementLeft: PIXI.Text = new PIXI.Text("");
+  private scoreElementRight: PIXI.Text = new PIXI.Text("");
 
   private scoreStyle: PIXI.TextStyle = new PIXI.TextStyle(scoreStyleSettings);
 
   public disconnectWindow: PIXI.Sprite = new PIXI.Sprite(DisconnectWindowTex);
 
   public disconnectedPlayers: { tag: string; nickname: string }[] = [];
-  public disconnectedPrint: PIXI.Text = new PIXI.Text('');
+  public disconnectedPrint: PIXI.Text = new PIXI.Text("");
+
+  public randomBordersSelected: number[] = [];
 
   public roomId: string;
 
@@ -54,18 +57,17 @@ export class UIGame extends Game {
     private readonly userId: number
   ) {
     super(WINDOWSIZE_X, WINDOWSIZE_Y);
-
     this.roomId = gameConfig.UUID;
 
     // need to add background tex
     // Black hardcoded for now
     this.app = new PIXI.Application({
-      background: '#000000',
+      background: "#000000",
       antialias: true,
       width: WINDOWSIZE_X,
       height: WINDOWSIZE_Y,
     });
-    this.app.renderer.background.color = '#000000';
+    this.app.renderer.background.color = "#000000";
 
     drawLines(0xffffff, this.app);
 
@@ -102,9 +104,9 @@ export class UIGame extends Game {
 
     this.setScoreElements();
 
-    document.addEventListener('keydown', this.handleKeyDown);
-    document.addEventListener('keyup', this.handleKeyUp);
-    document.addEventListener('focusout', this.handleLostOfFocus);
+    document.addEventListener("keydown", this.handleKeyDown);
+    document.addEventListener("keyup", this.handleKeyUp);
+    document.addEventListener("focusout", this.handleLostOfFocus);
 
     this.debug = new Debug(this.app);
     this.app.stage.sortableChildren = true;
@@ -138,7 +140,7 @@ export class UIGame extends Game {
     this.disconnectWindow.alpha = 0.8;
     this.disconnectWindow.visible = false;
     this.app.stage.addChild(this.disconnectWindow);
-    this.disconnectedPrint = new PIXI.Text('', scoreStyleSettings);
+    this.disconnectedPrint = new PIXI.Text("", scoreStyleSettings);
     this.disconnectedPrint.x =
       this.app.view.width / 2 - this.disconnectedPrint.width / 2;
     this.disconnectedPrint.y =
@@ -160,7 +162,7 @@ export class UIGame extends Game {
 
   updateDisconnectedRefresh(userIds: number[]): void {
     this.disconnectedPlayers.length = 0;
-    let disconnectedText = '';
+    let disconnectedText = "";
     console.log(userIds);
 
     for (let i = 0; i < userIds.length; i++) {
@@ -173,7 +175,7 @@ export class UIGame extends Game {
           tag: player.tag,
           nickname: player.nickname,
         });
-        disconnectedText += player.nickname + '\n';
+        disconnectedText += player.nickname + "\n";
       }
     }
     this.disconnectedPrint.text = `Disconnected Players: ${this.disconnectedPlayers.length}\n${disconnectedText}`;
@@ -184,9 +186,9 @@ export class UIGame extends Game {
   updateDisconnected(nickname: string, tag: string) {
     this.disconnectedPlayers.push({ tag: tag, nickname: nickname });
     if (this.disconnectedPlayers.length > 0) {
-      let disconnectedText = '';
+      let disconnectedText = "";
       this.disconnectedPlayers.forEach((player) => {
-        disconnectedText += player.nickname + '\n';
+        disconnectedText += player.nickname + "\n";
       });
       const obj = this.getObjectByTag(tag) as UIGameObject;
       if (obj) obj.displayObject.alpha = 0.5;
@@ -201,12 +203,12 @@ export class UIGame extends Game {
       (player) => player.nickname !== nickname
     );
     if (this.disconnectedPlayers.length > 0) {
-      let disconnectedText = '';
+      let disconnectedText = "";
       this.disconnectedPlayers.forEach((player) => {
-        disconnectedText += player.nickname + '\n';
+        disconnectedText += player.nickname + "\n";
         const obj = this.getObjectByTag(player.tag) as UIGameObject;
         if (obj) obj.displayObject.alpha = 0.5;
-        console.log('PLAYER: ' + player.tag);
+        console.log("PLAYER: " + player.tag);
       });
       const obj = this.getObjectByTag(tag) as UIGameObject;
       if (obj) obj.displayObject.alpha = 1;
@@ -232,7 +234,6 @@ export class UIGame extends Game {
   handleKeyDown = (e: KeyboardEvent) => {
     if (this.gameConfig.spectators.includes(this.userId)) return;
 
-
     if (e.key && e.repeat === false && e.shiftKey === false) {
       // (this.AllPlayersNicks)
       this.socket.emit(PongModel.Socket.Events.KeyPress, {
@@ -240,7 +241,7 @@ export class UIGame extends Game {
         state: true,
       });
     }
-    if (e.key === 'p') {
+    if (e.key === "p") {
       this.debug.isDebug = !this.debug.isDebug;
     }
   };
@@ -290,7 +291,7 @@ export class UIGame extends Game {
     paddles.forEach((e) => {
       const obj = this.getObjectByTag(e.tag) as UIPlayer;
       if (obj) {
-        console.log(e.tag + ' ' + e.height + ' ' + e.width);
+        console.log(e.tag + " " + e.height + " " + e.width);
         obj.setScaleDisplay(e.scale, e.height, e.width, e.x, e.y);
       }
     });
@@ -302,17 +303,20 @@ export class UIGame extends Game {
     option: effectSendOption
   ): void {
     if (option === effectSendOption.REMOVE) {
-      console.log(effectName + ' removed on ' + obj.tag);
-      if (obj.effect?.name === 'INVISIBLE') obj.displayObject.alpha = 1;
+      console.log(effectName + " removed on " + obj.tag);
+      if (obj.effect?.name === "INVISIBLE") obj.displayObject.alpha = 1;
       obj.effect = undefined;
     } else if (option === effectSendOption.SEND) {
-      console.log(effectName + ' added on ' + obj.tag);
+      console.log(effectName + " added on " + obj.tag);
       if (effectName) obj.setEffect(new UIEffect(effectName, obj));
     }
   }
 
   private tickRef: PIXI.TickerCallback<any> | undefined;
   start() {
+    this.disconnectWindow.visible = false;
+    this.disconnectedPrint.visible = false;
+    this.disconnectedPlayers.length = 0;
     this.tickRef = (_delta: number) => {
       this.update(_delta);
     };
@@ -343,13 +347,6 @@ export class UIGame extends Game {
   update(delta: number) {
     if (this.run) {
       this.debug.debugDraw(this.gameObjects as UIGameObject[]);
-
-      this.gameObjects.forEach((gameObject: GameObject) => {
-        if (gameObject instanceof UIPlayer) {
-          gameObject.mana.update(gameObject.tag, delta);
-          gameObject.energy.update(gameObject.tag, delta);
-        }
-      });
     }
   }
 
@@ -367,14 +364,14 @@ export class UIGame extends Game {
     );
   }
 
-  private ballRef: UIGameObject | undefined = undefined;
+  private ballRefere: UIGameObject | undefined = undefined;
   public getObjectByTag(tag: string): UIGameObject | undefined {
-    if (tag === PongModel.InGame.ObjType.Ball && !!this.ballRef)
-      return this.ballRef;
+    if (tag === PongModel.InGame.ObjType.Ball && !!this.ballRefere)
+      return this.ballRefere;
     const obj = this.gameObjects.find(
       (gameObject: GameObject) => gameObject.tag === tag
     ) as UIGameObject;
-    if (!this.ballRef && obj instanceof Ball) this.ballRef = obj;
+    if (!this.ballRefere && obj instanceof Ball) this.ballRefere = obj;
     return obj;
   }
 
@@ -384,8 +381,8 @@ export class UIGame extends Game {
     this.app.stage.destroy();
     this.app.stop();
     this.app.destroy(true, { children: true });
-    document.removeEventListener('keydown', this.handleKeyDown);
-    document.removeEventListener('keyup', this.handleKeyUp);
+    document.removeEventListener("keydown", this.handleKeyDown);
+    document.removeEventListener("keyup", this.handleKeyUp);
     super.shutdown();
   }
 
@@ -398,7 +395,7 @@ export class UIGame extends Game {
       const p = players[i];
       let startX;
       let playerNbr;
-      if (p.positionOrder === 'back') {
+      if (p.positionOrder === "back") {
         startX = P_START_DIST;
         p.teamId === 0
           ? (playerNbr = objtype.Player1)
@@ -417,7 +414,7 @@ export class UIGame extends Game {
         direction = new Vector2D(1, 1);
       }
 
-      if (p.type === 'player') {
+      if (p.type === "player") {
         this.add(
           new UIPlayer(
             startX,
@@ -435,16 +432,22 @@ export class UIGame extends Game {
           )
         );
       } else {
-        //this.add (new UIBot(
-        // P_START_DIST,
-        // this.height / 2,
-        // PongModel.InGame.ObjType.Player2,
-        // new Vector2D(1, 1),
-        // this
-        // );
-        // })
+        this.add(
+          new UIBot(
+            startX,
+            this.height / 2,
+            playerNbr!,
+            direction,
+            p.specialPower as PongModel.Models.LobbyParticipantSpecialPowerType,
+            this,
+            p.teamId,
+            p.paddle as keyof typeof paddleConfig,
+            p.avatar,
+            p.nickname,
+            p.userId
+          )
+        );
       }
     }
-    // Add special power to the bots
   }
 }

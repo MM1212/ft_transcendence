@@ -113,6 +113,12 @@ const ponglobbyValidator = new (class PongLobbyControllerValidator {
       )
       .array(),
   } satisfies ComputeToZodKeys<PongModel.DTO.Invite>);
+
+  addBotSchema: ZodType<PongModel.DTO.AddBot> = z.object({
+    lobbyId: z.number().int().nonnegative(),
+    teamId: z.number().int().min(0).max(1),
+    teamPosition: z.number().int().min(0).max(1),
+  } satisfies ComputeToZodKeys<PongModel.DTO.AddBot>);
 })();
 
 export default ponglobbyValidator;

@@ -38,7 +38,7 @@ namespace UsersModel {
       avatar: string;
       createdAt: number;
       status: GroupEnumValues<Status>;
-      storedStatus: Status;
+      storedStatus: GroupEnumValues<Status>;
       firstLogin: boolean;
       friends: number[];
       blocked: number[];
@@ -75,7 +75,7 @@ namespace UsersModel {
         friendOf: { id: number }[];
         chats: { id: number }[];
         blocked: { id: number }[];
-        storedStatus: Models.Status;
+        storedStatus: GroupEnumValues<Models.Status>;
         tfaEnabled: boolean;
         tfaSecret: string | null;
 
