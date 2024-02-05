@@ -15,7 +15,7 @@ import {
   accordionDetailsClasses,
   accordionSummaryClasses,
 } from '@mui/joy';
-import { useSetSettingValue, useSetting } from '../hooks';
+import { useSetSettingValue, useSetting, useSettingValue } from '../hooks';
 
 function Tab({
   title,
@@ -65,12 +65,18 @@ function FormInput({
   placeholder: string;
   size: InputProps['size'];
 }): JSX.Element {
-  const setKeySettings = useSetSettingValue("keySettings");
-  
+  const [keySettings, setKeySettings] = useSetting<KeySettings>('keySettings');
+
   return (
     <FormControl size={size}>
       <FormLabel>{label}</FormLabel>
-      <Input placeholder={placeholder} onChange={} />
+      <Input
+        placeholder={placeholder}
+        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+          keySettings[label as KeySettingsKey] = event.target!.value;
+          setKeySettings(keySettings);
+        }}
+      />
     </FormControl>
   );
 }
@@ -101,8 +107,11 @@ const keySettingsDefault = {
 };
 
 export default function SettingsView(): JSX.Element {
-  const [keySettings, setKeySettings] = useSetting<KeySettings>('keySettings');
-  if (!keySettings) setKeySettings(keySettingsDefault);
+  // const [keySettings, setKeySettings] = useSetting<KeySettings>('keySettings');
+  // if (!keySettings) setKeySettings(keySettingsDefault);
+  let keySettings = useSettingValue<KeySettings>("keySettings");
+  if (!keySettings)
+    keySettings = keySettingsDefault;
 
   return (
     <Sheet
