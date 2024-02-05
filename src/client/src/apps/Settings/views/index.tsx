@@ -1,4 +1,3 @@
-import CogIcon from '@components/icons/CogIcon';
 import HumanGreetingProximityIcon from '@components/icons/HumanGreetingProximityIcon';
 import TableTennisIcon from '@components/icons/TableTennisIcon';
 import {
@@ -16,6 +15,7 @@ import {
   accordionDetailsClasses,
   accordionSummaryClasses,
 } from '@mui/joy';
+import { useSetSettingValue, useSetting } from '../hooks';
 
 function Tab({
   title,
@@ -65,15 +65,45 @@ function FormInput({
   placeholder: string;
   size: InputProps['size'];
 }): JSX.Element {
+  const setKeySettings = useSetSettingValue("keySettings");
+  
   return (
     <FormControl size={size}>
       <FormLabel>{label}</FormLabel>
-      <Input placeholder={placeholder} />
+      <Input placeholder={placeholder} onChange={} />
     </FormControl>
   );
 }
 
+type KeySettingsKey =
+  | 'Move Up'
+  | 'Move Down'
+  | 'Move Left'
+  | 'Move Right'
+  | 'Snowball'
+  | 'Dance'
+  | 'Wave'
+  | 'Sit';
+
+type KeySettings = {
+  [key in KeySettingsKey]: string;
+};
+
+const keySettingsDefault = {
+  'Move Up': 'W',
+  'Move Down': 'S',
+  'Move Left': 'A',
+  'Move Right': 'D',
+  Snowball: 'F',
+  Dance: 'G',
+  Wave: 'H',
+  Sit: 'J',
+};
+
 export default function SettingsView(): JSX.Element {
+  const [keySettings, setKeySettings] = useSetting<KeySettings>('keySettings');
+  if (!keySettings) setKeySettings(keySettingsDefault);
+
   return (
     <Sheet
       sx={{
@@ -92,11 +122,16 @@ export default function SettingsView(): JSX.Element {
             <Typography level="body-sm" mb={1}>
               Keys
             </Typography>
-            <FormInput label="Move Up" placeholder="W" size="sm" />
-            <FormInput label="Move Down" placeholder="S" size="sm" />
-            <FormInput label="Move Left" placeholder="A" size="sm" />
-            <FormInput label="Move Right" placeholder="D" size="sm" />
-            <FormInput label="Dance" placeholder="G" size="sm" />
+            {Object.keys(keySettings).map((key) => {
+              return (
+                <FormInput
+                  key={key}
+                  label={key}
+                  placeholder={keySettings[key as KeySettingsKey]}
+                  size="sm"
+                />
+              );
+            })}
           </Stack>
         </Tab>
         <Tab title="Pong" icon={TableTennisIcon}>
