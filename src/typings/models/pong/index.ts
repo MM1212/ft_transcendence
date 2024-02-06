@@ -93,7 +93,7 @@ namespace PongModel {
     export const TemporaryLobbyParticipant = {
       keys: PongModel.Models.DEFAULT_GAME_KEYS,
       paddle: "PaddleRed",
-      specialPower: PongModel.Models.LobbyParticipantSpecialPowerType.bubble,
+      specialPower: PongModel.Models.LobbyParticipantSpecialPowerType.ghost,
     };
     export interface ILobbyParticipant {
       id: number;
@@ -430,19 +430,25 @@ namespace PongModel {
 
       GetAllGames = '/pong/lobby/playing',
 
-      // existed before
       Connect = '/pong',
       Borders = '/pong/UI/Borders',
       ManaBars = '/pong/UI/UIBars/ManaBar',
       EnergyBars = '/pong/UI/UIBars/EnergyBar',
       SpecialPowers = '/pong/Powers',
 
+      GhostDies = '/pong/Powers/Ghost/Dies',
+      GhostWalk = '/pong/Powers/Ghost/Walk',
+      GhostDiesJSON = '/pong/Powers/Ghost/Dies/GhostDies.json',
+      GhostWalkJSON = '/pong/Powers/Ghost/Walk/GhostWalk.json',
+
       DisconnectWindow = '/pong/UI/disconnect-window.png',
+
+      // UI representation
       PowerWaterTexture = '/pong/PowerWater.png',
       PowerFireTexture = '/pong/PowerCannon.png',
       PowerIceTexture = '/pong/PowerIce.png',
       PowerSparkTexture = '/pong/PowerSpark.png',
-      PowerGhostTexture = '/pong/PowerGhost.png',
+      PowerGhostTexture = '/pong/Powers/Ghost/Walk/GhostWalk0.png',
       FireballJSON = '/pong/Fireball.json',
       FireballAnimDict = '/pong/Fireball',
     }

@@ -102,7 +102,7 @@ export class UIPlayer extends Player {
     shooter: UIBar,
     powertag: string
   ) {
-    return UIBar.create(specialPower, center, direction, shooter, powertag);
+    return UIBar.create(specialPower, center, direction, shooter, powertag, this.uigame);
   }
 
   setScaleDisplay(

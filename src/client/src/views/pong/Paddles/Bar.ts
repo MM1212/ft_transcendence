@@ -6,6 +6,7 @@ import { UIFire } from '../SpecialPowers/Fire';
 import { UISpark } from '../SpecialPowers/Spark';
 import { UIGhost } from '../SpecialPowers/Ghost';
 import PongModel from '@typings/models/pong';
+import type { UIGame } from '../Game';
 
 export abstract class UIBar extends Bar {
 
@@ -14,7 +15,8 @@ export abstract class UIBar extends Bar {
     center: Vector2D,
     direction: number,
     shooter: Bar,
-    tag: string
+    tag: string,
+    uigame?: UIGame,
   ) {
     console.log('create' + specialPower + ' ' + tag);
     switch (specialPower) {
@@ -51,7 +53,8 @@ export abstract class UIBar extends Bar {
           new Vector2D(center.x + 40 * direction, center.y),
           new Vector2D(direction === 1 ? 5 : -5, 0),
           shooter,
-          tag
+          tag,
+          uigame as UIGame
         );
     }
   }

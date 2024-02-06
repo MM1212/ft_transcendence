@@ -347,6 +347,10 @@ export class UIGame extends Game {
   update(delta: number) {
     if (this.run) {
       this.debug.debugDraw(this.gameObjects as UIGameObject[]);
+
+      this.gameObjects.forEach((gameObject) => {
+        gameObject.update(delta);
+      });
     }
   }
 

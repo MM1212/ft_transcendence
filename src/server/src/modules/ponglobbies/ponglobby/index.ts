@@ -39,6 +39,7 @@ export class PongLobbyParticipant
     public avatar: string = user.avatar,
     public lobbyId: number = lobby.id,
   ) {
+
     if (lobby.nPlayers < 4) lobby.addPlayerToPlayers(this);
     else lobby.addPlayerToSpectators(this);
 
