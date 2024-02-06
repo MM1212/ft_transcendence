@@ -19,6 +19,7 @@ const buildAnimation = async (json: string, path: string, n: number) => {
 
   for (let i = 0; i < n; i++) {
     frames.push(PIXI.Texture.from(`${path}${i}.png`));
+    console.log(`${path}${i}.png`);
   }
 
   return frames;
@@ -34,4 +35,46 @@ export const GhostWalk = await buildAnimation(
   Targets.GhostWalkJSON,
   `${Targets.GhostWalk}/GhostWalk`,
   6
+);
+
+export const BubbleWalk = await buildAnimation(
+  Targets.BubbleWalkJSON,
+  `${Targets.BubbleWalk}/BubbleWalk`,
+  1
+);
+
+export const BubbleDies = await buildAnimation(
+  Targets.BubbleDiesJSON,
+  `${Targets.BubbleDies}/BubbleDies`,
+  4
+);
+
+export const ShooterAim = await buildAnimation(
+  Targets.ShooterJSON,
+  `${Targets.Shooter}/Shooter`,
+  3
+);
+
+export const FireballWalk = await buildAnimation(
+  Targets.FireballWalkJSON,
+  `${Targets.FireballWalk}/FireballWalk`,
+  5
+);
+
+export const FireballDies = await buildAnimation(
+  Targets.FireballDiesJSON,
+  `${Targets.FireballDies}/FireballDies`,
+  3
+);
+
+export const IceWalk = await buildAnimation(
+  Targets.IceWalkJSON,
+  `${Targets.IceWalk}/Ice`,
+  4
+);
+
+export const IceDies = await buildAnimation(
+  Targets.IceDiesJSON,
+  `${Targets.IceDies}/IceDies`,
+  10
 );

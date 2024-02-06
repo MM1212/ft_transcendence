@@ -86,7 +86,6 @@ export class UIPlayer extends Player {
   shootPower(): void {
     if (this.shooter !== undefined) {
       this.shooter.shootBall(this);
-      this.uigame.app.stage.removeChild(this.shooter?.displayObject);
     }
   }
 

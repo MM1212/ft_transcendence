@@ -25,28 +25,32 @@ export abstract class UIBar extends Bar {
           new Vector2D(center.x + 40 * direction, center.y),
           new Vector2D(direction === 1 ? 5 : -5, 0),
           shooter,
-          tag
+          tag,
+          uigame as UIGame
         );
       case PongModel.Models.LobbyParticipantSpecialPowerType.ice:
         return new UIIce(
           new Vector2D(center.x + 40 * direction, center.y),
           new Vector2D(direction === 1 ? 5 : -5, 0),
           shooter,
-          tag
+          tag,
+          uigame as UIGame
         );
       case PongModel.Models.LobbyParticipantSpecialPowerType.fire:
         return new UIFire(
           new Vector2D(center.x + 40 * direction, center.y),
           new Vector2D(direction === 1 ? 5 : -5, 0),
           shooter,
-          tag
+          tag,
+          uigame as UIGame
         );
       case PongModel.Models.LobbyParticipantSpecialPowerType.spark:
         return new UISpark(
           new Vector2D(center.x + 40 * direction, center.y),
           new Vector2D(direction === 1 ? 5 : -5, 0),
           shooter,
-          tag
+          tag,
+          uigame as UIGame
         );
       case PongModel.Models.LobbyParticipantSpecialPowerType.ghost:
         return new UIGhost(

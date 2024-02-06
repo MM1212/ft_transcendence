@@ -29,7 +29,7 @@ export default class Display {
     nickname: string,
     avatar: string,
     private uigame: UIGame,
-    tag: string,
+    tag: string
   ) {
     switch (tag) {
       case PongModel.InGame.ObjType.Player1:
@@ -47,14 +47,10 @@ export default class Display {
     }
 
     let random = Math.floor(Math.random() * 9) + 1;
-    if (this.uigame.randomBordersSelected.length === 0) {
-      this.uigame.randomBordersSelected.push(random);
-    } else {
-      while (this.uigame.randomBordersSelected.includes(random)) {
-        random = Math.floor(Math.random() * 9) + 1;
-      }
-      this.uigame.randomBordersSelected.push(random);
+    while (this.uigame.randomBordersSelected.includes(random)) {
+      random = Math.floor(Math.random() * 9) + 1;
     }
+    this.uigame.randomBordersSelected.push(random);
 
     this.displayBorder = new PIXI.Sprite(
       buildTexture(
@@ -65,7 +61,6 @@ export default class Display {
     this.displayBorder.width = ARENA_SIZE;
     this.displayBorder.height = ARENA_SIZE;
     this.displayBorder.zIndex = 20;
-    this.displayBorder.scale.set(0.5);
     this.uigame.app.stage.addChild(this.displayBorder);
 
     this.displayAvatar = new PIXI.Sprite(
@@ -92,8 +87,7 @@ export default class Display {
       this.displayNickname.x = this.displayAvatar.x + ARENA_SIZE / 1.75;
     } else {
       this.displayAvatar.x = this.uigame.width - ARENA_SIZE / 2;
-      this.displayNickname.x =
-        this.displayAvatar.x -  ARENA_SIZE / 1.75;
+      this.displayNickname.x = this.displayAvatar.x - ARENA_SIZE / 1.75;
     }
     if (this.position > 1) {
       this.displayAvatar.y = this.uigame.height - ARENA_SIZE / 2;

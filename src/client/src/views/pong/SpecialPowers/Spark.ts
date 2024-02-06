@@ -5,10 +5,11 @@ import { Bar } from "@shared/Pong/Paddles/Bar";
 import * as PIXI from "pixi.js";
 import { Spark } from "@shared/Pong/SpecialPowers/Spark";
 import { UIEffect } from "./Effect";
+import type { UIGame } from "../Game";
 
 export class UISpark extends Spark {
     public displayObject: PIXI.Sprite;
-    constructor(center: Vector2D, velocity: Vector2D, shooter: Bar, tag: string) {
+    constructor(center: Vector2D, velocity: Vector2D, shooter: Bar, tag: string, private uigame: UIGame) {
         super(center, velocity, shooter);
         this.displayObject = new PIXI.Sprite(SparkTex);
         this.displayObject.anchor.set(0.5);
@@ -23,7 +24,7 @@ export class UISpark extends Spark {
     }
 
     removePower(): void {
-        // load effect timer display here 
+        // load effect timer display here
     }
 
     onCollide(): boolean {

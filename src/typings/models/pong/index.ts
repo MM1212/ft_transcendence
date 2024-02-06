@@ -93,7 +93,7 @@ namespace PongModel {
     export const TemporaryLobbyParticipant = {
       keys: PongModel.Models.DEFAULT_GAME_KEYS,
       paddle: "PaddleRed",
-      specialPower: PongModel.Models.LobbyParticipantSpecialPowerType.ghost,
+      specialPower: PongModel.Models.LobbyParticipantSpecialPowerType.ice,
     };
     export interface ILobbyParticipant {
       id: number;
@@ -441,6 +441,24 @@ namespace PongModel {
       GhostDiesJSON = '/pong/Powers/Ghost/Dies/GhostDies.json',
       GhostWalkJSON = '/pong/Powers/Ghost/Walk/GhostWalk.json',
 
+      BubbleDies = '/pong/Powers/Bubble/Dies',
+      BubbleWalk = '/pong/Powers/Bubble/Walk',
+      BubbleDiesJSON = '/pong/Powers/Bubble/Dies/BubbleDies.json',
+      BubbleWalkJSON = '/pong/Powers/Bubble/Walk/BubbleWalk.json',
+
+      Shooter = '/pong/Powers/Fire/Shooter',
+      ShooterJSON = '/pong/Powers/Fire/Shooter/Shooter.json',
+
+      FireballWalk = '/pong/Powers/Fire/Walk',
+      FireballWalkJSON = '/pong/Powers/Fire/Walk/FireballWalk.json',
+      FireballDies = '/pong/Powers/Fire/Dies',
+      FireballDiesJSON = '/pong/Powers/Fire/Dies/FireballDies.json',
+
+      IceWalk = '/pong/Powers/Ice/Walk',
+      IceWalkJSON = '/pong/Powers/Ice/Walk/IceWalk.json',
+      IceDies = '/pong/Powers/Ice/Dies',
+      IceDiesJSON = '/pong/Powers/Ice/Dies/IceDies.json',
+
       DisconnectWindow = '/pong/UI/disconnect-window.png',
 
       // UI representation
@@ -449,8 +467,6 @@ namespace PongModel {
       PowerIceTexture = '/pong/PowerIce.png',
       PowerSparkTexture = '/pong/PowerSpark.png',
       PowerGhostTexture = '/pong/Powers/Ghost/Walk/GhostWalk0.png',
-      FireballJSON = '/pong/Fireball.json',
-      FireballAnimDict = '/pong/Fireball',
     }
     export type All = GroupEndpointTargets<Targets>;
 

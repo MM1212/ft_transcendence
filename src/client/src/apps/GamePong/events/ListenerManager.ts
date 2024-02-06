@@ -10,6 +10,7 @@ import React from 'react';
 import { useRecoilCallback, useSetRecoilState } from 'recoil';
 import { navigate } from 'wouter/use-location';
 import { usePostPongGameModalActions } from '../modals/openPostGameModal/hooks';
+import { UIShooter } from '@views/pong/SpecialPowers/Shooter';
 
 export const useListenerManager = () => {
   const { connected, socket, status, useMounter, emit, useListener } =
@@ -129,7 +130,13 @@ export const useListenerManager = () => {
     PongModel.Socket.Events.UpdateShooter,
     (data: PongModel.Socket.Data.UpdateShooter) => {
       const player = game?.current?.getObjectByTag(data.tag) as UIPlayer;
-      if (player) player.updateShooter(data.line);
+      if (player) {
+        player.updateShooter(data.line)
+        if (!player.shooter) {
+
+          player.shooter = new UIShooter(player, game?.current as UIGame);
+        }
+      };
     },
     [game]
   );

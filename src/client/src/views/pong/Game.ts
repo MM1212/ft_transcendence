@@ -280,6 +280,7 @@ export class UIGame extends Game {
   handleRemovePower(obj: UIGameObject) {
     const specialpower = this.getObjectWithType(obj);
     if (specialpower) {
+      console.log("REMOVING: " + specialpower.tag);
       specialpower.removePower();
       specialpower.displayObject?.destroy();
       this.app.stage.removeChild(specialpower.displayObject);

@@ -10,7 +10,6 @@ import type { UIGame } from '../Game';
 export class UIGhost extends Ghost {
   public displayObject: PIXI.AnimatedSprite;
   public tempOnCollideAnimation: PIXI.AnimatedSprite;
-  public i = 0;
   constructor(
     center: Vector2D,
     velocity: Vector2D,
