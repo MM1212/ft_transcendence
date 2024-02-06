@@ -73,8 +73,12 @@ function FormInput({
       <Input
         placeholder={placeholder}
         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-          keySettings[label as KeySettingsKey] = event.target!.value;
-          setKeySettings(keySettings);
+          // console.log("event.target.value", event.target.value);
+          if (event.target.value === "")
+            return;
+          const tmpKeySettings = {...keySettings};
+          tmpKeySettings[label as KeySettingsKey] = event.target.value;
+          setKeySettings(tmpKeySettings);
         }}
       />
     </FormControl>
