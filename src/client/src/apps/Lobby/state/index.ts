@@ -11,7 +11,7 @@ const lobbyState = new (class LobbyState {
     dangerouslyAllowMutability: true,
   });
 
-  showingInteraction = atom<InteractionData[]>({
+  showingInteractions = atom<InteractionData[]>({
     key: 'showingInteraction',
     default: [],
   });

@@ -3,6 +3,9 @@ import type { ClientLobby } from '@apps/Lobby/src/Lobby';
 import Vector2D from '@shared/Vector/Vector2D';
 import BoundingBox from '@shared/BoundingBox/BoundingBox';
 import { Pixi } from '@hooks/pixiRenderer';
+import type { CallbackInterface } from 'recoil';
+import { modalsAtom } from '@hooks/useModal';
+import { SHOP_OPEN_MODAL_ID } from '../hooks/useOpenShopModal';
 
 class ShopInteraction extends Interaction {
   private static readonly CENTER = new Vector2D(507, 400);
@@ -18,12 +21,10 @@ class ShopInteraction extends Interaction {
   static create(lobby: ClientLobby) {
     return new ShopInteraction(lobby, {
       id: ShopInteraction.ID,
-      defaultKey: 's',
+      keyDisplay: 'B',
+      key: 'KeyB',
       label: 'Open Shop',
       showing: false,
-      onClick: () => {
-        console.log('Shop clicked');
-      },
     });
   }
   private debugGraphics: Pixi.Graphics | null = null;
@@ -43,8 +44,14 @@ class ShopInteraction extends Interaction {
     if (this.debugGraphics) this.lobby.stage.removeChild(this.debugGraphics);
   }
   async update(): Promise<boolean | void> {
-    // if (this.boundingBox.contains(this.lobby.mainPlayer.transform.position)) {
-    // }
+    if (this.boundingBox.contains(this.lobby.mainPlayer.transform.position)) {
+      return true;
+    }
+    return false;
+  }
+  onClick(pressed: boolean, ctx: CallbackInterface): void | Promise<void> {
+    if (!pressed) return;
+    ctx.set(modalsAtom(SHOP_OPEN_MODAL_ID), true);
   }
 }
 

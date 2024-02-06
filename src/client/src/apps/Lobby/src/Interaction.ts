@@ -1,13 +1,14 @@
 import type { IClassLifeCycle } from '@shared/Lobby/utils';
 import lobbyState from '../state';
 import type { ClientLobby } from './Lobby';
+import type { CallbackInterface } from 'recoil';
 
 export interface InteractionData {
   id: string;
-  defaultKey: string;
+  key: string;
+  keyDisplay: string;
   label: string;
   showing: boolean;
-  onClick: (...args: any[]) => void;
 }
 
 export abstract class Interaction implements IClassLifeCycle {
@@ -19,6 +20,10 @@ export abstract class Interaction implements IClassLifeCycle {
   abstract update(): Promise<boolean | void>;
   abstract onMount(): Promise<void>;
   abstract destructor(): Promise<void>;
+  abstract onClick(
+    pressed: boolean,
+    ctx: CallbackInterface
+  ): void | Promise<void>;
 
   get id(): string {
     return this.data.id;
@@ -29,14 +34,12 @@ export abstract class Interaction implements IClassLifeCycle {
   show() {
     if (this.showing) return;
     this.data.showing = true;
-    this.lobby.interactions.showing.push(this.data);
+    this.lobby.interactions.showing.set(this.data.id, this.data);
   }
   hide() {
     if (!this.showing) return;
     this.data.showing = false;
-    this.lobby.interactions.showing = this.lobby.interactions.showing.filter(
-      (interaction) => interaction.id !== this.data.id
-    );
+    this.lobby.interactions.showing.delete(this.data.id);
   }
   static readonly ID: string;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -46,8 +49,9 @@ export abstract class Interaction implements IClassLifeCycle {
 }
 
 export class InteractionManager implements IClassLifeCycle {
+  private static readonly INTERVAL = 500;
   private interactions: Interaction[] = [];
-  public showing: InteractionData[] = [];
+  public showing: Map<string, InteractionData> = new Map();
   constructor(private readonly lobby: ClientLobby) {}
 
   public emplace(IntConst: typeof Interaction) {
@@ -73,12 +77,17 @@ export class InteractionManager implements IClassLifeCycle {
   }
 
   private readonly cache: Map<string, boolean> = new Map();
+  private lastUpdate: number = Date.now();
+  public __sync: (ints: InteractionData[]) => void = () => void 0;
   public async update() {
     if (!this.lobby.snapshot) return;
+    if (this.interactions.length === 0) return;
+    if (Date.now() - this.lastUpdate < InteractionManager.INTERVAL) return;
+    this.lastUpdate = Date.now();
     this.cache.clear();
-    const showingInteractions = await this.lobby.snapshot?.getPromise(
-      lobbyState.showingInteraction
-    );
+    const showingInteractions = [
+      ...(await this.lobby.snapshot.getPromise(lobbyState.showingInteractions)),
+    ];
     let anyChanged = false;
     for await (const interaction of this.interactions) {
       if (!interaction.mounted) {
@@ -93,20 +102,38 @@ export class InteractionManager implements IClassLifeCycle {
       }
       if (this.cache.get(interaction.id) !== interaction.showing) {
         if (interaction.showing) {
-          showingInteractions?.push(interaction.data);
+          showingInteractions.push({ ...interaction.data });
         } else {
-          showingInteractions?.splice(
-            showingInteractions.indexOf(interaction.data),
-            1
+          const idx = showingInteractions.findIndex(
+            (int) => int.id === interaction.data.id
           );
+          if (idx !== -1) showingInteractions.splice(idx, 1);
         }
         anyChanged = true;
       }
     }
+
     if (anyChanged) {
-      this.lobby.snapshot?.map((snapshot) => {
-        snapshot.set(lobbyState.showingInteraction, [...showingInteractions]);
-      });
+      console.log('interactions changed', showingInteractions);
+      this.__sync(showingInteractions);
+    }
+  }
+
+  public async __handleKeydown(
+    key: string,
+    pressed: boolean,
+    ctx: CallbackInterface
+  ) {
+    for (const interaction of this.interactions) {
+      console.log(
+        interaction.id,
+        interaction.data.key,
+        key,
+        interaction.showing
+      );
+      if (key === interaction.data.key && interaction.showing) {
+        await Promise.resolve(interaction.onClick(pressed, ctx));
+      }
     }
   }
 }
