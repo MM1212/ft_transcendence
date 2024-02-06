@@ -77,7 +77,7 @@ function FormInput({
           if (event.target.value === "")
             return;
           const tmpKeySettings = {...keySettings};
-          tmpKeySettings[label as KeySettingsKey] = event.target.value;
+          tmpKeySettings[label as KeySettingsKey] = event.target.value[0].toLowerCase();
           setKeySettings(tmpKeySettings);
         }}
       />
@@ -95,19 +95,19 @@ type KeySettingsKey =
   | 'Wave'
   | 'Sit';
 
-type KeySettings = {
+export type KeySettings = {
   [key in KeySettingsKey]: string;
 };
 
 const keySettingsDefault = {
-  'Move Up': 'W',
-  'Move Down': 'S',
-  'Move Left': 'A',
-  'Move Right': 'D',
-  Snowball: 'F',
-  Dance: 'G',
-  Wave: 'H',
-  Sit: 'J',
+  'Move Up': 'w',
+  'Move Down': 's',
+  'Move Left': 'a',
+  'Move Right': 'd',
+  Snowball: 'f',
+  Dance: 'g',
+  Wave: 'h',
+  Sit: 'j',
 };
 
 export default function SettingsView(): JSX.Element {
@@ -140,7 +140,7 @@ export default function SettingsView(): JSX.Element {
                 <FormInput
                   key={key}
                   label={key}
-                  placeholder={keySettings[key as KeySettingsKey]}
+                  placeholder={keySettings[key as KeySettingsKey].toUpperCase()}
                   size="sm"
                 />
               );

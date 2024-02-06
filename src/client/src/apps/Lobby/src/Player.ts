@@ -4,6 +4,10 @@ import * as PIXI from 'pixi.js';
 import { LOBBY_PLAYER_CONTAINER_SCALE } from '@shared/Lobby/constants';
 import { ClientCharacter } from './Character';
 import LobbyModel from '@typings/models/lobby';
+import { useSettingValue } from '@apps/Settings/hooks';
+import type { KeySettings } from '@apps/Settings/views';
+import settingsState from '@apps/Settings/state';
+import type { RecoilValue } from 'recoil';
 
 export class ClientPlayer extends Player {
   public readonly container = new PIXI.Container();
@@ -112,17 +116,19 @@ export class ClientPlayer extends Player {
   }
 
   async handleAction(key: string): Promise<boolean> {
+    const keySettings = await this.lobby.snapshot?.getPromise<KeySettings>(settingsState.storage("keySettings") as RecoilValue<KeySettings>);
+    console.log(key, "keySettings", keySettings);
     switch (key) {
-      case 'f':
+      case keySettings?.Snowball.toLowerCase():
         await this.throwSnowball();
         return true;
-      case 'g':
+      case keySettings?.Dance:
         await this.dance();
         return true;
-      case 'h':
+      case keySettings?.Sit:
         await this.seat();
         return true;
-      case 'j':
+      case keySettings?.Wave:
         await this.wave();
         return true;
       default:
