@@ -1,41 +1,61 @@
-import * as React from 'react';
-import Stack from '@mui/joy/Stack';
-import Sheet from '@mui/joy/Sheet';
-import Typography from '@mui/joy/Typography';
-import { Box, Chip, IconButton, Tooltip } from '@mui/joy';
-import List from '@mui/joy/List';
-import ChatListItem from './ChatListItem';
-import { useRecoilValue } from 'recoil';
-import chatsState from '@/apps/Chat/state';
-import { useModalActions } from '@hooks/useModal';
-import PlaylistEditIcon from '@components/icons/PlaylistEditIcon';
-import ChatsInput from './ChatsInput';
-import { usePublicChatsModalActions } from '../modals/PublicChatsModal/hooks/usePublicChatsModal';
-import ForumIcon from '@components/icons/ForumIcon';
+import * as React from "react";
+import Stack from "@mui/joy/Stack";
+import Sheet from "@mui/joy/Sheet";
+import Typography from "@mui/joy/Typography";
+import { Box, Chip, IconButton, Tooltip } from "@mui/joy";
+import List from "@mui/joy/List";
+import ChatListItem from "./ChatListItem";
+import { useRecoilValue } from "recoil";
+import chatsState from "@/apps/Chat/state";
+import { useModalActions } from "@hooks/useModal";
+import PlaylistEditIcon from "@components/icons/PlaylistEditIcon";
+import ChatsInput from "./ChatsInput";
+import { usePublicChatsModalActions } from "../modals/PublicChatsModal/hooks/usePublicChatsModal";
+import ForumIcon from "@components/icons/ForumIcon";
+import GenericPlaceholder from "@components/GenericPlaceholder";
+import AccountGroupIcon from "@components/icons/AccountGroupIcon";
 
 function ChatEntries() {
   const chatIds = useRecoilValue(chatsState.filteredChatIds);
   return (
     <>
-      {chatIds.map((id, i) => (
-        <ChatListItem key={id} id={id} last={i === chatIds.length - 1} />
-      ))}
+      {chatIds.length > 0 ? (
+        <>
+          {chatIds.map((id, i) => (
+           <ChatListItem key={id} id={id} last={i === chatIds.length - 1} />
+          ))}
+        </>
+      ) : (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "flex-end",
+          }}
+        >
+          <GenericPlaceholder
+            title="No Messages"
+            icon={<ForumIcon fontSize="xl4" />}
+            path=""
+          />
+        </div>
+      )}
     </>
   );
 }
 
 export default function ChatsPane() {
-  const { open } = useModalActions('chat:new-chat');
+  const { open } = useModalActions("chat:new-chat");
   const { open: openPublicChats } = usePublicChatsModalActions();
   const unreadPings = useRecoilValue(chatsState.unreadPings);
   return (
     <Sheet
       sx={{
-        height: '100%',
-        overflowY: 'auto',
-        width: '35dvh',
-        display: 'flex',
-        flexDirection: 'column',
+        height: "100%",
+        overflowY: "auto",
+        width: "35dvh",
+        display: "flex",
+        flexDirection: "column",
       }}
     >
       <Stack
@@ -47,7 +67,7 @@ export default function ChatsPane() {
         pb={1.5}
       >
         <Typography
-          fontSize={{ xs: 'md', md: 'lg' }}
+          fontSize={{ xs: "md", md: "lg" }}
           component="h1"
           fontWeight="lg"
           endDecorator={
@@ -56,13 +76,13 @@ export default function ChatsPane() {
                 variant="soft"
                 color="primary"
                 size="md"
-                slotProps={{ root: { component: 'span' } }}
+                slotProps={{ root: { component: "span" } }}
               >
-                {unreadPings > 9 ? '9+' : unreadPings}
+                {unreadPings > 9 ? "9+" : unreadPings}
               </Chip>
             )
           }
-          sx={{ mr: 'auto' }}
+          sx={{ mr: "auto" }}
         >
           Messages
         </Typography>
@@ -97,8 +117,8 @@ export default function ChatsPane() {
         <List
           sx={{
             py: 0,
-            '--ListItem-paddingY': '0.75rem',
-            '--ListItem-paddingX': '1rem',
+            "--ListItem-paddingY": "0.75rem",
+            "--ListItem-paddingX": "1rem",
           }}
         >
           <ChatEntries />

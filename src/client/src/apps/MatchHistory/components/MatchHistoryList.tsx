@@ -5,14 +5,16 @@ import {
   AccordionSummary,
   Box,
   CircularProgress,
-} from '@mui/joy';
-import MatchHistoryScoreBoard from '@apps/MatchHistory/components/MatchHistoryScoreBoard';
-import MatchHistoryEntry from './MatchHistoryEntry';
-import useQuery from '@hooks/useQuery';
-import React, { memo, useEffect } from 'react';
-import PongHistoryModel from '@typings/models/pong/history';
-import { useTunnelEndpoint } from '@hooks/tunnel';
-import { Typography } from '@mui/joy';
+} from "@mui/joy";
+import MatchHistoryScoreBoard from "@apps/MatchHistory/components/MatchHistoryScoreBoard";
+import MatchHistoryEntry from "./MatchHistoryEntry";
+import useQuery from "@hooks/useQuery";
+import React, { memo, useEffect } from "react";
+import PongHistoryModel from "@typings/models/pong/history";
+import { useTunnelEndpoint } from "@hooks/tunnel";
+import { Typography } from "@mui/joy";
+import GenericPlaceholder from "@components/GenericPlaceholder";
+import TableTennisIcon from "@components/icons/TableTennisIcon";
 
 const Entry = memo(function Entry({
   selected,
@@ -42,7 +44,9 @@ const Entry = memo(function Entry({
         <MatchHistoryEntry size={5} {...match} />
       </AccordionSummary>
       <AccordionDetails>
-        {(!firstMount.current || selected) && <MatchHistoryScoreBoard {...match} />}
+        {(!firstMount.current || selected) && (
+          <MatchHistoryScoreBoard {...match} />
+        )}
       </AccordionDetails>
     </Accordion>
   );
@@ -65,8 +69,8 @@ export default function MatchHistoryList({ targetId }: { targetId: number }) {
       );
       if (!target) return;
       target.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
+        behavior: "smooth",
+        block: "center",
       });
     }, 350);
   }, [match_id]);
@@ -83,8 +87,8 @@ export default function MatchHistoryList({ targetId }: { targetId: number }) {
       if (expanded)
         setTimeout(() => {
           target.parentElement?.parentElement?.scrollIntoView({
-            behavior: 'smooth',
-            block: 'center',
+            behavior: "smooth",
+            block: "center",
           });
         }, 350);
       setSelected(expanded ? id : null);
@@ -112,22 +116,43 @@ export default function MatchHistoryList({ targetId }: { targetId: number }) {
           p={1}
         >
           <Typography color="danger" level="title-md">
-            {error?.toString() ?? 'No data found'}
+            {error?.toString() ?? "No data found"}
           </Typography>
         </Box>
       ) : (
-        <AccordionGroup>
-          {data.map((match) => (
-            <Entry
-              key={match.id}
-              {...match}
-              targetId={targetId}
-              selected={selected === match.id}
-              setSelected={onAccordionClick}
-            />
-          ))}
-        </AccordionGroup>
+        <>
+          {data.length > 0 ? (
+            <AccordionGroup>
+              {data.map((match) => (
+                <Entry
+                  key={match.id}
+                  {...match}
+                  targetId={targetId}
+                  selected={selected === match.id}
+                  setSelected={onAccordionClick}
+                />
+              ))}
+            </AccordionGroup>
+          ) : (
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                height: "100%",
+              }}
+            >
+              <GenericPlaceholder
+                title="No Match Records"
+                icon={<TableTennisIcon fontSize="xl4" />}
+                label="Play a Match"
+                path="/pong/play/queue"
+              />
+            </div>
+          )}
+        </>
       )}
     </Box>
   );
 }
+

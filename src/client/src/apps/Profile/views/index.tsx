@@ -1,4 +1,4 @@
-import { useCurrentUser, usersAtom } from '@hooks/user';
+import { useCurrentUser, useUser, usersAtom } from '@hooks/user';
 import {
   Button,
   ButtonGroup,
@@ -79,10 +79,10 @@ function UserProfile({
 }: {
   user: UsersModel.Models.IUserInfo;
   affiliation: 'me' | 'friend' | 'unknown';
-  affiliation: 'me' | 'friend' | 'unknown';
 }) {
   const { open: openUpdateModal } = useUpdateUserModalActions();
-
+  const userWatcher = useCurrentUser();
+  if (!userWatcher) return;
   return (
     <Sheet
       sx={{
@@ -138,11 +138,11 @@ function UserProfile({
               status={user?.status}
               badgeProps={{
                 size: 'lg',
-                size: 'lg',
               }}
             />
           )}
           <Stack direction="row" alignItems="center" spacing={1}>
+            {userWatcher.id === user.id ? (
             <Typography
               level="h2"
               endDecorator={
@@ -160,6 +160,8 @@ function UserProfile({
             >
               {user.nickname}
             </Typography>
+            ) : null}
+            {/* <Typography>Rank Placeholder</Typography> */}
           </Stack>
           {affiliation !== 'me' && (
             <OtherOptions user={user} friend={affiliation === 'friend'} />
@@ -193,7 +195,6 @@ function UserProfileById() {
   return (
     <UserProfile
       user={user!}
-      affiliation={friends.includes(parseInt(userId!)) ? 'friend' : 'unknown'}
       affiliation={friends.includes(parseInt(userId!)) ? 'friend' : 'unknown'}
     />
   );
