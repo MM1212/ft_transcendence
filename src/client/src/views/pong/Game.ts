@@ -27,12 +27,15 @@ import { UIEffect } from "./SpecialPowers/Effect";
 import PongModel from "@typings/models/pong";
 import { Ball } from "@shared/Pong/Ball";
 import { ballsConfig, paddleConfig } from "@shared/Pong/config/configInterface";
-import { DisconnectWindowTex } from "./utils";
+import { BackgroundTex, DisconnectWindowTex } from "./utils";
 import { UIBot } from "./Paddles/Bot";
 
 type Powers = UIBubble | UIFire | UIGhost | UIIce | UISpark;
 
 export class UIGame extends Game {
+
+  private background: PIXI.Sprite;
+
   public app: PIXI.Application;
   public debug: Debug;
   private scoreElementLeft: PIXI.Text = new PIXI.Text("");
@@ -68,6 +71,12 @@ export class UIGame extends Game {
       height: WINDOWSIZE_Y,
     });
     this.app.renderer.background.color = "#000000";
+    this.background = new PIXI.Sprite(BackgroundTex);
+    this.background.x = WINDOWSIZE_X / 2;
+    this.background.y = WINDOWSIZE_Y / 2;
+    this.background.anchor.set(0.5);
+    this.background.alpha = 0.3;
+    this.app.stage.addChild(this.background);
 
     drawLines(0xffffff, this.app);
 
@@ -310,6 +319,29 @@ export class UIGame extends Game {
     } else if (option === effectSendOption.SEND) {
       console.log(effectName + " added on " + obj.tag);
       if (effectName) obj.setEffect(new UIEffect(effectName, obj));
+    }
+  }
+
+  countdown(n: number): void {
+    if (this.app.stage) {
+      const countdown = new PIXI.Text(n.toString(), this.scoreStyle);
+      if (n === 0) countdown.text = "GO!";
+      countdown.anchor.set(0.5);
+      countdown.x = this.app.view.width / 2;
+      countdown.y = this.app.view.height / 2;
+      this.app.stage.addChild(countdown);
+
+      // increase the size of the text repeatedly
+      let i = 0;
+      setInterval(() => {
+        countdown.scale.set(1 + i / 15);
+        i++;
+      }, 30);
+
+
+      setTimeout(() => {
+        this.app.stage.removeChild(countdown);
+      }, 800);
     }
   }
 

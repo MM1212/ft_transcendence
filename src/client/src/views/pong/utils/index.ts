@@ -11,7 +11,8 @@ export const SparkTex = buildTexture(Targets.PowerSparkTexture);
 export const AnimFireTex = buildTexture(Targets.PowerFireTexture);
 export const GhostTex = buildTexture(Targets.PowerGhostTexture);
 export const DisconnectWindowTex = buildTexture(Targets.DisconnectWindow);
-
+export const BorderTex = buildTexture(`${Targets.Borders}/TopDownBorder.png`);
+export const BackgroundTex = buildTexture(`${Targets.Background}.png`);
 const buildAnimation = async (json: string, path: string, n: number) => {
   const frames = [];
 
@@ -77,4 +78,16 @@ export const IceDies = await buildAnimation(
   Targets.IceDiesJSON,
   `${Targets.IceDies}/IceDies`,
   10
+);
+
+export const SparkWalk = await buildAnimation(
+  Targets.SparkWalkJSON,
+  `${Targets.SparkWalk}/SparkWalk`,
+  1
+);
+
+export const SparkDies = await buildAnimation(
+  Targets.SparkDiesJSON,
+  `${Targets.SparkDies}/SparkDies`,
+  5
 );

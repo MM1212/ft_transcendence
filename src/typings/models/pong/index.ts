@@ -93,7 +93,7 @@ namespace PongModel {
     export const TemporaryLobbyParticipant = {
       keys: PongModel.Models.DEFAULT_GAME_KEYS,
       paddle: "PaddleRed",
-      specialPower: PongModel.Models.LobbyParticipantSpecialPowerType.ice,
+      specialPower: PongModel.Models.LobbyParticipantSpecialPowerType.spark,
     };
     export interface ILobbyParticipant {
       id: number;
@@ -275,6 +275,7 @@ namespace PongModel {
       UpdateDisconnected = "update-disconnected",
       EnergyManaUpdate = "energy-mana-update",
       FocusLoss = "focus-loss",
+      Countdown = "countdown",
     }
 
     export namespace Data {
@@ -346,6 +347,10 @@ namespace PongModel {
         tag: string;
         energy: number;
         mana: number;
+      }
+
+      export interface Countdown {
+        countdown: number;
       }
     }
   }
@@ -431,6 +436,7 @@ namespace PongModel {
       GetAllGames = '/pong/lobby/playing',
 
       Connect = '/pong',
+      Background = '/pong/UI/Background',
       Borders = '/pong/UI/Borders',
       ManaBars = '/pong/UI/UIBars/ManaBar',
       EnergyBars = '/pong/UI/UIBars/EnergyBar',
@@ -458,6 +464,11 @@ namespace PongModel {
       IceWalkJSON = '/pong/Powers/Ice/Walk/IceWalk.json',
       IceDies = '/pong/Powers/Ice/Dies',
       IceDiesJSON = '/pong/Powers/Ice/Dies/IceDies.json',
+
+      SparkWalk = '/pong/Powers/Spark/Walk',
+      SparkWalkJSON = '/pong/Powers/Spark/Walk/SparkWalk.json',
+      SparkDies = '/pong/Powers/Spark/Dies',
+      SparkDiesJSON = '/pong/Powers/Spark/Dies/SparkDies.json',
 
       DisconnectWindow = '/pong/UI/disconnect-window.png',
 

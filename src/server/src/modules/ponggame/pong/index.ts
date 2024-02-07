@@ -67,7 +67,6 @@ export class ServerGame extends Game {
         }
       });
 
-
     console.log(`Room ${this.UUID}: created`);
   }
   /***/
@@ -122,9 +121,25 @@ export class ServerGame extends Game {
     }
   }
 
-  public start() {
+  async doSetTimeout(i: number): Promise<void> {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        this.room.emit(PongModel.Socket.Events.Countdown, { countdown: i });
+        resolve();
+      }, 1000);
+    });
+  }
+
+  public async start() {
     console.log(`Game ${this.UUID}: started!`);
+
+    await this.doSetTimeout(3);
+    await this.doSetTimeout(2);
+    await this.doSetTimeout(1);
+    await this.doSetTimeout(0);
+
     this.room.emit(PongModel.Socket.Events.Start);
+
     this.startTick();
   }
 
@@ -474,7 +489,7 @@ export class ServerGame extends Game {
         push = true;
       }
       if (
-        (player instanceof Player) &&
+        player instanceof Player &&
         player.keyPressed[player.keys.boost] === true
       ) {
         if (

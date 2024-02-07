@@ -59,10 +59,16 @@ export class Ball extends GameObject {
       obj.collider.lastCollision = undefined;
     });
 
-    this.velocity = this.getRandomVelocity();
-    this.acceleration = 1;
+    //stop game for 1 second
+    this.velocity = new Vector2D(0, 0);
     this._move = true;
-    if (this.effect !== undefined) this.effect?.setStopEffect();
+    setTimeout(() => {
+      this.velocity = this.getRandomVelocity();
+      this.acceleration = 1;
+      this._move = true;
+      if (this.effect !== undefined) this.effect?.setStopEffect();
+    }, 400);
+
   }
 
   private directGoal(backBar: Bar, frontBar?: Bar): boolean {

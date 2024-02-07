@@ -1,6 +1,12 @@
-import * as PIXI from 'pixi.js'; 
+import * as PIXI from 'pixi.js';
 
 export function drawLines(lineColor: number, canvas: PIXI.Application): void {
+    const topLine = new PIXI.Graphics();
+    topLine.lineStyle(4, "#000000", 0.5);
+    topLine.moveTo(0, 100);
+    topLine.lineTo(canvas.view.width, 100);
+    canvas.stage.addChild(topLine);
+
     const middleLine = new PIXI.Graphics();
     middleLine.lineStyle(4, lineColor, 1);
     const height = canvas.view.height;
@@ -11,10 +17,16 @@ export function drawLines(lineColor: number, canvas: PIXI.Application): void {
     canvas.stage.addChild(middleLine);
 
     const circle = new PIXI.Graphics();
-    circle.lineStyle(4, lineColor, 1);
+    circle.lineStyle(4, lineColor, 0.5);
     circle.drawCircle(canvas.view.width / 2, canvas.view.height / 2, 100);
     circle.closePath();
     canvas.stage.addChild(circle);
+
+    const bottomLine = new PIXI.Graphics();
+    bottomLine.lineStyle(4, "#000000", 1);
+    bottomLine.moveTo(0, canvas.view.height - 100);
+    bottomLine.lineTo(canvas.view.width, canvas.view.height - 100);
+    canvas.stage.addChild(bottomLine);
 }
 
 export const scoreStyleSettings: Partial<PIXI.ITextStyle> = {

@@ -47,6 +47,13 @@ export const useListenerManager = () => {
   );
 
   useListener(
+    PongModel.Socket.Events.Countdown,
+    (data: PongModel.Socket.Data.Countdown) => {
+      game?.current?.countdown(data.countdown);
+    },
+  )
+
+  useListener(
     PongModel.Socket.Events.EnergyManaUpdate,
     (data: PongModel.Socket.Data.EnergyManaUpdate[]) => {
       data.forEach((obj) => {
