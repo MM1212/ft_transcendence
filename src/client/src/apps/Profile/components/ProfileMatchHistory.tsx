@@ -4,7 +4,6 @@ import {
   Divider,
   Stack,
   Typography,
-  Sheet,
 } from "@mui/joy";
 import SingleMatchHist from "./SingleMatchHist";
 import React from "react";

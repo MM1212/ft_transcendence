@@ -187,6 +187,7 @@ function ChatMessagesImpl({ id }: { id: number }) {
 const ChatMessages = React.memo(ChatMessagesImpl);
 
 export default function MessagesPane() {
+  
   const selectedChatId = useRecoilValue(chatsState.selectedChatId);
   if (selectedChatId === -1) return null;
   return (
@@ -219,7 +220,6 @@ export default function MessagesPane() {
           <ChatMessages id={selectedChatId} key={selectedChatId} />
         </React.Suspense>
       </Box>
-
       <MessageInput id={selectedChatId} />
     </Sheet>
   );

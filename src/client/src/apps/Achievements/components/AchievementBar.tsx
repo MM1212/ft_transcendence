@@ -1,7 +1,7 @@
 import * as React from "react";
 import LinearProgress from "@mui/joy/LinearProgress";
 
-export default function AchivementBar() {
+export default function AchivementBar( {quantity}  : {quantity : number}) {
   const [progress, setProgress] = React.useState(0);
 
   React.useEffect(() => {
@@ -14,7 +14,7 @@ export default function AchivementBar() {
       variant="soft"
       color="primary"
       size="sm"
-      value={progress}
+      value={quantity * 10}
       sx={{
         border: "none",
         "--LinearProgress-radius": "20px",

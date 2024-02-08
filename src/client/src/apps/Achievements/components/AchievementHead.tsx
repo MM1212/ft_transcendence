@@ -4,8 +4,14 @@ import AchivementBar from "./AchievementBar";
 import { useCurrentUser } from "@hooks/user";
 import { UserAvatar } from "@components/AvatarWithStatus";
 
-export default function AchievementHead() {
+export default function AchievementHead({
+  myAchievements,
+}: {
+  myAchievements: string[];
+}) {
+
   const user = useCurrentUser();
+  const quantity = myAchievements.length;
 
   if (!user) return null;
   return (
@@ -32,16 +38,16 @@ export default function AchievementHead() {
           }}
         >
           <Typography fontWeight="lg" fontSize="lg" component="h2" noWrap>
-           Achievements
+            Achievements
           </Typography>
           {user.nickname}
           <Typography level="body-sm">
-            7 of 10 achievements completed
+            {quantity} of 10 achievements completed
           </Typography>
           <Box flexDirection="row-reverse" display="flex">
             <Typography level="body-sm">(70%)</Typography>
           </Box>
-          <AchivementBar />
+          <AchivementBar quantity={quantity} />
         </Sheet>
       </Stack>
       <Stack spacing={1} direction="row" alignItems="center">

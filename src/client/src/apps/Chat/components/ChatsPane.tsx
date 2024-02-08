@@ -19,27 +19,9 @@ function ChatEntries() {
   const chatIds = useRecoilValue(chatsState.filteredChatIds);
   return (
     <>
-      {chatIds.length > 0 ? (
-        <>
-          {chatIds.map((id, i) => (
-           <ChatListItem key={id} id={id} last={i === chatIds.length - 1} />
-          ))}
-        </>
-      ) : (
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "flex-end",
-          }}
-        >
-          <GenericPlaceholder
-            title="No Messages"
-            icon={<ForumIcon fontSize="xl4" />}
-            path=""
-          />
-        </div>
-      )}
+      {chatIds.map((id, i) => (
+        <ChatListItem key={id} id={id} last={i === chatIds.length - 1} />
+      ))}
     </>
   );
 }
@@ -48,6 +30,7 @@ export default function ChatsPane() {
   const { open } = useModalActions("chat:new-chat");
   const { open: openPublicChats } = usePublicChatsModalActions();
   const unreadPings = useRecoilValue(chatsState.unreadPings);
+  const chatIds = useRecoilValue(chatsState.filteredChatIds);
   return (
     <Sheet
       sx={{
@@ -114,15 +97,35 @@ export default function ChatsPane() {
         <ChatsInput />
       </Box>
       <Box flexGrow={1} overflow="auto" height="auto">
-        <List
-          sx={{
-            py: 0,
-            "--ListItem-paddingY": "0.75rem",
-            "--ListItem-paddingX": "1rem",
-          }}
-        >
-          <ChatEntries />
-        </List>
+        <>
+          {chatIds.length > 0 ? (
+            <List
+              sx={{
+                py: 0,
+                "--ListItem-paddingY": "0.75rem",
+                "--ListItem-paddingX": "1rem",
+              }}
+            >
+              <ChatEntries />
+            </List>
+          ) : (
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: 'center',
+                height: '100%'
+              }}
+            >
+              <GenericPlaceholder
+                title="No Available Messages"
+                icon={<ForumIcon fontSize="xl4" />}
+                // label="Start a New Conversation"
+                path=""
+              />
+            </div>
+          )}
+        </>
       </Box>
     </Sheet>
   );

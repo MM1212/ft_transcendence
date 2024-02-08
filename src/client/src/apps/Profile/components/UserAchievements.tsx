@@ -1,22 +1,20 @@
-import { Box, Stack, Tooltip } from "@mui/joy";
+import { Stack, Tooltip } from "@mui/joy";
 import ProfileTabHeader from "./ProfileTabHeader";
 import IetiBadgeAchievment from "../../Achievements/assets/IetiBadgeAchievment.jpg";
 import OctopBadgeAchievement from "../../Achievements/assets/OctopBadgeAchievement.jpg";
 import RedBadge from "../../Achievements/assets/RedBadge.jpg";
 import { Avatar } from "@mui/joy";
 import GenericPlaceholder from "@components/GenericPlaceholder";
-import TableTennisIcon from "@components/icons/TableTennisIcon";
 import TrophyBrokenIcon from "@components/icons/TrophyBrokenIcon";
-import AccountGroupIcon from "@components/icons/AccountGroupIcon";
 
 export default function UserAchievements({ id }: { id?: number }) {
   const myAchievements: string[] = [
-    // IetiBadgeAchievment,
-    // OctopBadgeAchievement,
-    // IetiBadgeAchievment,
-    // OctopBadgeAchievement,
-    // IetiBadgeAchievment,
-    // OctopBadgeAchievement,   
+    IetiBadgeAchievment,
+    OctopBadgeAchievement,
+    IetiBadgeAchievment,
+    OctopBadgeAchievement,
+    IetiBadgeAchievment,
+    OctopBadgeAchievement,   
   ];
   const achievementsName: string[] = [
     "IetiBadge",
