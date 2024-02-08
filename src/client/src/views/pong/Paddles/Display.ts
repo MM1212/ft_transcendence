@@ -15,10 +15,12 @@ export default class Display {
   public displayBorder: PIXI.Sprite;
   public displayPower: PIXI.Sprite | undefined = undefined;
   public nickTextFont = new PIXI.TextStyle({
-    fontFamily: 'Arial',
-    fontSize: 24,
-    fill: 0xff0000,
-    align: 'center',
+    fontFamily: 'arial',
+    fontSize: 28,
+    fontWeight: 'bold',
+    fill: ['#FF2C05', '#FFCE03'], // gradient
+    stroke: '#4a1850',
+    strokeThickness: 4,
   });
   public mana: UIMana | undefined = undefined;
   public energy: UIEnergy | undefined = undefined;

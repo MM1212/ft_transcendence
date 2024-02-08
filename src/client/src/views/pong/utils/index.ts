@@ -5,6 +5,8 @@ const Targets = PongModel.Endpoints.Targets;
 export const buildTexture = (target: PongModel.Endpoints.Targets | string) =>
   PIXI.Texture.from(target);
 
+  export const ScoreTex = buildTexture(`${Targets.Borders}/ScoreBorder.png`);
+
 export const BubbleTex = buildTexture(Targets.PowerWaterTexture);
 export const IceTex = buildTexture(Targets.PowerIceTexture);
 export const SparkTex = buildTexture(Targets.PowerSparkTexture);

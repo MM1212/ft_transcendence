@@ -5,7 +5,7 @@ import { UIGameObject } from "./GameObject";
 import { Vector2D } from "./utils/Vector";
 import { UIArenaWall } from "./Collisions/Arena";
 import { Debug } from "./utils/Debug";
-import { drawLines, scoreStyleSettings } from "./utils/drawUtils";
+import { countdownStyleSettings, drawLines, scoreStyleSettings } from "./utils/drawUtils";
 import { UIPlayer } from "./Paddles/Player";
 import {
   ARENA_SIZE,
@@ -27,7 +27,7 @@ import { UIEffect } from "./SpecialPowers/Effect";
 import PongModel from "@typings/models/pong";
 import { Ball } from "@shared/Pong/Ball";
 import { ballsConfig, paddleConfig } from "@shared/Pong/config/configInterface";
-import { BackgroundTex, DisconnectWindowTex } from "./utils";
+import { BackgroundTex, DisconnectWindowTex, ScoreTex } from "./utils";
 import { UIBot } from "./Paddles/Bot";
 
 type Powers = UIBubble | UIFire | UIGhost | UIIce | UISpark;
@@ -35,6 +35,7 @@ type Powers = UIBubble | UIFire | UIGhost | UIIce | UISpark;
 export class UIGame extends Game {
 
   private background: PIXI.Sprite;
+  private scoreBorder: PIXI.Sprite[];
 
   public app: PIXI.Application;
   public debug: Debug;
@@ -52,6 +53,9 @@ export class UIGame extends Game {
 
   public roomId: string;
 
+  public scorePosition1: [number, number] = [0, 0];
+  public scorePosition2: [number, number] = [0, 0];
+
   constructor(
     public readonly socket: Socket,
     container: HTMLDivElement,
@@ -62,8 +66,8 @@ export class UIGame extends Game {
     super(WINDOWSIZE_X, WINDOWSIZE_Y);
     this.roomId = gameConfig.UUID;
 
-    // need to add background tex
-    // Black hardcoded for now
+
+
     this.app = new PIXI.Application({
       background: "#000000",
       antialias: true,
@@ -77,6 +81,8 @@ export class UIGame extends Game {
     this.background.anchor.set(0.5);
     this.background.alpha = 0.3;
     this.app.stage.addChild(this.background);
+    this.scorePosition1 = [this.app.view.width / 2 - this.app.view.width / 12, this.app.view.height / 16];
+    this.scorePosition2 = [this.app.view.width / 2 + this.app.view.width / 12, this.app.view.height / 16];
 
     drawLines(0xffffff, this.app);
 
@@ -98,6 +104,7 @@ export class UIGame extends Game {
         this
       )
     );
+
     this.add(
       new UIBall(
         this.width / 2,
@@ -106,6 +113,17 @@ export class UIGame extends Game {
         gameConfig.ballTexture as keyof typeof ballsConfig
       )
     );
+
+    this.scoreBorder = [new PIXI.Sprite(ScoreTex), new PIXI.Sprite(ScoreTex)];
+    this.scoreBorder[0].anchor.set(0.5);
+    this.scoreBorder[1].anchor.set(0.5);
+    this.scoreBorder[0].x = this.scorePosition1[0];
+    this.scoreBorder[0].y = this.scorePosition1[1];
+    this.scoreBorder[1].x = this.scorePosition2[0];
+    this.scoreBorder[1].y = this.scorePosition2[1];
+    this.app.stage.addChild(this.scoreBorder[0]);
+    this.app.stage.addChild(this.scoreBorder[1]);
+
 
     container.appendChild(this.app.view as HTMLCanvasElement);
 
@@ -131,12 +149,10 @@ export class UIGame extends Game {
     this.scoreElementRight = new PIXI.Text(this.score[1], this.scoreStyle);
     this.scoreElementLeft.anchor.set(0.5);
     this.scoreElementRight.anchor.set(0.5);
-    this.scoreElementLeft.x =
-      this.app.view.width / 2 - this.app.view.width / 12;
-    this.scoreElementLeft.y = this.app.view.height / 16;
-    this.scoreElementRight.x =
-      this.app.view.width / 2 + this.app.view.width / 12;
-    this.scoreElementRight.y = this.app.view.height / 16;
+    this.scoreElementLeft.x = this.scorePosition1[0];
+    this.scoreElementLeft.y = this.scorePosition1[1];
+    this.scoreElementRight.x = this.scorePosition2[0];
+    this.scoreElementRight.y = this.scorePosition2[1];
     this.app.stage.addChild(this.scoreElementLeft);
     this.app.stage.addChild(this.scoreElementRight);
   }
@@ -324,20 +340,21 @@ export class UIGame extends Game {
 
   countdown(n: number): void {
     if (this.app.stage) {
-      const countdown = new PIXI.Text(n.toString(), this.scoreStyle);
+      const style = new PIXI.TextStyle(countdownStyleSettings);
+      const countdown = new PIXI.Text(n.toString(), style);
       if (n === 0) countdown.text = "GO!";
       countdown.anchor.set(0.5);
       countdown.x = this.app.view.width / 2;
       countdown.y = this.app.view.height / 2;
       this.app.stage.addChild(countdown);
 
-      // increase the size of the text repeatedly
       let i = 0;
       setInterval(() => {
-        countdown.scale.set(1 + i / 15);
+        countdown.alpha = 1 - i / 40;
+        if (i < 25)
+        countdown.scale.set(1 + i / 10);
         i++;
       }, 30);
-
 
       setTimeout(() => {
         this.app.stage.removeChild(countdown);

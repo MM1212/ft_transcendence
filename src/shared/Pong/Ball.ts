@@ -47,8 +47,8 @@ export class Ball extends GameObject {
   }
 
   getRandomVelocity(): Vector2D {
-    const randX = (Math.random() * 3 + 3) * (Math.random() < 0.5 ? -1 : 1);
-    const randY = (Math.random() * 1 + 3) * (Math.random() < 0.5 ? -1 : 1);
+    const randX = (Math.random() * 3 + 4) * (Math.random() < 0.5 ? -1 : 1);
+    const randY = (Math.random() * 1 + 4) * (Math.random() < 0.5 ? -1 : 1);
     return new Vector2D(randX, randY);
   }
 
