@@ -20,7 +20,7 @@ const ballsConfig: BallsConfig = _gameConfig.balls as BallsConfig;
 export { ballsConfig };
 
 type paddleObjectConfig = Record<
-  "PaddleRed" | "default",
+  "PaddleRed" | "grey" | "default",
   {
     width: number;
     height: number;

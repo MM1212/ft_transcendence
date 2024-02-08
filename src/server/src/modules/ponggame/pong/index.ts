@@ -113,6 +113,7 @@ export class ServerGame extends Game {
           ]);
           break;
         case SHOOT_ACTION.SHOOT:
+          // need to make this be a variable and then emit on the looop
           this.room.emit(PongModel.Socket.Events.ShootPower, {
             tag: player.tag,
           });

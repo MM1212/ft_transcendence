@@ -23,10 +23,15 @@
       "height": 116,
       "image": "PaddleRed.png"
     },
+    "grey": {
+      "width": 10,
+      "height": 100,
+      "image": "grey.png"
+    },
     "default": {
-      "width": 28,
-      "height": 116,
-      "image": "PaddleRed.png"
+      "width": 5,
+      "height": 50,
+      "image": "grey.png"
     }
   },
   "powers": {

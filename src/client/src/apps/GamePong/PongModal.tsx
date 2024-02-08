@@ -16,8 +16,7 @@ export function OpenGameModal({ isPlaying }: { isPlaying: boolean }) {
       <Modal open={isPlaying} onClose={close}>
         <ModalDialog layout="fullscreen">
           <ModalClose />
-          <Typography>Room: {lobby.name}</Typography>
-          <PongComponent lobby={lobby} />
+          <PongComponent lobby={lobby}/>
         </ModalDialog>
       </Modal>
     </>
@@ -31,8 +30,18 @@ function PongComponent({ lobby }: { lobby: PongModel.Models.ILobby }) {
   const mountRef = React.useMemo(() => <div ref={parentRef} />, [parentRef]);
 
   return alreadyConnected ? (
-    <Typography>You are already connected, either close the other browser or play on it!</Typography>
+    <Typography>
+      You are already connected, either close the other browser or play on it!
+    </Typography>
   ) : (
-    <>{mountRef}</>
+    <>
+      <div style={{
+        position: "absolute",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+
+      }}>{mountRef}</div>
+    </>
   );
 }

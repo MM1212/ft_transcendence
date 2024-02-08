@@ -146,6 +146,7 @@ export class PongService {
               ? (playerNbr = PongModel.InGame.ObjType.Player3)
               : (playerNbr = PongModel.InGame.ObjType.Player4);
           }
+          console.log(player.paddle);
           return {
             tag: playerNbr,
             teamId: team.id,

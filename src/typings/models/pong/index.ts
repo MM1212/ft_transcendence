@@ -92,7 +92,7 @@ namespace PongModel {
     }
     export const TemporaryLobbyParticipant = {
       keys: PongModel.Models.DEFAULT_GAME_KEYS,
-      paddle: "PaddleRed",
+      paddle: "grey",
       specialPower: PongModel.Models.LobbyParticipantSpecialPowerType.fire,
     };
     export interface ILobbyParticipant {
