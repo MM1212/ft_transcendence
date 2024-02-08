@@ -10,6 +10,7 @@ import React from 'react';
 import { useRecoilCallback, useSetRecoilState } from 'recoil';
 import { navigate } from 'wouter/use-location';
 import { usePostPongGameModalActions } from '../modals/openPostGameModal/hooks';
+import { UIShooter } from '@views/pong/SpecialPowers/Shooter';
 
 export const useListenerManager = () => {
   const { connected, socket, status, useMounter, emit, useListener } =
@@ -46,17 +47,28 @@ export const useListenerManager = () => {
   );
 
   useListener(
+    PongModel.Socket.Events.Countdown,
+    (data: PongModel.Socket.Data.Countdown) => {
+      game?.current?.countdown(data.countdown);
+    },
+  )
+
+  useListener(
     PongModel.Socket.Events.EnergyManaUpdate,
     (data: PongModel.Socket.Data.EnergyManaUpdate[]) => {
       data.forEach((obj) => {
         console.log(obj);
         const player = game?.current?.getObjectByTag(obj.tag) as UIPlayer; //| UIBot
         if (player) {
-          player.mana.updateMana(obj.mana, obj.tag);
-          player.energy.updateEnergy(obj.energy, obj.tag);
+          if (player.display.mana) {
+            player.display.mana.updateMana(obj.mana);
+          }
+          if (player.display.energy)
+            player.display.energy.updateEnergy(obj.energy);
         }
       });
-    }, [game]
+    },
+    [game]
   );
 
   const onStop = useRecoilCallback(
@@ -125,7 +137,13 @@ export const useListenerManager = () => {
     PongModel.Socket.Events.UpdateShooter,
     (data: PongModel.Socket.Data.UpdateShooter) => {
       const player = game?.current?.getObjectByTag(data.tag) as UIPlayer;
-      if (player) player.updateShooter(data.line);
+      if (player) {
+        player.updateShooter(data.line)
+        if (!player.shooter) {
+
+          player.shooter = new UIShooter(player, game?.current as UIGame);
+        }
+      };
     },
     [game]
   );

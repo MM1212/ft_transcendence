@@ -1,14 +1,16 @@
-import { sessionAtom } from '@hooks/user';
-import notifications from '@lib/notifications/hooks';
-import tunnel from '@lib/tunnel';
-import ChatsModel from '@typings/models/chat';
-import UsersModel from '@typings/models/users';
-import { useRecoilCallback } from 'recoil';
-import useLocation from 'wouter/use-location';
-import { useBlocked, useFriends } from '.';
-import React from 'react';
-import chatsState from '@apps/Chat/state';
-import { useChatSelectModalActions } from '@apps/Chat/modals/ChatSelectModal/hooks/useChatSelectModal';
+import { sessionAtom } from "@hooks/user";
+import notifications from "@lib/notifications/hooks";
+import tunnel from "@lib/tunnel";
+import ChatsModel from "@typings/models/chat";
+import UsersModel from "@typings/models/users";
+import { useRecoilCallback } from "recoil";
+import useLocation from "wouter/use-location";
+import { useBlocked, useFriends } from ".";
+import React from "react";
+import chatsState from "@apps/Chat/state";
+import { useChatSelectModalActions } from "@apps/Chat/modals/ChatSelectModal/hooks/useChatSelectModal";
+import pongGamesState from "@apps/GameLobby/state";
+import PongModel from "@typings/models/pong";
 
 const useFriend = (friendId: number) => {
   const [, navigate] = useLocation();
@@ -18,14 +20,14 @@ const useFriend = (friendId: number) => {
     (ctx) => async () => {
       try {
         const self = await ctx.snapshot.getPromise(sessionAtom);
-        if (!self) throw new Error('You are not logged in');
+        if (!self) throw new Error("You are not logged in");
         await tunnel.del(UsersModel.Endpoints.Targets.RemoveFriend, {
           id: self.id,
           friendId,
         });
-        notifications.success('Removed friend');
+        notifications.success("Removed friend");
       } catch (e) {
-        notifications.error('Failed to remove friend', (e as Error).message);
+        notifications.error("Failed to remove friend", (e as Error).message);
       }
     },
     [friendId]
@@ -34,14 +36,14 @@ const useFriend = (friendId: number) => {
     (ctx) => async () => {
       try {
         const self = await ctx.snapshot.getPromise(sessionAtom);
-        if (!self) throw new Error('You are not logged in');
+        if (!self) throw new Error("You are not logged in");
         await tunnel.put(UsersModel.Endpoints.Targets.BlockUser, undefined, {
           id: self.id,
           blockedId: friendId,
         });
-        notifications.success('Blocked user');
+        notifications.success("Blocked user");
       } catch (e) {
-        notifications.error('Failed to block user', (e as Error).message);
+        notifications.error("Failed to block user", (e as Error).message);
       }
     },
     [friendId]
@@ -50,14 +52,14 @@ const useFriend = (friendId: number) => {
     (ctx) => async () => {
       try {
         const self = await ctx.snapshot.getPromise(sessionAtom);
-        if (!self) throw new Error('You are not logged in');
+        if (!self) throw new Error("You are not logged in");
         await tunnel.del(UsersModel.Endpoints.Targets.UnblockUser, {
           id: self.id,
           blockedId: friendId,
         });
-        notifications.success('Unblocked user');
+        notifications.success("Unblocked user");
       } catch (e) {
-        notifications.error('Failed to unblock user', (e as Error).message);
+        notifications.error("Failed to unblock user", (e as Error).message);
       }
     },
     [friendId]
@@ -66,7 +68,7 @@ const useFriend = (friendId: number) => {
   const goToMessages = useRecoilCallback(
     (ctx) => async () => {
       const self = await ctx.snapshot.getPromise(sessionAtom);
-      if (!self) throw new Error('You are not logged in');
+      if (!self) throw new Error("You are not logged in");
       try {
         const { chatId } = await tunnel.post(
           ChatsModel.Endpoints.Targets.CheckOrCreateDirectChat,
@@ -76,7 +78,7 @@ const useFriend = (friendId: number) => {
         navigate(`/messages/${chatId}`);
         closeAll();
       } catch (e) {
-        notifications.error('Failed to go to messages', (e as Error).message);
+        notifications.error("Failed to go to messages", (e as Error).message);
       }
     },
     [friendId, navigate, closeAll]
@@ -85,8 +87,8 @@ const useFriend = (friendId: number) => {
   const goToProfile = useRecoilCallback(
     (ctx) => async () => {
       const self = await ctx.snapshot.getPromise(sessionAtom);
-      if (!self) throw new Error('You are not logged in');
-      if (self.id === friendId) return navigate('/profile/me');
+      if (!self) throw new Error("You are not logged in");
+      if (self.id === friendId) return navigate("/profile/me");
       navigate(`/profile/${friendId}`);
       closeAll();
     },
@@ -107,7 +109,7 @@ const useFriend = (friendId: number) => {
       try {
         const chatId = await ctx.snapshot.getPromise(chatsState.selectedChatId);
         if (chatId === -1)
-          throw new Error('You must select a chat before inviting a user');
+          throw new Error("You must select a chat before inviting a user");
         const [chatData] = await select({
           multiple: false,
           includeDMs: false,
@@ -118,7 +120,7 @@ const useFriend = (friendId: number) => {
           ChatsModel.Endpoints.Targets.SendInviteToTargets,
           [
             {
-              type: 'chat',
+              type: "chat",
               id: chatId,
             },
           ],
@@ -126,9 +128,9 @@ const useFriend = (friendId: number) => {
             chatId: chatData.id,
           }
         );
-        notifications.success('Invites sent!');
+        notifications.success("Invites sent!");
       } catch (e) {
-        notifications.error('Failed to send invites', (e as Error).message);
+        notifications.error("Failed to send invites", (e as Error).message);
       }
     },
     [select]
@@ -137,22 +139,42 @@ const useFriend = (friendId: number) => {
   const sendFriendRequest = useRecoilCallback(
     (ctx) => async () => {
       const self = await ctx.snapshot.getPromise(sessionAtom);
-      if (!self) throw new Error('You are not logged in');
+      if (!self) throw new Error("You are not logged in");
       try {
         await tunnel.put(UsersModel.Endpoints.Targets.AddFriend, undefined, {
           id: self.id,
           friendId,
         });
-        notifications.success('Friend request sent!');
+        notifications.success("Friend request sent!");
       } catch (e) {
         notifications.error(
-          'Failed to send friend request',
+          "Failed to send friend request",
           (e as Error).message
         );
       }
     },
     [friendId]
   );
+
+  const sendPongInvite = useRecoilCallback((ctx) => async () => {
+    try {
+      const game = await ctx.snapshot.getPromise(pongGamesState.gameLobby);
+      await tunnel.post(PongModel.Endpoints.Targets.Invite, {
+        lobbyId: game?.id,
+        data: [
+          {
+            id: friendId,
+            type: "user",
+          },
+        ],
+        source: PongModel.Models.InviteSource.Lobby,
+      });
+      notifications.success("Invite sent");
+    } catch (e) {
+      notifications.error("Failed to send invite");
+      console.error(e);
+    }
+  });
 
   return {
     remove,
@@ -164,6 +186,7 @@ const useFriend = (friendId: number) => {
     useIsFriend,
     sendInviteFromDM,
     sendFriendRequest,
+    sendPongInvite,
   };
 };
 

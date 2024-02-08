@@ -146,7 +146,6 @@ export class PongService {
               ? (playerNbr = PongModel.InGame.ObjType.Player3)
               : (playerNbr = PongModel.InGame.ObjType.Player4);
           }
-
           return {
             tag: playerNbr,
             teamId: team.id,
@@ -159,7 +158,7 @@ export class PongService {
             userId: player.id,
             avatar: player.avatar,
             nickname: player.nickname,
-            connected: false,
+            connected: player.type === 'bot' ? true : false,
             scored: 0,
           };
         },

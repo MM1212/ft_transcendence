@@ -11,7 +11,8 @@ import PongModel from "@typings/models/pong";
 import { paddleConfig } from "@shared/Pong/config/configInterface";
 import { buildTexture } from "../utils";
 import { computeUserAvatar } from "@utils/computeAvatar";
-import { ARENA_SIZE, P_START_DIST } from "@shared/Pong/main";
+import { ARENA_SIZE } from "@shared/Pong/main";
+import Display from "./Display";
 
 export interface KeyControls {
   up: string;
@@ -24,19 +25,10 @@ export interface KeyControls {
 
 export class UIPlayer extends Player {
   public displayObject: PIXI.Sprite;
-  public displayAvatar: PIXI.Sprite;
-  public displayNickname: PIXI.Text;
-  public nickTextFont = new PIXI.TextStyle({
-    fontFamily: "Arial",
-    fontSize: 24,
-    fill: 0xff0000,
-    align: "center",
-  });
 
-  public mana: UIMana;
-  public energy: UIEnergy;
   public shooter: UIShooter | undefined;
   public effect: UIEffect | undefined;
+  public display: Display;
 
   constructor(
     x: number,
@@ -65,51 +57,11 @@ export class UIPlayer extends Player {
     this.displayObject.x = this.center.x;
     this.displayObject.y = this.center.y;
     this.scale = 1;
-    this.mana = new UIMana(tag, uigame);
-    this.energy = new UIEnergy(tag, uigame);
+
     this.shooter = undefined;
     this.effect = undefined;
-    this.displayAvatar = new PIXI.Sprite(
-      buildTexture(computeUserAvatar(avatar))
-    );
-    this.displayAvatar.anchor.set(0.5);
-    this.displayNickname = new PIXI.Text(nickname, this.nickTextFont);
-    if (this.teamId === 0) {
-      this.displayNickname.anchor.set(0, 0.5);
-    }
-    else {
-      this.displayNickname.anchor.set(1, 0.5);
-    }
-    console.log("avatar: " + avatar);
-    console.log("nickname: " + nickname);
-    this.addUserInterface();
-    console.log("avatarX: " + this.displayAvatar.x);
-    console.log("avatarY: " + this.displayAvatar.y);
-    console.log("nicknameX: " + this.displayNickname.x);
-    console.log("nicknameY: " + this.displayNickname.y);
-    this.displayAvatar.zIndex = 5;
-    this.displayNickname.zIndex = 10;
-    // add listeners for mana and energy updates
-  }
 
-  addUserInterface(): void {
-    this.displayAvatar.width = ARENA_SIZE - (ARENA_SIZE / 5);
-    this.displayAvatar.height = ARENA_SIZE - (ARENA_SIZE / 5);
-    this.displayAvatar.y = ARENA_SIZE / 2;
-    this.displayNickname.y = ARENA_SIZE / 2;
-    if (this.teamId === 0) {
-      this.displayAvatar.x = ARENA_SIZE / 2;
-      this.displayNickname.x = this.displayAvatar.x + (this.displayAvatar.width / 2 + (this.displayAvatar.width / 4));
-    } else {
-      this.displayAvatar.x = this.uigame.width - ARENA_SIZE / 2;
-      this.displayNickname.x = this.displayAvatar.x - (this.displayAvatar.width / 2 + (this.displayAvatar.width / 4));
-    }
-    if (this.tag === "Player 3" || this.tag === "Player 4") {
-      this.displayAvatar.y = this.uigame.height - ARENA_SIZE / 2;
-      this.displayNickname.y = this.uigame.height - ARENA_SIZE / 2;
-    }
-    this.uigame.app.stage.addChild(this.displayAvatar);
-    this.uigame.app.stage.addChild(this.displayNickname);
+    this.display = new Display(nickname, avatar, uigame, tag);
   }
 
   updateEffect(effectName: string, effectValue: number): void {
@@ -134,7 +86,6 @@ export class UIPlayer extends Player {
   shootPower(): void {
     if (this.shooter !== undefined) {
       this.shooter.shootBall(this);
-      this.uigame.app.stage.removeChild(this.shooter?.displayObject);
     }
   }
 
@@ -150,7 +101,7 @@ export class UIPlayer extends Player {
     shooter: UIBar,
     powertag: string
   ) {
-    return UIBar.create(specialPower, center, direction, shooter, powertag);
+    return UIBar.create(specialPower, center, direction, shooter, powertag, this.uigame);
   }
 
   setScaleDisplay(

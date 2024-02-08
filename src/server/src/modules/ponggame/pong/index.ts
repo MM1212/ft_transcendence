@@ -22,7 +22,7 @@ import { PongHistoryService } from '@/modules/ponghistory/history.service';
 import PongHistoryModel from '@typings/models/pong/history';
 import { PongLobbyService } from '@/modules/ponglobbies/ponglobby.service';
 import { PongService } from '../pong.service';
-// import { Bot } from '@shared/Pong/Paddles/Bot';
+import { Bot } from '@shared/Pong/Paddles/Bot';
 
 type Room = BroadcastOperator<DefaultEventsMap, any>;
 
@@ -56,6 +56,17 @@ export class ServerGame extends Game {
     this.UUID = config.UUID;
     this.room = server.to(this.UUID);
     this.buildObjects();
+    this.config.teams[0].players
+      .concat(this.config.teams[1].players)
+      .forEach((player) => {
+        if (player.type === 'bot') {
+          this.nbConnectedPlayers++;
+          if (player instanceof Bot) {
+            player.getBallRef();
+          }
+        }
+      });
+
     console.log(`Room ${this.UUID}: created`);
   }
   /***/
@@ -110,9 +121,25 @@ export class ServerGame extends Game {
     }
   }
 
-  public start() {
+  async doSetTimeout(i: number): Promise<void> {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        this.room.emit(PongModel.Socket.Events.Countdown, { countdown: i });
+        resolve();
+      }, 1000);
+    });
+  }
+
+  public async start() {
     console.log(`Game ${this.UUID}: started!`);
+
+    await this.doSetTimeout(3);
+    await this.doSetTimeout(2);
+    await this.doSetTimeout(1);
+    await this.doSetTimeout(0);
+
     this.room.emit(PongModel.Socket.Events.Start);
+
     this.startTick();
   }
 
@@ -180,10 +207,19 @@ export class ServerGame extends Game {
           ),
         );
       } else {
-        // MISSING: SpecialPowers in bot
-        //this.add( new Bot (
-        //
-        //))
+        this.add(
+          new Bot(
+            startX,
+            this.height / 2,
+            p.tag,
+            direction,
+            p.specialPower as PongModel.Models.LobbyParticipantSpecialPowerType,
+            this,
+            p.teamId,
+            p.paddle as keyof typeof paddleConfig,
+            p.userId,
+          ),
+        );
       }
     }
   }
@@ -541,7 +577,6 @@ export class ServerGame extends Game {
     }
   }
 
-  /***/
   public getPlayerInstanceById(id: number): Player | undefined {
     return this.gameObjects.find((gameObject: GameObject) => {
       if (gameObject instanceof Player) {

@@ -9,6 +9,7 @@ import CrownIcon from '@components/icons/CrownIcon';
 import RobotIcon from '@components/icons/RobotIcon';
 import SwapHorizontalBoldIcon from '@components/icons/SwapHorizontalBoldIcon';
 import KarateIcon from '@components/icons/KarateIcon';
+import notifications from '@lib/notifications/hooks';
 
 export function ChangeOwnerButton({
   id,
@@ -54,15 +55,47 @@ export function ChangeOwnerButton({
   );
 }
 
-export function AddBotButton() {
+export function AddBotButton({
+  teamId,
+  teamPosition,
+}: {
+  teamId: number;
+  teamPosition: number | undefined;
+}) {
+
+  const handleAddBot = useRecoilCallback(
+    (ctx) => async () => {
+      try {
+        const lobby = await ctx.snapshot.getPromise(pongGamesState.gameLobby);
+        if (lobby === null) return;
+        if (teamPosition === undefined) {
+          notifications.error("Failed to add bot: Team position invalid");
+          return;
+        }
+        await tunnel.post(PongModel.Endpoints.Targets.AddBot, {
+          teamId,
+          teamPosition,
+          lobbyId: lobby.id,
+        });
+        console.log("Added bot success");
+        notifications.success("Bot added");
+      } catch (err) {
+        notifications.error("Failed to add bot");
+        console.log(err);
+      }
+    },
+    [teamId, teamPosition]
+  );
+
   return (
     <>
       <Tooltip title="Add Bot">
         <IconButton
           color="warning"
           variant="plain"
+          onClick={handleAddBot}
           sx={{
-            borderRadius: 'xl',
+            borderRadius: "xl",
           }}
         >
           <RobotIcon />

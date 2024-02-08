@@ -17,6 +17,13 @@ enum UserType {
   BOT
 }
 
+enum UserStatus {
+  OFFLINE
+  ONLINE
+  BUSY
+  AWAY
+}
+
 model User {
   id            Int               @id @default(autoincrement())
   studentId     Int               @unique @map("student_id")
@@ -24,7 +31,7 @@ model User {
   type          UserType          @default(USER)
   avatar        String
   createdAt     DateTime          @default(now()) @map("created_at")
-  storedStatus  Int               @default(1) @map("stored_status")
+  storedStatus  UserStatus        @default(ONLINE) @map("stored_status")
   firstLogin    Boolean           @default(true) @map("first_login")
   friends       User[]            @relation("friends")
   friendOf      User[]            @relation("friends")

@@ -14,6 +14,7 @@ import UserExtQuests from './ext/Quests';
 import UserExtInventory from './ext/Inventory';
 import UserExtNotifications from './ext/Notifications';
 import { UserExtCredits } from './ext/Credits';
+import { GroupEnumValues } from '@typings/utils';
 import { UserExtElo } from './ext/Elo';
 
 class User extends CacheObserver<UsersModel.Models.IUser> {
@@ -77,7 +78,7 @@ class User extends CacheObserver<UsersModel.Models.IUser> {
     return this.get('createdAt');
   }
 
-  public get status(): UsersModel.Models.Status {
+  public get status(): GroupEnumValues<UsersModel.Models.Status> {
     return this.get('status');
   }
 
