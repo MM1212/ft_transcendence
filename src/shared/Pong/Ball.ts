@@ -47,8 +47,8 @@ export class Ball extends GameObject {
   }
 
   getRandomVelocity(): Vector2D {
-    const randX = (Math.random() * 3 + 3) * (Math.random() < 0.5 ? -1 : 1);
-    const randY = (Math.random() * 1 + 3) * (Math.random() < 0.5 ? -1 : 1);
+    const randX = (Math.random() * 3 + 4) * (Math.random() < 0.5 ? -1 : 1);
+    const randY = (Math.random() * 1 + 4) * (Math.random() < 0.5 ? -1 : 1);
     return new Vector2D(randX, randY);
   }
 
@@ -59,10 +59,16 @@ export class Ball extends GameObject {
       obj.collider.lastCollision = undefined;
     });
 
-    this.velocity = this.getRandomVelocity();
-    this.acceleration = 1;
+    //stop game for 1 second
+    this.velocity = new Vector2D(0, 0);
     this._move = true;
-    if (this.effect !== undefined) this.effect?.setStopEffect();
+    setTimeout(() => {
+      this.velocity = this.getRandomVelocity();
+      this.acceleration = 1;
+      this._move = true;
+      if (this.effect !== undefined) this.effect?.setStopEffect();
+    }, 400);
+
   }
 
   private directGoal(backBar: Bar, frontBar?: Bar): boolean {
@@ -215,6 +221,7 @@ export class Ball extends GameObject {
     if (target instanceof ArenaWall) {
       this.velocity.y = -this.velocity.y;
     } else if (target instanceof Bar) {
+
       // || target instanceof Bot) {
       // where the ball hit
       let collidePoint = this.getCenter.y - target.getCenter.y;

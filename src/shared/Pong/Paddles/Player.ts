@@ -51,14 +51,13 @@ export class Player extends Bar {
     public direction: Vector2D,
     specialPower: PongModel.Models.LobbyParticipantSpecialPowerType,
     game: Game,
-    teamId: number,
+    public teamId: number,
     paddle: keyof typeof paddleConfig,
     public readonly userId?: number,
   ) {
     super(x, y, tag, direction, game, paddle);
     this.specialPowerType = specialPower;
     this.stats.setPowerCost(specialpowerConfig[specialPower].manaCost);
-    this.teamId = teamId;
   }
 
   onKeyDown(key: string): void {

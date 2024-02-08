@@ -19,6 +19,8 @@ import HttpCtx from '@/helpers/decorators/httpCtx';
 import { HTTPContext } from '@typings/http';
 import UserCtx from '../decorators/User.pipe';
 import User from '../user';
+import { ObjectValidationPipe } from '@/helpers/decorators/validator';
+import usersValidator from '../users.validator';
 
 @Auth()
 @Controller()
@@ -64,7 +66,8 @@ export class UsersController {
   @Patch(UsersModel.Endpoints.Targets.PatchUser)
   async patch(
     @UserCtx() target: User,
-    @Body() { avatar, nickname, status, firstLogin }: UsersModel.DTO.PatchUser,
+    @Body(new ObjectValidationPipe(usersValidator.patchUserSchema))
+    { avatar, nickname, status, firstLogin }: UsersModel.DTO.PatchUser,
     @HttpCtx() { user }: HTTPContext<true>,
   ): Promise<InternalEndpointResponse<UsersModel.Endpoints.PatchUser>> {
     if (user.id !== target.id) throw new ForbiddenException();

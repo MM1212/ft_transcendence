@@ -39,6 +39,7 @@ export class PongLobbyParticipant
     public avatar: string = user.avatar,
     public lobbyId: number = lobby.id,
   ) {
+
     if (lobby.nPlayers < 4) lobby.addPlayerToPlayers(this);
     else lobby.addPlayerToSpectators(this);
 
@@ -206,8 +207,38 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
     });
     this.status = PongModel.Models.LobbyStatus.Playing;
 
-    const game = await this.helpers.gameService.initGameSession(this, this.service, this.helpers.gameService);
+    const game = await this.helpers.gameService.initGameSession(
+      this,
+      this.service,
+      this.helpers.gameService,
+    );
     this.gameUUId = game.UUID;
+    return true;
+  }
+
+  public addBot(bot: User, teamId: number, teamPosition: number): boolean {
+    if (this.teams[teamId].players.length === 2) return false;
+    if (
+      this.teams[teamId].players.some(
+        (player) => player.teamPosition === teamPosition,
+      )
+    )
+      return false;
+    const botPlayer = new PongLobbyParticipant(
+      bot,
+      this,
+      bot.id,
+      bot.nickname,
+      bot.avatar,
+      this.id,
+    );
+    this.removePlayerFromTeam(bot.id);
+    this.addToTeam(botPlayer, teamId, teamPosition);
+    console.log(`Lobby-${this.id}: ${bot.nickname} joined.`);
+    console.log('nb players: ' + this.nPlayers);
+    botPlayer.keys = undefined;
+    botPlayer.status = PongModel.Models.LobbyStatus.Ready;
+    botPlayer.type = 'bot';
     return true;
   }
 
@@ -341,6 +372,7 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
             data: {
               lobbyId: this.id,
               nonce: this.nonce,
+              authorization: this.authorization,
             },
             dismissable: true,
           });

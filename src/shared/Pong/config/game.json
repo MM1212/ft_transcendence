@@ -38,17 +38,17 @@
     "fire": {
       "diameter": 32,
       "vertices": 8,
-      "manaCost": 50
+      "manaCost": 70
     },
     "ghost": {
-      "diameter": 32,
+      "diameter": 35,
       "vertices": 8,
-      "manaCost": 35
+      "manaCost": 50
     },
     "bubble": {
       "diameter": 32,
       "vertices": 8,
-      "manaCost": 20
+      "manaCost": 35
     },
     "ice": {
       "diameter": 32,

@@ -43,7 +43,7 @@ export default function LobbyPlayerPlaceholder({
   specialPower: GroupEnumValues<PongModel.Models.LobbyParticipantSpecialPowerType> | undefined;
   isMe: boolean;
 }) {
-  
+
   const specialPowerPath = specialPowerConfig.get(specialPower ?? '');
   const user = useUser(id!);
   const [open, setOpen] = React.useState<boolean>(false);
@@ -61,7 +61,7 @@ export default function LobbyPlayerPlaceholder({
         <Badge
           color="warning"
           variant="outlined"
-          badgeInset='8%'
+          badgeInset="8%"
           anchorOrigin={{
             vertical: "bottom",
             horizontal: "right",
@@ -76,13 +76,14 @@ export default function LobbyPlayerPlaceholder({
           invisible={!specialPower}
           badgeContent={
             isMe && (
-             <Tooltip title={specialPower} placement="top">
-              <img
-                src={specialPowerPath}
-                style={{ width: "1.2dvh", height: "1.2dvh" }}
-              />
-            </Tooltip>
-          )}
+              <Tooltip title={specialPower} placement="top">
+                <img
+                  src={specialPowerPath}
+                  style={{ width: "1.2dvh", height: "1.2dvh" }}
+                />
+              </Tooltip>
+            )
+          }
         >
           <UserAvatar
             color={ready ? "success" : "warning"}
@@ -148,7 +149,7 @@ export default function LobbyPlayerPlaceholder({
         <Box display="flex" alignItems="center" gap={1} ml="auto">
           {!id ? (
             <>
-              <AddBotButton />
+              <AddBotButton teamId={teamId} teamPosition={teamPosition} />
               <ChangeTeamButton teamId={teamId} teamPosition={teamPosition} />
             </>
           ) : (

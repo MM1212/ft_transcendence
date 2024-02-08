@@ -1,0 +1,20 @@
+{"frames": {
+
+"BubbleWalk0.png":
+{
+	"frame": {"x":1,"y":1,"w":32,"h":32},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":32},
+	"sourceSize": {"w":32,"h":32}
+}},
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.1",
+	"image": "BubbleWalk.png",
+	"format": "RGBA8888",
+	"size": {"w":34,"h":34},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:d03f24bca4004dd9e1bd29e38d3d535c:ff6db0deb35c0826c952252081a1635a:8f2d5b38bd1401c07d0e76db20cd6bab$"
+}
+}

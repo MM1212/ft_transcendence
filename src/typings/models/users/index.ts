@@ -21,11 +21,10 @@ namespace UsersModel {
       Bot = 'BOT',
     }
     export enum Status {
-      Offline,
-      Online,
-      Busy,
-      Away,
-      InGame,
+      Offline = "OFFLINE",
+      Online = "ONLINE",
+      Busy = "BUSY",
+      Away = "AWAY",
     }
     export interface ICharacter {
       id: number;
@@ -38,8 +37,8 @@ namespace UsersModel {
       type: GroupEnumValues<Types>;
       avatar: string;
       createdAt: number;
-      status: Status;
-      storedStatus: Status;
+      status: GroupEnumValues<Status>;
+      storedStatus: GroupEnumValues<Status>;
       firstLogin: boolean;
       friends: number[];
       blocked: number[];
@@ -76,7 +75,7 @@ namespace UsersModel {
         friendOf: { id: number }[];
         chats: { id: number }[];
         blocked: { id: number }[];
-        storedStatus: Models.Status;
+        storedStatus: GroupEnumValues<Models.Status>;
         tfaEnabled: boolean;
         tfaSecret: string | null;
 
