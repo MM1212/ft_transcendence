@@ -12,6 +12,7 @@ import LobbyModel from '../lobby';
 import QuestsModel from './quests';
 import InventoryModel from './inventory';
 import NotificationsModel from '../notifications';
+import type LeaderboardModel from '../leaderboard';
 
 namespace UsersModel {
   export namespace Models {
@@ -51,6 +52,7 @@ namespace UsersModel {
       inventory: InventoryModel.Models.IItem[];
       notifications: NotificationsModel.Models.INotification[];
       credits: number;
+      leaderboard: LeaderboardModel.Models.Leaderboard;
     }
     export interface IUserInfo
       extends Omit<
@@ -65,7 +67,10 @@ namespace UsersModel {
         | 'quests'
         | 'inventory'
         | 'notifications'
-      > {}
+        | 'leaderboard'
+      > {
+      leaderboard: Pick<LeaderboardModel.Models.Leaderboard, 'elo'>;
+    }
   }
   export namespace DTO {
     export namespace DB {
@@ -89,10 +94,7 @@ namespace UsersModel {
         createdAt: Date;
       }
       export interface IUserCreate
-        extends Pick<
-          Models.IUserInfo,
-          'studentId' | 'nickname' | 'avatar'
-        > {
+        extends Pick<Models.IUserInfo, 'studentId' | 'nickname' | 'avatar'> {
         type?: Models.Types;
         credits?: number;
         inventory?: Omit<InventoryModel.DTO.DB.CreateItem, 'userId'>[];

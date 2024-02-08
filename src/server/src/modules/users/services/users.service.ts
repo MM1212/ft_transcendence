@@ -73,6 +73,14 @@ export class UsersService {
     user?.setTo(data);
     return user ?? this.build(data);
   }
+  public async getMany(ids: number[]): Promise<User[]> {
+    const toFetch = ids.filter((id) => !this.has(id));
+    if (toFetch.length > 0) {
+      const data = await this.fetchMany(toFetch);
+      for (const user of data) this.build(user);
+    }
+    return ids.map((id) => this.users.get(id)!);
+  }
   public async getByStudentId(
     studentId: number,
     fetch: boolean = false,
@@ -93,6 +101,9 @@ export class UsersService {
 
   private async fetch(id: number): Promise<UsersModel.Models.IUser | null> {
     return await this.db.users.get(id);
+  }
+  private async fetchMany(ids: number[]): Promise<UsersModel.Models.IUser[]> {
+    return await this.db.users.getMany(ids);
   }
   private build(data: UsersModel.Models.IUser): User {
     const user = new User(data, this.deps);
