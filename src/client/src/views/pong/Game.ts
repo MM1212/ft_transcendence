@@ -156,7 +156,6 @@ export class UIGame extends Game {
     this.app.stage.addChild(this.timeText);
     this.timeText.visible = false;
 
-    container.appendChild(this.app.view as HTMLCanvasElement);
 
     this.setDisconnectedWindow();
 
@@ -175,6 +174,8 @@ export class UIGame extends Game {
 
     const resizeHandler = this.handleResize.bind(this);
     window.addEventListener('resize', resizeHandler);
+
+    container.appendChild(this.app.view as HTMLCanvasElement);
   }
 
   private handleResize(): void {

@@ -1,29 +1,28 @@
-import { useRecoilValue } from "recoil";
-import pongGamesState from "../state";
-import {
-  Avatar,
-  Input,
-  ListDivider,
-  ListItemDecorator,
-  Option,
-  Select,
-  SelectOption,
-  Stack,
-  Typography,
-} from "@mui/joy";
-import React from "react";
-import PongModel from "@typings/models/pong";
-import { Box } from "@mui/joy";
-import { useCurrentUser } from "@hooks/user";
-import LobbyGameTypography from "./LobbyGameTypography";
+import { useRecoilValue } from 'recoil';
+import pongGamesState from '../state';
+import { Avatar, Button, DialogTitle, FormControl, FormLabel, Input, Modal, ModalDialog } from '@mui/joy';
+import React from 'react';
+import { Box } from '@mui/joy';
+import { useCurrentUser } from '@hooks/user';
+import LobbyGameTypography from './LobbyGameTypography';
+import SoccerIcon from '@components/icons/SoccerIcon';
+import { FormHelperText } from '@mui/joy';
 
 export function LobbySettings() {
   const lobby = useRecoilValue(pongGamesState.gameLobby)!;
-  const gameModeOptions = [
-    { value: 1, label: "POWERS" },
-    { value: 2, label: "CLASSIC" },
-  ];
   const self = useCurrentUser();
+
+  const [open, setOpen] = React.useState<boolean>(false);
+  const [score, setScore] = React.useState<string>(lobby.score.toString());
+  const close = () => {
+    console.log('submit');
+    setOpen(false);
+  };
+  const [errors, setErrors] = React.useState({
+    name: '',
+    score: '',
+  });
+
   const player = React.useMemo(
     () =>
       lobby.teams[0].players
@@ -33,137 +32,78 @@ export function LobbySettings() {
     [lobby, self?.id]
   );
 
-  const ballTexture = [
-    {
-      value: 1,
-      label: "BOLA 1",
-      src: PongModel.Endpoints.Targets.BallTexture1,
-    },
-    {
-      value: 2,
-      label: "BOLA 2",
-      src: PongModel.Endpoints.Targets.PowerWaterTexture,
-    },
-    {
-      value: 3,
-      label: "BOLA 3",
-      src: PongModel.Endpoints.Targets.PowerIceTexture,
-    },
-  ];
-  const backgroundTexture = [
-    {
-      value: 1,
-      label: "BACKGROUND 1",
-      src: PongModel.Endpoints.Targets.MarioBoxTexture,
-    },
-    {
-      value: 2,
-      label: "BACKGROUND 2",
-      src: PongModel.Endpoints.Targets.MarioBoxTexture,
-    },
-    {
-      value: 3,
-      label: "BACKGROUND 3",
-      src: PongModel.Endpoints.Targets.MarioBoxTexture,
-    },
-  ];
-
-  function renderValue(option: SelectOption<number> | null) {
-    if (!option) {
-      return null;
-    }
-
-    return (
-      <Stack direction="row" alignItems="center" spacing={1} width="100%">
-        <Avatar
-          size="sm"
-          src={ballTexture.find((o) => o.value === option.value)?.src}
-        />
-        <Typography>{option.label}</Typography>
-      </Stack>
-    );
-  }
-  function renderValue2(option: SelectOption<number> | null) {
-    if (!option) {
-      return null;
-    }
-
-    return (
-      <Stack direction="row" alignItems="center" spacing={1} width="100%">
-        <Avatar
-          size="sm"
-          src={backgroundTexture.find((o) => o.value === option.value)?.src}
-        />
-        <Typography>{option.label}</Typography>
-      </Stack>
-    );
-  }
-
-  // Options need to be set according to the values of the player loaded from the DB
-
   if (player === undefined) return null;
   if (lobby === null) return null;
-
   return (
-    <Box flex={1} sx={{display:'flex', flexDirection:'column', justifyContent:'space-between'}}>
-      <LobbyGameTypography>Game Mode:</LobbyGameTypography>
-      <Select defaultValue={1}>
-        {gameModeOptions.map((option) => (
-          <React.Fragment key={option.value}>
-            <Option value={option.value} label={option.label}>
-              {option.label}
-            </Option>
-          </React.Fragment>
-        ))}
-      </Select>
-      <LobbyGameTypography>Ball Texture:</LobbyGameTypography>
-      <Select defaultValue={1} renderValue={renderValue}>
-        {ballTexture.map((option, index) => (
-          <React.Fragment key={option.value}>
-            {index !== 0 ? (
-              <ListDivider role="none" inset="startContent" />
-            ) : null}
-            <Option value={option.value}>
-              <ListItemDecorator>
-                <Avatar size="sm" src={option.src} />
-              </ListItemDecorator>
-              {option.label}
-            </Option>
-          </React.Fragment>
-        ))}
-      </Select>
+    <Box
+      flex={1}
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+      }}
+    >
+      <Button onClick={() => setOpen(true)} />
+      <Modal open={open} onClose={close}>
+        <ModalDialog>
+          <DialogTitle>Settings</DialogTitle>
+          <Box>
+            <LobbyGameTypography>Game Mode:</LobbyGameTypography>
+            <LobbyGameTypography>Ball:</LobbyGameTypography>
+            <FormControl
+              sx={{
+                display: 'flex',
+                flexDirection: 'row',
+              }}
+            >
+              <FormLabel required>
+                <LobbyGameTypography>Score</LobbyGameTypography>
+              </FormLabel>
+              <Input
+                placeholder="Enter Score"
+                type="number"
+                slotProps={{
+                  input: {
+                    min: 1,
+                    max: 100,
+                  },
+                }}
+                startDecorator={<SoccerIcon />}
+                required
+                color={errors.score ? 'danger' : 'warning'}
+                value={score}
+                onChange={(e) => setScore(e.target.value)}
+              />
+              {errors.score && <FormHelperText>{errors.score}</FormHelperText>}{' '}
+            </FormControl>
+          </Box>
+        </ModalDialog>
+      </Modal>
 
-      <LobbyGameTypography>Background Texture:</LobbyGameTypography>
-      <Select defaultValue={1} renderValue={renderValue2}>
-        {backgroundTexture.map((option, index) => (
-          <React.Fragment key={option.value}>
-            {index !== 0 ? (
-              <ListDivider role="none" inset="startContent" />
-            ) : null}
-            <Option value={option.value}>
-              <ListItemDecorator>
-                <Avatar size="sm" src={option.src} />
-              </ListItemDecorator>
-              {option.label}
-            </Option>
-          </React.Fragment>
-        ))}
-      </Select>
-      <LobbyGameTypography>Play until max score: </LobbyGameTypography>
-      <Select placeholder="Choose one…" defaultValue={1} >
-        <Option value={1}>5</Option>
-        <Option value={2}>7</Option>
-        <Option value={3}>11</Option>
-        <Option value={4}>20</Option>
-      </Select>
-      <LobbyGameTypography>Currrent Keys: </LobbyGameTypography>
-
+      <LobbyGameTypography>
+        Game Mode: {`${lobby.gameType}`}
+      </LobbyGameTypography>
+      <LobbyGameTypography>
+        Ball:{' '}
+        {
+          <Avatar
+            size="sm"
+            src={lobby.ballTexture}
+            sx={{
+              display: 'inline-block',
+            }}
+          />
+        }
+      </LobbyGameTypography>
+      <LobbyGameTypography>
+        Score to win: {`${lobby.score}`}
+      </LobbyGameTypography>
       <Box display="flex" gap={3} justifyContent="space-evenly">
-        {Object.keys(player.keys).map((key, i) => (
+        {Object.keys(player.keys!).map((key, i) => (
           <LobbyGameTypography textTransform="capitalize" key={i}>
-            {key}:{" "}
+            {key}:{' '}
             <KeyDisplayer
-              keycode={player.keys[key as keyof typeof player.keys]}
+              keycode={player.keys![key as keyof typeof player.keys]}
             />
           </LobbyGameTypography>
         ))}
@@ -176,18 +116,18 @@ export function KeyDisplayer({ keycode }: { keycode: string }) {
   return (
     <kbd
       style={{
-        backgroundColor: "#eee",
-        borderRadius: "3px",
-        border: "1px solid #b4b4b4",
+        backgroundColor: '#eee',
+        borderRadius: '3px',
+        border: '1px solid #b4b4b4',
         boxShadow:
-          "0 1px 1px rgba(0, 0, 0, 0.2),\n      0 2px 0 0 rgba(255, 255, 255, 0.7) inset",
-        color: "#333",
-        display: "inline-block",
-        fontWeight: "700",
-        fontSize: "0.85em",
-        padding: "2px 4px",
-        lineHeight: "1",
-        whiteSpace: "nowrap",
+          '0 1px 1px rgba(0, 0, 0, 0.2),\n      0 2px 0 0 rgba(255, 255, 255, 0.7) inset',
+        color: '#333',
+        display: 'inline-block',
+        fontWeight: '700',
+        fontSize: '0.85em',
+        padding: '2px 4px',
+        lineHeight: '1',
+        whiteSpace: 'nowrap',
       }}
     >
       {keycode}
