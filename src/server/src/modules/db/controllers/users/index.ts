@@ -23,6 +23,9 @@ const USER_EXT_QUERY = Prisma.validator<Prisma.UserSelect>()({
   quests: true,
   inventory: true,
   notifications: true,
+  leaderboard: {
+    select: { id: true, elo: true },
+  },
 });
 
 @Injectable()
@@ -91,6 +94,9 @@ export class Users {
       ...user,
       createdAt: user.createdAt.getTime(),
       status: UsersModel.Models.Status.Offline,
+      leaderboard: {
+        elo: 0,
+      },
     }));
   }
   async exists(id: number | string): Promise<boolean> {
@@ -110,6 +116,14 @@ export class Users {
         include: USER_EXT_QUERY,
       }),
     );
+  }
+  async getMany(ids: number[]): Promise<UsersModel.Models.IUser[]> {
+    return (
+      await this.prisma.user.findMany({
+        where: { id: { in: ids } },
+        include: USER_EXT_QUERY,
+      })
+    ).map(this.formatUser);
   }
   async getByStudentId(
     studentId: number,
@@ -146,6 +160,9 @@ export class Users {
               data: [...(data.inventory ?? [])],
             },
           },
+          leaderboard: {
+            create: {}
+          },
         },
         include: USER_EXT_QUERY,
       }),
@@ -158,11 +175,17 @@ export class Users {
     return await this.prisma.user.update({
       where: { id },
       data,
+      include: {
+        leaderboard: { select: { elo: true } },
+      },
     });
   }
   async delete(id: number): Promise<UsersModel.DTO.DB.IUserInfo> {
     return await this.prisma.user.delete({
       where: { id },
+      include: {
+        leaderboard: { select: { elo: true } },
+      },
     });
   }
   async search(
@@ -179,11 +202,17 @@ export class Users {
         },
         skip: filter.offset,
         take: filter.limit,
+        include: {
+          leaderboard: { select: { elo: true } },
+        },
       })
     ).map<UsersModel.Models.IUserInfo>((user) => ({
       ...user,
       createdAt: user.createdAt.getTime(),
       status: UsersModel.Models.Status.Offline,
+      leaderboard: {
+        elo: user.leaderboard.elo,
+      },
     }));
   }
 }

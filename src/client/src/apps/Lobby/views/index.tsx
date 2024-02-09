@@ -1,4 +1,3 @@
-import ChatBox from '@apps/Lobby/components/InGameChat';
 import React from 'react';
 import { ClientLobby } from '../src/Lobby';
 import {
@@ -145,7 +144,7 @@ export default function LobbyView(): JSX.Element {
       <div>
         {targetElem}
         <React.Suspense fallback={null}>
-          <ChatBox />
+          {/* <ChatBox /> */}
           <LobbyInteractionsPanel />
         </React.Suspense>
         <Modal

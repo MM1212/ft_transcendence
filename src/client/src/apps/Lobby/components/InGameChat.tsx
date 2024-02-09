@@ -111,6 +111,7 @@ const ChatBox: React.FC<ChatBoxProps> = () => {
   const lobby = useRecoilValue(lobbyAtom);
   const isLobbyLoading = useIsLobbyLoading();
 
+  if (!lobby || isLobbyLoading || lobby.chatId === -1) return null;
   return (
     <Box
       sx={{
@@ -124,21 +125,17 @@ const ChatBox: React.FC<ChatBoxProps> = () => {
         wordWrap: 'break-word',
       }}
     >
-      {lobby && !isLobbyLoading && (
-        <>
-          <RenderMessages chatId={lobby.chatId} />
-          <Sheet
-            sx={{
-              mt: 1,
-              display: 'flex',
-              bgcolor: 'rgba(0, 0, 0, 0.3)',
-              width: '100%',
-            }}
-          >
-            <InputBox chatId={lobby.chatId} ref={inputRef} />
-          </Sheet>
-        </>
-      )}
+      <RenderMessages chatId={lobby.chatId} />
+      <Sheet
+        sx={{
+          mt: 1,
+          display: 'flex',
+          bgcolor: 'rgba(0, 0, 0, 0.3)',
+          width: '100%',
+        }}
+      >
+        <InputBox chatId={lobby.chatId} ref={inputRef} />
+      </Sheet>
     </Box>
   );
 };
