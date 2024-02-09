@@ -28,6 +28,8 @@ const buildAnimation = async (json: string, path: string, n: number) => {
   return frames;
 };
 
+export const TimeBorderTex = buildTexture(`${Targets.Borders}/TimeBorder.png`);
+
 export const GhostDies = await buildAnimation(
   Targets.GhostDiesJSON,
   `${Targets.GhostDies}/GhostDies`,

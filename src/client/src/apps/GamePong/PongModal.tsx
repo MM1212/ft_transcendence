@@ -14,7 +14,10 @@ export function OpenGameModal({ isPlaying }: { isPlaying: boolean }) {
   return (
     <>
       <Modal open={isPlaying} onClose={close}>
-        <ModalDialog layout="fullscreen">
+        <ModalDialog layout="fullscreen" sx={{
+            bgcolor: "divider",
+            backdropFilter: "blur(5px)",
+        }}>
           <ModalClose />
           <PongComponent lobby={lobby}/>
         </ModalDialog>

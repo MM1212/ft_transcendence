@@ -47,6 +47,13 @@ export const useListenerManager = () => {
   );
 
   useListener(
+    PongModel.Socket.Events.TimeStart,
+    (data: PongModel.Socket.Data.TimeStart) => {
+      game?.current?.updateStartTime(data.time_start);
+    },
+  )
+
+  useListener(
     PongModel.Socket.Events.Countdown,
     (data: PongModel.Socket.Data.Countdown) => {
       game?.current?.countdown(data.countdown);

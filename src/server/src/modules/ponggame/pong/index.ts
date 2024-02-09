@@ -228,13 +228,17 @@ export class ServerGame extends Game {
   handleFocusLoss(userId: number): void {
     const player = this.getPlayerInstanceById(userId);
     if (player) {
-      console.log('turning off keys');
       this.handleKeys(userId, player.keys.up, false);
       this.handleKeys(userId, player.keys.down, false);
       this.handleKeys(userId, player.keys.boost, false);
       this.handleKeys(userId, player.keys.shoot, false);
-      console.log(player.keys);
     }
+  }
+
+  public sendStartTime(): void {
+    this.room.emit(PongModel.Socket.Events.TimeStart, {
+      time_start: this.gameStats.startTime,
+    });
   }
 
   static readonly fixedDeltaTime: number = 1000 / 60; // 60 FPS in seconds
@@ -242,6 +246,7 @@ export class ServerGame extends Game {
     let lastTimeStamp = performance.now();
     let lastFPSTimestamp = performance.now();
     this.gameStats.startTimer();
+    this.sendStartTime();
     this.gameStats.startNewRound();
     const tick = () => {
       const timestamp = performance.now();
@@ -458,6 +463,10 @@ export class ServerGame extends Game {
           };
         }),
     });
+    client.emit(PongModel.Socket.Events.TimeStart, {
+      time_start: this.gameStats.startTime,
+    });
+
   }
 
   public update(delta: number): void {

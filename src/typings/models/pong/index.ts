@@ -260,6 +260,7 @@ namespace PongModel {
       UpdateMovements = "object-movements",
       SetUI = "set-ui-game",
       Start = "start-game",
+      TimeStart = "time-start",
       Stop = "stop-game",
       RemovePower = "remove-power",
       CreatePower = "create-power",
@@ -351,6 +352,10 @@ namespace PongModel {
 
       export interface Countdown {
         countdown: number;
+      }
+
+      export interface TimeStart {
+        time_start: number;
       }
     }
   }
