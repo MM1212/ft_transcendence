@@ -17,6 +17,10 @@ namespace LeaderboardModel {
       position: number;
       elo: number;
     }
+    export interface Reward {
+      userId: number;
+      value: number;
+    }
     export interface Leaderboard {
       id: number;
       userId: number;

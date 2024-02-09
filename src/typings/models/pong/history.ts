@@ -23,6 +23,7 @@ namespace PongHistoryModel {
       winningGoal: number;
       moneyEarned: number;
       playerScore: number;
+      elo: number | null;
     }
     export interface PlayerGear extends Record<string, unknown> {
       paddle: string;

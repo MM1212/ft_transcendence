@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { UsersService } from '../users/services/users.service';
-import type PongModel from '@typings/models/pong';
+import PongModel from '@typings/models/pong';
 import LeaderboardModel from '@typings/models/leaderboard';
 import { DbService } from '../db';
 
@@ -70,8 +70,9 @@ export class LeaderboardService {
     team: PongModel.Models.IGameTeam,
     result: LeaderboardModel.Models.MatchResult,
     opponentElo: number,
-  ) {
+  ): Promise<LeaderboardModel.Models.Reward[]> {
     let wonWeight: number;
+    const rewards: LeaderboardModel.Models.Reward[] = [];
     switch (result) {
       case LeaderboardModel.Models.MatchResult.Win:
         wonWeight = 1;
@@ -93,6 +94,7 @@ export class LeaderboardService {
       const newElo =
         user.elo.rating +
         LeaderboardService.K_FACTOR * (wonWeight - expectedToWin);
+      rewards.push({ userId: user.id, value: newElo - user.elo.rating });
       await user.elo.updateRating(
         Math.max(newElo, LeaderboardService.MIN_ELO),
         result,
@@ -100,12 +102,18 @@ export class LeaderboardService {
       );
       this.updatePositionsCache(user.id, user.elo.rating, false);
     }
+    return rewards;
   }
-  public async computeEndGameElo(game: PongModel.Models.IGameConfig): Promise<void> {
+  public async computeEndGameElo(
+    game: PongModel.Models.IGameConfig,
+    lobby: PongModel.Models.ILobby,
+  ): Promise<LeaderboardModel.Models.Reward[]> {
+    if (lobby.queueType !== PongModel.Models.LobbyType.Custom) return [];
     const [leftTeam, rightTeam] = game.teams;
     const [leftTeamElo, rightTeamElo] = await Promise.all(
       game.teams.map(this.computeTeamAverageElo.bind(this)),
     );
+    const rewards: LeaderboardModel.Models.Reward[] = [];
     let result: LeaderboardModel.Models.MatchResult =
       leftTeam.score === rightTeam.score
         ? LeaderboardModel.Models.MatchResult.Tie
@@ -113,14 +121,15 @@ export class LeaderboardService {
         ? LeaderboardModel.Models.MatchResult.Win
         : LeaderboardModel.Models.MatchResult.Loss;
 
-    await this.updateTeamElo(leftTeam, result, rightTeamElo);
+    rewards.push(...(await this.updateTeamElo(leftTeam, result, rightTeamElo)));
     result =
       result === LeaderboardModel.Models.MatchResult.Win
         ? LeaderboardModel.Models.MatchResult.Loss
         : result === LeaderboardModel.Models.MatchResult.Loss
         ? LeaderboardModel.Models.MatchResult.Win
         : LeaderboardModel.Models.MatchResult.Tie;
-    await this.updateTeamElo(rightTeam, result, leftTeamElo);
+    rewards.push(...(await this.updateTeamElo(rightTeam, result, leftTeamElo)));
     this.sortPositionsCache();
+    return rewards;
   }
 }
