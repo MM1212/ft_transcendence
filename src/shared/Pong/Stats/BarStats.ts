@@ -94,6 +94,7 @@ export class BarStatistics {
       winningGoal: this.winningGoal,
       moneyEarned: this.moneyEarned,
       playerScore: this.playerScore,
+      elo: 0
     };
   }
 }

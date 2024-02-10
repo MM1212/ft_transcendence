@@ -23,6 +23,8 @@ import PongHistoryModel from '@typings/models/pong/history';
 import { PongLobbyService } from '@/modules/ponglobbies/ponglobby.service';
 import { PongService } from '../pong.service';
 import { Bot } from '@shared/Pong/Paddles/Bot';
+import type { LeaderboardService } from '@/modules/leaderboard/leaderboard.service';
+import type { UsersService } from '@/modules/users/services/users.service';
 
 type Room = BroadcastOperator<DefaultEventsMap, any>;
 
@@ -49,6 +51,8 @@ export class ServerGame extends Game {
     public historyService: PongHistoryService,
     public lobbyService: PongLobbyService,
     public pongService: PongService,
+    public usersService: UsersService,
+    public leaderboardService: LeaderboardService,
   ) {
     super(WINDOWSIZE_X, WINDOWSIZE_Y);
     if (config.maxScore >= 1 && config.maxScore <= 100)
@@ -362,6 +366,11 @@ export class ServerGame extends Game {
       console.log('team1' + this.gameStats.teamStats.exportStats(1));
       console.log('game' + this.gameStats.exportStats());
 
+      const rewards = await this.leaderboardService.computeEndGameElo(
+        this.config,
+        this.lobbyInterface,
+      );
+
       const getPlayerStats = (
         player: PongModel.Models.IPlayerConfig,
       ): PongHistoryModel.DTO.DB.CreatePlayer => {
@@ -370,7 +379,12 @@ export class ServerGame extends Game {
             paddle: player.paddle,
             specialPower: player.specialPower,
           },
-          stats: (this.getObjectByTag(player.tag) as Bar).stats.exportStats(),
+          stats: {
+            ...(this.getObjectByTag(player.tag) as Bar).stats.exportStats(),
+            elo:
+              rewards.find((reward) => reward.userId === player.userId)
+                ?.value ?? null,
+          },
           mvp: player.tag === mvpScores.tag ? true : false,
           owner: this.config.ownerId === player.userId ? true : false,
           userId: player.userId,
@@ -410,9 +424,20 @@ export class ServerGame extends Game {
         ),
       };
 
+      await Promise.all(
+        creatorMatchHistory.teams[0].players
+          .concat(creatorMatchHistory.teams[1].players)
+          .map(async (player) => {
+            const user = await this.usersService.get(player.userId);
+            if (!user) return;
+            await user.credits.add(player.stats.moneyEarned);
+          }),
+      );
+
       const matchHistory =
         await this.historyService.saveGame(creatorMatchHistory);
       this.room.emit(PongModel.Socket.Events.Stop, matchHistory);
+
       setImmediate(async () => {
         this.server.socketsLeave(this.UUID);
         this.shutdown();
