@@ -69,7 +69,7 @@ export class BarStatistics {
   }
 
   public gameOver(): void {
-    this.powerAccuracy = (this.shotHit / this.shotsFired) * 100;
+    this.powerAccuracy = this.shotsFired === 0 ? 0 :(this.shotHit / this.shotsFired) * 100;
     this.manaSpent = this.shotsFired * this.powerCost;
   }
 

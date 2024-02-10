@@ -3,6 +3,7 @@ import { UsersService } from '../users/services/users.service';
 import PongModel from '@typings/models/pong';
 import LeaderboardModel from '@typings/models/leaderboard';
 import { DbService } from '../db';
+import UsersModel from '@typings/models/users';
 
 @Injectable()
 export class LeaderboardService {
@@ -60,7 +61,7 @@ export class LeaderboardService {
       team.players
         .filter(
           // TODO: when bot branch is merged, filter out bots
-          (player) => true /* player.type === */,
+          (player) => player.type === UsersModel.Models.Types.User,
         )
         .map((player) => player.userId),
     );
@@ -88,12 +89,13 @@ export class LeaderboardService {
     const Qb = 10 ^ (opponentElo / LeaderboardService.C_FACTOR);
     for await (const player of team.players) {
       const user = await this.usersService.get(player.userId);
-      if (!user) continue;
+      if (!user || user.type !== UsersModel.Models.Types.User) continue;
       const Qa = 10 ^ (user.elo.rating / LeaderboardService.C_FACTOR);
       const expectedToWin = Qa / (Qa + Qb);
-      const newElo =
-        Math.round(user.elo.rating +
-        LeaderboardService.K_FACTOR * (wonWeight - expectedToWin));
+      const newElo = Math.round(
+        user.elo.rating +
+          LeaderboardService.K_FACTOR * (wonWeight - expectedToWin),
+      );
       rewards.push({ userId: user.id, value: newElo - user.elo.rating });
       await user.elo.updateRating(
         Math.max(newElo, LeaderboardService.MIN_ELO),
@@ -108,7 +110,8 @@ export class LeaderboardService {
     game: PongModel.Models.IGameConfig,
     lobby: PongModel.Models.ILobby,
   ): Promise<LeaderboardModel.Models.Reward[]> {
-    if (lobby.queueType !== PongModel.Models.LobbyType.Custom) return [];
+    console.log(lobby);
+    if (lobby.queueType === PongModel.Models.LobbyType.Custom) return [];
     const [leftTeam, rightTeam] = game.teams;
     const [leftTeamElo, rightTeamElo] = await Promise.all(
       game.teams.map(this.computeTeamAverageElo.bind(this)),
