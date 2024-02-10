@@ -6,9 +6,10 @@ import { userStatusToColor } from '@utils/userStatus';
 import TimelapseIcon from './icons/TimelapseIcon';
 import { PaletteBackground, Tooltip } from '@mui/joy';
 import { computeUserAvatar } from '@utils/computeAvatar';
+import type { GroupEnumValues } from '@typings/utils';
 
 type AvatarWithStatusProps = AvatarProps & {
-  status?: UsersModel.Models.Status;
+  status?: UsersModel.Models.Status | GroupEnumValues<UsersModel.Models.Status>;
   inset?: string;
   hide?: boolean;
   badgeProps?: BadgeProps;

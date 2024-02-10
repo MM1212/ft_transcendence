@@ -22,10 +22,10 @@ namespace UsersModel {
       Bot = 'BOT',
     }
     export enum Status {
-      Offline = "OFFLINE",
-      Online = "ONLINE",
-      Busy = "BUSY",
-      Away = "AWAY",
+      Offline = 'OFFLINE',
+      Online = 'ONLINE',
+      Busy = 'BUSY',
+      Away = 'AWAY',
     }
     export interface ICharacter {
       id: number;
@@ -150,11 +150,16 @@ namespace UsersModel {
         uId: number;
         status: 'pending' | 'accepted' | 'declined';
       }> {}
+
+    export interface QueryUserByNicknameParams extends Record<string, unknown> {
+      nickname: string;
+    }
   }
   export namespace Endpoints {
     export enum Targets {
       GetUsers = '/users',
       GetUser = '/users/:id',
+      QueryUserByNickname = '/users/query/nickname/:nickname',
       SearchUsers = '/users/search',
       PatchUser = '/users/:id',
       GetFriends = '/users/:id/friends',
@@ -248,6 +253,13 @@ namespace UsersModel {
 
     export interface GetCredits
       extends GetEndpoint<Targets.GetCredits, number, DTO.GetUserParams> {}
+
+    export interface QueryUserByNickname
+      extends GetEndpoint<
+        Targets.QueryUserByNickname,
+        Models.IUserInfo,
+        DTO.QueryUserByNicknameParams
+      > {}
     export type Registry = {
       [EndpointMethods.Get]: {
         [Targets.GetUsers]: GetUsers;
@@ -257,6 +269,7 @@ namespace UsersModel {
         [Targets.GetSessionFriends]: GetSessionFriends;
         [Targets.GetSessionBlocked]: GetSessionBlocked;
         [Targets.GetCredits]: GetCredits;
+        [Targets.QueryUserByNickname]: QueryUserByNickname;
       };
       [EndpointMethods.Post]: {
         [Targets.SearchUsers]: SearchUsers;

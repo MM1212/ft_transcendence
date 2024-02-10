@@ -92,8 +92,8 @@ export class LeaderboardService {
       const Qa = 10 ^ (user.elo.rating / LeaderboardService.C_FACTOR);
       const expectedToWin = Qa / (Qa + Qb);
       const newElo =
-        user.elo.rating +
-        LeaderboardService.K_FACTOR * (wonWeight - expectedToWin);
+        Math.round(user.elo.rating +
+        LeaderboardService.K_FACTOR * (wonWeight - expectedToWin));
       rewards.push({ userId: user.id, value: newElo - user.elo.rating });
       await user.elo.updateRating(
         Math.max(newElo, LeaderboardService.MIN_ELO),

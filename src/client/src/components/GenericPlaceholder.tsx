@@ -7,34 +7,61 @@ export default function GenericPlaceholder({
   label,
   icon,
   path,
+  centerVertical = false,
 }: {
   title: React.ReactNode;
   label?: React.ReactNode;
   icon: React.ReactNode;
   path?: string;
+  centerVertical?: boolean;
 }) {
   return (
-    <Sheet
-      variant="outlined"
-      sx={{ width: '60%', borderRadius: 'sm', maxWidth: '80%' }}
+    <Box
+      width="100%"
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      height={centerVertical ? '80%' : 'fit-content'}
     >
-      <Box
-        display="flex"
-        flexDirection="column"
-        alignItems="center"
-        gap={1}
-        p={4}
+      <Sheet
+        variant="outlined"
+        sx={{
+          width: '60%',
+          height: 'fit-content',
+          borderRadius: 'sm',
+          maxWidth: '80%',
+          my: 2,
+        }}
       >
-        {icon}
-        <Typography level="body-md">{title}</Typography>
-        {path ? (
-          <Typography component={Link} to={path} level="body-xs">
-            {label}
+        <Box
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          gap={1}
+          p={4}
+        >
+          {icon}
+          <Typography level="body-md" textAlign="center">
+            {title}
           </Typography>
-        ) : (
-          <Typography level="body-xs">{label}</Typography>
-        )}
-      </Box>
-    </Sheet>
+          {path ? (
+            <Typography
+              component={Link}
+              to={path}
+              level="body-xs"
+              textAlign="center"
+            >
+              {label}
+            </Typography>
+          ) : (
+            label && (
+              <Typography level="body-xs" textAlign="center">
+                {label}
+              </Typography>
+            )
+          )}
+        </Box>
+      </Sheet>
+    </Box>
   );
 }
