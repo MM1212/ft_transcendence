@@ -418,15 +418,18 @@ export class ServerGame extends Game {
         ),
       };
 
-      await Promise.all(
-        creatorMatchHistory.teams[0].players
-          .concat(creatorMatchHistory.teams[1].players)
-          .map(async (player) => {
-            const user = await this.usersService.get(player.userId);
-            if (!user) return;
-            await user.credits.add(player.stats.moneyEarned);
-          }),
-      );
+      if (this.lobbyInterface.queueType !== PongModel.Models.LobbyType.Custom) {
+        await Promise.all(
+          creatorMatchHistory.teams[0].players
+            .concat(creatorMatchHistory.teams[1].players)
+            .map(async (player) => {
+              const user = await this.usersService.get(player.userId);
+              if (!user || user.isBot) return;
+              console.log(player);
+              await user.credits.add(player.stats.moneyEarned);
+            }),
+        );
+      }
 
       const matchHistory =
         await this.historyService.saveGame(creatorMatchHistory);

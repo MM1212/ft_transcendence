@@ -11,6 +11,10 @@ export class UserExtElo extends UserExtBase {
     return this.user.get('leaderboard');
   }
 
+  private get id(): number {
+    return this.leaderboard.id;
+  }
+
   public get rating(): number {
     return this.leaderboard.elo;
   }
@@ -55,7 +59,16 @@ export class UserExtElo extends UserExtBase {
     result: LeaderboardModel.Models.MatchResult,
     sync: boolean = true,
   ): Promise<void> {
-    const raw = { ...this.leaderboard };
+    const raw: Pick<
+      LeaderboardModel.Models.Leaderboard,
+      'wins' | 'losses' | 'ties' | 'elo' | 'streak'
+    > = {
+      wins: this.wins,
+      losses: this.losses,
+      ties: this.ties,
+      elo: value,
+      streak: this.rawStreak,
+    };
     raw.elo = value;
     switch (result) {
       case LeaderboardModel.Models.MatchResult.Win:
@@ -74,13 +87,7 @@ export class UserExtElo extends UserExtBase {
       else raw.streak += won ? 1 : -1;
     } else raw.streak = 0;
     console.log('Updating rating', value, raw);
-    const resp = await this.helpers.db.leaderboard.update(this.user.id, {
-      elo: value,
-      wins: raw.wins,
-      losses: raw.losses,
-      ties: raw.ties,
-      streak: raw.streak,
-    });
+    const resp = await this.helpers.db.leaderboard.update(this.id, raw);
     if (!resp) throw new Error('Failed to update rating');
     this.user.set('leaderboard', resp);
     if (sync) {
