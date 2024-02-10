@@ -177,6 +177,7 @@ export default function ChatManageMember({
     useIsFriend,
     goToMessages,
     goToProfile,
+    sendFriendRequest,
   } = useFriend(participant.userId);
   const isBlocked = useIsBlocked();
   const isFriend = useIsFriend();
@@ -206,7 +207,12 @@ export default function ChatManageMember({
             Message
           </MenuOption>
           {!isFriend && !isBlocked && (
-            <MenuOption icon={AccountPlusIcon}>Send Friend Request</MenuOption>
+            <MenuOption
+              icon={AccountPlusIcon}
+              onClick={closeAndRun(sendFriendRequest)}
+            >
+              Send Friend Request
+            </MenuOption>
           )}
           <MenuOption
             icon={isBlocked ? CloseOctagonOutlineIcon : AccountCancelIcon}
@@ -236,6 +242,7 @@ export default function ChatManageMember({
       goToMessages,
       isFriend,
       isBlocked,
+      sendFriendRequest,
       unblock,
       block,
       role,

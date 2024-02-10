@@ -73,7 +73,7 @@ export class UserExtElo extends UserExtBase {
       if (this.isWinStreaking !== won) raw.streak = won ? 1 : -1;
       else raw.streak += won ? 1 : -1;
     } else raw.streak = 0;
-
+    console.log('Updating rating', value, raw);
     const resp = await this.helpers.db.leaderboard.update(this.user.id, {
       elo: value,
       wins: raw.wins,

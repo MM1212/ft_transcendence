@@ -4,6 +4,8 @@ import {
   DefaultValuePipe,
   ForbiddenException,
   Get,
+  NotFoundException,
+  Param,
   ParseBoolPipe,
   ParseIntPipe,
   Patch,
@@ -38,7 +40,22 @@ export class UsersController {
 
   @Get(UsersModel.Endpoints.Targets.GetUser)
   async get(@UserCtx() user: User) {
-    return user?.public;
+    if (!user) throw new NotFoundException('User does not exist');
+    return user.public;
+  }
+
+  @Get(UsersModel.Endpoints.Targets.QueryUserByNickname)
+  async queryByNickname(
+    @Param('nickname', ValidationPipe) nickname: string,
+  ): Promise<
+    InternalEndpointResponse<UsersModel.Endpoints.QueryUserByNickname>
+  > {
+    const user = await this.usersService.getByNickname(nickname);
+    if (!user)
+      throw new NotFoundException(
+        'User with the given nickname does not exist',
+      );
+    return user.public;
   }
 
   @Post(UsersModel.Endpoints.Targets.SearchUsers)

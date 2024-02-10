@@ -1,6 +1,7 @@
 import UsersModel from '@typings/models/users';
+import type { GroupEnumValues } from '@typings/utils';
 
-export const userStatusToString = (status: UsersModel.Models.Status) => {
+export const userStatusToString = (status: UsersModel.Models.Status | GroupEnumValues<UsersModel.Models.Status>) => {
   switch (status) {
     case UsersModel.Models.Status.Online:
       return 'online';
@@ -15,7 +16,7 @@ export const userStatusToString = (status: UsersModel.Models.Status) => {
   }
 };
 
-export const userStatusToColor = (status: UsersModel.Models.Status) => {
+export const userStatusToColor = (status: UsersModel.Models.Status | GroupEnumValues<UsersModel.Models.Status>) => {
   switch (status) {
     case UsersModel.Models.Status.Online:
       return 'palette-success-400';

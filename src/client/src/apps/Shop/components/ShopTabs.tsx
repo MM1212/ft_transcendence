@@ -13,6 +13,7 @@ import {
   useShopSubCategories,
 } from '../hooks';
 import { useInventoryByType } from '@apps/Inventory/hooks/useInventory';
+import { numberExtentFormatter, numberFormatter } from '@lib/intl';
 
 function CustomizationItems({
   category,
@@ -46,12 +47,6 @@ function CustomizationItems({
     </Box>
   );
 }
-
-const numberFormatter = new Intl.NumberFormat('en-US', {
-  notation: 'compact',
-  compactDisplay: 'short',
-  maximumFractionDigits: 3,
-});
 
 function ShopSubCategoryTab(subCategory: ShopModel.Models.SubCategory) {
   return (
@@ -162,7 +157,7 @@ function ShopTabs() {
             justifyContent="space-between"
           >
             <Typography level="title-sm">Credits:</Typography>
-            <Tooltip title={user.credits}>
+            <Tooltip title={numberExtentFormatter.format(user.credits)}>
               <Chip startDecorator={<CurrencyTwdIcon />} color="success">
                 {numberFormatter.format(user.credits)}
               </Chip>
