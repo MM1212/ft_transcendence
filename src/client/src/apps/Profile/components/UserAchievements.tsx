@@ -1,13 +1,8 @@
-import { Box, Stack, Tooltip } from "@mui/joy";
-import ProfileTabHeader from "./ProfileTabHeader";
-import IetiBadgeAchievment from "../../Achievements/assets/IetiBadgeAchievment.jpg";
-import OctopBadgeAchievement from "../../Achievements/assets/OctopBadgeAchievement.jpg";
-import RedBadge from "../../Achievements/assets/RedBadge.jpg";
-import { Avatar } from "@mui/joy";
-import GenericPlaceholder from "@components/GenericPlaceholder";
-import TableTennisIcon from "@components/icons/TableTennisIcon";
-import TrophyBrokenIcon from "@components/icons/TrophyBrokenIcon";
-import AccountGroupIcon from "@components/icons/AccountGroupIcon";
+import { Stack, Tooltip } from '@mui/joy';
+import ProfileTabHeader from './ProfileTabHeader';
+import { Avatar } from '@mui/joy';
+import GenericPlaceholder from '@components/GenericPlaceholder';
+import TrophyBrokenIcon from '@components/icons/TrophyBrokenIcon';
 
 export default function UserAchievements({ id }: { id?: number }) {
   const myAchievements: string[] = [
@@ -16,43 +11,42 @@ export default function UserAchievements({ id }: { id?: number }) {
     // IetiBadgeAchievment,
     // OctopBadgeAchievement,
     // IetiBadgeAchievment,
-    // OctopBadgeAchievement,   
+    // OctopBadgeAchievement,
   ];
   const achievementsName: string[] = [
-    "IetiBadge",
-    "OctopBadge",
-    "RedBadge",
-    "OctopBadge",
+    'IetiBadge',
+    'OctopBadge',
+    'RedBadge',
+    'OctopBadge',
   ];
 
   const sizeBadge = (array: string[]) => {
-    if (array.length < 6) return "xl";
-    if (array.length > 10) return "md";
-    return "lg";
+    if (array.length < 6) return 'xl';
+    if (array.length > 10) return 'md';
+    return 'lg';
   };
 
   return (
     <Stack p={1} width="100%" alignItems="center" height="50%">
       <ProfileTabHeader
         title="Achievements"
-        path={`/achievements/${id ?? "me"}`}
+        path={`/achievements/${id ?? 'me'}`}
       />
       <div
         style={{
-          display: "flex",
-          flexDirection: "row",
-          flexWrap: "wrap",
+          display: 'flex',
+          flexDirection: 'row',
+          flexWrap: 'wrap',
           justifyContent: 'space-evenly',
           alignContent: 'center',
-          height: "100%",
-          width: "100%",
-          
+          height: '100%',
+          width: '100%',
         }}
       >
         {myAchievements.length > 0 ? (
           <>
             {myAchievements.map((achievement, index) => (
-              <Tooltip title={achievementsName[index]} size="sm">
+              <Tooltip title={achievementsName[index]} size="sm" key={index}>
                 <Avatar
                   size={sizeBadge(myAchievements)}
                   src={achievement}
@@ -63,7 +57,7 @@ export default function UserAchievements({ id }: { id?: number }) {
           </>
         ) : (
           <GenericPlaceholder
-            title="No Achievements Earn"
+            title="No Achievements Earned"
             icon={<TrophyBrokenIcon fontSize="xl4" />}
             path="/pong/play/queue"
           />
