@@ -23,9 +23,7 @@ const USER_EXT_QUERY = Prisma.validator<Prisma.UserSelect>()({
   quests: true,
   inventory: true,
   notifications: true,
-  leaderboard: {
-    select: { id: true, elo: true },
-  },
+  leaderboard: true,
 });
 
 @Injectable()
@@ -176,7 +174,7 @@ export class Users {
       where: { id },
       data,
       include: {
-        leaderboard: { select: { elo: true } },
+        leaderboard: true,
       },
     });
   }
@@ -184,7 +182,7 @@ export class Users {
     return await this.prisma.user.delete({
       where: { id },
       include: {
-        leaderboard: { select: { elo: true } },
+        leaderboard: true,
       },
     });
   }
@@ -203,7 +201,7 @@ export class Users {
         skip: filter.offset,
         take: filter.limit,
         include: {
-          leaderboard: { select: { elo: true } },
+          leaderboard: true,
         },
       })
     ).map<UsersModel.Models.IUserInfo>((user) => ({

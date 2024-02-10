@@ -62,6 +62,14 @@ class User extends CacheObserver<UsersModel.Models.IUser> {
     return this.get('id');
   }
 
+  public get type(): GroupEnumValues<UsersModel.Models.Types> {
+    return this.get('type');
+  }
+
+  public get isBot(): boolean {
+    return this.type === UsersModel.Models.Types.Bot;
+  }
+
   public get studentId(): number {
     return this.get('studentId');
   }
