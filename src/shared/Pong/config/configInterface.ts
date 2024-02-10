@@ -1,5 +1,5 @@
 //----------------------------
-import _gameConfig from "./game.json";
+import _gameConfig from './game.json';
 interface GameConfig {
   canvas: {
     width: number;
@@ -9,29 +9,21 @@ interface GameConfig {
 const gameConfig: GameConfig = _gameConfig.game as GameConfig;
 export { gameConfig };
 
-export type BallsConfig = Record<"RedBall" | "default",
-{
-  diameter: number;
-  vertices: number;
-  image: string;
-}
->;
-const ballsConfig: BallsConfig = _gameConfig.balls as BallsConfig;
-export { ballsConfig };
-
 type paddleObjectConfig = Record<
-  "PaddleRed" | "grey" | "default",
+  'PaddleRed',
   {
     width: number;
     height: number;
     image: string;
+    folder: string;
   }
 >;
-const paddleConfig: paddleObjectConfig = _gameConfig.paddles as paddleObjectConfig;
+const paddleConfig: paddleObjectConfig =
+  _gameConfig.paddles as paddleObjectConfig;
 export { paddleConfig };
 
 type specialPowerObjectConfig = Record<
-  "spark" | "fire" | "ghost" | "bubble" | "ice" | "none",
+  'spark' | 'fire' | 'ghost' | 'bubble' | 'ice' | 'none',
   {
     diameter: number;
     vertices: number;
@@ -41,3 +33,14 @@ type specialPowerObjectConfig = Record<
 const specialpowerConfig: specialPowerObjectConfig =
   _gameConfig.powers as specialPowerObjectConfig;
 export { specialpowerConfig };
+
+type ballsObjectConfig = Record<
+  'RedBall',
+  {
+    diameter: number;
+    vertices: number;
+    folder: string;
+  }
+>;
+const ballsConfig: ballsObjectConfig = _gameConfig.balls as ballsObjectConfig;
+export { ballsConfig };

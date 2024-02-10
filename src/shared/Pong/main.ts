@@ -4,5 +4,4 @@ export const ARENA_SIZE = 100;
 
 export const WINDOWSIZE_X = 1024;
 export const WINDOWSIZE_Y = 800;
-
-
+export const ASPECT_RATIO = WINDOWSIZE_X / WINDOWSIZE_Y;

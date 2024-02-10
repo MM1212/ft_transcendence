@@ -13,6 +13,7 @@ import {
 import { UIPlayer } from './Paddles/Player';
 import {
   ARENA_SIZE,
+  ASPECT_RATIO,
   MULTIPLAYER_START_POS,
   P_START_DIST,
   WINDOWSIZE_X,
@@ -156,7 +157,6 @@ export class UIGame extends Game {
     this.app.stage.addChild(this.timeText);
     this.timeText.visible = false;
 
-
     this.setDisconnectedWindow();
 
     this.setScoreElements();
@@ -174,20 +174,27 @@ export class UIGame extends Game {
 
     const resizeHandler = this.handleResize.bind(this);
     window.addEventListener('resize', resizeHandler);
+    resizeHandler();
 
     container.appendChild(this.app.view as HTMLCanvasElement);
   }
 
   private handleResize(): void {
     if (!this.app.stage) return;
-    this.app.view.width = window.innerWidth;
-    this.app.view.height = window.innerHeight;
-    this.app.resizeTo = window;
-    if (this.app.resizeTo) {
-      this.app.renderer.resize(window.innerWidth, window.innerHeight);
+    if (window.innerWidth / window.innerHeight >= ASPECT_RATIO) {
+      this.app.renderer.resize(
+        window.innerHeight * ASPECT_RATIO,
+        window.innerHeight
+      );
+    } else {
+      this.app.renderer.resize(
+        window.innerWidth,
+        window.innerWidth / ASPECT_RATIO
+      );
     }
+    this.app.stage.scale.x = this.app.renderer.width / WINDOWSIZE_X;
+    this.app.stage.scale.y = this.app.renderer.height / WINDOWSIZE_Y;
     console.log('RESIZE = ' + window.innerWidth + ' ' + window.innerHeight);
-    this.app.render();
   }
 
   setScoreElements(): void {
@@ -391,6 +398,7 @@ export class UIGame extends Game {
       const countdown = new PIXI.Text(n.toString(), style);
       if (n === 0) countdown.text = 'GO!';
       countdown.anchor.set(0.5);
+      console.log(this.app.view.width);
       countdown.x = this.app.view.width / 2;
       countdown.y = this.app.view.height / 2;
       this.app.stage.addChild(countdown);

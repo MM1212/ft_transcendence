@@ -30,7 +30,7 @@ export class UIEnergy extends Energy {
       this.displayEnergy.push(
         new PIXI.Sprite(
           buildTexture(
-            PongModel.Endpoints.Targets.EnergyBars.concat(`/Energy${i}.png`)
+            PongModel.Endpoints.Targets.EnergyBars.concat(`/Energy${i}.webp`)
           )
         )
       );

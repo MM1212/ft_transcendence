@@ -1,15 +1,15 @@
-import { Bot } from "@shared/Pong/Paddles/Bot";
-import { Vector2D } from "../utils/Vector";
-import { UIGame } from "../Game";
+import { Bot } from '@shared/Pong/Paddles/Bot';
+import { Vector2D } from '../utils/Vector';
+import { UIGame } from '../Game';
 
-import * as PIXI from "pixi.js";
-import PongModel from "@typings/models/pong";
-import { paddleConfig } from "@shared/Pong/config/configInterface";
-import { buildTexture } from "../utils";
-import { UIEffect } from "../SpecialPowers/Effect";
-import { UIShooter } from "../SpecialPowers/Shooter";
-import { UIBar } from "./Bar";
-import Display from "./Display";
+import * as PIXI from 'pixi.js';
+import PongModel from '@typings/models/pong';
+import { paddleConfig } from '@shared/Pong/config/configInterface';
+import { buildTexture } from '../utils';
+import { UIEffect } from '../SpecialPowers/Effect';
+import { UIShooter } from '../SpecialPowers/Shooter';
+import { UIBar } from './Bar';
+import Display from './Display';
 
 export class UIBot extends Bot {
   public displayObject: PIXI.Sprite;
@@ -32,12 +32,9 @@ export class UIBot extends Bot {
   ) {
     super(x, y, tag, direction, specialPower, uigame, teamId, paddle, userId);
 
-    const paddleObj = paddleConfig[paddle];
-    const texPath = PongModel.Endpoints.Targets.Connect.concat(
-      "/".concat(paddleObj.image)
+    const tex = buildTexture(
+      `${PongModel.Endpoints.Targets.Paddles}/${paddle}.webp`
     );
-
-    const tex = buildTexture(texPath);
     this.displayObject = PIXI.Sprite.from(tex);
     this.displayObject.anchor.set(0.5);
     this.displayObject.x = x;
@@ -48,15 +45,13 @@ export class UIBot extends Bot {
     this.effect = undefined;
 
     this.display = new Display(nickname, avatar, uigame, tag);
-
   }
 
-
   updateEffect(effectName: string, effectValue: number): void {
-    console.log(effectName + " " + effectValue);
+    console.log(effectName + ' ' + effectValue);
     if (this.effect === undefined) {
       this.effect = new UIEffect(effectName, this);
-      if (effectName === "INVISIBLE") {
+      if (effectName === 'INVISIBLE') {
         this.displayObject.alpha = 0;
       }
     } else {

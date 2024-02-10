@@ -304,7 +304,13 @@ export class PongLobbyService {
     if (syncToUser === true) {
       lobby.sendToParticipant(userId, PongModel.Sse.Events.Leave, null);
     }
+
+    console.log(`Lobby-${lobby.id}: ${lobby.name} left by ${userId}`);
+    if (lobby.onlyBots) {
+      await lobby.removeAllBots();
+    }
     if (lobby.nPlayers === 0 && lobby.spectators.length === 0) {
+      lobby.allPlayers.forEach((player) => this.usersInGames.delete(player.id));
       await lobby.delete();
       this.games.delete(lobby.id);
       console.log(`Lobby-${lobby.id}: ${lobby.name} deleted`);

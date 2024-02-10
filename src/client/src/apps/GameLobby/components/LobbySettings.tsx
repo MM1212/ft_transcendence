@@ -1,12 +1,30 @@
 import { useRecoilValue } from 'recoil';
 import pongGamesState from '../state';
-import { Avatar, Button, DialogTitle, FormControl, FormLabel, Input, Modal, ModalDialog } from '@mui/joy';
+import {
+  Avatar,
+  Button,
+  Checkbox,
+  DialogTitle,
+  FormControl,
+  FormLabel,
+  IconButton,
+  Input,
+  Modal,
+  ModalDialog,
+  Switch,
+  Tooltip,
+  Typography,
+} from '@mui/joy';
 import React from 'react';
 import { Box } from '@mui/joy';
 import { useCurrentUser } from '@hooks/user';
 import LobbyGameTypography from './LobbyGameTypography';
 import SoccerIcon from '@components/icons/SoccerIcon';
 import { FormHelperText } from '@mui/joy';
+import PongModel from '@typings/models/pong';
+import MenuLeftOutlineIcon from '@components/icons/MenuLeftOutlineIcon';
+import MenuRightOutlineIcon from '@components/icons/MenuRightOutlineIcon';
+import inventoryState from '@apps/Inventory/state';
 
 export function LobbySettings() {
   const lobby = useRecoilValue(pongGamesState.gameLobby)!;
@@ -22,6 +40,8 @@ export function LobbySettings() {
     name: '',
     score: '',
   });
+
+  const items = useRecoilValue(inventoryState.inventoryByType('pong-ball'))
 
   const player = React.useMemo(
     () =>
@@ -49,7 +69,13 @@ export function LobbySettings() {
           <DialogTitle>Settings</DialogTitle>
           <Box>
             <LobbyGameTypography>Game Mode:</LobbyGameTypography>
-            <LobbyGameTypography>Ball:</LobbyGameTypography>
+            <ChangeBall />
+            <Typography
+              component="label"
+              endDecorator={<Switch sx={{ ml: 1 }} />}
+            >
+              Powers Activated
+            </Typography>
             <FormControl
               sx={{
                 display: 'flex',
@@ -109,6 +135,52 @@ export function LobbySettings() {
         ))}
       </Box>
     </Box>
+  );
+}
+
+const ballsConfig = new Map<string, string>([
+  [PongModel.Models.Balls.Red, PongModel.Endpoints.Targets.RedBallTexture],
+  [
+    PongModel.Models.Balls.Coffee,
+    PongModel.Endpoints.Targets.CoffeeBallTexture,
+  ],
+  [PongModel.Models.Balls.Earth, PongModel.Endpoints.Targets.EarthBallTexture],
+  [PongModel.Models.Balls.Fire, PongModel.Endpoints.Targets.FireBallTexture],
+  [PongModel.Models.Balls.Fog, PongModel.Endpoints.Targets.FogBallTexture],
+  [PongModel.Models.Balls.Ice, PongModel.Endpoints.Targets.IceBallTexture],
+  [PongModel.Models.Balls.Light, PongModel.Endpoints.Targets.LightBallTexture],
+  [PongModel.Models.Balls.Void, PongModel.Endpoints.Targets.VoidBallTexture],
+  [PongModel.Models.Balls.Wind, PongModel.Endpoints.Targets.WindBallTexture],
+]);
+
+export function ChangeBall() {
+  const [keys] = React.useState<string[]>(() => [...ballsConfig.keys()]);
+  const [currentIndex, setCurrentIndex] = React.useState<number>(0);
+
+  const onNext = React.useCallback(() => {
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % keys.length);
+  }, [keys]);
+
+  const onPrev = React.useCallback(() => {
+    setCurrentIndex((prevIndex) => (prevIndex - 1 + keys.length) % keys.length);
+  }, [keys]);
+
+  if (!ballsConfig.has(keys[currentIndex])) return <></>;
+  const currentPowerPath = ballsConfig.get(keys[currentIndex])!;
+  return (
+    <>
+      <Box>
+        <IconButton onClick={onPrev}>
+          <MenuLeftOutlineIcon />
+        </IconButton>
+        <Tooltip title={keys[currentIndex]} placement="top">
+          <img src={currentPowerPath ?? undefined} />
+        </Tooltip>
+        <IconButton onClick={onNext}>
+          <MenuRightOutlineIcon />
+        </IconButton>
+      </Box>
+    </>
   );
 }
 
