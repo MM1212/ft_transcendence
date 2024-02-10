@@ -29,7 +29,7 @@ const inverty = position === 2 || position === 3 ? -1 : 1;
       this.displayMana.push(
         new PIXI.Sprite(
           buildTexture(
-            PongModel.Endpoints.Targets.ManaBars.concat(`/Mana${i}.png`)
+            PongModel.Endpoints.Targets.ManaBars.concat(`/Mana${i}.webp`)
           )
         )
       );

@@ -56,7 +56,7 @@ export default class Display {
 
     this.displayBorder = new PIXI.Sprite(
       buildTexture(
-        PongModel.Endpoints.Targets.Borders.concat(`/Border${random}.png`)
+        PongModel.Endpoints.Targets.Borders.concat(`/Border${random}.webp`)
       )
     );
     this.displayBorder.anchor.set(0.5);

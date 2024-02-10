@@ -1,18 +1,18 @@
-import * as PIXI from "pixi.js";
-import { Vector2D } from "../utils/Vector";
-import { UIGame } from "../Game";
-import { UIMana } from "./Mana";
-import { UIEnergy } from "./Energy";
-import { UIShooter } from "../SpecialPowers/Shooter";
-import { Player } from "@shared/Pong/Paddles/Player";
-import { UIBar } from "./Bar";
-import { UIEffect } from "../SpecialPowers/Effect";
-import PongModel from "@typings/models/pong";
-import { paddleConfig } from "@shared/Pong/config/configInterface";
-import { buildTexture } from "../utils";
-import { computeUserAvatar } from "@utils/computeAvatar";
-import { ARENA_SIZE } from "@shared/Pong/main";
-import Display from "./Display";
+import * as PIXI from 'pixi.js';
+import { Vector2D } from '../utils/Vector';
+import { UIGame } from '../Game';
+import { UIMana } from './Mana';
+import { UIEnergy } from './Energy';
+import { UIShooter } from '../SpecialPowers/Shooter';
+import { Player } from '@shared/Pong/Paddles/Player';
+import { UIBar } from './Bar';
+import { UIEffect } from '../SpecialPowers/Effect';
+import PongModel from '@typings/models/pong';
+import { paddleConfig } from '@shared/Pong/config/configInterface';
+import { buildTexture } from '../utils';
+import { computeUserAvatar } from '@utils/computeAvatar';
+import { ARENA_SIZE } from '@shared/Pong/main';
+import Display from './Display';
 
 export interface KeyControls {
   up: string;
@@ -46,29 +46,24 @@ export class UIPlayer extends Player {
   ) {
     super(x, y, keys, tag, direction, specialPower, uigame, teamId, paddle);
 
-    const paddleObj = paddleConfig[paddle];
-    const texPath = PongModel.Endpoints.Targets.Connect.concat(
-      "/".concat(paddleObj.image)
+    const tex = buildTexture(
+      `${PongModel.Endpoints.Targets.Paddles}/${paddle}.webp`
     );
-    console.log("texPath: " + texPath);
-    const tex = buildTexture(texPath);
+
     this.displayObject = new PIXI.Sprite(tex);
     this.displayObject.anchor.set(0.5);
     this.displayObject.x = this.center.x;
     this.displayObject.y = this.center.y;
     this.scale = 1;
-
     this.shooter = undefined;
     this.effect = undefined;
-
     this.display = new Display(nickname, avatar, uigame, tag);
   }
 
   updateEffect(effectName: string, effectValue: number): void {
-    console.log(effectName + " " + effectValue);
     if (this.effect === undefined) {
       this.effect = new UIEffect(effectName, this);
-      if (effectName === "INVISIBLE") {
+      if (effectName === 'INVISIBLE') {
         this.displayObject.alpha = 0;
       }
     } else {
@@ -101,7 +96,14 @@ export class UIPlayer extends Player {
     shooter: UIBar,
     powertag: string
   ) {
-    return UIBar.create(specialPower, center, direction, shooter, powertag, this.uigame);
+    return UIBar.create(
+      specialPower,
+      center,
+      direction,
+      shooter,
+      powertag,
+      this.uigame
+    );
   }
 
   setScaleDisplay(
