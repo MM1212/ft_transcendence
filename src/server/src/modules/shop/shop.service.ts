@@ -49,6 +49,10 @@ export class ShopService {
     if (subCategory.category !== categoryId) return [];
     return subCategory.items.map((itemId) => this.parser.config.items[itemId]);
   }
+  public async getItem(id: string): Promise<ShopModel.Models.Item | null> {
+    await this.parser.waitUntilLoaded();
+    return this.parser.config.items[id] ?? null;
+  }
 
   public async createItem(
     id: string,
