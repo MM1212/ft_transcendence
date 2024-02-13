@@ -246,6 +246,16 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
     return this.helpers.usersService.get(this.ownerId) as Promise<User>;
   }
 
+  public get onlyBots(): boolean {
+    return this.allInLobby.every((player) => player.type === 'bot');
+  }
+
+  public async removeAllBots(): Promise<void> {
+    await Promise.all(this.allPlayers.map(async (player) => {
+      if (player.type === 'bot') await this.removeFromLobby(player.id);
+    }));
+  }
+
   public async delete(): Promise<void> {
     await this.helpers.chatsService.nukeChat(this.chat.id);
     await Promise.all(
@@ -436,7 +446,7 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
 
   private async assignNewOwner() {
     // does this work?
-    const newOwner = this.allInLobby.find((p) => p.id !== this.ownerId);
+    const newOwner = this.allInLobby.find((p) => p.id !== this.ownerId && p.type !== 'bot');
     if (newOwner) {
       await this.setAsOwner(newOwner as PongLobbyParticipant);
     }

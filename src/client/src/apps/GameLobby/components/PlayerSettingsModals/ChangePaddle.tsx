@@ -1,6 +1,7 @@
 import MenuLeftOutlineIcon from "@components/icons/MenuLeftOutlineIcon";
 import MenuRightOutlineIcon from "@components/icons/MenuRightOutlineIcon";
 import { Box, IconButton, Tooltip } from "@mui/joy";
+import PongModel from "@typings/models/pong";
 import publicPath from "@utils/public";
 import React from "react";
 
@@ -14,7 +15,7 @@ export default function ChangePaddle() {
           <MenuLeftOutlineIcon />
         </IconButton>
         <Tooltip title="Paddle Name" placement="top">
-          <img src={publicPath('/pong/PaddleRed.png')} />
+          <img src={publicPath(`${PongModel.Endpoints.Targets.Paddles}/PaddleRed.webp`)} />
         </Tooltip>
         <IconButton>
           <MenuRightOutlineIcon />

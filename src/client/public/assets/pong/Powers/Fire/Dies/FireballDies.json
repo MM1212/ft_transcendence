@@ -1,0 +1,83 @@
+{
+    "frames": {
+        "FireballDies0.webp": {
+            "frame": {
+                "x": 0,
+                "y": 0,
+                "w": 32,
+                "h": 32
+            },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "w": 32,
+                "h": 32
+            },
+            "sourceSize": {
+                "w": 32,
+                "h": 32
+            }
+        },
+        "FireballDies1.webp": {
+            "frame": {
+                "x": 32,
+                "y": 0,
+                "w": 32,
+                "h": 32
+            },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "w": 32,
+                "h": 32
+            },
+            "sourceSize": {
+                "w": 32,
+                "h": 32
+            }
+        },
+        "FireballDies2.webp": {
+            "frame": {
+                "x": 64,
+                "y": 0,
+                "w": 32,
+                "h": 32
+            },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "w": 32,
+                "h": 32
+            },
+            "sourceSize": {
+                "w": 32,
+                "h": 32
+            }
+        }
+    },
+    "animations": {
+        "FireballDies": [
+            "FireballDies0.webp",
+            "FireballDies1.webp",
+            "FireballDies2.webp"
+        ]
+    },
+    "meta": {
+        "app": "https://www.codeandweb.com/texturepacker",
+        "version": "1.1",
+        "image": "FireballDies.webp",
+        "format": "RGBA8888",
+        "size": {
+            "w": 96,
+            "h": 32
+        },
+        "scale": "1",
+        "smartupdate": "$TexturePacker:SmartUpdate:9fba81b2681dead25c1e155b99412c1c:9900d6ab595697208f10a123a7319053:558c44d7f656163cc84411aaab671857$"
+    }
+}
