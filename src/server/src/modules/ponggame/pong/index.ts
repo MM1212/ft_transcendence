@@ -34,6 +34,7 @@ export class ServerGame extends Game {
   private updateHandle: NodeJS.Timeout | undefined;
   public readonly room: Room;
 
+
   public userIdToSocketId: Map<number, string> = new Map(); // matchId, socketId
 
   public maxScore = 7;
@@ -54,7 +55,7 @@ export class ServerGame extends Game {
     public usersService: UsersService,
     public leaderboardService: LeaderboardService,
   ) {
-    super(WINDOWSIZE_X, WINDOWSIZE_Y);
+    super(WINDOWSIZE_X, WINDOWSIZE_Y, lobbyInterface.gameType as PongModel.Models.LobbyGameType);
     if (config.maxScore >= 1 && config.maxScore <= 100)
       this.maxScore = config.maxScore;
     this.UUID = config.UUID;
@@ -101,27 +102,29 @@ export class ServerGame extends Game {
       if (state) player.onKeyDown(key);
       else player.onKeyUp(key);
 
-      const [action, powertag] = player.handleShoot();
-      switch (action) {
-        case SHOOT_ACTION.CREATE:
-          this.room.emit(PongModel.Socket.Events.CreatePower, {
-            tag: player.tag,
-            powertag: powertag,
-          });
-          this.room.emit(PongModel.Socket.Events.EnergyManaUpdate, [
-            {
+      if (this.gamemode === PongModel.Models.LobbyGameType.Powers) {
+        const [action, powertag] = player.handleShoot();
+        switch (action) {
+          case SHOOT_ACTION.CREATE:
+            this.room.emit(PongModel.Socket.Events.CreatePower, {
               tag: player.tag,
-              mana: player.mana.manaCur,
-              energy: player.energy.energyCur,
-            },
-          ]);
-          break;
-        case SHOOT_ACTION.SHOOT:
-          // need to make this be a variable and then emit on the looop
-          this.room.emit(PongModel.Socket.Events.ShootPower, {
-            tag: player.tag,
-          });
-          break;
+              powertag: powertag,
+            });
+            this.room.emit(PongModel.Socket.Events.EnergyManaUpdate, [
+              {
+                tag: player.tag,
+                mana: player.mana.manaCur,
+                energy: player.energy.energyCur,
+              },
+            ]);
+            break;
+          case SHOOT_ACTION.SHOOT:
+            // need to make this be a variable and then emit on the looop
+            this.room.emit(PongModel.Socket.Events.ShootPower, {
+              tag: player.tag,
+            });
+            break;
+        }
       }
     }
   }
@@ -494,7 +497,6 @@ export class ServerGame extends Game {
     client.emit(PongModel.Socket.Events.TimeStart, {
       time_start: this.gameStats.startTime,
     });
-
   }
 
   public update(delta: number): void {

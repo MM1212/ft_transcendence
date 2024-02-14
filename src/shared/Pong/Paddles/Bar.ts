@@ -59,7 +59,7 @@ export abstract class Bar extends GameObject {
     this.height = paddleConfig[paddle].height;
     this.width = paddleConfig[paddle].width;
     this.specialPowerType =
-      PongModel.Models.LobbyParticipantSpecialPowerType.none;
+      PongModel.Models.LobbyParticipantSpecialPowerType.spark;
     this.collider = Collider.fromPolygon(
       new BarPolygon(this.center, this.width, this.height, this.direction)
     );

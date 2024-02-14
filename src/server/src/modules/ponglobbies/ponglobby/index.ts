@@ -39,7 +39,6 @@ export class PongLobbyParticipant
     public avatar: string = user.avatar,
     public lobbyId: number = lobby.id,
   ) {
-
     if (lobby.nPlayers < 4) lobby.addPlayerToPlayers(this);
     else lobby.addPlayerToSpectators(this);
 
@@ -251,9 +250,11 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
   }
 
   public async removeAllBots(): Promise<void> {
-    await Promise.all(this.allPlayers.map(async (player) => {
-      if (player.type === 'bot') await this.removeFromLobby(player.id);
-    }));
+    await Promise.all(
+      this.allPlayers.map(async (player) => {
+        if (player.type === 'bot') await this.removeFromLobby(player.id);
+      }),
+    );
   }
 
   public async delete(): Promise<void> {
@@ -422,6 +423,34 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
     );
   }
 
+  public updateSettings(score: number, type: boolean, ballSkin: string): boolean {
+    if (score < 1 || score > 100) return false;
+    this.score = score;
+    // TODO - verify if user has this ball skin
+    if (ballSkin !== '') this.ballTexture = ballSkin;
+    this.gameType =
+      type === true
+        ? PongModel.Models.LobbyGameType.Powers
+        : PongModel.Models.LobbyGameType.Classic;
+    return true;
+  }
+
+  public syncSettings(): void {
+    this.helpers.sseService.emitToTargets<PongModel.Sse.UpdateLobbySettings>(
+      PongModel.Sse.Events.UpdateLobbySettings,
+      this.allInLobby.map((player) => player.id),
+      {
+        lobbyId: this.id,
+        score: this.score,
+        type:
+          this.gameType === PongModel.Models.LobbyGameType.Powers
+            ? true
+            : false,
+        ballSkin: this.ballTexture,
+      },
+    );
+  }
+
   public sendToParticipant(
     userId: number,
     event: PongModel.Sse.Events,
@@ -446,7 +475,9 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
 
   private async assignNewOwner() {
     // does this work?
-    const newOwner = this.allInLobby.find((p) => p.id !== this.ownerId && p.type !== 'bot');
+    const newOwner = this.allInLobby.find(
+      (p) => p.id !== this.ownerId && p.type !== 'bot',
+    );
     if (newOwner) {
       await this.setAsOwner(newOwner as PongLobbyParticipant);
     }

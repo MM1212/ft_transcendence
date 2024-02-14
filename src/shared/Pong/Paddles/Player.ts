@@ -1,10 +1,10 @@
-import { Bar } from './Bar';
-import { Vector2D } from '../utils/Vector';
-import { SpecialPower } from '../SpecialPowers/SpecialPower';
-import { Game } from '../Game';
-import { GameObject } from '../GameObject';
-import PongModel from '../../../typings/models/pong';
-import { paddleConfig, specialpowerConfig } from '../config/configInterface';
+import { Bar } from "./Bar";
+import { Vector2D } from "../utils/Vector";
+import { SpecialPower } from "../SpecialPowers/SpecialPower";
+import { Game } from "../Game";
+import { GameObject } from "../GameObject";
+import PongModel from "../../../typings/models/pong";
+import { paddleConfig, specialpowerConfig } from "../config/configInterface";
 
 /* ----------------- Velocity ----------------- */
 const UP = new Vector2D(0, -5);
@@ -53,7 +53,7 @@ export class Player extends Bar {
     game: Game,
     public teamId: number,
     paddle: keyof typeof paddleConfig,
-    public readonly userId?: number,
+    public readonly userId?: number
   ) {
     super(x, y, tag, direction, game, paddle);
     this.specialPowerType = specialPower;
@@ -65,30 +65,30 @@ export class Player extends Bar {
   }
 
   onKeyUp(key: string): void {
-    if (this.keyPressed[key])
-      this.keyJustPressed[key] = true;
+    if (this.keyPressed[key]) this.keyJustPressed[key] = true;
     this.keyPressed[key] = false;
   }
 
   public handleShoot(): [number, string] {
-    if (this.keyJustPressed[this.keys.shoot]) {
+    if (
+      this.game.gamemode === PongModel.Models.LobbyGameType.Powers &&
+      this.keyJustPressed[this.keys.shoot]
+    ) {
       if (
         this.isShooting === false &&
         this.shooter === undefined &&
         this.hasEnoughMana()
       ) {
-        if (this.specialPowerType !== PongModel.Models.LobbyParticipantSpecialPowerType.none) {
-          this.power = this.createPower(
-            this.specialPowerType,
-            this.center,
-            this.direction.x,
-            this,
-            ""
-          );
-          if (this.power !== undefined) {
-            this.game.add(this.power);
-            return [SHOOT_ACTION.CREATE, this.power.tag];
-          }
+        this.power = this.createPower(
+          this.specialPowerType,
+          this.center,
+          this.direction.x,
+          this,
+          ""
+        );
+        if (this.power !== undefined) {
+          this.game.add(this.power);
+          return [SHOOT_ACTION.CREATE, this.power.tag];
         }
       } else if (this.isShooting === true) {
         this.shooter?.shootBall(this);
@@ -142,25 +142,28 @@ export class Player extends Bar {
       this.updatePolygon(this.center);
       this.hasChanged = true;
     }
+    if (this.game.gamemode === PongModel.Models.LobbyGameType.Powers) {
+      this.mana.update(this.tag, delta);
 
-    this.mana.update(this.tag, delta);
+      if (this.effect !== undefined) {
+        this.effect.update(delta, this);
+      }
+      if (this.shooter !== undefined) {
+        this.shooter.update(delta, this);
+      }
+    }
+
     this.energy.update(this.tag, delta);
 
     if (this.energy.energy <= 2) {
       this.keyPressed[this.keys.boost] = false;
     }
 
-    if (this.effect !== undefined) {
-      this.effect.update(delta, this);
-    }
-    if (this.shooter !== undefined) {
-      this.shooter.update(delta, this);
-    }
     this.keyJustPressed = {
       up: false,
       down: false,
       boost: false,
       shoot: false,
-    }
+    };
   }
 }
