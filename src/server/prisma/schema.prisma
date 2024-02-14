@@ -45,6 +45,7 @@ model User {
   character     Character         @relation(fields: [characterId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   characterId   Int               @unique @map("character_id")
   quests        Quest[]
+  achievements  Achievement[]
   credits       Int               @default(0)
   leaderboard   Leaderboard       @relation(fields: [leaderboardId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   leaderboardId Int               @unique @map("elo_id")
@@ -193,6 +194,18 @@ model Quest {
   finishedAt DateTime? @map("finished_at")
   completed  Boolean   @default(false)
   meta       Json      @default("{}")
+}
+
+model Achievement {
+  id         Int       @id @default(autoincrement())
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId     Int       @map("user_id")
+  tag        String
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  @@index([tag])
+  @@unique([userId, tag], name: "achievement_unique")
+  @@map("user_achievements")
 }
 
 model MatchHistoryPlayer {

@@ -21,6 +21,7 @@ import { PongLobbyModule } from './modules/ponglobbies/ponglobby.module';
 import { PongHistoryModule } from './modules/ponghistory/history.module';
 import { ShopModule } from './modules/shop/shop.module';
 import { LeaderboardModule } from './modules/leaderboard/leaderboard.module';
+import { AchievementsModule } from './modules/achievements/achievements.module';
 
 @Module({
   imports: [
@@ -55,7 +56,8 @@ import { LeaderboardModule } from './modules/leaderboard/leaderboard.module';
     // forwardRef(() => PongLobbyModule),
     PongHistoryModule,
     ShopModule,
-    LeaderboardModule
+    LeaderboardModule,
+    AchievementsModule,
   ].filter(Boolean) as ModuleMetadata['imports'],
   providers: [AppService, { provide: APP_FILTER, useClass: GlobalFilter }],
   exports: [AppService],

@@ -16,12 +16,14 @@ import UserExtNotifications from './ext/Notifications';
 import { UserExtCredits } from './ext/Credits';
 import { GroupEnumValues } from '@typings/utils';
 import { UserExtElo } from './ext/Elo';
+import UserExtAchievements from './ext/Achievements/index';
 
 class User extends CacheObserver<UsersModel.Models.IUser> {
   public readonly friends: UserExtFriends = new UserExtFriends(this);
   public readonly alerts: UserExtAlerts = new UserExtAlerts(this);
   public readonly character: UserExtCharacter = new UserExtCharacter(this);
   public readonly quests: UserExtQuests = new UserExtQuests(this);
+  public readonly achievements: UserExtAchievements = new UserExtAchievements(this);
   public readonly inventory: UserExtInventory = new UserExtInventory(this);
   public readonly notifications: UserExtNotifications =
     new UserExtNotifications(this);
@@ -48,6 +50,7 @@ class User extends CacheObserver<UsersModel.Models.IUser> {
       quests,
       notifications,
       inventory,
+      achievements,
       ...user
     } = this.get();
     (user as UsersModel.Models.IUserInfo).leaderboard = {

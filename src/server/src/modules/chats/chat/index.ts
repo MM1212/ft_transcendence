@@ -417,6 +417,11 @@ class Chat extends CacheObserver<IChat> {
         this.sseTargets,
         result,
       );
+    // track chat activity for achievements of 100 messages
+    const quest = await author.quests.getOrCreate('chat:activity:100', {count: 0});
+    await quest.updateMeta(p => ({count: p.count + 1}));
+    if (quest.meta.count >= 100)
+        await quest.complete();
     return result;
   }
 

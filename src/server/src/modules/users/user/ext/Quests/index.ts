@@ -3,7 +3,7 @@ import UserExtBase from '../Base';
 import { CacheObserver } from '@shared/CacheObserver';
 import QuestsModel from '@typings/models/users/quests';
 
-class Quest<T extends Record<string, unknown> = Record<string, unknown>>
+export class Quest<T extends Record<string, unknown> = Record<string, unknown>>
   extends CacheObserver<QuestsModel.Models.IQuest<Record<string, unknown>>>
   implements Omit<QuestsModel.Models.IQuest<T>, 'userId'>
 {
@@ -72,7 +72,7 @@ class Quest<T extends Record<string, unknown> = Record<string, unknown>>
       .set('finishedAt', updatedAt)
       .set('updatedAt', updatedAt);
     this.helpers.events.emit('user.quests.update', this.user, this);
-    this.helpers.events.emit('user.quests.completed', this.user, this);
+    await this.helpers.events.emitAsync('user.quests.completed', this.user, this);
   }
 }
 
@@ -132,8 +132,8 @@ class UserExtQuests extends UserExtBase {
   async getOrCreate<T extends Record<string, unknown>>(
     tag: string,
     meta?: T,
-  ): Promise<Quest> {
-    return this.get(tag) ?? (await this.create(tag, meta));
+  ): Promise<Quest<T>> {
+    return (this.get(tag) ?? (await this.create(tag, meta))) as Quest<T>;
   }
 }
 

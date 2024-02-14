@@ -10,6 +10,7 @@ import {
 import { GroupEnumValues } from '@typings/utils';
 import LobbyModel from '../lobby';
 import QuestsModel from './quests';
+import AchievementsModel from './achievements'; //new
 import InventoryModel from './inventory';
 import NotificationsModel from '../notifications';
 import type LeaderboardModel from '../leaderboard';
@@ -48,6 +49,7 @@ namespace UsersModel {
       connected: boolean;
       character: ICharacter;
       quests: QuestsModel.Models.IQuest[];
+      achievements: AchievementsModel.Models.IUserAchievement[]; //new
       inventory: InventoryModel.Models.IItem[];
       notifications: NotificationsModel.Models.INotification[];
       credits: number;
@@ -64,6 +66,7 @@ namespace UsersModel {
         | 'connected'
         | 'character'
         | 'quests'
+        | 'achievements' //new
         | 'inventory'
         | 'notifications'
         | 'leaderboard'
@@ -85,6 +88,7 @@ namespace UsersModel {
         tfaSecret: string | null;
 
         quests: QuestsModel.DTO.DB.IQuest[];
+        achievements: AchievementsModel.DTO.DB.IUserAchievement[]; //new
         inventory: InventoryModel.DTO.DB.IItem[];
         notifications: NotificationsModel.DTO.DB.Notification[];
       }
@@ -262,7 +266,7 @@ namespace UsersModel {
       > {}
     export type Registry = {
       [EndpointMethods.Get]: {
-        [Targets.GetUsers]: GetUsers;
+        // [Targets.GetUsers]: GetUsers;
         [Targets.GetUser]: GetUser;
         [Targets.GetFriends]: GetFriends;
         [Targets.GetBlocked]: GetBlocked;

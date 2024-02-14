@@ -18,6 +18,7 @@ import type InventoryModel from '@typings/models/users/inventory';
 import type PongHistoryModel from '@typings/models/pong/history';
 import type ShopModel from '@typings/models/shop';
 import type LeaderboardModel from '@typings/models/leaderboard';
+import AchievementsModel from '@typings/models/users/achievements';
 
 export type All =
   | SseModel.Endpoints.All
@@ -30,7 +31,8 @@ export type All =
   | PongModel.Endpoints.All
   | PongHistoryModel.Endpoints.All
   | ShopModel.Endpoints.All
-  | LeaderboardModel.Endpoints.All;
+  | LeaderboardModel.Endpoints.All
+  | AchievementsModel.Endpoints.All;
 
 export type Registry = SseModel.Endpoints.Registry &
   AuthModel.Endpoints.Registry &
@@ -41,7 +43,8 @@ export type Registry = SseModel.Endpoints.Registry &
   PongHistoryModel.Endpoints.Registry &
   NotificationsModel.Endpoints.Registry &
   ShopModel.Endpoints.Registry &
-  LeaderboardModel.Endpoints.Registry & {
+  LeaderboardModel.Endpoints.Registry &
+  AchievementsModel.Endpoints.Registry & {
     [EndpointMethods.Get]: Record<never, never>;
     [EndpointMethods.Post]: Record<never, never>;
     [EndpointMethods.Put]: Record<never, never>;
