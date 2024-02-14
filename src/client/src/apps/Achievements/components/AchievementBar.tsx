@@ -17,8 +17,8 @@ export default function AchivementBar() {
       value={progress}
       sx={{
         border: "none",
-        "--LinearProgress-radius": "20px",
-        "--LinearProgress-thickness": "6px",
+        "--LinearProgress-radius": "2dvh",
+        "--LinearProgress-thickness": ".6dvh",
         "&::before": {
           transition: (theme) =>
             theme.transitions.create("inline-size", {

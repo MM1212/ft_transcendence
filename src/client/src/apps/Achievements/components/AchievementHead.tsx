@@ -3,11 +3,10 @@ import { Stack, Typography } from "@mui/joy";
 import AchivementBar from "./AchievementBar";
 import { useCurrentUser } from "@hooks/user";
 import { UserAvatar } from "@components/AvatarWithStatus";
+import { useUser } from "@hooks/user/index";
+import UsersModel from "@typings/models/users/index";
 
-export default function AchievementHead() {
-  const user = useCurrentUser();
-
-  if (!user) return null;
+export default function AchievementHead({user}: {user: UsersModel.Models.IUserInfo}) {
   return (
     <Stack
       direction="row"
@@ -36,7 +35,7 @@ export default function AchievementHead() {
           </Typography>
           {user.nickname}
           <Typography level="body-sm">
-            7 of 10 achievements completed
+            {/* 7 of 10 achievements completed */}
           </Typography>
           <Box flexDirection="row-reverse" display="flex">
             <Typography level="body-sm">(70%)</Typography>

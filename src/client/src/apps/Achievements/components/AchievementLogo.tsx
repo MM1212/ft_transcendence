@@ -25,15 +25,15 @@ export default function AchievementLogo() {
   ];
   const myAchivDescription: string[] = [
     "Win a match without letting the opponent score a single point.",
-    "Win a match within 30 seconds.",
-    "Win a match against an opponent with a significantly higher level or ranking.",
-    "Win a match without using any power-ups.",
-    "Unlock and equip a rare paddle skin.",
-    "Achieve a win streak of 10 matches.",
-    "Achieve the highest ranking in online multiplayer mode.",
-    "Purchase all available assets from the in-game shop, indicating your dedication to customizing and enhancing your Pong experience to the fullest.",
-    "Win a doubles match with a perfect score",
-    "Win 50 matches against different opponents."
+    "Win a match within 30 seconds.", //done
+    "Win a match against an opponent with a significantly higher level or ranking.", //done
+    "Win a match without using any power-ups.", //done
+    "Unlock and equip a rare paddle skin.", //done
+    "Achieve a win streak of 10 matches.", //done
+    "Achieve the highest ranking in online multiplayer mode.", //done
+    "Purchase all available assets from the in-game shop, indicating your dedication to customizing and enhancing your Pong experience to the fullest.", //done
+    "Win a doubles match with a perfect score", //done
+    "Win 50 matches against different opponents." //done
   ];
   const myAchivTitle: string[] = [
     "Unstopable Force.",

@@ -118,6 +118,7 @@ export const useSessionRecoilService = () => {
     updateSession(user);
   }, [updateSession, user, loading]);
 
+
   return null;
 };
 
