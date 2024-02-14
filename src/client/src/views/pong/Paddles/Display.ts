@@ -76,8 +76,8 @@ export default class Display {
       this.displayNickname.anchor.set(1, 0.5);
     }
     this.addUserInterface();
-
-    this.mana = new UIMana(uigame, this.position);
+    if (this.uigame.gamemode === PongModel.Models.LobbyGameType.Powers)
+      this.mana = new UIMana(uigame, this.position);
     this.energy = new UIEnergy(uigame, this.position);
   }
 
