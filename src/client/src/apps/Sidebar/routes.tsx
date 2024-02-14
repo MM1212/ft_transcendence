@@ -13,6 +13,7 @@ import HangerIcon from '@components/icons/HangerIcon';
 import HistoryIcon from '@components/icons/HistoryIcon';
 import HomeIcon from '@components/icons/HomeIcon';
 import InboxIcon from '@components/icons/InboxIcon';
+import ListBoxIcon from '@components/icons/ListBoxIcon';
 import PlayIcon from '@components/icons/PlayIcon';
 import PodiumIcon from '@components/icons/PodiumIcon';
 import StoreIcon from '@components/icons/StoreIcon';
@@ -153,6 +154,13 @@ if (import.meta.env.DEV) {
         icon: <HangerIcon />,
         exact: false,
         Component: React.lazy(() => import('@views/ClothingShowcase')),
+      },
+      {
+        label: 'Clothing List',
+        path: '/dev/clothing-list',
+        icon: <ListBoxIcon />,
+        exact: false,
+        Component: React.lazy(() => import('@views/ClothingItems')),
       },
     ],
   });
