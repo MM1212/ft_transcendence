@@ -7,7 +7,7 @@ import {
   useRecoilValue,
 } from 'recoil';
 
-const modalsAtom = atomFamily<boolean, string>({
+export const modalsAtom = atomFamily<boolean, string>({
   key: 'modals',
   default: false,
 });

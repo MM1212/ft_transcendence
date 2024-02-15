@@ -55,7 +55,7 @@ export class ShopConfigParser {
     }
     this.loaded = true;
     this.resolveWaitingPromises();
-    console.log(this.config);
+    // console.log(this.config);
     // this.config.categories.forEach((category) => {
     //   category.subCategories.forEach((subCategory) => {
     //     console.log(subCategory);

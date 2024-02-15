@@ -10,6 +10,7 @@ import React from 'react';
 import { useRecoilCallback, useSetRecoilState } from 'recoil';
 import { navigate } from 'wouter/use-location';
 import { usePostPongGameModalActions } from '../modals/openPostGameModal/hooks';
+import { UIShooter } from '@views/pong/SpecialPowers/Shooter';
 
 export const useListenerManager = () => {
   const { connected, socket, status, useMounter, emit, useListener } =
@@ -34,7 +35,6 @@ export const useListenerManager = () => {
           user.nickname,
           user.id
         );
-        console.log(`${user.nickname}`);
         if (data.state) {
           game.current.start();
         }
@@ -46,24 +46,39 @@ export const useListenerManager = () => {
   );
 
   useListener(
+    PongModel.Socket.Events.TimeStart,
+    (data: PongModel.Socket.Data.TimeStart) => {
+      game?.current?.updateStartTime(data.time_start);
+    },
+  )
+
+  useListener(
+    PongModel.Socket.Events.Countdown,
+    (data: PongModel.Socket.Data.Countdown) => {
+      game?.current?.countdown(data.countdown);
+    },
+  )
+
+  useListener(
     PongModel.Socket.Events.EnergyManaUpdate,
     (data: PongModel.Socket.Data.EnergyManaUpdate[]) => {
       data.forEach((obj) => {
-        console.log(obj);
         const player = game?.current?.getObjectByTag(obj.tag) as UIPlayer; //| UIBot
         if (player) {
-          player.mana.updateMana(obj.mana, obj.tag);
-          player.energy.updateEnergy(obj.energy, obj.tag);
+          if (player.display.mana) {
+            player.display.mana.updateMana(obj.mana);
+          }
+          if (player.display.energy)
+            player.display.energy.updateEnergy(obj.energy);
         }
       });
-    }, [game]
+    },
+    [game]
   );
 
   const onStop = useRecoilCallback(
     (ctx) => async (data: PongHistoryModel.Models.Match) => {
-      console.log(`Room: ${game?.current?.roomId} stopped playing`);
       game?.current?.gameOver();
-      console.log(data);
       const release = ctx.snapshot.retain();
       open({ history: data });
       setTimeout(() => {
@@ -80,7 +95,6 @@ export const useListenerManager = () => {
 
   useListener(PongModel.Socket.Events.Start, () => {
     if (game?.current?.delta) return;
-    console.log(`Room: ${game?.current?.roomId} started playing`);
     game?.current?.start();
   });
 
@@ -125,7 +139,13 @@ export const useListenerManager = () => {
     PongModel.Socket.Events.UpdateShooter,
     (data: PongModel.Socket.Data.UpdateShooter) => {
       const player = game?.current?.getObjectByTag(data.tag) as UIPlayer;
-      if (player) player.updateShooter(data.line);
+      if (player) {
+        player.updateShooter(data.line)
+        if (!player.shooter) {
+
+          player.shooter = new UIShooter(player, game?.current as UIGame);
+        }
+      };
     },
     [game]
   );
@@ -145,9 +165,6 @@ export const useListenerManager = () => {
     PongModel.Socket.Events.EffectCreateRemove,
     (data: PongModel.Socket.Data.EffectCreateRemove[]) => {
       data.forEach((effect) => {
-        console.log(
-          effect.tag + ' has ' + effect.effectName + ' ' + effect.option
-        );
         const object = game?.current?.getObjectByTag(effect.tag);
         if (object)
           game?.current?.handleEffect(object, effect.effectName, effect.option);
@@ -175,7 +192,6 @@ export const useListenerManager = () => {
   useListener(
     PongModel.Socket.Events.UpdateDisconnected,
     (data: PongModel.Socket.Data.UpdateDisconnected) => {
-      console.log(data);
       if (data.userIds.length === 0) return;
       game?.current?.updateDisconnectedRefresh(data.userIds);
     },
@@ -192,7 +208,6 @@ export const useListenerManager = () => {
   useListener(
     PongModel.Socket.Events.Reconnected,
     (data: PongModel.Socket.Data.Reconnected) => {
-      console.log(data);
       game?.current?.updateReconnected(data.nickname, data.tag);
     },
     [game]

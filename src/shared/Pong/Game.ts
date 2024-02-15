@@ -1,10 +1,12 @@
 import { GameObject, effectSendOption } from "./GameObject";
 import { Collider } from "./Collisions/Collider";
 import { GameStatistics } from "./Stats/GameStats";
+import PongModel from "../../typings/models/pong";
 
 export class Game {
   public run = true;
   public gameObjects: GameObject[] = [];
+  private ballRef: GameObject | undefined;
   protected remove_gameObjects: GameObject[] = [];
   protected collider_gameObjects: GameObject[] = [];
   protected keydown_gameObjects: GameObject[] = [];
@@ -84,6 +86,8 @@ export class Game {
 
     if (!!gameObject.onCollide)
       this.collider_gameObjects.push(gameObject);
+    if (gameObject.tag === PongModel.InGame.ObjType.Ball)
+      this.ballRef = gameObject;
   }
 
   public remove(gameObject: GameObject) {
@@ -111,6 +115,7 @@ export class Game {
   }
 
   public getObjectByTag(tag: string): GameObject | undefined {
+    if (tag === PongModel.InGame.ObjType.Ball && this.ballRef) return this.ballRef;
     return this.gameObjects.find(
       (gameObject: GameObject) => gameObject.tag === tag
     );

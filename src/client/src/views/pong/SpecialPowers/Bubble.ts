@@ -1,38 +1,80 @@
-import { Vector2D } from "../utils/Vector";
-import { BubbleTex } from "../utils";
-import { Bar } from "@shared/Pong/Paddles/Bar";
-import * as PIXI from "pixi.js";
-import { Bubble } from "@shared/Pong/SpecialPowers/Bubble";
+import { Vector2D } from '../utils/Vector';
+import { AnimationConstructor } from '../utils';
+import { Bar } from '@shared/Pong/Paddles/Bar';
+import * as PIXI from 'pixi.js';
+import { Bubble } from '@shared/Pong/SpecialPowers/Bubble';
+import type { UIGame } from '../Game';
+import PongModel from '@typings/models/pong';
 
 export class UIBubble extends Bubble {
-    public displayObject: PIXI.Sprite;
-    constructor(center: Vector2D, velocity: Vector2D, shooter: Bar, tag: string) {
-        super(center, velocity, shooter);
-        this.displayObject = new PIXI.Sprite(BubbleTex);
-        this.displayObject.anchor.set(0.5);
-        this.displayObject.x = center.x;
-        this.displayObject.y = center.y;
-        this.tag = tag;
-    }
+  public displayObject: PIXI.AnimatedSprite | PIXI.Sprite;
+  public tempOnCollideAnimation: PIXI.AnimatedSprite | PIXI.Sprite;
 
-    update(): void {
-        this.displayObject.x = this.center.x;
-        this.displayObject.y = this.center.y;
-    }
+  constructor(
+    center: Vector2D,
+    velocity: Vector2D,
+    shooter: Bar,
+    tag: string,
+    private uigame: UIGame
+  ) {
+    super(center, velocity, shooter);
+    this.displayObject = new PIXI.Sprite(PIXI.Texture.EMPTY);
+    this.tempOnCollideAnimation = new PIXI.Sprite(PIXI.Texture.EMPTY);
+    AnimationConstructor(
+      {
+        path: `${PongModel.Endpoints.Targets.BubbleWalk}/BubbleWalk`,
+        json: `${PongModel.Endpoints.Targets.BubbleWalkJSON}`,
+        frames: 1,
+      },
+      {
+        path: `${PongModel.Endpoints.Targets.BubbleDies}/BubbleDies`,
+        json: `${PongModel.Endpoints.Targets.BubbleDiesJSON}`,
+        frames: 4,
+      }
+    ).then(([displayObject, tempOnCollideAnimation]) => {
+      this.displayObject = displayObject;
+      this.displayObject.anchor.set(0.5);
+      this.displayObject.x = center.x;
+      this.displayObject.y = center.y;
+      // this.displayObject.animationSpeed = 0.1;
+      this.displayObject.scale.set(shooter.direction.x === 1 ? -1 : 1, 1);
+      (this.displayObject as PIXI.AnimatedSprite).play();
+      this.uigame.app.stage.addChild(this.displayObject);
+      if (!tempOnCollideAnimation) return;
+      this.tempOnCollideAnimation = tempOnCollideAnimation;
+      this.tempOnCollideAnimation.anchor.set(0.5);
+      this.tempOnCollideAnimation.x = center.x;
+      this.tempOnCollideAnimation.y = center.y;
+      (this.tempOnCollideAnimation as PIXI.AnimatedSprite).animationSpeed = 0.5;
+      this.tempOnCollideAnimation.scale.set(
+        shooter.direction.x === 1 ? 1 : -1,
+        1
+      );
+      this.tempOnCollideAnimation.visible = false;
+      this.uigame.app.stage.addChild(this.tempOnCollideAnimation);
+    });
 
-    removePower(): void {
-    }
+    this.tag = tag;
+  }
 
-    onCollide(): boolean {
-        return false;
-    }
+  update(): void {
+    this.displayObject.x = this.center.x;
+    this.displayObject.y = this.center.y;
+    this.displayObject.rotation += 0.1;
+  }
 
-    //onCollide(target: UIGameObject): boolean {
-    //    if (super.onCollide(target) === true)
-    //    {
-    //        this.game.remove(this);
-    //        return true;
-    //    }
-    //    return false;
-    //}
+  removePower(): void {
+    this.tempOnCollideAnimation.visible = true;
+    this.tempOnCollideAnimation.x = this.center.x;
+    this.tempOnCollideAnimation.y = this.center.y;
+    (this.tempOnCollideAnimation as PIXI.AnimatedSprite).play();
+    (this.tempOnCollideAnimation as PIXI.AnimatedSprite).onLoop = () => {
+      this.tempOnCollideAnimation.destroy();
+      this.uigame.app.stage.removeChild(this.tempOnCollideAnimation);
+    };
+  }
+
+  onCollide(): boolean {
+    return false;
+  }
 }

@@ -17,6 +17,13 @@ enum UserType {
   BOT
 }
 
+enum UserStatus {
+  OFFLINE
+  ONLINE
+  BUSY
+  AWAY
+}
+
 model User {
   id            Int               @id @default(autoincrement())
   studentId     Int               @unique @map("student_id")
@@ -24,7 +31,7 @@ model User {
   type          UserType          @default(USER)
   avatar        String
   createdAt     DateTime          @default(now()) @map("created_at")
-  storedStatus  Int               @default(1) @map("stored_status")
+  storedStatus  UserStatus        @default(ONLINE) @map("stored_status")
   firstLogin    Boolean           @default(true) @map("first_login")
   friends       User[]            @relation("friends")
   friendOf      User[]            @relation("friends")
@@ -39,6 +46,8 @@ model User {
   characterId   Int               @unique @map("character_id")
   quests        Quest[]
   credits       Int               @default(0)
+  leaderboard   Leaderboard       @relation(fields: [leaderboardId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  leaderboardId Int               @unique @map("elo_id")
 
   gamesPlayed MatchHistoryPlayer[]
 
@@ -71,8 +80,6 @@ enum ChatParticipantMuteType {
   FOREVER
   UNTIL
 }
-
-
 
 model ChatParticipant {
   id           Int                 @id @default(autoincrement())
@@ -232,4 +239,19 @@ model MatchHistory {
   createdAt    DateTime             @default(now()) @map("created_at")
 
   @@map("matches_history")
+}
+
+model Leaderboard {
+  id        Int      @id @default(autoincrement())
+  user      User?
+  elo       Int      @default(1000)
+  wins      Int      @default(0)
+  losses    Int      @default(0)
+  ties      Int      @default(0)
+  streak    Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("leaderboards")
+  @@index([elo])
 }

@@ -12,6 +12,7 @@ import LobbyModel from '../lobby';
 import QuestsModel from './quests';
 import InventoryModel from './inventory';
 import NotificationsModel from '../notifications';
+import type LeaderboardModel from '../leaderboard';
 
 namespace UsersModel {
   export namespace Models {
@@ -21,11 +22,10 @@ namespace UsersModel {
       Bot = 'BOT',
     }
     export enum Status {
-      Offline,
-      Online,
-      Busy,
-      Away,
-      InGame,
+      Offline = 'OFFLINE',
+      Online = 'ONLINE',
+      Busy = 'BUSY',
+      Away = 'AWAY',
     }
     export interface ICharacter {
       id: number;
@@ -38,8 +38,8 @@ namespace UsersModel {
       type: GroupEnumValues<Types>;
       avatar: string;
       createdAt: number;
-      status: Status;
-      storedStatus: Status;
+      status: GroupEnumValues<Status>;
+      storedStatus: GroupEnumValues<Status>;
       firstLogin: boolean;
       friends: number[];
       blocked: number[];
@@ -51,6 +51,7 @@ namespace UsersModel {
       inventory: InventoryModel.Models.IItem[];
       notifications: NotificationsModel.Models.INotification[];
       credits: number;
+      leaderboard: LeaderboardModel.Models.Leaderboard;
     }
     export interface IUserInfo
       extends Omit<
@@ -65,7 +66,10 @@ namespace UsersModel {
         | 'quests'
         | 'inventory'
         | 'notifications'
-      > {}
+        | 'leaderboard'
+      > {
+      leaderboard: Pick<LeaderboardModel.Models.Leaderboard, 'elo'>;
+    }
   }
   export namespace DTO {
     export namespace DB {
@@ -76,7 +80,7 @@ namespace UsersModel {
         friendOf: { id: number }[];
         chats: { id: number }[];
         blocked: { id: number }[];
-        storedStatus: Models.Status;
+        storedStatus: GroupEnumValues<Models.Status>;
         tfaEnabled: boolean;
         tfaSecret: string | null;
 
@@ -89,10 +93,7 @@ namespace UsersModel {
         createdAt: Date;
       }
       export interface IUserCreate
-        extends Pick<
-          Models.IUserInfo,
-          'studentId' | 'nickname' | 'avatar'
-        > {
+        extends Pick<Models.IUserInfo, 'studentId' | 'nickname' | 'avatar'> {
         type?: Models.Types;
         credits?: number;
         inventory?: Omit<InventoryModel.DTO.DB.CreateItem, 'userId'>[];
@@ -149,11 +150,16 @@ namespace UsersModel {
         uId: number;
         status: 'pending' | 'accepted' | 'declined';
       }> {}
+
+    export interface QueryUserByNicknameParams extends Record<string, unknown> {
+      nickname: string;
+    }
   }
   export namespace Endpoints {
     export enum Targets {
       GetUsers = '/users',
       GetUser = '/users/:id',
+      QueryUserByNickname = '/users/query/nickname/:nickname',
       SearchUsers = '/users/search',
       PatchUser = '/users/:id',
       GetFriends = '/users/:id/friends',
@@ -247,6 +253,13 @@ namespace UsersModel {
 
     export interface GetCredits
       extends GetEndpoint<Targets.GetCredits, number, DTO.GetUserParams> {}
+
+    export interface QueryUserByNickname
+      extends GetEndpoint<
+        Targets.QueryUserByNickname,
+        Models.IUserInfo,
+        DTO.QueryUserByNicknameParams
+      > {}
     export type Registry = {
       [EndpointMethods.Get]: {
         [Targets.GetUsers]: GetUsers;
@@ -256,6 +269,7 @@ namespace UsersModel {
         [Targets.GetSessionFriends]: GetSessionFriends;
         [Targets.GetSessionBlocked]: GetSessionBlocked;
         [Targets.GetCredits]: GetCredits;
+        [Targets.QueryUserByNickname]: QueryUserByNickname;
       };
       [EndpointMethods.Post]: {
         [Targets.SearchUsers]: SearchUsers;

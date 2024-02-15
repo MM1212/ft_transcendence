@@ -1,6 +1,6 @@
-import PongHistoryModel from '@typings/models/pong/history';
-import PongModel from '../../../typings/models/pong/index';
-import { Bar } from '../Paddles/Bar';
+import PongHistoryModel from "@typings/models/pong/history";
+import PongModel from "../../../typings/models/pong/index";
+import { Bar } from "../Paddles/Bar";
 
 export class BarStatistics {
   private goalsScored: number = 0; // increment when goal is scored
@@ -69,7 +69,7 @@ export class BarStatistics {
   }
 
   public gameOver(): void {
-    this.powerAccuracy = (this.shotHit / this.shotsFired) * 100;
+    this.powerAccuracy = this.shotsFired === 0 ? 0 :(this.shotHit / this.shotsFired) * 100;
     this.manaSpent = this.shotsFired * this.powerCost;
   }
 
@@ -78,6 +78,7 @@ export class BarStatistics {
   }
 
   public exportStats(): PongHistoryModel.Models.PlayerStats {
+    if (this.shotHit > this.shotsFired) this.shotHit = this.shotsFired;
     return {
       goalsScored: this.goalsScored,
       shotsFired: this.shotsFired,
@@ -93,6 +94,7 @@ export class BarStatistics {
       winningGoal: this.winningGoal,
       moneyEarned: this.moneyEarned,
       playerScore: this.playerScore,
+      elo: 0
     };
   }
 }

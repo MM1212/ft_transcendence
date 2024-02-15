@@ -9,6 +9,7 @@ import { UserInventory } from './controllers/users/inventory';
 import { UserNotifications } from './controllers/users/notifications';
 import { Pong } from './controllers/games/pong';
 import { PongHistory } from './controllers/games/pong/history';
+import { LeaderboardDbController } from './controllers/leaderboard';
 
 @Module({
   imports: [PrismaModule],
@@ -22,6 +23,7 @@ import { PongHistory } from './controllers/games/pong/history';
     Games,
     Pong,
     PongHistory,
+    LeaderboardDbController
   ],
   exports: [DbService],
 })

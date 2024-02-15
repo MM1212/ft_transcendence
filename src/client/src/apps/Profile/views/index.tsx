@@ -1,4 +1,4 @@
-import { useCurrentUser, useUser, usersAtom } from '@hooks/user';
+import { useCurrentUser } from '@hooks/user';
 import {
   Button,
   ButtonGroup,
@@ -17,11 +17,9 @@ import {
 import UserAchievements from '../components/UserAchievements';
 import AvatarWithStatus, { UserAvatar } from '@components/AvatarWithStatus';
 import DotsVerticalIcon from '@components/icons/DotsVerticalIcon';
-import { Route, Switch, useParams } from 'wouter';
+import { Redirect, Route, Switch, useParams } from 'wouter';
 import UsersModel from '@typings/models/users';
-import { useRecoilValue } from 'recoil';
-import { navigate } from 'wouter/use-location';
-import React, { useLayoutEffect } from 'react';
+import React from 'react';
 import { useFriends } from '@apps/Friends/hooks';
 import { useUpdateUserModalActions } from '../hooks/useUpdateUserModal';
 import useFriend from '@apps/Friends/hooks/useFriend';
@@ -30,6 +28,11 @@ import UserMenuOptions from '../components/UserMenuOptions';
 import AccountPlusIcon from '@components/icons/AccountPlusIcon';
 import ProfileMatchHistory from '../components/ProfileMatchHistory';
 import CreditsIcon from '@components/CreditsIcon';
+import { numberExtentFormatter, numberFormatter } from '@lib/intl';
+import TrophyAwardIcon from '@components/icons/TrophyAwardIcon';
+import { useTunnelEndpoint } from '@hooks/tunnel';
+import GenericPlaceholder from '@components/GenericPlaceholder';
+import AccountOffIcon from '@components/icons/AccountOffIcon';
 
 function OtherOptions({
   user,
@@ -81,8 +84,148 @@ function UserProfile({
   affiliation: 'me' | 'friend' | 'unknown';
 }) {
   const { open: openUpdateModal } = useUpdateUserModalActions();
-  const userWatcher = useCurrentUser();
-  if (!userWatcher) return;
+  return (
+    <Stack
+      direction="column"
+      justifyContent="center"
+      alignItems="center"
+      height="100%"
+      overflow="hidden"
+    >
+      <Stack
+        direction="column"
+        alignItems="center"
+        justifyContent="center"
+        sx={{
+          width: '100%',
+        }}
+        position="relative"
+        p={1}
+        spacing={1}
+      >
+        {affiliation === 'me' ? (
+          <UserAvatar
+            sx={(theme) => ({
+              width: theme.spacing(17),
+              height: theme.spacing(17),
+              transition: theme.transitions.create('opacity'),
+              '&:hover': {
+                cursor: 'pointer',
+                transition: theme.transitions.create('opacity'),
+                '&:hover': {
+                  cursor: 'pointer',
+                  opacity: 0.8,
+                },
+              },
+            })}
+            src={user?.avatar}
+            onClick={() => openUpdateModal()}
+          />
+        ) : (
+          <AvatarWithStatus
+            sx={(theme) => ({
+              width: theme.spacing(17),
+              height: theme.spacing(17),
+            })}
+            src={user?.avatar}
+            status={user?.status}
+            badgeProps={{
+              size: 'lg',
+            }}
+          />
+        )}
+        <Stack alignItems="center" spacing={1}>
+          <Typography level="h2">{user.nickname}</Typography>
+          <Stack direction="row" alignItems="center" spacing={1}>
+            {affiliation === 'me' && (
+              <Tooltip
+                title={`${numberExtentFormatter.format(user.credits)} Credits`}
+              >
+                <Chip
+                  variant="soft"
+                  color="primary"
+                  size="lg"
+                  startDecorator={<CreditsIcon />}
+                >
+                  {numberFormatter.format(user.credits)}
+                </Chip>
+              </Tooltip>
+            )}
+            <Tooltip title="Elo Rating">
+              <Chip
+                variant="soft"
+                color="warning"
+                size="lg"
+                startDecorator={<TrophyAwardIcon />}
+              >
+                {user.leaderboard.elo}
+              </Chip>
+            </Tooltip>
+          </Stack>
+          {/* <Typography>Rank Placeholder</Typography> */}
+        </Stack>
+        {affiliation !== 'me' && (
+          <OtherOptions user={user} friend={affiliation === 'friend'} />
+        )}
+      </Stack>
+      <Divider />
+      <UserAchievements id={affiliation === 'me' ? undefined : user.id} />
+      <Divider />
+      <ProfileMatchHistory id={affiliation === 'me' ? undefined : user.id} />
+    </Stack>
+  );
+}
+
+function UserProfileById() {
+  const { userId }: { userId: string } = useParams();
+  const friends = useFriends();
+  const isUserId = !isNaN(parseInt(userId));
+  const {
+    data: user,
+    isLoading,
+    isValidating,
+    error,
+  } = useTunnelEndpoint<
+    UsersModel.Endpoints.GetUser | UsersModel.Endpoints.QueryUserByNickname
+  >(
+    isUserId
+      ? UsersModel.Endpoints.Targets.GetUser
+      : UsersModel.Endpoints.Targets.QueryUserByNickname,
+    isUserId ? { id: parseInt(userId) } : { nickname: userId }
+  );
+
+  if (isLoading || isValidating) return <CircularProgress variant="plain" />;
+  if (!user || error)
+    return (
+      <GenericPlaceholder
+        icon={<AccountOffIcon fontSize="xl4" />}
+        title="User not found"
+        label="The user you are looking for does not exist. Try searching here."
+        path="/users/search"
+        centerVertical
+      />
+    );
+
+  return (
+    <UserProfile
+      user={user!}
+      affiliation={friends.includes(parseInt(userId!)) ? 'friend' : 'unknown'}
+    />
+  );
+}
+
+function SanitizeParams() {
+  const { userId } = useParams();
+  if (!userId) return <Redirect to={`/profile/me`} replace />;
+  return <UserProfileById />;
+}
+
+function UserProfileByMe() {
+  const user = useCurrentUser();
+  return <UserProfile user={user!} affiliation={'me'} />;
+}
+
+export default function ProfileView() {
   return (
     <Sheet
       sx={{
@@ -92,129 +235,14 @@ function UserProfile({
         borderColor: 'divider',
       }}
     >
-      <Stack
-        direction="column"
-        justifyContent="center"
-        alignItems="center"
-        height="100%"
-        overflow="hidden"
-      >
-        <Stack
-          direction="column"
-          alignItems="center"
-          justifyContent="center"
-          sx={{
-            width: '100%',
-          }}
-          position="relative"
-          p={1}
-          spacing={1}
-        >
-          {affiliation === 'me' ? (
-            <UserAvatar
-              sx={(theme) => ({
-                width: theme.spacing(17),
-                height: theme.spacing(17),
-                transition: theme.transitions.create('opacity'),
-                '&:hover': {
-                  cursor: 'pointer',
-                  transition: theme.transitions.create('opacity'),
-                  '&:hover': {
-                    cursor: 'pointer',
-                    opacity: 0.8,
-                  },
-                },
-              })}
-              src={user?.avatar}
-              onClick={() => openUpdateModal()}
-            />
-          ) : (
-            <AvatarWithStatus
-              sx={(theme) => ({
-                width: theme.spacing(17),
-                height: theme.spacing(17),
-              })}
-              src={user?.avatar}
-              status={user?.status}
-              badgeProps={{
-                size: 'lg',
-              }}
-            />
-          )}
-          <Stack direction="row" alignItems="center" spacing={1}>
-            {userWatcher.id === user.id ? (
-            <Typography
-              level="h2"
-              endDecorator={
-                <Tooltip title="Credits">
-                  <Chip
-                    variant="soft"
-                    color="neutral"
-                    size="lg"
-                    startDecorator={<CreditsIcon />}
-                  >
-                    {user.credits}
-                  </Chip>
-                </Tooltip>
-              }
-            >
-              {user.nickname}
-            </Typography>
-            ) : null}
-            {/* <Typography>Rank Placeholder</Typography> */}
-          </Stack>
-          {affiliation !== 'me' && (
-            <OtherOptions user={user} friend={affiliation === 'friend'} />
-          )}
-        </Stack>
-        <Divider />
-        <UserAchievements id={affiliation === 'me' ? undefined : user.id} />
-        <Divider />
-        <ProfileMatchHistory id={affiliation === 'me' ? undefined : user.id} />
-      </Stack>
+      <Switch>
+        <Route path="/profile/me">
+          <UserProfileByMe />
+        </Route>
+        <Route path="/profile/:userId*">
+          <SanitizeParams />
+        </Route>
+      </Switch>
     </Sheet>
-  );
-}
-
-function UserProfileById() {
-  const { userId } = useParams();
-  const user = useRecoilValue(usersAtom(parseInt(userId!)));
-  const friends = useFriends();
-
-  useLayoutEffect(() => {
-    if (user) return;
-    const searchParams = new URLSearchParams();
-    searchParams.append('t', 'Profile Not Found');
-    searchParams.append('t', 'Profile Not Found');
-    navigate(`/error?${searchParams.toString()}`);
-  }, [user]);
-
-  if (!user) {
-    return null;
-  }
-  return (
-    <UserProfile
-      user={user!}
-      affiliation={friends.includes(parseInt(userId!)) ? 'friend' : 'unknown'}
-    />
-  );
-}
-
-function UserProfileByMe() {
-  const user = useCurrentUser();
-  return <UserProfile user={user!} affiliation={'me'} />;
-  return <UserProfile user={user!} affiliation={'me'} />;
-}
-
-export default function ProfileView() {
-  return (
-    <Switch>
-      <Route path="/profile/me">
-        <UserProfileByMe />
-      </Route>
-      <Route path="/profile/:userId">
-        <UserProfileById />
-      </Route>
-    </Switch>
   );
 }

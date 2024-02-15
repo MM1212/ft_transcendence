@@ -76,6 +76,18 @@ namespace PongModel {
       Bottom,
     }
 
+    export enum Balls {
+      Red = "RedBall",
+      Coffee = "Coffee",
+      Earth = "Earth",
+      Fire = "Fire",
+      Fog = "Fog",
+      Ice = "Ice",
+      Light = "Light",
+      Void = "Void",
+      Wind = "Wind",
+    }
+
     export type IGameKeyTypes = "up" | "down" | "boost" | "shoot";
     export type IGamekeys = Record<IGameKeyTypes, string>;
     export const DEFAULT_GAME_KEYS: IGamekeys = {
@@ -93,7 +105,7 @@ namespace PongModel {
     export const TemporaryLobbyParticipant = {
       keys: PongModel.Models.DEFAULT_GAME_KEYS,
       paddle: "PaddleRed",
-      specialPower: PongModel.Models.LobbyParticipantSpecialPowerType.bubble,
+      specialPower: PongModel.Models.LobbyParticipantSpecialPowerType.spark,
     };
     export interface ILobbyParticipant {
       id: number;
@@ -211,6 +223,8 @@ namespace PongModel {
       extends NotificationsModel.Models.INotification<{
         lobbyId: number;
         nonce: number;
+        authorization: GroupEnumValues<LobbyAccess>;
+
       }> {}
   }
 
@@ -258,6 +272,7 @@ namespace PongModel {
       UpdateMovements = "object-movements",
       SetUI = "set-ui-game",
       Start = "start-game",
+      TimeStart = "time-start",
       Stop = "stop-game",
       RemovePower = "remove-power",
       CreatePower = "create-power",
@@ -273,6 +288,7 @@ namespace PongModel {
       UpdateDisconnected = "update-disconnected",
       EnergyManaUpdate = "energy-mana-update",
       FocusLoss = "focus-loss",
+      Countdown = "countdown",
     }
 
     export namespace Data {
@@ -345,6 +361,14 @@ namespace PongModel {
         energy: number;
         mana: number;
       }
+
+      export interface Countdown {
+        countdown: number;
+      }
+
+      export interface TimeStart {
+        time_start: number;
+      }
     }
   }
 
@@ -394,44 +418,89 @@ namespace PongModel {
       data: Endpoints.ChatSelectedData[];
       source: Models.InviteSource;
     }
+
+    export interface AddBot {
+      lobbyId: number;
+      teamId: number;
+      teamPosition: number;
+    }
   }
 
   export namespace Endpoints {
     export enum Targets {
       // PUT
-      NewLobby = "/pong/lobby",
-      LeaveLobby = "/pong/lobby/leave",
-      AddToQueue = "/pong/lobby/addToQueue",
+      NewLobby = '/pong/lobby',
+      LeaveLobby = '/pong/lobby/leave',
+      AddToQueue = '/pong/lobby/addToQueue',
       //POST
-      JoinLobby = "/pong/lobby/join",
-      ChangeTeam = "/pong/lobby/team",
-      ChangeOwner = "/pong/lobby/owner",
-      JoinSpectators = "/pong/lobby/spectators",
-      Ready = "/pong/lobby/ready",
-      Kick = "/pong/lobby/kick",
-      Invite = "/pong/lobby/invite",
-      KickInvited = "/pong/lobby/kick-invited",
-      StartGame = "/pong/lobby/start",
-      LeaveQueue = "/pong/lobby/leaveQueue",
-      JoinActive = "/pong/lobby/joinActive",
+      JoinLobby = '/pong/lobby/join',
+      ChangeTeam = '/pong/lobby/team',
+      ChangeOwner = '/pong/lobby/owner',
+      JoinSpectators = '/pong/lobby/spectators',
+      Ready = '/pong/lobby/ready',
+      Kick = '/pong/lobby/kick',
+      Invite = '/pong/lobby/invite',
+      KickInvited = '/pong/lobby/kick-invited',
+      StartGame = '/pong/lobby/start',
+      LeaveQueue = '/pong/lobby/leaveQueue',
+      JoinActive = '/pong/lobby/joinActive',
+      AddBot = '/pong/lobby/addBot',
       //GET
-      GetSessionLobby = "/pong/lobby/session",
-      GetAllLobbies = "/pong/lobby/all",
-      GetLobby = "/pong/lobby/:id",
+      GetSessionLobby = '/pong/lobby/session',
+      GetAllLobbies = '/pong/lobby/all',
+      GetLobby = '/pong/lobby/:id',
 
-      GetAllGames = "/pong/lobby/playing",
+      GetAllGames = '/pong/lobby/playing',
 
-      // existed before
-      Connect = "/pong",
+      Connect = '/pong',
+      Assets = '/assets/pong',
+      Paddles = '/assets/pong/Paddles',
+      Background = '/assets/pong/UI/Background',
+      Borders = '/assets/pong/UI/Borders',
+      ManaBars = '/assets/pong/UI/UIBars/ManaBar',
+      EnergyBars = '/assets/pong/UI/UIBars/EnergyBar',
+      SpecialPowers = '/assets/pong/Powers',
 
-      DisconnectWindow = "/pong/UI/disconnect-window.png",
-      PowerWaterTexture = "/pong/PowerWater.png",
-      PowerFireTexture = "/pong/PowerCannon.png",
-      PowerIceTexture = "/pong/PowerIce.png",
-      PowerSparkTexture = "/pong/PowerSpark.png",
-      PowerGhostTexture = "/pong/PowerGhost.png",
-      FireballJSON = "/pong/Fireball.json",
-      FireballAnimDict = "/pong/Fireball",
+      GhostDies = '/assets/pong/Powers/Ghost/Dies',
+      GhostWalk = '/assets/pong/Powers/Ghost/Walk',
+      GhostDiesJSON = '/assets/pong/Powers/Ghost/Dies/GhostDies.json',
+      GhostWalkJSON = '/assets/pong/Powers/Ghost/Walk/GhostWalk.json',
+
+      BubbleDies = '/assets/pong/Powers/Bubble/Dies',
+      BubbleWalk = '/assets/pong/Powers/Bubble/Walk',
+      BubbleDiesJSON = '/assets/pong/Powers/Bubble/Dies/BubbleDies.json',
+      BubbleWalkJSON = '/assets/pong/Powers/Bubble/Walk/BubbleWalk.json',
+
+      Shooter = '/assets/pong/Powers/Fire/Shooter',
+      ShooterJSON = '/assets/pong/Powers/Fire/Shooter/Shooter.json',
+
+      FireballWalk = '/assets/pong/Powers/Fire/Walk',
+      FireballWalkJSON = '/assets/pong/Powers/Fire/Walk/FireballWalk.json',
+      FireballDies = '/assets/pong/Powers/Fire/Dies',
+      FireballDiesJSON = '/assets/pong/Powers/Fire/Dies/FireballDies.json',
+
+      IceWalk = '/assets/pong/Powers/Ice/Walk',
+      IceWalkJSON = '/assets/pong/Powers/Ice/Walk/IceWalk.json',
+      IceDies = '/assets/pong/Powers/Ice/Dies',
+      IceDiesJSON = '/assets/pong/Powers/Ice/Dies/IceDies.json',
+
+      SparkWalk = '/assets/pong/Powers/Spark/Walk',
+      SparkWalkJSON = '/assets/pong/Powers/Spark/Walk/SparkWalk.json',
+      SparkDies = '/assets/pong/Powers/Spark/Dies',
+      SparkDiesJSON = '/assets/pong/Powers/Spark/Dies/SparkDies.json',
+
+      DisconnectWindow = '/assets/pong/UI/disconnect-window.webp',
+
+      // UI representation
+      PowerWaterTexture = '/assets/pong/Powers/Bubble/Walk/BubbleWalk0.webp',
+      PowerFireTexture = '/assets/pong/Powers/Fire/Walk/FireballWalk0.webp',
+      PowerIceTexture = '/assets/pong/Powers/Ice/Walk/IceWalk0.webp',
+      PowerSparkTexture = '/assets/pong/Powers/Spark/Walk/SparkWalk0.webp',
+      PowerGhostTexture = '/assets/pong/Powers/Ghost/Walk/GhostWalk0.webp',
+
+      // Balls
+      Balls = '/assets/pong/Balls',
+      RedBallTexture = '/assets/pong/Balls/RedBall/RedBall.webp',
     }
     export type All = GroupEndpointTargets<Targets>;
 
@@ -555,6 +624,9 @@ namespace PongModel {
         Models.ILobby,
         DTO.JoinActive> {}
 
+        export interface AddBot
+        extends Endpoint <EndpointMethods.Post, Targets.AddBot, undefined, DTO.AddBot> {}
+
     /* GET methods */
 
     export interface GetSessionLobby
@@ -609,6 +681,7 @@ namespace PongModel {
         [Targets.KickInvited]: KickInvited;
         [Targets.StartGame]: StartGame;
         [Targets.JoinActive]: JoinActive;
+        [Targets.AddBot]: AddBot;
       };
     }
   }

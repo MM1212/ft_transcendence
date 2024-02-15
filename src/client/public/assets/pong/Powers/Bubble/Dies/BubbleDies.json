@@ -1,0 +1,104 @@
+{
+    "frames": {
+        "BubbleDies0.webp": {
+            "frame": {
+                "x": 0,
+                "y": 0,
+                "w": 32,
+                "h": 32
+            },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "w": 32,
+                "h": 32
+            },
+            "sourceSize": {
+                "w": 32,
+                "h": 32
+            }
+        },
+        "BubbleDies1.webp": {
+            "frame": {
+                "x": 32,
+                "y": 0,
+                "w": 32,
+                "h": 34
+            },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "w": 32,
+                "h": 34
+            },
+            "sourceSize": {
+                "w": 32,
+                "h": 34
+            }
+        },
+        "BubbleDies2.webp": {
+            "frame": {
+                "x": 64,
+                "y": 0,
+                "w": 32,
+                "h": 34
+            },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "w": 32,
+                "h": 34
+            },
+            "sourceSize": {
+                "w": 32,
+                "h": 34
+            }
+        },
+        "BubbleDies3.webp": {
+            "frame": {
+                "x": 96,
+                "y": 0,
+                "w": 32,
+                "h": 32
+            },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "w": 32,
+                "h": 32
+            },
+            "sourceSize": {
+                "w": 32,
+                "h": 32
+            }
+        }
+    },
+    "animations": {
+        "BubbleDies": [
+            "BubbleDies0.webp",
+            "BubbleDies1.webp",
+            "BubbleDies2.webp",
+            "BubbleDies3.webp"
+        ]
+    },
+    "meta": {
+        "app": "https://www.codeandweb.com/texturepacker",
+        "version": "1.1",
+        "image": "BubbleDies.webp",
+        "format": "RGBA8888",
+        "size": {
+            "w": 128,
+            "h": 34
+        },
+        "scale": "1",
+        "smartupdate": "$TexturePacker:SmartUpdate:487ba5c937dec88ad0b884e7723f8444:3ed9a34d89037c2ab088c47b3349c6ed:babb9c1dce3eec6e21f6e7e0d516ea9f$"
+    }
+}

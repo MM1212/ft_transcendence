@@ -111,7 +111,7 @@ export class ClientLobby extends Lobby {
   async onUpdate(delta: number): Promise<void> {
     if (!this.app.stage || !this.stage || this.loading) return;
     await super.onUpdate(delta);
-    await this.interactions.update();    
+    await this.interactions.update();
   }
 
   private async setupBackground(): Promise<void> {
@@ -224,11 +224,19 @@ export class ClientLobby extends Lobby {
     if (ret instanceof Promise)
       return new Promise<void>((r) =>
         ret.then((snapshot) => {
-          this.snapshot = snapshot;
+          this.__handleNewSnapshot(snapshot);
           r();
         })
       );
-    else this.snapshot = ret;
+    this.__handleNewSnapshot(ret);
+  }
+
+  private retainRef: () => void | null = () => void 0;
+  public __handleNewSnapshot(snapshot: Snapshot): void {
+    this.retainRef();
+    this.snapshot = snapshot;
+    if (!this.snapshot) return;
+    this.retainRef = this.snapshot.retain();
   }
 
   // Socket Calls

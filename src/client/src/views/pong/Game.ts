@@ -5,10 +5,15 @@ import { UIGameObject } from './GameObject';
 import { Vector2D } from './utils/Vector';
 import { UIArenaWall } from './Collisions/Arena';
 import { Debug } from './utils/Debug';
-import { drawLines, scoreStyleSettings } from './utils/drawUtils';
+import {
+  countdownStyleSettings,
+  drawLines,
+  scoreStyleSettings,
+} from './utils/drawUtils';
 import { UIPlayer } from './Paddles/Player';
 import {
   ARENA_SIZE,
+  ASPECT_RATIO,
   MULTIPLAYER_START_POS,
   P_START_DIST,
   WINDOWSIZE_X,
@@ -27,11 +32,21 @@ import { UIEffect } from './SpecialPowers/Effect';
 import PongModel from '@typings/models/pong';
 import { Ball } from '@shared/Pong/Ball';
 import { ballsConfig, paddleConfig } from '@shared/Pong/config/configInterface';
-import { DisconnectWindowTex } from './utils';
+import {
+  BackgroundTex,
+  DisconnectWindowTex,
+  ScoreTex,
+  TimeBorderTex,
+} from './utils';
+import { UIBot } from './Paddles/Bot';
+import moment from 'moment';
 
 type Powers = UIBubble | UIFire | UIGhost | UIIce | UISpark;
 
 export class UIGame extends Game {
+  private background: PIXI.Sprite;
+  private scoreBorder: PIXI.Sprite[];
+
   public app: PIXI.Application;
   public debug: Debug;
   private scoreElementLeft: PIXI.Text = new PIXI.Text('');
@@ -44,7 +59,18 @@ export class UIGame extends Game {
   public disconnectedPlayers: { tag: string; nickname: string }[] = [];
   public disconnectedPrint: PIXI.Text = new PIXI.Text('');
 
+  public randomBordersSelected: number[] = [];
+  public timeBorder: PIXI.Sprite;
+  public timeText: PIXI.Text = new PIXI.Text('');
+
+  public startTime: number = 0; //ms
+  public started = false;
+  public timePassed: number = 0; //ms
+
   public roomId: string;
+
+  public scorePosition1: [number, number] = [0, 0];
+  public scorePosition2: [number, number] = [0, 0];
 
   constructor(
     public readonly socket: Socket,
@@ -54,11 +80,8 @@ export class UIGame extends Game {
     private readonly userId: number
   ) {
     super(WINDOWSIZE_X, WINDOWSIZE_Y);
-
     this.roomId = gameConfig.UUID;
 
-    // need to add background tex
-    // Black hardcoded for now
     this.app = new PIXI.Application({
       background: '#000000',
       antialias: true,
@@ -66,6 +89,30 @@ export class UIGame extends Game {
       height: WINDOWSIZE_Y,
     });
     this.app.renderer.background.color = '#000000';
+    this.background = new PIXI.Sprite(BackgroundTex);
+    this.background.x = WINDOWSIZE_X / 2;
+    this.background.y = WINDOWSIZE_Y / 2;
+    this.background.anchor.set(0.5);
+    this.background.alpha = 0.3;
+    this.app.stage.addChild(this.background);
+    this.scorePosition1 = [
+      this.app.view.width / 2 - this.app.view.width / 12,
+      this.app.view.height / 16,
+    ];
+    this.scorePosition2 = [
+      this.app.view.width / 2 + this.app.view.width / 12,
+      this.app.view.height / 16,
+    ];
+
+    this.timeBorder = new PIXI.Sprite(TimeBorderTex);
+    this.timeBorder.x = this.app.view.width / 2;
+    this.timeBorder.y = this.app.view.height / 16;
+    this.timeBorder.anchor.set(0.5);
+    this.timeText = new PIXI.Text('00:00', scoreStyleSettings);
+    this.timeText.style.fontSize = 22;
+    this.timeText.anchor.set(0.5);
+    this.timeText.x = this.app.view.width / 2;
+    this.timeText.y = this.app.view.height / 16;
 
     drawLines(0xffffff, this.app);
 
@@ -87,6 +134,7 @@ export class UIGame extends Game {
         this
       )
     );
+
     this.add(
       new UIBall(
         this.width / 2,
@@ -96,7 +144,18 @@ export class UIGame extends Game {
       )
     );
 
-    container.appendChild(this.app.view as HTMLCanvasElement);
+    this.scoreBorder = [new PIXI.Sprite(ScoreTex), new PIXI.Sprite(ScoreTex)];
+    this.scoreBorder[0].anchor.set(0.5);
+    this.scoreBorder[1].anchor.set(0.5);
+    this.scoreBorder[0].x = this.scorePosition1[0];
+    this.scoreBorder[0].y = this.scorePosition1[1];
+    this.scoreBorder[1].x = this.scorePosition2[0];
+    this.scoreBorder[1].y = this.scorePosition2[1];
+    this.app.stage.addChild(this.scoreBorder[0]);
+    this.app.stage.addChild(this.scoreBorder[1]);
+    this.app.stage.addChild(this.timeBorder);
+    this.app.stage.addChild(this.timeText);
+    this.timeText.visible = false;
 
     this.setDisconnectedWindow();
 
@@ -112,6 +171,30 @@ export class UIGame extends Game {
     this.socket.emit(PongModel.Socket.Events.UpdateDisconnected, {
       roomId: this.roomId,
     });
+
+    const resizeHandler = this.handleResize.bind(this);
+    window.addEventListener('resize', resizeHandler);
+    resizeHandler();
+
+    container.appendChild(this.app.view as HTMLCanvasElement);
+  }
+
+  private handleResize(): void {
+    if (!this.app.stage) return;
+    if (window.innerWidth / window.innerHeight >= ASPECT_RATIO) {
+      this.app.renderer.resize(
+        window.innerHeight * ASPECT_RATIO,
+        window.innerHeight
+      );
+    } else {
+      this.app.renderer.resize(
+        window.innerWidth,
+        window.innerWidth / ASPECT_RATIO
+      );
+    }
+    this.app.stage.scale.x = this.app.renderer.width / WINDOWSIZE_X;
+    this.app.stage.scale.y = this.app.renderer.height / WINDOWSIZE_Y;
+    console.log('RESIZE = ' + window.innerWidth + ' ' + window.innerHeight);
   }
 
   setScoreElements(): void {
@@ -120,12 +203,10 @@ export class UIGame extends Game {
     this.scoreElementRight = new PIXI.Text(this.score[1], this.scoreStyle);
     this.scoreElementLeft.anchor.set(0.5);
     this.scoreElementRight.anchor.set(0.5);
-    this.scoreElementLeft.x =
-      this.app.view.width / 2 - this.app.view.width / 12;
-    this.scoreElementLeft.y = this.app.view.height / 16;
-    this.scoreElementRight.x =
-      this.app.view.width / 2 + this.app.view.width / 12;
-    this.scoreElementRight.y = this.app.view.height / 16;
+    this.scoreElementLeft.x = this.scorePosition1[0];
+    this.scoreElementLeft.y = this.scorePosition1[1];
+    this.scoreElementRight.x = this.scorePosition2[0];
+    this.scoreElementRight.y = this.scorePosition2[1];
     this.app.stage.addChild(this.scoreElementLeft);
     this.app.stage.addChild(this.scoreElementRight);
   }
@@ -232,7 +313,6 @@ export class UIGame extends Game {
   handleKeyDown = (e: KeyboardEvent) => {
     if (this.gameConfig.spectators.includes(this.userId)) return;
 
-
     if (e.key && e.repeat === false && e.shiftKey === false) {
       // (this.AllPlayersNicks)
       this.socket.emit(PongModel.Socket.Events.KeyPress, {
@@ -279,6 +359,7 @@ export class UIGame extends Game {
   handleRemovePower(obj: UIGameObject) {
     const specialpower = this.getObjectWithType(obj);
     if (specialpower) {
+      console.log('REMOVING: ' + specialpower.tag);
       specialpower.removePower();
       specialpower.displayObject?.destroy();
       this.app.stage.removeChild(specialpower.displayObject);
@@ -311,8 +392,40 @@ export class UIGame extends Game {
     }
   }
 
+  countdown(n: number): void {
+    if (this.app.stage) {
+      const style = new PIXI.TextStyle(countdownStyleSettings);
+      const countdown = new PIXI.Text(n.toString(), style);
+      if (n === 0) countdown.text = 'GO!';
+      countdown.anchor.set(0.5);
+      console.log(this.app.view.width);
+      countdown.x = this.app.view.width / 2;
+      countdown.y = this.app.view.height / 2;
+      this.app.stage.addChild(countdown);
+
+      let i = 0;
+      setInterval(() => {
+        countdown.alpha = 1 - i / 40;
+        if (i < 25) countdown.scale.set(1 + i / 10);
+        i++;
+      }, 30);
+
+      setTimeout(() => {
+        this.app.stage.removeChild(countdown);
+      }, 800);
+    }
+    if (n === 0) {
+      this.started = true;
+      this.timeText.visible = true;
+    }
+  }
+
   private tickRef: PIXI.TickerCallback<any> | undefined;
   start() {
+    this.disconnectWindow.visible = false;
+    this.disconnectedPrint.visible = false;
+    this.disconnectedPlayers.length = 0;
+    this.timePassed = 0;
     this.tickRef = (_delta: number) => {
       this.update(_delta);
     };
@@ -340,15 +453,30 @@ export class UIGame extends Game {
     this.updatePaddleSizes(paddles);
   }
 
+  private lastRenderTimePassed = Date.now();
+  renderTimePassed() {
+    if (this.started === true && Date.now() - this.lastRenderTimePassed > 250) {
+      this.lastRenderTimePassed = Date.now();
+      this.timePassed = Date.now() - this.startTime;
+      this.timeText.text = moment.utc(this.timePassed).format('mm:ss');
+    }
+  }
+
+  updateStartTime(time_start: number) {
+    this.startTime = time_start;
+
+    console.log('START TIME: ' + this.started);
+  }
+
   update(delta: number) {
     if (this.run) {
+      // TODO date now packet server
+      this.renderTimePassed();
+
       this.debug.debugDraw(this.gameObjects as UIGameObject[]);
 
-      this.gameObjects.forEach((gameObject: GameObject) => {
-        if (gameObject instanceof UIPlayer) {
-          gameObject.mana.update(gameObject.tag, delta);
-          gameObject.energy.update(gameObject.tag, delta);
-        }
+      this.gameObjects.forEach((gameObject) => {
+        gameObject.update(delta);
       });
     }
   }
@@ -367,14 +495,14 @@ export class UIGame extends Game {
     );
   }
 
-  private ballRef: UIGameObject | undefined = undefined;
+  private ballRefere: UIGameObject | undefined = undefined;
   public getObjectByTag(tag: string): UIGameObject | undefined {
-    if (tag === PongModel.InGame.ObjType.Ball && !!this.ballRef)
-      return this.ballRef;
+    if (tag === PongModel.InGame.ObjType.Ball && !!this.ballRefere)
+      return this.ballRefere;
     const obj = this.gameObjects.find(
       (gameObject: GameObject) => gameObject.tag === tag
     ) as UIGameObject;
-    if (!this.ballRef && obj instanceof Ball) this.ballRef = obj;
+    if (!this.ballRefere && obj instanceof Ball) this.ballRefere = obj;
     return obj;
   }
 
@@ -435,16 +563,22 @@ export class UIGame extends Game {
           )
         );
       } else {
-        //this.add (new UIBot(
-        // P_START_DIST,
-        // this.height / 2,
-        // PongModel.InGame.ObjType.Player2,
-        // new Vector2D(1, 1),
-        // this
-        // );
-        // })
+        this.add(
+          new UIBot(
+            startX,
+            this.height / 2,
+            playerNbr!,
+            direction,
+            p.specialPower as PongModel.Models.LobbyParticipantSpecialPowerType,
+            this,
+            p.teamId,
+            p.paddle as keyof typeof paddleConfig,
+            p.avatar,
+            p.nickname,
+            p.userId
+          )
+        );
       }
     }
-    // Add special power to the bots
   }
 }

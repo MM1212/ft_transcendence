@@ -20,6 +20,10 @@ export class Ice extends SpecialPower {
     }
 
     onCollide(target: GameObject): boolean {
+        if (target instanceof SpecialPower)
+        {
+            return true;
+        }
 
         if (target instanceof Bar)
         {
@@ -28,11 +32,9 @@ export class Ice extends SpecialPower {
                 target.setEffect(new Effect("SLOW", target));
             else
                 target.setEffect(new Effect("STOP", target));
-        }
-
-        if (target instanceof SpecialPower || target instanceof Ball)
+        } else if (target instanceof Ball)
         {
-            return true;
+            this.shooterObject.stats.iHitMyPower(undefined);
         }
         this.game.remove(this);
         return false;

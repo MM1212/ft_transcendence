@@ -1,0 +1,125 @@
+{
+    "frames": {
+        "SparkDies0.webp": {
+            "frame": {
+                "x": 35,
+                "y": 1,
+                "w": 27,
+                "h": 26
+            },
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": {
+                "x": 2,
+                "y": 3,
+                "w": 27,
+                "h": 26
+            },
+            "sourceSize": {
+                "w": 32,
+                "h": 32
+            }
+        },
+        "SparkDies1.webp": {
+            "frame": {
+                "x": 1,
+                "y": 69,
+                "w": 30,
+                "h": 30
+            },
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": {
+                "x": 1,
+                "y": 2,
+                "w": 30,
+                "h": 30
+            },
+            "sourceSize": {
+                "w": 32,
+                "h": 32
+            }
+        },
+        "SparkDies2.webp": {
+            "frame": {
+                "x": 33,
+                "y": 69,
+                "w": 29,
+                "h": 29
+            },
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 2,
+                "w": 29,
+                "h": 29
+            },
+            "sourceSize": {
+                "w": 32,
+                "h": 32
+            }
+        },
+        "SparkDies3.webp": {
+            "frame": {
+                "x": 1,
+                "y": 1,
+                "w": 32,
+                "h": 32
+            },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "w": 32,
+                "h": 32
+            },
+            "sourceSize": {
+                "w": 32,
+                "h": 32
+            }
+        },
+        "SparkDies4.webp": {
+            "frame": {
+                "x": 1,
+                "y": 35,
+                "w": 32,
+                "h": 32
+            },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "w": 32,
+                "h": 32
+            },
+            "sourceSize": {
+                "w": 32,
+                "h": 32
+            }
+        }
+    },
+    "animations": {
+        "SparkDies": [
+            "SparkDies0.webp",
+            "SparkDies1.webp",
+            "SparkDies2.webp",
+            "SparkDies3.webp",
+            "SparkDies4.webp"
+        ]
+    },
+    "meta": {
+        "app": "https://www.codeandweb.com/texturepacker",
+        "version": "1.1",
+        "image": "SparkDies.webp",
+        "format": "RGBA8888",
+        "size": {
+            "w": 63,
+            "h": 100
+        },
+        "scale": "1",
+        "smartupdate": "$TexturePacker:SmartUpdate:24e5a900ba1ca3f7ea6ebfc006f6c0fe:a3f4209da8ce8b41ecc5d492ed0d95df:521ff9f6602203ced5887ebbe7afc87a$"
+    }
+}

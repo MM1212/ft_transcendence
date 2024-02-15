@@ -1,4 +1,3 @@
-import ChatBox from '@apps/Lobby/components/InGameChat';
 import React from 'react';
 import { ClientLobby } from '../src/Lobby';
 import {
@@ -10,8 +9,11 @@ import { useSocket } from '@hooks/socket';
 import { buildTunnelEndpoint } from '@hooks/tunnel';
 import { CircularProgress, Modal } from '@mui/joy';
 import LobbyModel from '@typings/models/lobby';
-import { lobbyAtom } from '../state';
+import lobbyState, { lobbyAtom } from '../state';
 import { useIsLobbyLoading } from '../hooks';
+import LobbyInteractionsPanel from '../components/InterationsPanel';
+import type { InteractionData } from '../src/Interaction';
+import { useKeybindsToggle } from '@hooks/keybinds';
 
 export default function LobbyView(): JSX.Element {
   const ref = React.useRef<HTMLDivElement>(null);
@@ -68,6 +70,23 @@ export default function LobbyView(): JSX.Element {
 
   const isLobbyLoading = useIsLobbyLoading();
 
+  const syncLobbyInteractions = useRecoilCallback(
+    (ctx) => (interactions: InteractionData[]) => {
+      ctx.set(lobbyState.showingInteractions, interactions);
+    },
+    []
+  );
+
+  const onInteractionClickHandler = useRecoilCallback(
+    (ctx) => async (key: string, pressed: boolean) => {
+      if (!lobbyRef.current) return;
+      await lobbyRef.current.interactions.__handleKeydown(key, pressed, ctx);
+    },
+    []
+  );
+
+  useKeybindsToggle(undefined, onInteractionClickHandler, []);
+
   const initLobby = useRecoilCallback(
     (ctx) => () => {
       if (!ref.current) return;
@@ -76,10 +95,11 @@ export default function LobbyView(): JSX.Element {
         socket,
         currentSnapshot.current
       );
+      lobbyRef.current.interactions.__sync = syncLobbyInteractions;
       lobbyRef.current.onMount().then(() => socket.connect());
       ctx.set(lobbyAtom, lobbyRef.current);
     },
-    [socket]
+    [socket, syncLobbyInteractions]
   );
 
   React.useEffect(() => {
@@ -91,13 +111,10 @@ export default function LobbyView(): JSX.Element {
     };
   }, [socket, initLobby]);
 
-  const retainRef = React.useRef<() => void | null>(() => void 0);
   useRecoilTransactionObserver_UNSTABLE(({ snapshot }) => {
     currentSnapshot.current = snapshot;
     if (!lobbyRef.current) return;
-    retainRef.current?.();
-    retainRef.current = snapshot.retain();
-    lobbyRef.current.snapshot = snapshot;
+    lobbyRef.current.__handleNewSnapshot(snapshot);
   });
 
   React.useEffect(() => {
@@ -127,7 +144,8 @@ export default function LobbyView(): JSX.Element {
       <div>
         {targetElem}
         <React.Suspense fallback={null}>
-          <ChatBox />
+          {/* <ChatBox /> */}
+          <LobbyInteractionsPanel />
         </React.Suspense>
         <Modal
           open={!connected || isLobbyLoading}

@@ -84,6 +84,20 @@ export class PongLobbyService {
     return Array.from(this.games.values()).map((lobby) => lobby.infoDisplay);
   }
 
+  public async addBot(userId: number, lobbyId:number, teamId: number, teamPosition: number): Promise<void> {
+    if (!this.usersInGames.has(userId))
+      throw new ForbiddenException('User is not in a lobby/game');
+    if (lobbyId !== this.usersInGames.get(userId))
+      throw new ForbiddenException('User is not in the specified lobby');
+    const lobby = this.games.get(lobbyId);
+    if (!lobby) throw new Error('Could not find lobby');
+    if (lobby.ownerId !== userId)
+      throw new ForbiddenException('User is not the owner of the lobby');
+    const bot = this.getBots()[Math.floor(Math.random() * this.getBots().length)];
+      if (lobby.addBot(bot, teamId, teamPosition)) lobby.syncParticipants();
+    else throw new ForbiddenException('Could not add bot');
+  }
+
   public async startGame(userId: number, lobbyId: number): Promise<PongLobby> {
     if (!this.usersInGames.has(userId))
       throw new ForbiddenException('User is not in a lobby/game');
@@ -290,7 +304,13 @@ export class PongLobbyService {
     if (syncToUser === true) {
       lobby.sendToParticipant(userId, PongModel.Sse.Events.Leave, null);
     }
+
+    console.log(`Lobby-${lobby.id}: ${lobby.name} left by ${userId}`);
+    if (lobby.onlyBots) {
+      await lobby.removeAllBots();
+    }
     if (lobby.nPlayers === 0 && lobby.spectators.length === 0) {
+      lobby.allPlayers.forEach((player) => this.usersInGames.delete(player.id));
       await lobby.delete();
       this.games.delete(lobby.id);
       console.log(`Lobby-${lobby.id}: ${lobby.name} deleted`);
