@@ -196,6 +196,8 @@ export default function Achievements(user: UsersModel.Models.IUserInfo) {
         user={user}
         acquired={acquiredAchievementsLength}
         total={total}
+        checked={fetchAll}
+        changer={() => setFetchAll(!fetchAll)}
       />
       <Stack
         p={1}

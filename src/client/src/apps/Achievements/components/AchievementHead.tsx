@@ -1,4 +1,4 @@
-import { Box, IconButton, Sheet } from '@mui/joy';
+import { Box, IconButton, Sheet, Checkbox } from '@mui/joy';
 import { Stack, Typography } from '@mui/joy';
 import AchivementBar from './AchievementBar';
 import { UserAvatar } from '@components/AvatarWithStatus';
@@ -8,10 +8,14 @@ export default function AchievementHead({
   user,
   acquired,
   total,
+  checked,
+  changer,
 }: {
   user: UsersModel.Models.IUserInfo;
   acquired: number;
   total: number;
+  checked: any;
+  changer: any;
 }) {
   console.log(user);
 
@@ -52,6 +56,14 @@ export default function AchievementHead({
           </Box>
           <AchivementBar percentage={percentage} />
         </Sheet>
+          <Checkbox 
+          variant="soft"
+          size="sm" 
+          label="Show All"
+          display="flex"
+          checked={checked}
+          onChange={changer}
+          />
       </Stack>
       <Stack spacing={1} direction="row" alignItems="center">
         <IconButton size="sm" variant="plain" color="neutral"></IconButton>

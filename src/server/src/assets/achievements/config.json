@@ -28,7 +28,7 @@
        "title": "Underdog Victory.",
         "description": "Win a match against an opponent with a significantly higher level or ranking.",
         "icon": "win_higher.webp",
-        "bannerColor": "neutral",
+        "bannerColor": "warning",
         "quests":[]
     },
     {
