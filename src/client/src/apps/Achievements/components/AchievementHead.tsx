@@ -1,24 +1,29 @@
-import { Box, IconButton, Sheet } from "@mui/joy";
-import { Stack, Typography } from "@mui/joy";
-import AchivementBar from "./AchievementBar";
-import { useCurrentUser } from "@hooks/user";
-import { UserAvatar } from "@components/AvatarWithStatus";
-import { useUser } from "@hooks/user/index";
-import UsersModel from "@typings/models/users/index";
+import { Box, IconButton, Sheet } from '@mui/joy';
+import { Stack, Typography } from '@mui/joy';
+import AchivementBar from './AchievementBar';
+import { UserAvatar } from '@components/AvatarWithStatus';
+import UsersModel from '@typings/models/users/index';
 
-export default function AchievementHead({user}: {user: UsersModel.Models.IUserInfo}) {
-  const currentUser = useUser(user.id);
-  let achievements = currentUser?.achievements;
-  if(!achievements) achievements = 0;
-  let percentage = (achievements / 12) * 100;
+export default function AchievementHead({
+  user,
+  acquired,
+  total,
+}: {
+  user: UsersModel.Models.IUserInfo;
+  acquired: number;
+  total: number;
+}) {
+  console.log(user);
+
+  const percentage = (acquired / total) * 100;
 
   return (
     <Stack
       direction="row"
       justifyContent="space-between"
       sx={{
-        borderBottom: "1px solid",
-        borderColor: "divider",
+        borderBottom: '1px solid',
+        borderColor: 'divider',
       }}
       py={{ xs: 2, md: 2 }}
       px={{ xs: 1, md: 2 }}
@@ -27,25 +32,25 @@ export default function AchievementHead({user}: {user: UsersModel.Models.IUserIn
         direction="row"
         spacing={{ xs: 1, md: 2 }}
         alignItems="top"
-        sx={{ width: "100%" }}
+        sx={{ width: '100%' }}
       >
         <UserAvatar size="lg" src={user.avatar} />
         <Sheet
           sx={{
-            width: "100%",
+            width: '100%',
           }}
         >
           <Typography fontWeight="lg" fontSize="lg" component="h2" noWrap>
-           Achievements
+            Achievements
           </Typography>
           {user.nickname}
           <Typography level="body-sm">
-            {achievements} of 12 achievements completed
+            {acquired} of 12 achievements completed
           </Typography>
           <Box flexDirection="row-reverse" display="flex">
-            <Typography level="body-sm">({percentage}%)</Typography>
+            <Typography level="body-sm">({percentage.toFixed(2)}%)</Typography>
           </Box>
-          <AchivementBar user={user}/>
+          <AchivementBar percentage={percentage} />
         </Sheet>
       </Stack>
       <Stack spacing={1} direction="row" alignItems="center">

@@ -6,256 +6,214 @@ import {
   Typography,
   Sheet,
   CircularProgress,
+  Checkbox,
+  Box,
 } from '@mui/joy';
 import { Avatar } from '@mui/joy';
 import GenericPlaceholder from '@components/GenericPlaceholder';
 import TrophyBrokenIcon from '@components/icons/TrophyBrokenIcon';
 import { useTunnelEndpoint } from '@hooks/tunnel';
 import AchievementsModel from '@typings/models/users/achievements/index';
-import * as React from 'react';
-import { InternalEndpointResponse } from '@typings/api/index';
+import React from 'react';
 import publicPath from '@utils/public';
+import LockIcon from '@components/icons/LockIcon';
+import AchievementHead from './AchievementHead';
+import type UsersModel from '@typings/models/users';
 
-export const backGroundImg =
-  'https://png.pngtree.com/thumb_back/fh260/background/20200714/pngtree-modern-double-color-futuristic-neon-background-image_351866.jpg';
-
-function NoAchievement({ id }: { id: number }) {
-  const [fetchAll, setFetchAll] = React.useState(false);
-  const {
-    data: AllAchievements,
-    isLoading,
-    error,
-    isValidating,
-  }: {
-    data: InternalEndpointResponse<AchievementsModel.Endpoints.GetAchievements>;
-    isLoading: boolean;
-    error: any;
-    isValidating: boolean;
-  } = useTunnelEndpoint<AchievementsModel.Endpoints.GetAchievements>(
-    AchievementsModel.Endpoints.Targets.GetAchievements,
-    { all: fetchAll }
-  );
-
-  const {
-    data: userAchievements,
-    isLoading: userLoading,
-    error: usererror,
-    isValidating: userValidating,
-  }: {
-    data: InternalEndpointResponse<AchievementsModel.Endpoints.GetUserAchievements>;
-    isLoading: boolean;
-    error: any;
-    isValidating: boolean;
-  } = useTunnelEndpoint<AchievementsModel.Endpoints.GetUserAchievements>(
-    AchievementsModel.Endpoints.Targets.GetUserAchievements,
-    { all: fetchAll, userId: id }
-  );
-  if (isLoading || isValidating || userLoading || userValidating)
-    return <CircularProgress variant="plain" />;
-  if (error || !AllAchievements || usererror || !userAchievements)
-    return (
-      <GenericPlaceholder
-        icon={<TrophyBrokenIcon />}
-        title="Failed to load achievements"
-        description="Please try again later."
-      />
-    );
-
-  const achievements = AllAchievements.filter((achievement) =>
-    userAchievements.every(
-      (userAchievement) => userAchievement.tag !== achievement.tag
-    )
-  );
-
+function AchievementUnlocked(
+  achievement: AchievementsModel.DTO.IMixedAchievement & { idx: number }
+): JSX.Element {
+  if (!achievement.unlocked) return <></>;
   return (
-    <>
-      <Stack p={1} spacing={1} height={'100%'}>
-        {achievements.length > 0 ? (
-          achievements.map((achievement, index) => (
-            <Card
-              sx={{
-                flexDirection: 'row',
-                filter: 'grayscale(1.0)',
-                opacity: 0.6,
-              }}
-              key={index}
-            >
-              <CardContent
-                sx={{
-                  width: '100%',
-                  height: '100%',
-                  display: 'flex',
-                  flexDirection: 'row',
-                  pr: 15,
-                }}
-              >
-                <Avatar
-                  sx={(theme) => ({
-                    width: theme.spacing(12),
-                    height: theme.spacing(12),
-                    borderRadius: 0,
-                  })}
-                  alt={`Achievement ${index}`}
-                >
-                  Locked
-                </Avatar>
-                <Stack spacing={2}>
-                  <Typography level="body-md" fontWeight="lg" textColor="#fff">
-                    {achievement.title}
-                  </Typography>
-                  <Typography level="body-xs" textColor="#eec">
-                    {achievement.description}
-                  </Typography>
-                </Stack>
-              </CardContent>
-              <CardCover>
-                <Sheet
-                  variant="solid"
-                  color="neutral"
-                  style={{
-                    position: 'absolute',
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                    filter: 'blur(4px)',
-                    opacity: 0.4,
-                  }}
-                />
-                {
-                  <img
-                    src={publicPath('/loginPage.webp')}
-                    alt="background"
-                    style={{
-                      position: 'absolute',
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                      filter: 'blur(4px)',
-                      opacity: 0.4,
-                    }}
-                  />
-                }
-              </CardCover>
-            </Card>
-          ))
-        ) : (
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              height: '100%',
+    <Card>
+      <CardContent
+        sx={{
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'row',
+          pr: 15,
+        }}
+      >
+        <Avatar
+          sx={(theme) => ({
+            width: theme.spacing(12),
+            height: theme.spacing(12),
+            borderRadius: 'md',
+            border: '2px solid',
+            borderColor: 'divider',
+            ...(achievement.idx === 0 && {
+              filter: 'sepia(1) saturate(2)',
+            }),
+            ...(achievement.idx === 1 && {
+              filter: 'saturate(0.10)',
+            }),
+            ...(achievement.idx === 2 && {
+              filter: 'sepia(1)',
+            }),
+          })}
+          src={publicPath(`/achievements/${achievement.config.icon}`)}
+          alt={achievement.config.title}
+        />
+        <Stack spacing={2}>
+          <Typography level="body-md" fontWeight="lg">
+            {achievement.config.title}
+          </Typography>
+          <Typography
+            level="body-xs"
+            sx={{
+              color: `${achievement.config.bannerColor}.softColor`,
             }}
           >
-            <GenericPlaceholder
-              title="No Achievements Earned"
-              icon={<TrophyBrokenIcon fontSize="xl4" />}
-              path=""
-            />
-          </div>
-        )}
-      </Stack>
-    </>
+            {achievement.config.description}
+          </Typography>
+        </Stack>
+      </CardContent>
+      <CardCover>
+        <Sheet
+          variant="solid"
+          color="neutral"
+          sx={{
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            filter: 'blur(4px)',
+            opacity: 0.4,
+            bgcolor: `${achievement.config.bannerColor}.softBg`,
+          }}
+        />
+      </CardCover>
+    </Card>
   );
 }
 
-export default function Achievement({ id }: { id: number }) {
-  const [fetchAll, setFetchAll] = React.useState(false);
-  const {
-    data: achievements,
-    isLoading,
-    error,
-    isValidating,
-  }: {
-    data: InternalEndpointResponse<AchievementsModel.Endpoints.GetUserAchievements>;
-    isLoading: boolean;
-    error: any;
-    isValidating: boolean;
-  } = useTunnelEndpoint<AchievementsModel.Endpoints.GetUserAchievements>(
-    AchievementsModel.Endpoints.Targets.GetUserAchievements,
-    { all: fetchAll, userId: id }
+function AchievementLocked(
+  achievement: AchievementsModel.Models.IAchievement
+): JSX.Element {
+  return (
+    <Card>
+      <CardContent
+        sx={{
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'row',
+          pr: 15,
+        }}
+      >
+        <Box
+          sx={(theme) => ({
+            width: theme.spacing(12),
+            height: theme.spacing(12),
+            position: 'relative',
+          })}
+        >
+          <Avatar
+            sx={(theme) => ({
+              width: theme.spacing(12),
+              height: theme.spacing(12),
+              borderRadius: 'md',
+              border: '2px solid',
+              borderColor: 'divider',
+              filter: 'brightness(0.25) blur(1px)',
+            })}
+            src={publicPath(`/achievements/${achievement.icon}`)}
+            alt={achievement.title}
+          />
+          <LockIcon
+            style={{
+              position: 'absolute',
+              zIndex: 1,
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+            }}
+          />
+        </Box>
+        <Stack spacing={2}>
+          <Typography level="body-md" fontWeight="lg">
+            {achievement.title}
+          </Typography>
+          <Typography
+            level="body-xs"
+            sx={{
+              color: `${achievement.bannerColor}.softColor`,
+            }}
+          >
+            {achievement.description}
+          </Typography>
+        </Stack>
+      </CardContent>
+      <CardCover>
+        <Sheet
+          variant="solid"
+          color="neutral"
+          sx={{
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            filter: 'blur(4px)',
+            opacity: 0.4,
+            bgcolor: `neutral.softBg`,
+          }}
+        />
+      </CardCover>
+    </Card>
+  );
+}
+
+export default function Achievements(user: UsersModel.Models.IUserInfo) {
+  const [fetchAll, setFetchAll] = React.useState(true);
+  const { data, isLoading, error, isValidating } =
+    useTunnelEndpoint<AchievementsModel.Endpoints.GetUserAchievements>(
+      AchievementsModel.Endpoints.Targets.GetUserAchievements,
+      { all: fetchAll, userId: user.id }
+    );
+  const acquiredAchievementsLength = React.useMemo(
+    () => (data ? data.achievements.filter((a) => a.unlocked) : []).length,
+    [data]
   );
   if (isLoading || isValidating) return <CircularProgress variant="plain" />;
-  if (error || !achievements)
+  if (error || !data)
     return (
       <GenericPlaceholder
         icon={<TrophyBrokenIcon />}
         title="Failed to load achievements"
-        description="Please try again later."
+        label="Please try again later."
       />
     );
+  const { achievements, total } = data;
   return (
     <>
-      <Stack p={1} spacing={1} height={'100%'}>
+      {/* <Checkbox
+        checked={fetchAll}
+        onChange={() => setFetchAll(!fetchAll)}
+        label="Show All"
+      /> */}
+      <AchievementHead
+        user={user}
+        acquired={acquiredAchievementsLength}
+        total={total}
+      />
+      <Stack
+        p={1}
+        spacing={1}
+        sx={{
+          width: '100%',
+          flexGrow: 1,
+        }}
+        overflow="auto"
+      >
         {achievements.length > 0 ? (
-          achievements.map((achievement, index) => (
-            <Card
-              sx={{
-                flexDirection: 'row',
-                filter: 'grayscale(0)',
-                opacity: 10,
-              }}
-              key={index}
-            >
-              <CardContent
-                sx={{
-                  width: '100%',
-                  height: '100%',
-                  display: 'flex',
-                  flexDirection: 'row',
-                  pr: 15,
-                }}
-              >
-                <Avatar
-                  sx={(theme) => ({
-                    width: theme.spacing(12),
-                    height: theme.spacing(12),
-                    borderRadius: 0,
-                  })}
-                  src={achievement.config.icon}
-                  alt={`Achievement ${index}`}
-                />
-                <Stack spacing={2}>
-                  <Typography level="body-md" fontWeight="lg" textColor="#fff">
-                    {/* {achievements[index]} */}
-                    {achievement.config.title}
-                  </Typography>
-                  <Typography level="body-xs" textColor="#eec">
-                    {/* {achievements[index]} */}
-                    {achievement.config.description}
-                  </Typography>
-                </Stack>
-              </CardContent>
-              <CardCover>
-                <Sheet
-                  variant="solid"
-                  color="neutral"
-                  style={{
-                    position: 'absolute',
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                    filter: 'blur(4px)',
-                    opacity: 0.4,
-                  }}
-                />
-                {
-                  <img
-                    src={publicPath('/loginPage.webp')}
-                    alt="background"
-                    style={{
-                      position: 'absolute',
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                      filter: 'blur(4px)',
-                      opacity: 0.4,
-                    }}
-                  />
-                }
-              </CardCover>
-            </Card>
-          ))
+          achievements.map((achievement, index) =>
+            achievement.unlocked ? (
+              <AchievementUnlocked {...achievement} key={index} idx={index} />
+            ) : (
+              <AchievementLocked {...achievement} key={index} />
+            )
+          )
         ) : (
           <div
             style={{
@@ -272,7 +230,6 @@ export default function Achievement({ id }: { id: number }) {
             />
           </div>
         )}
-        <NoAchievement id={id} />
       </Stack>
     </>
   );
