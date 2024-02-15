@@ -92,6 +92,7 @@ export class Shooter {
 
             if (this.ballRef?.getEffect?.isEffectOver === true)// || this.ballRef?.getEffect === undefined)
             {
+                this.game.sendShooterTimeout = shooter.tag;
                 this.shootBall(shooter);
                 return false;
             }

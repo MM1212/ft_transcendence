@@ -7,7 +7,6 @@ import NotificationsModel from "@typings/models/notifications";
 import TableTennisIcon from "@components/icons/TableTennisIcon";
 import { useLobbyActions } from "./actions";
 import { navigate } from "wouter/use-location";
-import tunnel from "@lib/tunnel";
 
 const useLobbyService = () => {
   // can this be here?
@@ -32,6 +31,27 @@ const useLobbyService = () => {
           ownerId: data.ownerId,
           teams: data.teams,
           spectators: data.spectators,
+        };
+      });
+    },
+    []
+  );
+
+  const onUpdateSettingsEvent = useRecoilCallback(
+    (ctx) => async (ev: PongModel.Sse.UpdateLobbySettings) => {
+      const lobby = await ctx.snapshot.getPromise(pongGamesState.gameLobby);
+      if (!lobby) return;
+      if (lobby.id !== ev.data.lobbyId) return;
+      ctx.set(pongGamesState.gameLobby, (prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          score: ev.data.score,
+          gameType:
+            ev.data.type === true
+              ? PongModel.Models.LobbyGameType.Powers
+              : PongModel.Models.LobbyGameType.Classic,
+          ballSkin: ev.data.ballSkin,
         };
       });
     },
@@ -125,6 +145,10 @@ const useLobbyService = () => {
   useSseEvent<PongModel.Sse.UpdateLobbyParticipantEvent>(
     PongModel.Sse.Events.UpdateLobbyParticipants,
     onUpdateLobbyEvent
+  );
+  useSseEvent<PongModel.Sse.UpdateLobbySettings>(
+    PongModel.Sse.Events.UpdateLobbySettings,
+    onUpdateSettingsEvent
   );
   useSseEvent<PongModel.Sse.UpdateLobbyInvited>(
     PongModel.Sse.Events.UpdateLobbyInvited,

@@ -25,9 +25,7 @@ export class BarStatistics {
   constructor(private powerCost: number) {}
 
   public incrementSpecialPowerStat(power: string) {
-    if (power === PongModel.Models.LobbyParticipantSpecialPowerType.none)
-      return;
-    else if (power === PongModel.Models.LobbyParticipantSpecialPowerType.bubble)
+    if (power === PongModel.Models.LobbyParticipantSpecialPowerType.bubble)
       this.bubble_DirectGoal++;
     else if (power === PongModel.Models.LobbyParticipantSpecialPowerType.fire)
       this.fire_DirectGoal++;

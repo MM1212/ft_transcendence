@@ -46,6 +46,15 @@ export const useListenerManager = () => {
   );
 
   useListener(
+    PongModel.Socket.Events.ShooterTimeout, (data: {
+      tag: string;
+    }) => {
+      console.log('shooter timeout', data.tag);
+      game?.current?.shooterTimeout(data.tag);
+    }
+  )
+
+  useListener(
     PongModel.Socket.Events.TimeStart,
     (data: PongModel.Socket.Data.TimeStart) => {
       game?.current?.updateStartTime(data.time_start);

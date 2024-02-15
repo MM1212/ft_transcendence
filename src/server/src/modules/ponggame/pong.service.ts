@@ -194,6 +194,7 @@ export class PongService {
     });
 
     return {
+      gametype: lobby.gameType as PongModel.Models.LobbyGameType,
       UUID: uuid,
       teams: teams,
       spectators: spectators,

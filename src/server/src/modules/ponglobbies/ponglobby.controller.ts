@@ -77,6 +77,21 @@ export class PongLobbyController {
     await this.service.leaveLobby(ctx.user.id);
   }
 
+  @Post(Targets.UpdateLobbySettings)
+  async updateLobbySettings(
+    @HttpCtx() ctx: HTTPContext<true>,
+    @Body(new ObjectValidationPipe(ponglobbyValidator.updateLobbySettingsSchema))
+    body: EndpointData<PongModel.Endpoints.UpdateLobbySettings>,
+  ): Promise<InternalEndpointResponse<PongModel.Endpoints.UpdateLobbySettings>> {
+    await this.service.updateLobbySettings(
+      ctx.user.id,
+      body.lobbyId,
+      body.score,
+      body.type,
+      body.ballSkin,
+    );
+  }
+
   @Post(Targets.StartGame)
   async startGame(
     @HttpCtx() ctx: HTTPContext<true>,

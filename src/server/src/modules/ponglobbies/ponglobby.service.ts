@@ -53,6 +53,21 @@ export class PongLobbyService {
       this._bots.set(botSpec.nickname, user);
     }
   }
+
+  public async updateLobbySettings(userid: number, lobbyId: number, score: number, type: boolean, ballSkin: string): Promise<void> {
+    if (!this.usersInGames.has(userid))
+      throw new ForbiddenException('User is not in a lobby/game');
+    if (lobbyId !== this.usersInGames.get(userid))
+      throw new ForbiddenException('User is not in the specified lobby');
+    const lobby = this.games.get(lobbyId);
+    if (!lobby) throw new Error('Could not find lobby');
+    if (lobby.ownerId !== userid)
+      throw new ForbiddenException('User is not the owner of the lobby');
+    if (await lobby.updateSettings(score, type, ballSkin)) {
+      lobby.syncSettings();
+    }
+  }
+
   public getBot(nickname: string): User | null {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const _lock = new ScopeLock(this.createBotsMutex);

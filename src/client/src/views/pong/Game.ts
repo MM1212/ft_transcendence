@@ -79,7 +79,7 @@ export class UIGame extends Game {
     public readonly nickname: string,
     private readonly userId: number
   ) {
-    super(WINDOWSIZE_X, WINDOWSIZE_Y);
+    super(WINDOWSIZE_X, WINDOWSIZE_Y, gameConfig.gametype as PongModel.Models.LobbyGameType);
     this.roomId = gameConfig.UUID;
 
     this.app = new PIXI.Application({
@@ -195,6 +195,11 @@ export class UIGame extends Game {
     this.app.stage.scale.x = this.app.renderer.width / WINDOWSIZE_X;
     this.app.stage.scale.y = this.app.renderer.height / WINDOWSIZE_Y;
     console.log('RESIZE = ' + window.innerWidth + ' ' + window.innerHeight);
+  }
+
+  shooterTimeout(tag: string): void {
+    const player = this.getObjectByTag(tag)! as UIPlayer;
+    player.shooterTimeout();
   }
 
   setScoreElements(): void {
@@ -384,6 +389,7 @@ export class UIGame extends Game {
   ): void {
     if (option === effectSendOption.REMOVE) {
       console.log(effectName + ' removed on ' + obj.tag);
+      // HANDLE
       if (obj.effect?.name === 'INVISIBLE') obj.displayObject.alpha = 1;
       obj.effect = undefined;
     } else if (option === effectSendOption.SEND) {
