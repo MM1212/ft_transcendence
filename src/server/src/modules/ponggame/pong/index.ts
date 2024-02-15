@@ -119,7 +119,7 @@ export class ServerGame extends Game {
             ]);
             break;
           case SHOOT_ACTION.SHOOT:
-            // need to make this be a variable and then emit on the looop
+            this.sendShooterTimeout = player.tag;
             this.room.emit(PongModel.Socket.Events.ShootPower, {
               tag: player.tag,
             });
@@ -597,6 +597,13 @@ export class ServerGame extends Game {
         };
       },
     );
+
+    if (this.sendShooterTimeout != '') {
+      this.room.emit(PongModel.Socket.Events.ShooterTimeout, {
+        tag: this.sendShooterTimeout,
+      });
+      this.sendShooterTimeout = '';
+    }
 
     if (this.sendPaddlesScale.length > 0 || this.scored === true) {
       this.room.emit(PongModel.Socket.Events.UpdateScore, {

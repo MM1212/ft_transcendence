@@ -197,6 +197,11 @@ export class UIGame extends Game {
     console.log('RESIZE = ' + window.innerWidth + ' ' + window.innerHeight);
   }
 
+  shooterTimeout(tag: string): void {
+    const player = this.getObjectByTag(tag)! as UIPlayer;
+    player.shooterTimeout();
+  }
+
   setScoreElements(): void {
     // change this
     this.scoreElementLeft = new PIXI.Text(this.score[0], this.scoreStyle);
@@ -384,6 +389,7 @@ export class UIGame extends Game {
   ): void {
     if (option === effectSendOption.REMOVE) {
       console.log(effectName + ' removed on ' + obj.tag);
+      // HANDLE
       if (obj.effect?.name === 'INVISIBLE') obj.displayObject.alpha = 1;
       obj.effect = undefined;
     } else if (option === effectSendOption.SEND) {

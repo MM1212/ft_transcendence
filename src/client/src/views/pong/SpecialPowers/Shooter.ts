@@ -34,6 +34,17 @@ export class UIShooter extends Shooter {
     this.displayObject.lineTo(line.end[0], line.end[1]);
   }
 
+  erase(): void {
+    if (this.displayObject) {
+      this.displayObject.clear();
+      this.uigame.app.stage.removeChild(this.displayObject);
+    }
+    if (this.shooterDisplay) {
+      this.shooterDisplay.destroy();
+      this.uigame.app.stage.removeChild(this.shooterDisplay);
+    }
+  }
+
   shootBall(shooter: UIBar): void {
     if (this.displayObject) {
         this.displayObject.clear();

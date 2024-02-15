@@ -205,7 +205,6 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
         team.players[0].teamPosition = PongModel.Models.TeamPosition.Top;
     });
     this.status = PongModel.Models.LobbyStatus.Playing;
-
     const game = await this.helpers.gameService.initGameSession(
       this,
       this.service,
@@ -427,7 +426,12 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
     if (score < 1 || score > 100) return false;
     this.score = score;
     // TODO - verify if user has this ball skin
-    if (ballSkin !== '') this.ballTexture = ballSkin;
+    if (ballSkin !== '') {
+      const ballPath = ballSkin.split('/');
+      const ballFile = ballPath[ballPath.length - 1];
+      const ballName = ballFile.split('.')[0];
+      this.ballTexture = ballName;
+    }
     this.gameType =
       type === true
         ? PongModel.Models.LobbyGameType.Powers

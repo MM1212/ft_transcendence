@@ -17,6 +17,7 @@ export class Game {
   protected sendObjects: GameObject[] = [];
   protected sendRemoveObjects: string[] = [];
   protected sendShooter: GameObject[] = [];
+  public sendShooterTimeout: string = "";
   protected sendEffects: GameObject[] = [];
   public scored: boolean = false;
 
@@ -82,6 +83,7 @@ export class Game {
     this.sendRemoveObjects.length = 0;
     this.sendEffects.length = 0;
     this.sendShooter.length = 0;
+    this.sendShooterTimeout = "";
     this.sendPaddlesScale.length = 0;
   }
 

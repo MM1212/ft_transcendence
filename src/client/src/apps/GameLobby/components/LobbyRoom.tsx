@@ -39,8 +39,8 @@ export default function LobbyRoom() {
         lobbyId: lobby.id,
       });
       notifications.success("Game is starting soon!");
-    } catch {
-      console.log("Failed to start game");
+    } catch (error){
+      console.log("Failed to start game", error);
       notifications.error("Failed to start game");
     }
   });
