@@ -19,20 +19,28 @@ import publicPath from '@utils/public';
 export const backGroundImg =
   'https://png.pngtree.com/thumb_back/fh260/background/20200714/pngtree-modern-double-color-futuristic-neon-background-image_351866.jpg';
 
-// export default function AchievementAsset(){
-//   return {
-
-//   }
-// }
-  
-
-export default function Achievement({ id }: { id: number }) {
+function NoAchievement({ id }: { id: number }) {
   const [fetchAll, setFetchAll] = React.useState(false);
   const {
-    data: achievements,
+    data: AllAchievements,
     isLoading,
     error,
     isValidating,
+  }: {
+    data: InternalEndpointResponse<AchievementsModel.Endpoints.GetAchievements>;
+    isLoading: boolean;
+    error: any;
+    isValidating: boolean;
+  } = useTunnelEndpoint<AchievementsModel.Endpoints.GetAchievements>(
+    AchievementsModel.Endpoints.Targets.GetAchievements,
+    { all: fetchAll }
+  );
+
+  const {
+    data: userAchievements,
+    isLoading: userLoading,
+    error: usererror,
+    isValidating: userValidating,
   }: {
     data: InternalEndpointResponse<AchievementsModel.Endpoints.GetUserAchievements>;
     isLoading: boolean;
@@ -42,8 +50,9 @@ export default function Achievement({ id }: { id: number }) {
     AchievementsModel.Endpoints.Targets.GetUserAchievements,
     { all: fetchAll, userId: id }
   );
-  if (isLoading || isValidating) return <CircularProgress variant="plain" />;
-  if (error || !achievements)
+  if (isLoading || isValidating || userLoading || userValidating)
+    return <CircularProgress variant="plain" />;
+  if (error || !AllAchievements || usererror || !userAchievements)
     return (
       <GenericPlaceholder
         icon={<TrophyBrokenIcon />}
@@ -51,6 +60,13 @@ export default function Achievement({ id }: { id: number }) {
         description="Please try again later."
       />
     );
+
+  const achievements = AllAchievements.filter((achievement) =>
+    userAchievements.every(
+      (userAchievement) => userAchievement.tag !== achievement.tag
+    )
+  );
+
   return (
     <>
       <Stack p={1} spacing={1} height={'100%'}>
@@ -79,18 +95,16 @@ export default function Achievement({ id }: { id: number }) {
                     height: theme.spacing(12),
                     borderRadius: 0,
                   })}
-                  src={achievement.config.icon}
                   alt={`Achievement ${index}`}
-                />
+                >
+                  Locked
+                </Avatar>
                 <Stack spacing={2}>
                   <Typography level="body-md" fontWeight="lg" textColor="#fff">
-                    {/* {achievements[index]} */}
-                    {achievement.config.title}
+                    {achievement.title}
                   </Typography>
                   <Typography level="body-xs" textColor="#eec">
-                    {/* {achievements[index]} */}
-                    {achievement.config.description}
-                    ola adeus
+                    {achievement.description}
                   </Typography>
                 </Stack>
               </CardContent>
@@ -140,6 +154,125 @@ export default function Achievement({ id }: { id: number }) {
             />
           </div>
         )}
+      </Stack>
+    </>
+  );
+}
+
+export default function Achievement({ id }: { id: number }) {
+  const [fetchAll, setFetchAll] = React.useState(false);
+  const {
+    data: achievements,
+    isLoading,
+    error,
+    isValidating,
+  }: {
+    data: InternalEndpointResponse<AchievementsModel.Endpoints.GetUserAchievements>;
+    isLoading: boolean;
+    error: any;
+    isValidating: boolean;
+  } = useTunnelEndpoint<AchievementsModel.Endpoints.GetUserAchievements>(
+    AchievementsModel.Endpoints.Targets.GetUserAchievements,
+    { all: fetchAll, userId: id }
+  );
+  if (isLoading || isValidating) return <CircularProgress variant="plain" />;
+  if (error || !achievements)
+    return (
+      <GenericPlaceholder
+        icon={<TrophyBrokenIcon />}
+        title="Failed to load achievements"
+        description="Please try again later."
+      />
+    );
+  return (
+    <>
+      <Stack p={1} spacing={1} height={'100%'}>
+        {achievements.length > 0 ? (
+          achievements.map((achievement, index) => (
+            <Card
+              sx={{
+                flexDirection: 'row',
+                filter: 'grayscale(0)',
+                opacity: 10,
+              }}
+              key={index}
+            >
+              <CardContent
+                sx={{
+                  width: '100%',
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'row',
+                  pr: 15,
+                }}
+              >
+                <Avatar
+                  sx={(theme) => ({
+                    width: theme.spacing(12),
+                    height: theme.spacing(12),
+                    borderRadius: 0,
+                  })}
+                  src={achievement.config.icon}
+                  alt={`Achievement ${index}`}
+                />
+                <Stack spacing={2}>
+                  <Typography level="body-md" fontWeight="lg" textColor="#fff">
+                    {/* {achievements[index]} */}
+                    {achievement.config.title}
+                  </Typography>
+                  <Typography level="body-xs" textColor="#eec">
+                    {/* {achievements[index]} */}
+                    {achievement.config.description}
+                  </Typography>
+                </Stack>
+              </CardContent>
+              <CardCover>
+                <Sheet
+                  variant="solid"
+                  color="neutral"
+                  style={{
+                    position: 'absolute',
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    filter: 'blur(4px)',
+                    opacity: 0.4,
+                  }}
+                />
+                {
+                  <img
+                    src={publicPath('/loginPage.webp')}
+                    alt="background"
+                    style={{
+                      position: 'absolute',
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      filter: 'blur(4px)',
+                      opacity: 0.4,
+                    }}
+                  />
+                }
+              </CardCover>
+            </Card>
+          ))
+        ) : (
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: '100%',
+            }}
+          >
+            <GenericPlaceholder
+              title="No Achievements Earned"
+              icon={<TrophyBrokenIcon fontSize="xl4" />}
+              path=""
+            />
+          </div>
+        )}
+        <NoAchievement id={id} />
       </Stack>
     </>
   );

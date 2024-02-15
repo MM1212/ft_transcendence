@@ -3,7 +3,7 @@
        "tag": "chat:activity:100",
        "title": "Social 100",
         "description": "Send 100 messages in any chat",
-        "icon": "TBD",
+        "icon": "../assets/OctopBadgeAchievement.jpg",
         "bannerColor": "primary",
         "quests":[]
     },
@@ -11,7 +11,7 @@
        "tag": "pong:match:perfect",
        "title": "Unstopable Force.",
         "description": "Win a match without letting the opponent score a single point.",
-        "icon": "TBD",
+        "icon": "../assets/OctopBadgeAchievement.jpg",
         "bannerColor": "primary",
         "quests":[]
     },

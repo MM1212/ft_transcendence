@@ -1,6 +1,7 @@
 import { Sheet, Stack } from '@mui/joy';
 import AchievementHead from '../components/AchievementHead';
 import Achievement from '../components/Achievement';
+// import noAchievement from '../components/noAchievement';
 import { useParams } from 'wouter';
 import GenericPlaceholder from '@components/GenericPlaceholder';
 import TrophyBrokenIcon from '@components/icons/TrophyBrokenIcon';
@@ -27,6 +28,7 @@ function MyAchievements() {
         overflow="auto"
       >
         <Achievement id={user.id} />
+        {/* <noAchievement id={user.id} /> */}
       </Stack>
     </>
   );
