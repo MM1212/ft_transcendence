@@ -28,7 +28,6 @@ function MyAchievements() {
         overflow="auto"
       >
         <Achievement id={user.id} />
-        {/* <noAchievement id={user.id} /> */}
       </Stack>
     </>
   );

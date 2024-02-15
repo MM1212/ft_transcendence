@@ -7,6 +7,11 @@ import { useUser } from "@hooks/user/index";
 import UsersModel from "@typings/models/users/index";
 
 export default function AchievementHead({user}: {user: UsersModel.Models.IUserInfo}) {
+  const currentUser = useUser(user.id);
+  let achievements = currentUser?.achievements;
+  if(!achievements) achievements = 0;
+  let percentage = (achievements / 12) * 100;
+
   return (
     <Stack
       direction="row"
@@ -35,12 +40,12 @@ export default function AchievementHead({user}: {user: UsersModel.Models.IUserIn
           </Typography>
           {user.nickname}
           <Typography level="body-sm">
-            {/* 7 of 10 achievements completed */}
+            {achievements} of 12 achievements completed
           </Typography>
           <Box flexDirection="row-reverse" display="flex">
-            <Typography level="body-sm">(70%)</Typography>
+            <Typography level="body-sm">({percentage}%)</Typography>
           </Box>
-          <AchivementBar />
+          <AchivementBar user={user}/>
         </Sheet>
       </Stack>
       <Stack spacing={1} direction="row" alignItems="center">
