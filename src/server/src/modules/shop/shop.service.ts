@@ -10,7 +10,7 @@ import InventoryModel from '@typings/models/users/inventory';
 
 @Injectable()
 export class ShopService {
-  constructor(private readonly parser: ShopConfigParser) {}
+  constructor(public readonly parser: ShopConfigParser) {}
 
   public async getInitialData(): Promise<ShopModel.DTO.GetInitialData> {
     await this.parser.waitUntilLoaded();

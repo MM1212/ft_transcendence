@@ -1,3 +1,5 @@
+import type LobbyModel from "@typings/models/lobby";
+
 export interface ClothingItem {
   id: number;
   name: string;
@@ -6,6 +8,7 @@ export interface ClothingItem {
     icon: boolean;
     sprites: boolean;
     in_cdn: number | false;
+    back_item?: boolean;
   };
   in_shop: boolean;
   shop?: {

@@ -2,6 +2,7 @@ import { vector2 } from '@typings/vector';
 
 export namespace LobbyModel {
   export namespace Models {
+
     export type InventoryCategory =
       | 'head'
       | 'face'

@@ -1,10 +1,13 @@
+import { IS_PROD } from '@apps/Lobby/src/constants';
 import GenericPlaceholder from '@components/GenericPlaceholder';
+import Link from '@components/Link';
 import Pagination from '@components/Pagination';
 import AlertIcon from '@components/icons/AlertIcon';
 import BoxingGloveIcon from '@components/icons/BoxingGloveIcon';
 import BugIcon from '@components/icons/BugIcon';
 import CartIcon from '@components/icons/CartIcon';
 import CartPlusIcon from '@components/icons/CartPlusIcon';
+import CheckIcon from '@components/icons/CheckIcon';
 import CurrencyTwdIcon from '@components/icons/CurrencyTwdIcon';
 import FilterIcon from '@components/icons/FilterIcon';
 import FormatColorFillIcon from '@components/icons/FormatColorFillIcon';
@@ -17,9 +20,15 @@ import ShoeSneakerIcon from '@components/icons/ShoeSneakerIcon';
 import TshirtCrewIcon from '@components/icons/TshirtCrewIcon';
 import WizardHatIcon from '@components/icons/WizardHatIcon';
 import MenuOption from '@components/menu/MenuOption';
-import { useDebounce, useDebouncedValue } from '@hooks/lodash';
-import { buildTunnelEndpoint, jsonFetcher } from '@hooks/tunnel';
+import { useSseEvent } from '@hooks/sse';
+import {
+  buildTunnelEndpoint,
+  jsonFetcher,
+  useTunnelEndpoint,
+} from '@hooks/tunnel';
 import { useModal, useModalActions } from '@hooks/useModal';
+import notifications from '@lib/notifications/hooks';
+import tunnel from '@lib/tunnel';
 import { Button, Grid, ModalClose } from '@mui/joy';
 import {
   Box,
@@ -51,13 +60,22 @@ import type { ClothingItem } from '@typings/lobby/dev/clothing';
 import LobbyModel from '@typings/models/lobby';
 import { randomInt } from '@utils/random';
 import React from 'react';
-import { atom } from 'recoil';
-import useSWR from 'swr';
+import { atom, useRecoilState } from 'recoil';
+import { mutate } from 'swr';
 
 interface DevClothingListModalState {
   item: ClothingItem;
   backItem: boolean;
 }
+
+export const useDevClothingListService = () => {
+  if (IS_PROD) return;
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useSseEvent(
+    'shop-sync',
+    () => void mutate(buildTunnelEndpoint('/dev/clothing' as any))
+  );
+};
 
 const DEV_CLOTHING_LIST_MODAL_ID = 'lobby:clothing:add-to-shop';
 
@@ -88,7 +106,7 @@ const priceTableCap: Record<
   body: [100, 1000],
   hand: [100, 1000],
   feet: [100, 1000],
-  color: [100, 1000],
+  color: [100, 100],
 };
 
 const categories: {
@@ -104,29 +122,95 @@ const categories: {
   { value: 'color', label: 'Color', icon: FormatColorFillIcon },
 ];
 
+const lastCategoryChosenAtom = atom<LobbyModel.Models.InventoryCategory | null>(
+  {
+    key: 'lastCategoryChosen',
+    default: null,
+  }
+);
+
 function AddClothingToShopModalForm(): JSX.Element {
-  const { data, setData } = useDevClothingListModal();
+  const { data, setData, close } = useDevClothingListModal();
   const [itemName, setItemName] = React.useState(data.item.name);
   const [itemDescription, setItemDescription] = React.useState('');
   const [itemCategory, setItemCategory] =
-    React.useState<LobbyModel.Models.InventoryCategory>('color');
+    React.useState<LobbyModel.Models.InventoryCategory | null>(null);
 
-  const computeNewPrice = (category: LobbyModel.Models.InventoryCategory) =>
-    randomInt(...priceTableCap[category]).toString();
+  const computeNewPrice = (
+    category: LobbyModel.Models.InventoryCategory | null
+  ) => (!category ? '0' : randomInt(...priceTableCap[category]).toString());
+
   const [itemPrice, setItemPrice] = React.useState<string>(() =>
     computeNewPrice(itemCategory)
   );
-
+  const [lastCategoryChosen, setLastCategoryChosen] = useRecoilState(
+    lastCategoryChosenAtom
+  );
   React.useEffect(() => {
     setItemName(data.item.name);
-    setItemDescription('');
-    setItemCategory('color');
-    setItemPrice(computeNewPrice('color'));
+    setItemDescription(data.item.shop?.description ?? '');
+    setItemCategory(
+      (data.item.shop?.subCategory as LobbyModel.Models.InventoryCategory) ??
+        lastCategoryChosen
+    );
+    setItemPrice(
+      computeNewPrice(
+        (data.item.shop?.subCategory as LobbyModel.Models.InventoryCategory) ??
+          lastCategoryChosen
+      )
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data.item]);
 
   React.useEffect(() => {
     setItemPrice(computeNewPrice(itemCategory));
   }, [itemCategory]);
+
+  const error =
+    isNaN(parseInt(itemPrice)) || parseInt(itemPrice) < 0 || !itemCategory;
+  const [loading, setLoading] = React.useState(false);
+  const submit = React.useCallback(async () => {
+    if (error || !itemCategory) return;
+    const item: ClothingItem = {
+      id: data.item.id,
+      in_shop: false,
+      name: itemName,
+      shop: {
+        description: itemDescription,
+        price: parseInt(itemPrice),
+        subCategory: itemCategory,
+      },
+      props: {
+        ...data.item.props,
+        back_item: data.backItem,
+      },
+    };
+    try {
+      setLoading(true);
+      await tunnel.put(`/dev/clothing/:id` as any, item, {
+        id: data.item.id,
+      });
+      close();
+      notifications.success(
+        'New Item Added',
+        `Item ${itemName} added to shop for ${itemPrice} credits!`
+      );
+    } catch (e) {
+      notifications.error('Failed to add item to shop', (e as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  }, [
+    error,
+    data.item.id,
+    data.item.props,
+    data.backItem,
+    itemName,
+    itemDescription,
+    itemPrice,
+    itemCategory,
+    close,
+  ]);
 
   return (
     <Box gap={2} display="flex" flexDirection="column" mt={2} flexGrow={1}>
@@ -157,10 +241,26 @@ function AddClothingToShopModalForm(): JSX.Element {
       </FormControl>
       <Stack direction="row" spacing={1} alignItems="center">
         <FormControl required sx={{ width: '50%' }}>
-          <FormLabel>Category</FormLabel>
+          <FormLabel>
+            Category{' '}
+            <Typography
+              level="body-xs"
+              component={Link}
+              href={`https://clubpenguin.fandom.com/wiki/Special:Search?query=${itemName
+                .split(' ')
+                .join('+')}&scope=internal&navigationSearch=true`}
+              target="_blank"
+            >
+              (Check here)
+            </Typography>
+          </FormLabel>
           <Select
             value={itemCategory}
-            onChange={(e, value) => value && setItemCategory(value)}
+            onChange={(_, value) => {
+              if (!value) return;
+              setItemCategory(value);
+              setLastCategoryChosen(value);
+            }}
             color="neutral"
             startDecorator={<ShapeIcon />}
           >
@@ -191,7 +291,7 @@ function AddClothingToShopModalForm(): JSX.Element {
           <FormLabel>Back Item Sprite</FormLabel>
           <Checkbox
             checked={data.backItem}
-            onChange={(e) => setData({ ...data, backItem: !data.backItem })}
+            onChange={() => setData({ ...data, backItem: !data.backItem })}
             label="Is back item?"
           />
         </FormControl>
@@ -210,7 +310,7 @@ function AddClothingToShopModalForm(): JSX.Element {
           startDecorator={<CurrencyTwdIcon />}
         />
       </FormControl>
-      <Button color="primary" sx={{ mt: 3 }}>
+      <Button color="primary" sx={{ mt: 3 }} loading={loading} onClick={submit}>
         Submit
       </Button>
     </Box>
@@ -285,7 +385,7 @@ function AddClothingToShopModalPreview(): JSX.Element {
 }
 
 function AddClothingToShopModal(): JSX.Element {
-  const { isOpened, close, data } = useDevClothingListModal();
+  const { isOpened, close } = useDevClothingListModal();
   return (
     <Modal open={isOpened} onClose={close}>
       <ModalDialog minWidth="md" maxWidth="lg">
@@ -315,6 +415,28 @@ function AddClothingToShopModal(): JSX.Element {
 }
 
 function ItemEntryWarnings(item: ClothingItem) {
+  if (item.in_shop)
+    return (
+      <Tooltip title="Already in shop">
+        <Sheet
+          sx={{
+            // position: 'absolute',
+            // top: 0,
+            // right: 0,
+            // mt: '-14%',
+            // mr: '-14%',
+            px: 0.75,
+            borderRadius: 'xl',
+            border: '2px solid',
+            borderColor: 'divider',
+            bgcolor: 'background.surface',
+          }}
+          variant="outlined"
+        >
+          <CheckIcon color="success" size="xs" />
+        </Sheet>
+      </Tooltip>
+    );
   const warnings = [];
   if (!item.props.icon) warnings.push('Icon missing');
   if (!item.props.paper) warnings.push('Paper missing');
@@ -588,21 +710,20 @@ function ClothingItemEntries(): JSX.Element {
     data: clothingItems,
     error,
     isLoading,
-  } = useSWR<ClothingItem[]>(
-    buildTunnelEndpoint('/dev/clothing' as any),
-    jsonFetcher
-  );
+  } = useTunnelEndpoint<any>('/dev/clothing' as any, jsonFetcher);
 
   const PAGE_SIZE = 25;
   const [page, setPage] = React.useState(1);
   const [filter, setFilter] = React.useState<Filter>({
     query: '',
-    showAddedToShop: false,
+    showAddedToShop: true,
     showProbablyBroken: true,
   });
   const filteredItems = React.useMemo(() => {
     if (!clothingItems) return [];
-    const filtered = clothingItems.filter((item) => {
+    console.log(clothingItems);
+
+    const filtered = (clothingItems as ClothingItem[]).filter((item) => {
       if (filter.query.trim().length > 0) {
         if (!item.name.toLowerCase().includes(filter.query.toLowerCase()))
           return false;

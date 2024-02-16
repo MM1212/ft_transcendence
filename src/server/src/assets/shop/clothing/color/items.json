@@ -1,16 +1,3 @@
-[
-    {
-      "id": "cloth:1",
-      "label": "Dark Blue",
-      "description": "Dark Blue Skin Color",
-      "price": 50,
-      "meta": {
-        "clothId": 1,
-        "ICON": "{ASSET_PATH}/1/icon.webp"
-      },
-      "listingMeta": {
-        "previewUrl": "{ASSET_PATH}/1/icon.webp"
-      },
-      "flags": []
-    }
-]
+version https://git-lfs.github.com/spec/v1
+oid sha256:ed281958535ac828820f1e1b8cedb7b7428c2e659883ead0f02b206e27bb7841
+size 5309
