@@ -9,16 +9,20 @@ import { UsersInventoryController } from './controllers/inventory.controller';
 import { UsersNotificationsController } from './controllers/notifications.controller';
 import { NotificationsService } from './services/notifications.service';
 import { UsersFriendsService } from './services/friends.service';
+import { AchievementsModule } from '../achievements/achievements.module';
+import { UserAchievementsService } from './services/achievements.service';
+import { UsersAchievementsController } from './controllers/achievements.controller';
 
 @Global()
 @Module({
-  imports: [DbModule, SseModule],
-  providers: [UsersService, UserDependencies, NotificationsService, UsersFriendsService],
+  imports: [DbModule, SseModule, AchievementsModule],
+  providers: [UsersService, UserDependencies, NotificationsService, UsersFriendsService, UserAchievementsService],
   controllers: [
     UsersController,
     UsersFriendsController,
     UsersInventoryController,
-    UsersNotificationsController
+    UsersNotificationsController,
+    UsersAchievementsController,
   ],
   exports: [UsersService],
 })

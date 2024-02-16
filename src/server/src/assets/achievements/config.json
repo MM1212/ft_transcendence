@@ -1,0 +1,99 @@
+[
+    {
+       "tag": "chat:activity:100",
+       "title": "Social 100",
+        "description": "Send 100 messages in any chat",
+        "icon": "chat-activity.webp",
+        "bannerColor": "primary",
+        "quests":[]
+    },
+    {
+       "tag": "pong:match:perfect",
+       "title": "Unstopable Force.",
+        "description": "Win a match without letting the opponent score a single point.",
+        "icon": "perfect_game.webp",
+        "bannerColor": "primary",
+        "quests":[]
+    },
+    {
+       "tag": "pong:match:fast",
+       "title": "Speed Demon.",
+        "description": "Win a match within 30 seconds.",
+        "icon": "30seconds.webp",
+        "bannerColor": "danger",
+        "quests":[]
+    },
+    {
+       "tag": "pong:match:underdog",
+       "title": "Underdog Victory.",
+        "description": "Win a match against an opponent with a significantly higher level or ranking.",
+        "icon": "win_higher.webp",
+        "bannerColor": "warning",
+        "quests":[]
+    },
+    {
+       "tag": "pong:match:nopowerups",
+       "title": "Master Strategist",
+        "description": "Win a match without using any power-ups.",
+        "icon": "no-power-up.webp",
+        "bannerColor": "warning",
+        "quests":[]
+    },
+    {
+       "tag": "unlock:skin:rare",
+       "title": "Golden Paddle",
+        "description": "Unlock and equip a rare paddle skin.",
+        "icon": "paddle2.webp",
+        "bannerColor": "primary",
+        "quests":[]
+    },
+    {
+       "tag": "pong:match:winstreak",
+       "title": "Pong Savant",
+        "description": "Achieve a win streak of 10 matches.",
+        "icon": "10wins.webp",
+        "bannerColor": "primary",
+        "quests":[]
+    },
+    {
+       "tag": "pong:rank:highest",
+       "title": "Pong Legend",
+        "description": "Achieve the highest ranking in online multiplayer mode.",
+        "icon": "highest_rank2.webp",
+        "bannerColor": "primary",
+        "quests":[]
+    },
+    {
+       "tag": "store:buy:all",
+       "title": "Shopaholic",
+        "description": "Purchase all available items from the in-game shop, enhancing your Pong experience to the fullest.",
+        "icon": "buy_all_sets3.webp",
+        "bannerColor": "primary",
+        "quests":[]
+    },
+    {
+       "tag": "pong:doubles:perfect",
+       "title": "Team Player",
+        "description": "Win a doubles match with a perfect score",
+        "icon": "win_perfect_doubles.webp",
+        "bannerColor": "primary",
+        "quests":[]
+    },
+    {
+       "tag": "pong:match:50wins",
+       "title": "Legendary Duelist",
+        "description": "Win 50 matches against different opponents.",
+        "icon": "win50.webp",
+        "bannerColor": "primary",
+        "quests":[]
+    },
+    {
+       "tag": "store:credits:get100",
+       "title": "Musk's Millions",
+        "description": "Get 100 store credits.",
+        "icon": "mucho_credits.webp",
+        "bannerColor": "primary",
+        "quests":[]
+    }
+
+]
