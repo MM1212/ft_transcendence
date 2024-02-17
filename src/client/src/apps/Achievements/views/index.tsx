@@ -1,5 +1,4 @@
-import { Sheet, Stack } from '@mui/joy';
-import AchievementHead from '../components/AchievementHead';
+import { Sheet } from '@mui/joy';
 import Achievements from '../components/Achievement';
 import { useParams } from 'wouter';
 import GenericPlaceholder from '@components/GenericPlaceholder';
@@ -16,8 +15,6 @@ function MyAchievements() {
         label="Please try again later."
       />
     );
-  console.log(user);
-  
   return <Achievements {...user} />;
 }
 

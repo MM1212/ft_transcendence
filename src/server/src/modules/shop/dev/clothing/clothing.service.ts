@@ -132,7 +132,6 @@ export class DevClothingListService {
           'utf-8',
         ),
       ) as ShopModel.Models.Item[];
-      console.log(itemsInCategory);
 
       const item: ShopModel.Models.Item = {
         id: `cloth:${id}`,
@@ -152,7 +151,6 @@ export class DevClothingListService {
         },
         price: data.shop!.price,
       };
-      console.log(item);
       await run(
         `make client_gen_clothing id=${id} ${
           data.props.back_item ? 'back=true' : ''
@@ -173,7 +171,7 @@ export class DevClothingListService {
         in_shop: true,
         shop: (await this.shopService.getItem(`cloth:${id}`))!,
       });
-      this.logger.log(`Added item ${item.label} (${item.id}) to the shop!`);
+      this.logger.verbose(`Added item ${item.label} (${item.id}) to the shop!`);
       this.sseService.emitToAll('shop-sync', undefined);
     } catch (e) {
       console.error(e);

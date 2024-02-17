@@ -6,7 +6,6 @@ import {
   Typography,
   Sheet,
   CircularProgress,
-  Checkbox,
   Box,
 } from '@mui/joy';
 import { Avatar } from '@mui/joy';
@@ -17,7 +16,7 @@ import AchievementsModel from '@typings/models/users/achievements/index';
 import React from 'react';
 import publicPath from '@utils/public';
 import LockIcon from '@components/icons/LockIcon';
-import AchievementHead from './AchievementHead';
+import AchievementHead, { AchievementHeadSkeleton } from './AchievementHead';
 import type UsersModel from '@typings/models/users';
 
 function AchievementUnlocked(
@@ -132,14 +131,20 @@ function AchievementLocked(
           />
         </Box>
         <Stack spacing={2}>
-          <Typography level="body-md" fontWeight="lg">
+          <Typography
+            level="body-md"
+            fontWeight="lg"
+            sx={{
+              color: `${achievement.bannerColor}.softColor`,
+            }}
+          >
             {achievement.title}
           </Typography>
           <Typography
             level="body-xs"
-            sx={{
-              color: `${achievement.bannerColor}.softColor`,
-            }}
+            // sx={{
+            //   color: `${achievement.bannerColor}.softColor`,
+            // }}
           >
             {achievement.description}
           </Typography>
@@ -165,8 +170,8 @@ function AchievementLocked(
 }
 
 export default function Achievements(user: UsersModel.Models.IUserInfo) {
-  const [fetchAll, setFetchAll] = React.useState(true);
-  const { data, isLoading, error, isValidating } =
+  const [fetchAll, setFetchAll] = React.useState(false);
+  const { data, isLoading, error } =
     useTunnelEndpoint<AchievementsModel.Endpoints.GetUserAchievements>(
       AchievementsModel.Endpoints.Targets.GetUserAchievements,
       { all: fetchAll, userId: user.id }
@@ -175,7 +180,13 @@ export default function Achievements(user: UsersModel.Models.IUserInfo) {
     () => (data ? data.achievements.filter((a) => a.unlocked) : []).length,
     [data]
   );
-  if (isLoading || isValidating) return <CircularProgress variant="plain" />;
+  if (isLoading)
+    return (
+      <>
+        <AchievementHeadSkeleton />
+        <CircularProgress variant="plain" sx={{ m: 'auto' }} />
+      </>
+    );
   if (error || !data)
     return (
       <GenericPlaceholder
@@ -187,11 +198,6 @@ export default function Achievements(user: UsersModel.Models.IUserInfo) {
   const { achievements, total } = data;
   return (
     <>
-      {/* <Checkbox
-        checked={fetchAll}
-        onChange={() => setFetchAll(!fetchAll)}
-        label="Show All"
-      /> */}
       <AchievementHead
         user={user}
         acquired={acquiredAchievementsLength}
@@ -228,7 +234,7 @@ export default function Achievements(user: UsersModel.Models.IUserInfo) {
             <GenericPlaceholder
               title="No Achievements Earned"
               icon={<TrophyBrokenIcon fontSize="xl4" />}
-              path=""
+              label="Check 'Show All' to see all achievements"
             />
           </div>
         )}
