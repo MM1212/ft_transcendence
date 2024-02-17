@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:8635b2fca6f8d7cc8f96eeb2d858b8c3ac9528c01b615d27e4e29c3e9b5d3175
-size 147
+{
+  "chat:activity": {
+    "defaultMeta": {
+      "count": 0
+    },
+    "trackMetaKey": "count",
+    "milestones": [100, 500, 1000]
+  }
+}
