@@ -1,9 +1,0 @@
-{
-  "chat:activity": {
-    "defaultMeta": {
-      "count": 0
-    },
-    "trackMetaKey": "count",
-    "milestones": [100, 500, 1000]
-  }
-}

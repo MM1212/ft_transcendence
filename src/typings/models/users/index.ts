@@ -9,7 +9,6 @@ import {
 } from '@typings/api';
 import { GroupEnumValues } from '@typings/utils';
 import LobbyModel from '../lobby';
-import QuestsModel from './quests';
 import AchievementsModel from './achievements'; //new
 import InventoryModel from './inventory';
 import NotificationsModel from '../notifications';
@@ -48,7 +47,6 @@ namespace UsersModel {
       tfa: AuthModel.Models.TFA;
       connected: boolean;
       character: ICharacter;
-      quests: QuestsModel.Models.IUserQuest[];
       achievements: AchievementsModel.Models.IUserAchievement[]; //new
       inventory: InventoryModel.Models.IItem[];
       notifications: NotificationsModel.Models.INotification[];
@@ -65,7 +63,6 @@ namespace UsersModel {
         | 'tfa'
         | 'connected'
         | 'character'
-        | 'quests'
         | 'achievements' //new
         | 'inventory'
         | 'notifications'
@@ -87,7 +84,6 @@ namespace UsersModel {
         tfaEnabled: boolean;
         tfaSecret: string | null;
 
-        quests: QuestsModel.DTO.DB.IQuest[];
         achievements: AchievementsModel.DTO.DB.IUserAchievement[]; //new
         inventory: InventoryModel.DTO.DB.IItem[];
         notifications: NotificationsModel.DTO.DB.Notification[];

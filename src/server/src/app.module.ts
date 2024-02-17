@@ -21,7 +21,6 @@ import { PongHistoryModule } from './modules/ponghistory/history.module';
 import { ShopModule } from './modules/shop/shop.module';
 import { LeaderboardModule } from './modules/leaderboard/leaderboard.module';
 import { AchievementsModule } from './modules/achievements/achievements.module';
-import { QuestsModule } from './modules/quests/quests.module';
 
 @Module({
   imports: [
@@ -57,8 +56,7 @@ import { QuestsModule } from './modules/quests/quests.module';
     PongHistoryModule,
     ShopModule,
     LeaderboardModule,
-    AchievementsModule,
-    QuestsModule
+    AchievementsModule
   ].filter(Boolean) as ModuleMetadata['imports'],
   providers: [AppService, { provide: APP_FILTER, useClass: GlobalFilter }],
   exports: [AppService],

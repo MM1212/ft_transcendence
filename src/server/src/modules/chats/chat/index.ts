@@ -418,10 +418,10 @@ class Chat extends CacheObserver<IChat> {
         result,
       );
     // track chat activity for achievements of n messages
-    const quest = await author.quests.getOrCreate<{ count: number }>(
+    const achievement = await author.achievements.get<{ count: number }>(
       'chat:activity',
     );
-    await quest.updateMeta((p) => ({ count: p.count + 1 }));
+    await achievement.update((p) => ({ count: p.count + 1 }));
     return result;
   }
 

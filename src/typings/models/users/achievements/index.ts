@@ -7,20 +7,36 @@ import {
 
 namespace AchievementsModel {
   export namespace Models {
-    export interface IUserAchievement {
+    export interface IUserAchievement<
+      T extends Record<string, unknown> = Record<string, unknown>
+    > {
       id: number;
       userId: number;
       tag: string;
       createdAt: number;
       updatedAt: number;
+      unlockedAt: number | null;
+      unlocked: boolean;
       currentLevel: number;
+      meta: T;
     }
 
+    export interface IAchievementLevelMilestone<T = unknown> {
+      metaKey: string;
+      metaValue: T;
+    }
     export interface IAchievementLevel {
       type: 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond';
-      titleMod?: string;
+      title: string;
       description: string;
-      questMilestone: string;
+      milestone: IAchievementLevelMilestone;
+    }
+
+    export interface IRawAchievementLevel<T = unknown>
+      extends Omit<IAchievementLevel, 'milestone' | 'title' | 'description'> {
+      titleMod?: string;
+      description?: string;
+      milestone: T | IAchievementLevelMilestone<T>;
     }
 
     export interface IAchievement {
@@ -28,23 +44,37 @@ namespace AchievementsModel {
       title: string;
       icon: string;
       bannerColor: string;
-      quest: string;
+      defaultMeta: Record<string, unknown>;
+      trackMessageSuffix: string;
       levels: IAchievementLevel[];
+    }
+
+    export interface IRawAchievement<T = unknown>
+      extends Omit<IAchievement, 'levels'> {
+      defaultDescription?: string;
+      defaultTrackMetaKey?: string;
+      levels: IRawAchievementLevel<T>[];
     }
   }
   export namespace DTO {
-    export type IMixedAchievement =
-      | ({
-          unlocked: true;
-        } & AchievementsModel.Models.IUserAchievement & {
-            config: AchievementsModel.Models.IAchievement;
-          })
-      | ({ unlocked: false } & AchievementsModel.Models.IAchievement);
+    export type IMixedAchievement = {
+      unlocked: boolean;
+      userAchievement?: Models.IUserAchievement;
+      achievement: Models.IAchievement;
+      previousLevel?: Models.IAchievementLevel;
+      currentLevel: Models.IAchievementLevel;
+      nextLevel?: Models.IAchievementLevel;
+    };
     export namespace DB {
       export interface IUserAchievement
-        extends Omit<Models.IUserAchievement, 'createdAt' | 'updatedAt'> {
+        extends Omit<
+          Models.IUserAchievement,
+          'createdAt' | 'updatedAt' | 'unlockedAt' | 'meta'
+        > {
         createdAt: Date;
         updatedAt: Date;
+        unlockedAt: Date | null;
+        meta: any;
       }
     }
 

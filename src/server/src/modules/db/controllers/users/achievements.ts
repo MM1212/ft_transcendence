@@ -29,12 +29,14 @@ export class UserAchievements {
   public async create(
     userId: number,
     tag: string,
+    meta?: Record<string, unknown>,
   ): Promise<AchievementsModel.Models.IUserAchievement> {
     return this.formatAchievement(
       await this.prisma.achievement.create({
         data: {
           userId,
           tag,
+          meta: meta as any,
         },
       }),
     );

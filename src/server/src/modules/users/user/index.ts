@@ -10,7 +10,6 @@ import { HttpError } from '@/helpers/decorators/httpError';
 import { AuthModel } from '@typings/api';
 import UserExtAlerts from './ext/Alerts';
 import UserExtCharacter from './ext/Character';
-import UserExtQuests from './ext/Quests';
 import UserExtInventory from './ext/Inventory';
 import UserExtNotifications from './ext/Notifications';
 import { UserExtCredits } from './ext/Credits';
@@ -22,7 +21,6 @@ class User extends CacheObserver<UsersModel.Models.IUser> {
   public readonly friends: UserExtFriends = new UserExtFriends(this);
   public readonly alerts: UserExtAlerts = new UserExtAlerts(this);
   public readonly character: UserExtCharacter = new UserExtCharacter(this);
-  public readonly quests: UserExtQuests = new UserExtQuests(this);
   public readonly achievements: UserExtAchievements = new UserExtAchievements(this);
   public readonly inventory: UserExtInventory = new UserExtInventory(this);
   public readonly notifications: UserExtNotifications =
@@ -47,7 +45,6 @@ class User extends CacheObserver<UsersModel.Models.IUser> {
       tfa,
       connected,
       character,
-      quests,
       notifications,
       inventory,
       achievements,

@@ -12,11 +12,10 @@ import { UsersFriendsService } from './services/friends.service';
 import { AchievementsModule } from '../achievements/achievements.module';
 import { UserAchievementsService } from './services/achievements.service';
 import { UsersAchievementsController } from './controllers/achievements.controller';
-import { QuestsModule } from '../quests/quests.module';
 
 @Global()
 @Module({
-  imports: [DbModule, SseModule, AchievementsModule, QuestsModule],
+  imports: [DbModule, SseModule, AchievementsModule],
   providers: [UsersService, UserDependencies, NotificationsService, UsersFriendsService, UserAchievementsService],
   controllers: [
     UsersController,
