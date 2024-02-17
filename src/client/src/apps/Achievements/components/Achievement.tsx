@@ -164,7 +164,7 @@ function AchievementUnlocked(
             justifyContent="space-between"
           >
             <Typography level="body-md" fontWeight="lg">
-              {levelToRender.title}
+              {userAchievement ? levelToRender.title : achievement.title}
             </Typography>
             {unlocked && (
               <Tooltip

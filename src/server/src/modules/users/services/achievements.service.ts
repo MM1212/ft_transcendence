@@ -18,7 +18,7 @@ export class UserAchievementsService {
           unlocked: a.unlocked,
           userAchievement: a.public,
           achievement: config,
-          previousLevel: a.previousLevel,
+          previousLevel: a.completed ? a.currentLevel : a.previousLevel,
           currentLevel: a.currentLevel,
           nextLevel: a.nextLevel,
         } satisfies AchievementsModel.DTO.IMixedAchievement;
