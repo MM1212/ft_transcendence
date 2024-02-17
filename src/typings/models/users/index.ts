@@ -48,7 +48,7 @@ namespace UsersModel {
       tfa: AuthModel.Models.TFA;
       connected: boolean;
       character: ICharacter;
-      quests: QuestsModel.Models.IQuest[];
+      quests: QuestsModel.Models.IUserQuest[];
       achievements: AchievementsModel.Models.IUserAchievement[]; //new
       inventory: InventoryModel.Models.IItem[];
       notifications: NotificationsModel.Models.INotification[];

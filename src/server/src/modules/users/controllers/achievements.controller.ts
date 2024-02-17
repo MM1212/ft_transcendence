@@ -14,6 +14,7 @@ import UserCtx from '../decorators/User.pipe';
 import { UserAchievementsService } from '../services/achievements.service';
 import User from '../user/index';
 import { AchievementsService } from '@/modules/achievements/achievements.service';
+import type QuestsModel from '@typings/models/users/quests';
 
 @Auth()
 @Controller()
@@ -35,8 +36,12 @@ export class UsersAchievementsController {
     return { achievements, total: this.configService.getSize() };
   }
 
-  @OnEvent('user.quests.completed')
-  public async onQuestCompleted(user: User, quest: Quest): Promise<void> {
-    await this.service.onQuestCompleted(user, quest);
+  @OnEvent('user.quests.next')
+  public async onQuestNewMilestone(
+    user: User,
+    quest: Quest,
+    milestonePassed: QuestsModel.Models.IQuestMilestone,
+  ): Promise<void> {
+    await this.service.onQuestNewMilestone(user, quest, milestonePassed);
   }
 }

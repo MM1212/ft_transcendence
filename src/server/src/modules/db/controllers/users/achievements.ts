@@ -2,10 +2,11 @@ import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { Users } from '.';
 import { PrismaService } from '../../prisma';
 import AchievementsModel from '@typings/models/users/achievements';
+import type { Prisma } from '@prisma/client';
 
 @Injectable()
 export class UserAchievements {
-  constructor(@Inject(forwardRef(() => Users)) private readonly users: Users) { }
+  constructor(@Inject(forwardRef(() => Users)) private readonly users: Users) {}
 
   private get prisma(): PrismaService {
     // @ts-expect-error impl
@@ -21,6 +22,7 @@ export class UserAchievements {
       ...achievement,
     } as unknown as AchievementsModel.Models.IUserAchievement;
     formatted.createdAt = achievement.createdAt.getTime();
+    formatted.updatedAt = achievement.updatedAt.getTime();
     return formatted as U;
   }
 
@@ -34,6 +36,20 @@ export class UserAchievements {
           userId,
           tag,
         },
+      }),
+    );
+  }
+  public async update(
+    id: number,
+    data: Prisma.XOR<
+      Prisma.AchievementUpdateInput,
+      Prisma.AchievementUncheckedUpdateInput
+    >,
+  ): Promise<AchievementsModel.Models.IUserAchievement> {
+    return this.formatAchievement(
+      await this.prisma.achievement.update({
+        where: { id },
+        data,
       }),
     );
   }

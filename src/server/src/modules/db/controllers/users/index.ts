@@ -74,6 +74,7 @@ export class Users {
     formatted.achievements = user.achievements.map((achievement) => ({ //achievement
       ...achievement,
       createdAt: achievement.createdAt.getTime(),
+      updatedAt: achievement.updatedAt.getTime(),
     }));
     formatted.inventory = user.inventory.map((item) => ({
       ...item,

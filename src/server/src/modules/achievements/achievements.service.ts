@@ -33,6 +33,6 @@ export class AchievementsService {
   public getAllWithQuests(
     questTag: string,
   ): AchievementsModel.Models.IAchievement[] {
-    return this.getAll().filter((a) => a.quests.includes(questTag));
+    return this.getAll().filter((a) => a.quest === questTag);
   }
 }

@@ -50,6 +50,12 @@ function AchievementUnlocked(
             ...(achievement.idx === 2 && {
               filter: 'sepia(1)',
             }),
+            ...(achievement.idx === 3 && {
+              filter: 'sepia(100%) hue-rotate(190deg) saturate(500%)',
+            }),
+            ...(achievement.idx === 4 && {
+              filter: 'sepia(100%) hue-rotate(190deg) saturate(500%)',
+            }),
           })}
           src={publicPath(`/achievements/${achievement.config.icon}`)}
           alt={achievement.config.title}

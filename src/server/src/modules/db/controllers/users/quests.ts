@@ -15,12 +15,12 @@ export class UserQuests {
 
   public formatQuest<
     T extends QuestsModel.DTO.DB.IQuest | null,
-    U = T extends null ? null : QuestsModel.Models.IQuest,
+    U = T extends null ? null : QuestsModel.Models.IUserQuest,
   >(quest: T): U {
     if (!quest) return null as unknown as U;
-    const formatted: QuestsModel.Models.IQuest = {
+    const formatted: QuestsModel.Models.IUserQuest = {
       ...quest,
-    } as unknown as QuestsModel.Models.IQuest;
+    } as unknown as QuestsModel.Models.IUserQuest;
     formatted.createdAt = quest.createdAt.getTime();
     formatted.updatedAt = quest.updatedAt.getTime();
     formatted.finishedAt = quest.finishedAt?.getTime();
@@ -31,7 +31,7 @@ export class UserQuests {
     userId: number,
     tag: string,
     meta: Record<string, unknown> = {},
-  ): Promise<QuestsModel.Models.IQuest> {
+  ): Promise<QuestsModel.Models.IUserQuest> {
     return this.formatQuest(
       await this.prisma.quest.create({
         data: {
@@ -46,7 +46,7 @@ export class UserQuests {
   public async update(
     id: number,
     data: Prisma.XOR<Prisma.QuestUpdateInput, Prisma.QuestUncheckedUpdateInput>,
-  ): Promise<QuestsModel.Models.IQuest> {
+  ): Promise<QuestsModel.Models.IUserQuest> {
     return this.formatQuest(
       await this.prisma.quest.update({
         where: { id },

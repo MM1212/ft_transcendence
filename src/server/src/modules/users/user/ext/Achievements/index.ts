@@ -1,6 +1,6 @@
+import NotificationsModel from '@typings/models/notifications';
 import User from '../..';
 import UserExtBase from '../Base';
-import { CacheObserver } from '@shared/CacheObserver';
 import AchievementsModel from '@typings/models/users/achievements';
 
 class UserExtAchievements extends UserExtBase {
@@ -41,16 +41,54 @@ class UserExtAchievements extends UserExtBase {
     return achievement;
   }
 
-  async add(
-    tag: string,
-  ): Promise<AchievementsModel.Models.IUserAchievement> {
+  async add(tag: string): Promise<AchievementsModel.Models.IUserAchievement> {
     if (this.has(tag)) throw new Error('Achievement already exists');
     const achievement = await this.helpers.db.users.achievements.create(
       this.user.id,
       tag,
     );
     this.all.push(achievement);
+    const config = this.helpers.achievementsService.get(tag)!;
+    await this.user.notifications.create({
+      tag: 'achievements:unlocked',
+      data: { tag: achievement.tag },
+      message: `You have unlocked a new achievement: ${config.title}`,
+      title: 'Achievement Unlocked',
+      type: NotificationsModel.Models.Types.Permanent,
+      dismissable: true,
+    });
     return achievement;
+  }
+  async increaseLevel(
+    tag: string,
+  ): Promise<AchievementsModel.Models.IUserAchievement> {
+    const achievement = this.get(tag);
+    if (!achievement) throw new Error('Achievement does not exist');
+    if (
+      achievement.currentLevel ===
+      this.helpers.achievementsService.get(achievement.tag)!.levels.length - 1
+    )
+      return achievement;
+    const { updatedAt, currentLevel } =
+      await this.helpers.db.users.achievements.update(achievement.id, {
+        currentLevel: achievement.currentLevel + 1,
+      });
+    achievement.updatedAt = updatedAt;
+    achievement.currentLevel = currentLevel;
+    await this.user.notifications.create({
+      tag: 'achievements:unlocked',
+      data: { tag: achievement.tag },
+      message: `You have reached a new level in the achievement: ${achievement.tag}`,
+      title: 'Achievement Unlocked',
+      type: NotificationsModel.Models.Types.Permanent,
+      dismissable: true,
+    });
+    return achievement;
+  }
+  async addOrIncreaseLevel(
+    tag: string,
+  ): Promise<AchievementsModel.Models.IUserAchievement> {
+    return this.has(tag) ? await this.increaseLevel(tag) : await this.add(tag);
   }
 
   async delete(id: number): Promise<boolean> {

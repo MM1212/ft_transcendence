@@ -1,8 +1,9 @@
 import { AchievementsService } from '@/modules/achievements/achievements.service';
 import { Injectable } from '@nestjs/common';
-import type { Quest } from "../user/ext/Quests";
+import type { Quest } from '../user/ext/Quests';
 import AchievementsModel from '@typings/models/users/achievements/index';
 import User from '../user/index';
+import type QuestsModel from '@typings/models/users/quests';
 
 @Injectable()
 export class UserAchievementsService {
@@ -31,17 +32,18 @@ export class UserAchievementsService {
     return userAchievements;
   }
 
-  public async onQuestCompleted(user: User, quest: Quest) {
-    const achievementsWithQuest = this.achievementsService.getAllWithQuests(quest.tag);
+  public async onQuestNewMilestone(
+    user: User,
+    quest: Quest,
+    milestonePassed: QuestsModel.Models.IQuestMilestone,
+  ): Promise<void> {
+    const achievementsWithQuest = this.achievementsService
+      .getAllWithQuests(quest.tag)
+      .filter((a) =>
+        a.levels.some((l) => l.questMilestone === milestonePassed.tag),
+      );
     for (const achievement of achievementsWithQuest) {
-      if (user.achievements.has(achievement.tag)) {
-        continue;
-      }
-      const requirements = achievement.quests.map((q) => user.quests.get(q));
-      const hasAllRequirements = requirements.every((r) => r && r.completed);
-      if (hasAllRequirements) {
-        await user.achievements.add(achievement.tag);
-      }
+      await user.achievements.addOrIncreaseLevel(achievement.tag);
     }
   }
 }

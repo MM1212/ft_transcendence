@@ -185,26 +185,33 @@ model Item {
 }
 
 model Quest {
-  id         Int       @id @default(autoincrement())
-  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId     Int       @map("user_id")
-  tag        String
-  createdAt  DateTime  @default(now()) @map("created_at")
-  updatedAt  DateTime  @default(now()) @updatedAt @map("updated_at")
-  finishedAt DateTime? @map("finished_at")
-  completed  Boolean   @default(false)
-  meta       Json      @default("{}")
+  id               Int       @id @default(autoincrement())
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId           Int       @map("user_id")
+  tag              String
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @default(now()) @updatedAt @map("updated_at")
+  finishedAt       DateTime? @map("finished_at")
+  completed        Boolean   @default(false)
+  currentMilestone Int       @default(0) @map("current_milestone")
+  meta             Json      @default("{}")
+
+  @@unique([userId, tag], name: "quest_unique")
+  @@index([tag])
+  @@map("user_quests")
 }
 
 model Achievement {
-  id         Int       @id @default(autoincrement())
-  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId     Int       @map("user_id")
-  tag        String
-  createdAt  DateTime  @default(now()) @map("created_at")
+  id           Int      @id @default(autoincrement())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId       Int      @map("user_id")
+  tag          String
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at")
+  currentLevel Int      @default(0) @map("current_level")
 
-  @@index([tag])
   @@unique([userId, tag], name: "achievement_unique")
+  @@index([tag])
   @@map("user_achievements")
 }
 
@@ -265,6 +272,6 @@ model Leaderboard {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
-  @@map("leaderboards")
   @@index([elo])
+  @@map("leaderboards")
 }
