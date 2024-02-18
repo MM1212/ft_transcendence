@@ -1,6 +1,6 @@
 import CurrencyTwdIcon from '@components/icons/CurrencyTwdIcon';
 import { Box, Sheet, styled } from '@mui/joy';
-import {  Button, Card, CardContent, Typography } from '@mui/joy';
+import { Button, Card, CardContent, Typography } from '@mui/joy';
 import ShopModel from '@typings/models/shop';
 import { useShopActions } from '../hooks/useShopActions';
 
@@ -13,12 +13,12 @@ export default function ShopCard({
   label,
   description,
   listingMeta,
-  owned
+  owned,
 }: ShopModel.Models.Item & {
   canBuy: boolean;
   owned: boolean;
 }) {
-  const {buyItem, loading} = useShopActions();
+  const { buyItem, loading } = useShopActions();
 
   return (
     <Card sx={{ width: '20dvh' }}>
@@ -56,7 +56,7 @@ export default function ShopCard({
         <Button
           onClick={!owned ? () => buyItem(id) : undefined}
           variant="outlined"
-          color={owned ? 'warning' : "success"}
+          color={owned ? 'warning' : 'success'}
           size="md"
           loading={loading}
           disabled={!owned && !canBuy}
