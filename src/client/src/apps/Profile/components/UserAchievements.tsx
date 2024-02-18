@@ -11,6 +11,7 @@ import TrophyBrokenIcon from '@components/icons/TrophyBrokenIcon';
 import { useTunnelEndpoint } from '@hooks/tunnel';
 import AchievementsModel from '@typings/models/users/achievements';
 import { AchievementLogoUnlocked } from '@apps/Achievements/components/Achievement';
+import TrophyAwardIcon from '@components/icons/TrophyAwardIcon';
 
 const sizeBadge = (size: number) => {
   if (size < 6) return 'xl';
@@ -33,7 +34,10 @@ function UserAchievement(
   const levelToRender =
     userAchievement && unlocked ? previousLevel! : currentLevel;
   return (
-    <Tooltip title={userAchievement ? levelToRender.title : achievement.title} size="md">
+    <Tooltip
+      title={userAchievement ? levelToRender.title : achievement.title}
+      size="md"
+    >
       <div>
         <AchievementLogoUnlocked
           {...(props as Required<AchievementsModel.DTO.IMixedAchievement>)}
@@ -44,6 +48,8 @@ function UserAchievement(
 }
 
 export default function UserAchievements({ id }: { id?: number }) {
+  console.log('id', id);
+
   const { isLoading, error, data } = useTunnelEndpoint<
     | AchievementsModel.Endpoints.GetUserAchievements
     | AchievementsModel.Endpoints.GetSessionAchievements
@@ -54,7 +60,7 @@ export default function UserAchievements({ id }: { id?: number }) {
     !id
       ? undefined
       : {
-          id,
+          userId: id,
         }
   );
 
@@ -94,7 +100,7 @@ export default function UserAchievements({ id }: { id?: number }) {
           ) : (
             <GenericPlaceholder
               title="No Achievements Earned"
-              icon={<TrophyBrokenIcon fontSize="xl4" />}
+              icon={<TrophyAwardIcon fontSize="xl4" />}
               path="/pong/play/queue"
             />
           )}
