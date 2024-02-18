@@ -8,11 +8,11 @@ import { modalsAtom } from '@hooks/useModal';
 import { SHOP_OPEN_MODAL_ID } from '../hooks/useOpenShopModal';
 
 class ShopInteraction extends Interaction {
-  private static readonly CENTER = new Vector2D(507, 400);
+  private static readonly CENTER = new Vector2D(900, 350);
   private static readonly DEBUG = false;
   private readonly boundingBox: BoundingBox = new BoundingBox(
     ShopInteraction.CENTER,
-    new Vector2D(500, 200)
+    new Vector2D(550, 300)
   );
   constructor(lobby: ClientLobby, data: InteractionData) {
     super(lobby, data);

@@ -68,6 +68,7 @@ interface DevClothingListModalState {
   backItem: boolean;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useDevClothingListService = () => {
   if (IS_PROD) return;
   // eslint-disable-next-line react-hooks/rules-of-hooks

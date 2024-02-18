@@ -8,8 +8,6 @@ import ChevronDoubleLeftIcon from '@components/icons/ChevronDoubleLeftIcon';
 import ChevronDoubleRightIcon from '@components/icons/ChevronDoubleRightIcon';
 
 function PaginationItem(props: PaginationItemProps): JSX.Element | null {
-  console.log('PaginationItem', props);
-
   switch (props.type) {
     case 'start-ellipsis':
     case 'end-ellipsis':
@@ -127,7 +125,7 @@ export default function Pagination(props: PaginationProps) {
         return renderItem({
           ...item,
           color,
-          disabled,
+          disabled: disabled || item.disabled,
           key: index,
           size,
           variant,

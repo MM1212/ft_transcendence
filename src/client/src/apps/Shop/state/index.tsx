@@ -54,6 +54,17 @@ const shopState = new (class ShopState {
         return subCategories;
       },
   });
+  subCategory = atomFamily<ShopModel.Models.SubCategory, string>({
+    key: 'shop/subCategory',
+    default: selectorFamily({
+      key: 'shop/subCategory/default',
+      get: (id) => async ({ get }) => {
+        const [category, subCategory] = id.split('-');
+        const computed = get(this.subCategories(category));
+        return computed.find((sc) => sc.id === subCategory)!;
+      },
+    }),
+  });
 
   items = atomFamily<ShopModel.Models.Item[], string>({
     key: 'shop/items',
@@ -71,6 +82,10 @@ const shopState = new (class ShopState {
         }
       },
     }),
+  });
+  subCategoryPage = atomFamily<number, string>({
+    key: 'shop/subCategoryPage',
+    default: 1,
   });
 })();
 
