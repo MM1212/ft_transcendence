@@ -1,16 +1,45 @@
-import { UserAvatar } from "@components/AvatarWithStatus";
-import ProfileTooltip from "@components/ProfileTooltip";
-import FireIcon from "@components/icons/FireIcon";
-import { useUser } from "@hooks/user";
-import { Avatar } from "@mui/joy";
-import { Box, Stack, Typography } from "@mui/joy";
-import PongModel from "@typings/models/pong";
-import PongHistoryModel from "@typings/models/pong/history";
-import { randomInt } from "@utils/random";
+import { UserAvatar } from '@components/AvatarWithStatus';
+import ProfileTooltip from '@components/ProfileTooltip';
+import CrownIcon from '@components/icons/CrownIcon';
+import FireIcon from '@components/icons/FireIcon';
+import { useUser } from '@hooks/user';
+import { Avatar, Tooltip } from '@mui/joy';
+import { Box, Stack, Typography } from '@mui/joy';
+import PongModel from '@typings/models/pong';
+import PongHistoryModel from '@typings/models/pong/history';
+import { randomInt } from '@utils/random';
+import { statsMapping } from '../constants';
 
-export default function PlayerStatsRow(player: PongHistoryModel.Models.Player & {
-  isSelf: boolean;
+function AddStatsBoard({
+  gridColumnStart,
+  value,
+  textColor,
+}: {
+  gridColumnStart: number;
+  value: string;
+  textColor?: string;
 }) {
+  return (
+    <Typography
+      textColor={textColor}
+      style={{
+        display: 'grid',
+        gridColumnStart: gridColumnStart,
+        alignItems: 'center',
+        justifySelf: 'right',
+      }}
+      level="body-md"
+    >
+      {value}
+    </Typography>
+  );
+}
+
+export default function PlayerStatsRow(
+  player: PongHistoryModel.Models.Player & {
+    isSelf: boolean;
+  }
+) {
   const user = useUser(player.userId);
   const superPowers = [
     PongModel.Endpoints.Targets.PowerIceTexture,
@@ -18,40 +47,16 @@ export default function PlayerStatsRow(player: PongHistoryModel.Models.Player & 
     PongModel.Endpoints.Targets.PowerWaterTexture,
   ];
   if (user === null) return null;
-  const textColor = player.isSelf ? "warning.300" : "neutral";
-  function AddStatsBoard({
-    gridColumnStart,
-    value,
-  }: {
-    gridColumnStart: number;
-    value: string;
-  }) {
-    return (
-      <Typography
-        textColor={textColor}
-        style={{
-          display: "grid",
-          gridColumnStart: gridColumnStart,
-          alignItems: "center",
-          justifySelf: "right",
-        }}
-        level="body-md"
-      >
-        {value}
-      </Typography>
-    );
-  }
-
+  const textColor = player.isSelf ? 'warning.300' : 'neutral';
   return (
     <>
-      <Box style={{ display: "grid", gridColumnStart: "1", alignSelf: "left" }}>
+      <Box style={{ display: 'grid', gridColumnStart: '1', alignSelf: 'left' }}>
         <Stack spacing={1} direction="row" alignItems="center">
           <Avatar
             variant="outlined"
-            sx={{ borderRadius: "sm", p: 0.5 }}
+            sx={{ borderRadius: 'sm', p: 0.5 }}
             size="sm"
             src={superPowers[randomInt(0, 3)]}
-            style={{}}
           >
             <FireIcon size="xs" />
           </Avatar>
@@ -62,30 +67,29 @@ export default function PlayerStatsRow(player: PongHistoryModel.Models.Player & 
             textColor={textColor}
             level="body-sm"
             textOverflow="ellipsis"
+            whiteSpace="nowrap"
+            endDecorator={
+              player.mvp ? (
+                <Tooltip title="MVP">
+                  <CrownIcon color="warning" />
+                </Tooltip>
+              ) : undefined
+            }
           >
             {user.nickname}
           </Typography>
         </Stack>
       </Box>
-      <AddStatsBoard gridColumnStart={2} value={randomInt(100, 2000).toString()} />
-      <AddStatsBoard gridColumnStart={3} value={randomInt(60, 210).toString()} />
-      <AddStatsBoard gridColumnStart={4} value={randomInt(0, 10).toString()} />
-      <AddStatsBoard gridColumnStart={5} value={randomInt(1, 10).toString()} />
-      <AddStatsBoard gridColumnStart={6} value={randomInt(1, 1592).toString()} />
-      <Typography
-        textColor={textColor}
-        style={{
-          display: "grid",
-          gridColumnStart: '7',
-          alignItems: "center",
-          alignSelf: "left",
-          justifySelf: "right",
-        }}
-        level="body-md"
-      >
-        {randomInt(0, 10).toString()}
-      </Typography>
-
+      {statsMapping.map(
+        (stat, index) =>
+          player.stats[stat.statKey] !== null && (
+            <AddStatsBoard
+              key={index}
+              gridColumnStart={index + 2}
+              value={String(player.stats[stat.statKey])}
+            />
+          )
+      )}
     </>
   );
 }

@@ -1,10 +1,4 @@
-import {
-  Box,
-  CircularProgress,
-  Divider,
-  Stack,
-  Typography,
-} from '@mui/joy';
+import { Box, CircularProgress, Divider, Stack, Typography } from '@mui/joy';
 import SingleMatchHist from './SingleMatchHist';
 import React from 'react';
 import ProfileTabHeader from './ProfileTabHeader';
@@ -12,10 +6,9 @@ import { useTunnelEndpoint } from '@hooks/tunnel';
 import PongHistoryModel from '@typings/models/pong/history';
 import TableTennisIcon from '@components/icons/TableTennisIcon';
 import GenericPlaceholder from '@components/GenericPlaceholder';
-import { Link } from 'wouter';
 
 export default function ProfileMatchHistory({ id }: { id?: number }) {
-  const { isLoading, error, data, isValidating } = useTunnelEndpoint<
+  const { isLoading, error, data } = useTunnelEndpoint<
     | PongHistoryModel.Endpoints.GetAllByUserId
     | PongHistoryModel.Endpoints.GetAllBySession
   >(
@@ -23,9 +16,10 @@ export default function ProfileMatchHistory({ id }: { id?: number }) {
       ? PongHistoryModel.Endpoints.Targets.GetAllBySession
       : PongHistoryModel.Endpoints.Targets.GetAllByUserId,
     !id
-      ? undefined
+      ? { take: 5 }
       : {
           id,
+          take: 5,
         }
   );
   return (
@@ -44,7 +38,7 @@ export default function ProfileMatchHistory({ id }: { id?: number }) {
           title="Match History"
           path={`/pong/history/${id ?? 'me'}`}
         />
-        {isLoading || isValidating ? (
+        {isLoading ? (
           <CircularProgress variant="plain" />
         ) : error || !data ? (
           <Typography color="danger" level="title-md">
@@ -58,17 +52,12 @@ export default function ProfileMatchHistory({ id }: { id?: number }) {
             width="100%"
             overflow="none"
           >
-            {data.slice(0, 5).map((match, index) => (
+            {data.map((match, index) => (
               <React.Fragment key={index}>
                 <SingleMatchHist {...match} profileId={id} />
-                {index !== 4 && <Divider />}
+                {index !== data.length - 1 && <Divider />}
               </React.Fragment>
             ))}
-            {data.length > 5 && (
-              <Typography component={Link} to={`/pong/history/${id ?? 'me'}`}>
-                ...See Full Match History
-              </Typography>
-            )}
           </Stack>
         ) : (
           <GenericPlaceholder

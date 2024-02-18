@@ -90,6 +90,8 @@ export default function MatchHistoryEntryHeader({
       ];
     return [myTeam, match.teams[0]];
   }, [match.teams, targetId]);
+  console.log(match);
+  
   return (
     <Stack
       direction={'row'}
@@ -145,7 +147,9 @@ export default function MatchHistoryEntryHeader({
         <Typography level="body-xs">
           {moment(match.createdAt).format('DD/MM/YYYY')}
         </Typography>
-        <Typography level="body-xs">00:23:21</Typography>
+        <Typography level="body-xs">
+          {moment.utc(match.stats.gameDuration as number).format('HH:mm:ss')}
+        </Typography>
       </Stack>
     </Stack>
   );

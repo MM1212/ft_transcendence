@@ -87,6 +87,9 @@ namespace AchievementsModel {
       all?: boolean;
     }
 
+    export interface GetSessionAchievementsParams
+      extends Omit<GetUserAchievementsParams, 'userId'> {}
+
     export interface GetUserAchievements {
       achievements: IMixedAchievement[];
       total: number;
@@ -98,6 +101,7 @@ namespace AchievementsModel {
       GetAchievements = '/achievements',
       GetAchievement = '/achievements/:tag',
       GetUserAchievements = '/users/:userId/achievements',
+      GetSessionAchievements = '/me/achievements',
     }
     export type All = GroupEndpointTargets<Targets>;
 
@@ -118,11 +122,19 @@ namespace AchievementsModel {
         DTO.GetUserAchievementsParams
       > {}
 
+    export interface GetSessionAchievements
+      extends GetEndpoint<
+        Targets.GetSessionAchievements,
+        DTO.GetUserAchievements,
+        DTO.GetSessionAchievementsParams
+      > {}
+
     export interface Registry extends EndpointRegistry {
       [EndpointMethods.Get]: {
         [Targets.GetAchievements]: GetAchievements;
         [Targets.GetAchievement]: GetAchievement;
         [Targets.GetUserAchievements]: GetUserAchievements;
+        [Targets.GetSessionAchievements]: GetSessionAchievements;
       };
     }
   }

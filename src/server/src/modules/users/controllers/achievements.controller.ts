@@ -12,6 +12,8 @@ import UserCtx from '../decorators/User.pipe';
 import { UserAchievementsService } from '../services/achievements.service';
 import User from '../user/index';
 import { AchievementsService } from '@/modules/achievements/achievements.service';
+import HttpCtx from '@/helpers/decorators/httpCtx';
+import type { HTTPContext } from '@typings/http';
 
 @Auth()
 @Controller()
@@ -24,6 +26,18 @@ export class UsersAchievementsController {
   @Get(AchievementsModel.Endpoints.Targets.GetUserAchievements)
   public async getUserAchievements(
     @UserCtx('userId') user: User,
+    @Query('all', new DefaultValuePipe(false), new ParseBoolPipe())
+    all: boolean,
+  ): Promise<
+    InternalEndpointResponse<AchievementsModel.Endpoints.GetUserAchievements>
+  > {
+    const achievements = this.service.getUserAchievements(user, all);
+    return { achievements, total: this.configService.getSize() };
+  }
+
+  @Get(AchievementsModel.Endpoints.Targets.GetSessionAchievements)
+  public async getSessionAchievements(
+    @HttpCtx() { user }: HTTPContext<true>,
     @Query('all', new DefaultValuePipe(false), new ParseBoolPipe())
     all: boolean,
   ): Promise<
