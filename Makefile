@@ -73,7 +73,9 @@ endif
 	cp envs/.env.tmp .env
 	cp envs/.env.tmp $(CLIENT_DIR)/.env
 	cp envs/.env.tmp $(PROD_DIR)/.env
+ifeq ($(MODE), development)
 	cp envs/.env.tmp $(DEV_DIR)/.env
+endif
 	cp envs/.env.tmp envs/.active.env
 	rm envs/.env.tmp
 

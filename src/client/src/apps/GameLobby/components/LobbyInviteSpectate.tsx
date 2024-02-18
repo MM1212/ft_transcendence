@@ -1,7 +1,6 @@
 import { UserAvatar } from '@components/AvatarWithStatus';
-import KarateIcon from '@components/icons/KarateIcon';
-import { useCurrentUser, useUser } from '@hooks/user';
-import { Box, Chip, IconButton, Sheet } from '@mui/joy';
+import { useUser } from '@hooks/user';
+import { Box, Chip } from '@mui/joy';
 import { Divider } from '@mui/joy';
 import { Stack, Typography } from '@mui/joy';
 import React from 'react';
@@ -71,7 +70,7 @@ export function LobbySpectatorsList({
   type,
 }: {
   usersId: number[];
-  type : string;
+  type: string;
 }) {
   return (
     <>
@@ -79,7 +78,7 @@ export function LobbySpectatorsList({
         {usersId.length > 0 ? (
           usersId.map((user, index) => (
             <React.Fragment key={index}>
-              <DisplayStackedUser userId={user} key={index}/>
+              <DisplayStackedUser userId={user} key={index} />
               <Divider sx={{ mb: 2 }} />
             </React.Fragment>
           ))
@@ -104,7 +103,7 @@ export function LobbyInvitedList({
         {usersId.length > 0 ? (
           usersId.map((user, index) => (
             <React.Fragment key={index}>
-              <DisplayInvitedUser userId={user} key={index}/>
+              <DisplayInvitedUser userId={user} key={index} />
               <Divider sx={{ mb: 2 }} />
             </React.Fragment>
           ))

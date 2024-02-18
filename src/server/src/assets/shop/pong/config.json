@@ -1,7 +1,7 @@
 {
   "id": "pong",
   "label": "Pong",
-  "icon": "{ICON_PATH}/Pong.tsx",
+  "icon": "{ICON_PATH}/Pong",
   "subCategories": [
     "special_power",
     "paddle",

@@ -6,8 +6,6 @@ import {
   ParseBoolPipe,
   Query,
 } from '@nestjs/common';
-import { OnEvent } from '@nestjs/event-emitter';
-import type { Quest } from '../user/ext/Quests';
 import { InternalEndpointResponse } from '@typings/api/index';
 import AchievementsModel from '@typings/models/users/achievements/index';
 import UserCtx from '../decorators/User.pipe';
@@ -33,10 +31,5 @@ export class UsersAchievementsController {
   > {
     const achievements = this.service.getUserAchievements(user, all);
     return { achievements, total: this.configService.getSize() };
-  }
-
-  @OnEvent('user.quests.completed')
-  public async onQuestCompleted(user: User, quest: Quest): Promise<void> {
-    await this.service.onQuestCompleted(user, quest);
   }
 }

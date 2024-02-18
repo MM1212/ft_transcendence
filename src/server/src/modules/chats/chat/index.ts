@@ -417,11 +417,11 @@ class Chat extends CacheObserver<IChat> {
         this.sseTargets,
         result,
       );
-    // track chat activity for achievements of 100 messages
-    const quest = await author.quests.getOrCreate('chat:activity:100', {count: 0});
-    await quest.updateMeta(p => ({count: p.count + 1}));
-    if (quest.meta.count >= 100)
-        await quest.complete();
+    // track chat activity for achievements of n messages
+    const achievement = await author.achievements.get<{ count: number }>(
+      'chat:activity',
+    );
+    await achievement.update((p) => ({ count: p.count + 1 }));
     return result;
   }
 
@@ -550,8 +550,12 @@ class Chat extends CacheObserver<IChat> {
     participantId: number,
   ): Promise<void> {
     const targetParticipant = this.getParticipant(participantId, true);
-    if (!targetParticipant) throw new NotFoundException("Target to transfer ownership to doesn't exist");
-    if (targetParticipant.isOwner()) throw new ForbiddenException("Cannot transfer ownership to yourself");
+    if (!targetParticipant)
+      throw new NotFoundException(
+        "Target to transfer ownership to doesn't exist",
+      );
+    if (targetParticipant.isOwner())
+      throw new ForbiddenException('Cannot transfer ownership to yourself');
     const participantOp = this.getParticipantByUserId(op.id);
     if (!participantOp) throw new ForbiddenException("You don't exist");
     if (!participantOp.isOwner())
