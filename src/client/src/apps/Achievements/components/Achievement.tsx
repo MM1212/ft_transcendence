@@ -8,6 +8,7 @@ import {
   CircularProgress,
   Box,
   Tooltip,
+  type AvatarProps,
 } from '@mui/joy';
 import { Avatar } from '@mui/joy';
 import GenericPlaceholder from '@components/GenericPlaceholder';
@@ -33,8 +34,10 @@ const ACHIEVEMENT_LEVEL_TYPES_CSS: Record<
   diamond: 'sepia(1) hue-rotate(175deg) saturate(400%)',
 };
 
-function AchievementLogoUnlocked(
-  props: Required<AchievementsModel.DTO.IMixedAchievement>
+export function AchievementLogoUnlocked(
+  props: Required<AchievementsModel.DTO.IMixedAchievement> & {
+    size?: AvatarProps['size'];
+  }
 ): JSX.Element {
   const {
     achievement,
@@ -48,8 +51,8 @@ function AchievementLogoUnlocked(
   return (
     <Avatar
       sx={(theme) => ({
-        width: theme.spacing(12),
-        height: theme.spacing(12),
+        width: props.size ? undefined : theme.spacing(12),
+        height: props.size ? undefined : theme.spacing(12),
         borderRadius: 'md',
         border: '2px solid',
         borderColor: 'divider',
@@ -57,6 +60,7 @@ function AchievementLogoUnlocked(
           filter: ACHIEVEMENT_LEVEL_TYPES_CSS[levelToRender.type],
         }),
       })}
+      size={props.size}
       src={publicPath(`/achievements/${achievement.icon}`)}
       alt={achievement.title}
     />

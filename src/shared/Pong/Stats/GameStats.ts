@@ -1,5 +1,6 @@
 import { ArenaWall } from '../Collisions/Arena';
 import { GameObject } from '../GameObject';
+import { Bar } from '../Paddles/Bar';
 import { TeamStatistics } from './TeamStats';
 
 export class GameStatistics {
@@ -46,6 +47,9 @@ export class GameStatistics {
     this.currentBounceStreak++;
     if (this.currentBounceStreak > this.longestBounceStreak) {
       this.longestBounceStreak = this.currentBounceStreak;
+    }
+    if (obj instanceof Bar) {
+      obj.stats.increaseBallBounces();
     }
   }
 

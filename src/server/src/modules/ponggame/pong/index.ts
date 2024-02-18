@@ -34,7 +34,6 @@ export class ServerGame extends Game {
   private updateHandle: NodeJS.Timeout | undefined;
   public readonly room: Room;
 
-
   public userIdToSocketId: Map<number, string> = new Map(); // matchId, socketId
 
   public maxScore = 7;
@@ -55,7 +54,11 @@ export class ServerGame extends Game {
     public usersService: UsersService,
     public leaderboardService: LeaderboardService,
   ) {
-    super(WINDOWSIZE_X, WINDOWSIZE_Y, lobbyInterface.gameType as PongModel.Models.LobbyGameType);
+    super(
+      WINDOWSIZE_X,
+      WINDOWSIZE_Y,
+      lobbyInterface.gameType as PongModel.Models.LobbyGameType,
+    );
     if (config.maxScore >= 1 && config.maxScore <= 100)
       this.maxScore = config.maxScore;
     this.UUID = config.UUID;
@@ -377,21 +380,24 @@ export class ServerGame extends Game {
       const getPlayerStats = (
         player: PongModel.Models.IPlayerConfig,
       ): PongHistoryModel.DTO.DB.CreatePlayer => {
+        const stats = (
+          this.getObjectByTag(player.tag) as Bar
+        ).stats.exportStats();
         return {
           gear: {
             paddle: player.paddle,
             specialPower: player.specialPower,
           },
           stats: {
-            ...(this.getObjectByTag(player.tag) as Bar).stats.exportStats(),
+            ...stats,
             elo:
               rewards.find((reward) => reward.userId === player.userId)
                 ?.value ?? null,
           },
-          mvp: player.tag === mvpScores.tag ? true : false,
-          owner: this.config.ownerId === player.userId ? true : false,
+          mvp: player.tag === mvpScores.tag,
+          owner: this.config.ownerId === player.userId,
           userId: player.userId,
-          score: player.scored,
+          score: stats.playerScore,
           teamId: player.teamId,
         };
       };
@@ -401,17 +407,20 @@ export class ServerGame extends Game {
       ): PongHistoryModel.DTO.DB.CreateTeam => {
         let wonVal: boolean;
         if (team.id === 0) {
-          wonVal = this.score[0] > this.score[1] ? true : false;
+          wonVal = this.score[0] > this.score[1];
         } else {
-          wonVal = this.score[0] > this.score[1] ? false : true;
+          wonVal = this.score[0] <= this.score[1];
         }
+        const players =
+          team.players.map<PongHistoryModel.DTO.DB.CreatePlayer>(
+            getPlayerStats,
+          );
         return {
-          players: team.players.map<PongHistoryModel.DTO.DB.CreatePlayer>(
-            (player) => {
-              return getPlayerStats(player);
-            },
+          players,
+          score: players.reduce(
+            (acc, player) => acc + player.stats.playerScore,
+            0,
           ),
-          score: team.score,
           stats: this.gameStats.teamStats.exportStats(team.id),
           won: wonVal,
         };

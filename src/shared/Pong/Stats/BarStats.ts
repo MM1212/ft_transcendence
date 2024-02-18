@@ -16,6 +16,8 @@ export class BarStatistics {
 
   private manaSpent: number = 0; // shotsFired * powerCost
 
+  private ballBounces: number = 0; // increment when ball bounces on bar
+
   private bubble_DirectGoal: number = 0; // increment when goal and last collider was bubble
   private fire_DirectGoal: number = 0; // increment when goal and last collider was fire
   private ice_ScoredOpponentAffected: number = 0; // increment when goal and opponent status === status.slowed or status.frozen
@@ -75,6 +77,10 @@ export class BarStatistics {
     this.goalsScored++;
   }
 
+  public increaseBallBounces(): void {
+    this.ballBounces++;
+  }
+
   public exportStats(): PongHistoryModel.Models.PlayerStats {
     if (this.shotHit > this.shotsFired) this.shotHit = this.shotsFired;
     return {
@@ -92,6 +98,7 @@ export class BarStatistics {
       winningGoal: this.winningGoal,
       moneyEarned: this.moneyEarned,
       playerScore: this.playerScore,
+      ballBounces: this.ballBounces,
       elo: 0
     };
   }
