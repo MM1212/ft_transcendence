@@ -51,10 +51,7 @@ export class Lobby implements IClassLifeCycle {
     }
   }
   async onMount(): Promise<void> {
-    console.log('loading collision');
-
     await this.collision.onMount();
-    console.log('collision loaded');
 
     for (const player of this.players) {
       await player.onMount();

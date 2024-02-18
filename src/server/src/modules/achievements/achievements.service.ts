@@ -27,7 +27,6 @@ export class AchievementsService {
       const achievement = this.parseAchievement(entry);
       this.config.set(achievement.tag, achievement);
       this.logger.verbose(`Loaded achievement: ${achievement.tag}`);
-      console.log(achievement);
     }
   }
 
