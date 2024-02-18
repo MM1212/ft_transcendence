@@ -23,20 +23,21 @@ import UserCtx from '../decorators/User.pipe';
 import User from '../user';
 import { ObjectValidationPipe } from '@/helpers/decorators/validator';
 import usersValidator from '../users.validator';
+import AchievementsModel from '@typings/models/users/achievements/index';
 
 @Auth()
 @Controller()
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Get(UsersModel.Endpoints.Targets.GetUsers)
-  async getAll(
-    @Query('limit', new DefaultValuePipe(50), ParseIntPipe) limit: number,
-    @Query('offset', new DefaultValuePipe(0), ParseIntPipe) offset: number,
-  ): Promise<InternalEndpointResponse<UsersModel.Endpoints.GetUsers>> {
-    const users = await this.usersService.getAll({ limit, offset });
-    return users;
-  }
+  // @Get(UsersModel.Endpoints.Targets.GetUsers)
+  // async getAll(
+  //   @Query('limit', new DefaultValuePipe(50), ParseIntPipe) limit: number,
+  //   @Query('offset', new DefaultValuePipe(0), ParseIntPipe) offset: number,
+  // ): Promise<InternalEndpointResponse<UsersModel.Endpoints.GetUsers>> {
+  //   const users = await this.usersService.getAll({ limit, offset });
+  //   return users;
+  // }
 
   @Get(UsersModel.Endpoints.Targets.GetUser)
   async get(@UserCtx() user: User) {

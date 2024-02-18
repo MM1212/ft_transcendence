@@ -4,7 +4,7 @@ import { Users } from './controllers';
 import { PrismaModule } from './prisma';
 import { Chats } from './controllers/chat';
 import { Games } from './controllers/games';
-import { UserQuests } from './controllers/users/quests';
+import { UserAchievements } from './controllers/users/achievements'; //new
 import { UserInventory } from './controllers/users/inventory';
 import { UserNotifications } from './controllers/users/notifications';
 import { Pong } from './controllers/games/pong';
@@ -16,7 +16,7 @@ import { LeaderboardDbController } from './controllers/leaderboard';
   providers: [
     DbService,
     Users,
-    UserQuests,
+    UserAchievements,
     UserInventory,
     UserNotifications,
     Chats,

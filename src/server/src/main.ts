@@ -49,7 +49,7 @@ async function bootstrap() {
   });
 
   // Compression
-  await app.register(compressionModule, { encodings: ['gzip', 'deflate'] });
+  await app.register(compressionModule, { encodings: ['gzip', 'deflate', 'br'] });
 
 
   // Websockets

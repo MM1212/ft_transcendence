@@ -1,5 +1,5 @@
-import { useCurrentUser, useUser } from '@hooks/user';
-import { useRecoilCallback, useRecoilValue } from 'recoil';
+import { useCurrentUser } from '@hooks/user';
+import { useRecoilCallback } from 'recoil';
 import pongGamesState from '../state';
 import tunnel from '@lib/tunnel';
 import PongModel from '@typings/models/pong';
@@ -62,14 +62,13 @@ export function AddBotButton({
   teamId: number;
   teamPosition: number | undefined;
 }) {
-
   const handleAddBot = useRecoilCallback(
     (ctx) => async () => {
       try {
         const lobby = await ctx.snapshot.getPromise(pongGamesState.gameLobby);
         if (lobby === null) return;
         if (teamPosition === undefined) {
-          notifications.error("Failed to add bot: Team position invalid");
+          notifications.error('Failed to add bot: Team position invalid');
           return;
         }
         await tunnel.post(PongModel.Endpoints.Targets.AddBot, {
@@ -77,10 +76,10 @@ export function AddBotButton({
           teamPosition,
           lobbyId: lobby.id,
         });
-        console.log("Added bot success");
-        notifications.success("Bot added");
+        console.log('Added bot success');
+        notifications.success('Bot added');
       } catch (err) {
-        notifications.error("Failed to add bot");
+        notifications.error('Failed to add bot');
         console.log(err);
       }
     },
@@ -95,7 +94,7 @@ export function AddBotButton({
           variant="plain"
           onClick={handleAddBot}
           sx={{
-            borderRadius: "xl",
+            borderRadius: 'xl',
           }}
         >
           <RobotIcon />
@@ -156,26 +155,33 @@ export function KickInvitedButton({
 }) {
   const user = useCurrentUser();
 
-  const handleKickInvited = useRecoilCallback((ctx) => async () => {
-    try {
-      const lobby = await ctx.snapshot.getPromise(pongGamesState.gameLobby);
-      if (lobby === null) return;
-      await tunnel.post(PongModel.Endpoints.Targets.KickInvited, {
-        lobbyId: lobby.id,
-        userId: id,
-      });
-      console.log('kick invited success');
-    } catch {
-      console.log('kick invited error');
-    }
-  }, [id]);
+  const handleKickInvited = useRecoilCallback(
+    (ctx) => async () => {
+      try {
+        const lobby = await ctx.snapshot.getPromise(pongGamesState.gameLobby);
+        if (lobby === null) return;
+        await tunnel.post(PongModel.Endpoints.Targets.KickInvited, {
+          lobbyId: lobby.id,
+          userId: id,
+        });
+        console.log('kick invited success');
+      } catch {
+        console.log('kick invited error');
+      }
+    },
+    [id]
+  );
 
   if (id === ownerId) return null;
   if (user?.id !== ownerId) return null;
   return (
     <>
       <Tooltip title="Kick from Invited">
-        <IconButton color={'danger'} sx={{ ml: 'auto' }} onClick={handleKickInvited}>
+        <IconButton
+          color={'danger'}
+          sx={{ ml: 'auto' }}
+          onClick={handleKickInvited}
+        >
           <KarateIcon />
         </IconButton>
       </Tooltip>

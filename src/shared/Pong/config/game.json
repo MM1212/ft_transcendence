@@ -1,3 +1,50 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:5976d50fa0acbdae53a6c2e8fcf5db99bdb3e13ce087010733cf86ce6a64251f
-size 785
+{
+  "game": {
+    "canvas": {
+      "width": 1024,
+      "height": 800
+    }
+  },
+  "balls": {
+    "RedBall": {
+      "diameter": 32,
+      "vertices": 8,
+      "folder": "RedBall"
+    }
+  },
+  "paddles": {
+    "PaddleRed": {
+      "width": 28,
+      "height": 116,
+      "image": "PaddleRed.webp",
+      "folder": "PaddleRed"
+    }
+  },
+  "powers": {
+    "spark": {
+      "diameter": 32,
+      "vertices": 8,
+      "manaCost": 30
+    },
+    "fire": {
+      "diameter": 32,
+      "vertices": 8,
+      "manaCost": 70
+    },
+    "ghost": {
+      "diameter": 35,
+      "vertices": 8,
+      "manaCost": 50
+    },
+    "bubble": {
+      "diameter": 32,
+      "vertices": 8,
+      "manaCost": 35
+    },
+    "ice": {
+      "diameter": 32,
+      "vertices": 8,
+      "manaCost": 40
+    }
+  }
+}

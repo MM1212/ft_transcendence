@@ -1,7 +1,7 @@
 {
   "id": "user",
   "label": "User",
-  "icon": "{ICON_PATH}/User.tsx",
+  "icon": "{ICON_PATH}/User",
   "subCategories": [
     "icons"
   ],

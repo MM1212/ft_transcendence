@@ -12,7 +12,11 @@ import { Server } from 'socket.io';
 import { AuthGatewayGuard } from '../auth/guards/auth-gateway.guard';
 import { LobbyService } from './lobby.service';
 import LobbyModel from '@typings/models/lobby';
+import { UseFilters } from '@nestjs/common';
+import { GlobalFilter } from '@/filters/GlobalFilter';
 
+
+@UseFilters(GlobalFilter)
 @WebSocketGateway({
   namespace: 'api/lobby',
   cors: {

@@ -2,7 +2,7 @@ import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { PrismaService } from '@/modules/db/prisma';
 import UsersModel from '@typings/models/users';
 import { Prisma } from '@prisma/client';
-import { UserQuests } from './quests';
+import { UserAchievements } from './achievements'; //new
 import { UserInventory } from './inventory';
 import { UserNotifications } from './notifications';
 
@@ -20,7 +20,7 @@ const USER_EXT_QUERY = Prisma.validator<Prisma.UserSelect>()({
     select: { id: true },
   },
   character: true,
-  quests: true,
+  achievements: true, //new
   inventory: true,
   notifications: true,
   leaderboard: true,
@@ -30,7 +30,7 @@ const USER_EXT_QUERY = Prisma.validator<Prisma.UserSelect>()({
 export class Users {
   constructor(
     private readonly prisma: PrismaService,
-    @Inject(forwardRef(() => UserQuests)) public readonly quests: UserQuests,
+    @Inject(forwardRef(() => UserAchievements)) public readonly achievements: UserAchievements, //new
     @Inject(forwardRef(() => UserInventory))
     public readonly inventory: UserInventory,
     @Inject(forwardRef(() => UserNotifications))
@@ -62,11 +62,11 @@ export class Users {
     formatted.createdAt = user.createdAt.getTime();
     formatted.status = UsersModel.Models.Status.Offline;
     formatted.connected = false;
-    formatted.quests = user.quests.map((quest) => ({
-      ...quest,
-      createdAt: quest.createdAt.getTime(),
-      updatedAt: quest.updatedAt.getTime(),
-      finishedAt: quest.finishedAt?.getTime(),
+    formatted.achievements = user.achievements.map((achievement) => ({ //achievement
+      ...achievement,
+      createdAt: achievement.createdAt.getTime(),
+      updatedAt: achievement.updatedAt.getTime(),
+      unlockedAt: achievement.unlockedAt?.getTime() ?? null,
     }));
     formatted.inventory = user.inventory.map((item) => ({
       ...item,
@@ -76,6 +76,7 @@ export class Users {
       ...notification,
       createdAt: notification.createdAt.getTime(),
     }));
+    delete (formatted as any).leaderboardId;
     return formatted as unknown as U;
   }
 
@@ -87,14 +88,19 @@ export class Users {
       await this.prisma.user.findMany({
         skip: offset,
         take: limit,
+        include: {
+          leaderboard: {
+            select: {
+              elo: true
+            }
+          },  
+        },
       })
     ).map<UsersModel.Models.IUserInfo>((user) => ({
       ...user,
       createdAt: user.createdAt.getTime(),
       status: UsersModel.Models.Status.Offline,
-      leaderboard: {
-        elo: 0,
-      },
+      leaderboardId: undefined
     }));
   }
   async exists(id: number | string): Promise<boolean> {
@@ -205,12 +211,19 @@ export class Users {
         },
       })
     ).map<UsersModel.Models.IUserInfo>((user) => ({
-      ...user,
+      id: user.id,
+      type: user.type,
+      nickname: user.nickname,
+      avatar: user.avatar,
+      credits: user.credits,
+      firstLogin: user.firstLogin,
+      studentId: user.studentId,
       createdAt: user.createdAt.getTime(),
       status: UsersModel.Models.Status.Offline,
       leaderboard: {
         elo: user.leaderboard.elo,
       },
+
     }));
   }
 }
