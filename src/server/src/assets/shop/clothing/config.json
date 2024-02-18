@@ -1,7 +1,7 @@
 {
   "id": "clothing",
   "label": "Clothing",
-  "icon": "{ICON_PATH}/Clothing.tsx",
+  "icon": "{ICON_PATH}/Clothing",
   "subCategories": [
     "head",
     "body",

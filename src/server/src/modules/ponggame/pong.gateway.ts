@@ -17,7 +17,10 @@ import { ClientSocket } from '@typings/ws';
 import { AuthGatewayGuard } from '../auth/guards/auth-gateway.guard';
 import { ServerGame } from './pong';
 import User from '../users/user';
+import { GlobalFilter } from '@/filters/GlobalFilter';
+import { UseFilters } from '@nestjs/common';
 
+@UseFilters(GlobalFilter)
 @WebSocketGateway({
   namespace: 'api/pong',
   cors: {
