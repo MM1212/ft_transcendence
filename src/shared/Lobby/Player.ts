@@ -109,9 +109,14 @@ export class Player
   }
 
   async handleMovement(key: string, pressed: boolean) {
+    const keyMoveUp = await this.getMoveUpKey();
+    const keyMoveDown = await this.getMoveDownKey();
+    const keyMoveLeft = await this.getMoveLeftKey();
+    const keyMoveRight = await this.getMoveRightKey();
+    console.log(keyMoveUp, keyMoveDown, keyMoveLeft, keyMoveRight);
     console.log('key', key);
     switch (key) {
-      case await this.getMoveUpKey(): {
+      case keyMoveUp: {
         this.transform.direction = new Vector2D(
           this.transform.direction.x,
           pressed ? -1 : 0
@@ -119,7 +124,7 @@ export class Player
         console.log('up');
         break;
       }
-      case await this.getMoveDownKey(): {
+      case keyMoveDown: {
         this.transform.direction = new Vector2D(
           this.transform.direction.x,
           pressed ? 1 : 0
@@ -127,7 +132,7 @@ export class Player
         console.log('down');
         break;
       }
-      case await this.getMoveLeftKey(): {
+      case keyMoveLeft: {
         this.transform.direction = new Vector2D(
           pressed ? -1 : 0,
           this.transform.direction.y
@@ -135,7 +140,7 @@ export class Player
         console.log('left');
         break;
       }
-      case await this.getMoveRightKey(): {
+      case keyMoveRight: {
         this.transform.direction = new Vector2D(
           pressed ? 1 : 0,
           this.transform.direction.y

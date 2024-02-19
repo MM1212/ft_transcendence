@@ -79,6 +79,7 @@ function FormInput({
             return;
           const tmpKeySettings = {...keySettings};
           tmpKeySettings[label as KeySettingsKey] = event.target.value[0].toLowerCase();
+          console.log(tmpKeySettings);
           setKeySettings(tmpKeySettings);
         }}
       />
