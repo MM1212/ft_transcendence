@@ -183,36 +183,24 @@ export class ClientPlayer extends Player {
     return keySettings['Move Up']
   }
 
-  public get moveDownKey() {
-    let key = keySettingsDefault['Move Down'];
-    const keySettingsP = this.lobby.snapshot?.getPromise<KeySettings>(
+  public async getMoveDownKey() {
+    const keySettings = await this.lobby.snapshot!.getPromise<KeySettings>(
       settingsState.storage('keySettings') as RecoilValue<KeySettings>
     );
-    keySettingsP!.then((keySettings) => {
-      key = keySettings['Move Down'];
-    });
-    return key;
+    return keySettings['Move Down'];
   }
 
-  public get moveLeftKey() {
-    let key = keySettingsDefault['Move Left'];
-    const keySettingsP = this.lobby.snapshot?.getPromise<KeySettings>(
+  public async getMoveLeftKey() {
+    const keySettings = await this.lobby.snapshot!.getPromise<KeySettings>(
       settingsState.storage('keySettings') as RecoilValue<KeySettings>
     );
-    keySettingsP!.then((keySettings) => {
-      key = keySettings['Move Left'];
-    });
-    return key;
+    return keySettings['Move Left'];
   }
   
-  public get moveRightKey() {
-    let key = keySettingsDefault['Move Right'];
-    const keySettingsP = this.lobby.snapshot?.getPromise<KeySettings>(
+  public async getMoveRightKey() {
+    const keySettings = await this.lobby.snapshot!.getPromise<KeySettings>(
       settingsState.storage('keySettings') as RecoilValue<KeySettings>
     );
-    keySettingsP!.then((keySettings) => {
-      key = keySettings['Move Right'];
-    });
-    return key;
+    return keySettings['Move Right'];
   }
 }
