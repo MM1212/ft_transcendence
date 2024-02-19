@@ -77,6 +77,21 @@ export class PongLobbyController {
     await this.service.leaveLobby(ctx.user.id);
   }
 
+  @Post(Targets.UpdateLobbySettings)
+  async updateLobbySettings(
+    @HttpCtx() ctx: HTTPContext<true>,
+    @Body(new ObjectValidationPipe(ponglobbyValidator.updateLobbySettingsSchema))
+    body: EndpointData<PongModel.Endpoints.UpdateLobbySettings>,
+  ): Promise<InternalEndpointResponse<PongModel.Endpoints.UpdateLobbySettings>> {
+    await this.service.updateLobbySettings(
+      ctx.user.id,
+      body.lobbyId,
+      body.score,
+      body.type,
+      body.ballSkin,
+    );
+  }
+
   @Post(Targets.StartGame)
   async startGame(
     @HttpCtx() ctx: HTTPContext<true>,
@@ -84,6 +99,15 @@ export class PongLobbyController {
     body: EndpointData<PongModel.Endpoints.StartGame>,
   ): Promise<InternalEndpointResponse<PongModel.Endpoints.StartGame>> {
     await this.service.startGame(ctx.user.id, body.lobbyId);
+  }
+
+  @Post(Targets.AddBot)
+  async addBot(
+    @HttpCtx() ctx: HTTPContext<true>,
+    @Body(new ObjectValidationPipe(ponglobbyValidator.addBotSchema))
+    body: EndpointData<PongModel.Endpoints.AddBot>,
+  ): Promise<InternalEndpointResponse<PongModel.Endpoints.AddBot>> {
+    await this.service.addBot(ctx.user.id, body.lobbyId, body.teamId, body.teamPosition);
   }
 
   @Post(Targets.JoinLobby)

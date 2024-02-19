@@ -1,1 +1,12 @@
-[]
+[
+  {
+  "id": "RedBall",
+  "label": "Red Ball",
+  "description": "A red ball. It's round and red. It's a ball.",
+  "price": 100,
+  "meta": {},
+  "listingMeta": {
+    "previewUrl": "{ASSET_PATH}/pong/Balls/RedBall/RedBall.webp"
+  },
+  "flags": []
+}]

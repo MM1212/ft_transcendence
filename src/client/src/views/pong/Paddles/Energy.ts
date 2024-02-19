@@ -3,62 +3,94 @@ import { UIGame } from '../Game';
 import { Vector2D } from '../utils/Vector';
 import { Energy } from '@shared/Pong/Paddles/Energy';
 import PongModel from '@typings/models/pong';
+import { buildTexture } from '../utils';
+import { ARENA_SIZE } from '@shared/Pong/main';
+import { BAR_SCALE } from './Display';
 
 export class UIEnergy extends Energy {
   public energyBar: PIXI.Graphics;
 
+  public displayEnergy: PIXI.Sprite[] = [];
+
   constructor(
-    player: string,
-    private readonly game: UIGame
+    private readonly game: UIGame,
+    readonly position: number
   ) {
     super();
     this.energyBar = new PIXI.Graphics();
     this.energyBar.zIndex = 15;
-    this.printEnergy(player);
+    this.printEnergy();
+
+    const invertx = position === 1 || position === 3 ? -1 : 1;
+    const inverty = position === 2 || position === 3 ? -1 : 1;
+    const center: Vector2D = this.getEnergyBarPosition(position);
+    let i = 0;
+    // loads all energybars and sets them to invisible
+    while (i <= 4) {
+      this.displayEnergy.push(
+        new PIXI.Sprite(
+          buildTexture(
+            PongModel.Endpoints.Targets.EnergyBars.concat(`/Energy${i}.webp`)
+          )
+        )
+      );
+      this.displayEnergy[i].zIndex = 15 - i;
+      this.displayEnergy[i].scale.y = inverty * BAR_SCALE;
+      this.displayEnergy[i].scale.x = invertx * BAR_SCALE;
+      this.displayEnergy[i].x = center.x;
+      this.displayEnergy[i].y = center.y;
+      this.displayEnergy[i].alpha = 0;
+      if (i === 0) this.displayEnergy[i].alpha = 1;
+      this.game.app.stage.addChild(this.displayEnergy[i]);
+      i++;
+    }
   }
 
-  getEnergyBarPosition(player: string): Vector2D {
-    const position: Vector2D = new Vector2D(0, 0);
+  printEnergy(): void {
+    const energyThresholds = [0.8, 0.6, 0.4, 0.2, 0];
 
-    if (player === PongModel.InGame.ObjType.Player1) {
-      position.x = 10;
-      position.y = 18;
-    } else if (player === PongModel.InGame.ObjType.Player2) {
-      position.x = this.game.width - this.energyMax - 10;
-      position.y = 18;
-    } else if (player === PongModel.InGame.ObjType.Player3) {
-      position.x = 10;
-      position.y = 40;
-    } else if (player === PongModel.InGame.ObjType.Player4) {
-      position.x = this.game.width - this.energyMax - 10;
-      position.y = 40;
+    for (let i = 0; i < this.displayEnergy.length; i++) {
+      this.displayEnergy[i].alpha =
+        this.energyCur >= this.energyMax * energyThresholds[i] ? 1 : 0;
+    }
+  }
+
+  // TODO change these values
+  getEnergyBarPosition(positionN: number): Vector2D {
+    const position: Vector2D = new Vector2D(0, 0);
+    switch (positionN) {
+      case 0:
+        position.x = ARENA_SIZE - 25;
+        position.y = ARENA_SIZE - ARENA_SIZE / 3 + 21;
+        break;
+      case 1:
+        position.x = this.game.width - ARENA_SIZE + 24;
+        position.y = ARENA_SIZE - ARENA_SIZE / 3 + 21;
+        break;
+      case 2:
+        position.x = ARENA_SIZE - 25;
+        position.y = this.game.height - ARENA_SIZE + 11;
+        break;
+      case 3:
+        position.x = this.game.width - ARENA_SIZE + 26;
+        position.y = this.game.height - ARENA_SIZE + 12;
+        break;
     }
     return position;
   }
 
-  printEnergy(player: string): void {
-    const energyBarPosition = this.getEnergyBarPosition(player);
-    this.energyBar.clear();
-    this.energyBar.x = energyBarPosition.x;
-    this.energyBar.y = energyBarPosition.y;
-
-    this.energyBar.beginFill(0xffff00);
-    this.energyBar.drawRect(0, 0, this.energy, 8);
-    this.energyBar.endFill();
-    if (this.energy < this.energyMax) {
-      this.energyBar.beginFill(0xffa500);
-      this.energyBar.drawRect(this.energy, 0, this.energyMax - this.energy, 8);
-      this.energyBar.endFill();
-    }
-    this.game.app.stage.addChild(this.energyBar);
-  }
-
-  updateEnergy(energy: number, tag: string): void {
+  updateEnergy(energy: number): void {
     this.energyCur = energy;
-    this.printEnergy(tag);
+    this.printEnergy();
   }
 
-  update(player: string, delta: number): void {
-    this.printEnergy(player);
+  destroy() {
+    this.displayEnergy.forEach((energy) => {
+      this.game.app.stage.removeChild(energy);
+    });
+  }
+
+  update(): void {
+    this.printEnergy();
   }
 }

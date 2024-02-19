@@ -86,7 +86,7 @@ function RenderAssets(): JSX.Element {
 }
 
 export default function ProfilePictureModal() {
-  const { isOpened } = useSelectUserAvatar();
+  const { isOpened, close } = useSelectUserAvatar();
 
   return (
     <React.Fragment>

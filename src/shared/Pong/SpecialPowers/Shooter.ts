@@ -37,14 +37,16 @@ export class Shooter {
 
     shootBall(shooter: Bar): void
     {
-        shooter.setShooter(undefined);
-        shooter.setMove(true);
+        if (shooter !== undefined) {
+            shooter.setShooter(undefined);
+            shooter.setMove(true);
 
-        this.ballRef?.setVelocity(new Vector2D(Math.cos(this.angle), Math.sin(this.angle)).multiply(this.ballRef.getVelocity.length() * 2));
-        this.ballRef?.setMove(true);
-        this.ballRef?.getEffect?.setStopEffect();
-        this.ballRef?.setEffect(undefined);
-        this.ballRef = undefined;
+            this.ballRef?.setVelocity(new Vector2D(Math.cos(this.angle), Math.sin(this.angle)).multiply(this.ballRef.getVelocity.length() * 2));
+            this.ballRef?.setMove(true);
+            this.ballRef?.getEffect?.setStopEffect();
+            this.ballRef?.setEffect(undefined);
+            this.ballRef = undefined;
+        }
     }
 
     update(delta: number, shooter: Bar): boolean {
@@ -90,6 +92,7 @@ export class Shooter {
 
             if (this.ballRef?.getEffect?.isEffectOver === true)// || this.ballRef?.getEffect === undefined)
             {
+                this.game.sendShooterTimeout = shooter.tag;
                 this.shootBall(shooter);
                 return false;
             }

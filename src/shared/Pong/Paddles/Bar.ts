@@ -55,10 +55,11 @@ export abstract class Bar extends GameObject {
     this.velocity = Vector2D.Zero;
     this.direction = direction;
     this.scale = 1;
+    console.log(paddleConfig[paddle] + " " + paddle);
     this.height = paddleConfig[paddle].height;
     this.width = paddleConfig[paddle].width;
     this.specialPowerType =
-      PongModel.Models.LobbyParticipantSpecialPowerType.none;
+      PongModel.Models.LobbyParticipantSpecialPowerType.spark;
     this.collider = Collider.fromPolygon(
       new BarPolygon(this.center, this.width, this.height, this.direction)
     );

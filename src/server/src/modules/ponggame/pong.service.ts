@@ -1,6 +1,11 @@
-import { ForbiddenException, Inject, Injectable, forwardRef } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Inject,
+  Injectable,
+  forwardRef,
+} from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
-import { PongLobby, PongLobbyParticipant } from '../ponglobbies/ponglobby';
+import { PongLobby } from '../ponglobbies/ponglobby';
 import { ServerGame } from './pong';
 import PongModel from '@typings/models/pong';
 import { Server } from 'socket.io';
@@ -8,6 +13,8 @@ import { ClientSocket } from '@typings/ws';
 import { PongHistoryService } from '../ponghistory/history.service';
 import { PongLobbyService } from '../ponglobbies/ponglobby.service';
 import User from '../users/user';
+import { LeaderboardService } from '../leaderboard/leaderboard.service';
+import { UsersService } from '../users/services/users.service';
 
 @Injectable()
 export class PongService {
@@ -18,6 +25,8 @@ export class PongService {
     public historyService: PongHistoryService,
     @Inject(forwardRef(() => PongLobbyService))
     private readonly lobbyService: PongLobbyService,
+    private readonly leaderboardService: LeaderboardService,
+    private readonly usersService: UsersService,
   ) {}
 
   // maybe create a new node js thread for each game (?)
@@ -53,7 +62,14 @@ export class PongService {
     const lobby = await this.lobbyService.getLobby(game.lobbyInterface.id);
     if (!lobby) throw new ForbiddenException('Lobby not found');
 
-    await this.lobbyService.joinLobby(user, lobby.id, null, undefined, false, true);
+    await this.lobbyService.joinLobby(
+      user,
+      lobby.id,
+      null,
+      undefined,
+      false,
+      true,
+    );
     await this.lobbyService.joinSpectators(user, lobby.id);
     return lobby;
   }
@@ -81,6 +97,8 @@ export class PongService {
       this.historyService,
       lobbyService,
       pongService,
+      this.usersService,
+      this.leaderboardService,
     );
     this.games.set(uuid, newGame);
     return newGame;
@@ -146,7 +164,7 @@ export class PongService {
               ? (playerNbr = PongModel.InGame.ObjType.Player3)
               : (playerNbr = PongModel.InGame.ObjType.Player4);
           }
-
+          console.log(player.paddle);
           return {
             tag: playerNbr,
             teamId: team.id,
@@ -159,7 +177,7 @@ export class PongService {
             userId: player.id,
             avatar: player.avatar,
             nickname: player.nickname,
-            connected: false,
+            connected: player.type === 'bot' ? true : false,
             scored: 0,
           };
         },
@@ -176,6 +194,7 @@ export class PongService {
     });
 
     return {
+      gametype: lobby.gameType as PongModel.Models.LobbyGameType,
       UUID: uuid,
       teams: teams,
       spectators: spectators,

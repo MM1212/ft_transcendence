@@ -10,7 +10,7 @@ import InventoryModel from '@typings/models/users/inventory';
 
 @Injectable()
 export class ShopService {
-  constructor(private readonly parser: ShopConfigParser) {}
+  constructor(public readonly parser: ShopConfigParser) {}
 
   public async getInitialData(): Promise<ShopModel.DTO.GetInitialData> {
     await this.parser.waitUntilLoaded();
@@ -48,6 +48,10 @@ export class ShopService {
     if (!subCategory) return [];
     if (subCategory.category !== categoryId) return [];
     return subCategory.items.map((itemId) => this.parser.config.items[itemId]);
+  }
+  public async getItem(id: string): Promise<ShopModel.Models.Item | null> {
+    await this.parser.waitUntilLoaded();
+    return this.parser.config.items[id] ?? null;
   }
 
   public async createItem(

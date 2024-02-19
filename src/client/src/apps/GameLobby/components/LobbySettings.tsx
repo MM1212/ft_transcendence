@@ -1,29 +1,101 @@
-import { useRecoilValue } from "recoil";
+import { useRecoilCallback, useRecoilValue } from "recoil";
 import pongGamesState from "../state";
 import {
   Avatar,
+  Button,
+  DialogTitle,
+  FormControl,
+  FormLabel,
+  IconButton,
   Input,
-  ListDivider,
-  ListItemDecorator,
-  Option,
-  Select,
-  SelectOption,
-  Stack,
+  Modal,
+  ModalDialog,
+  Switch,
+  Tooltip,
   Typography,
 } from "@mui/joy";
 import React from "react";
-import PongModel from "@typings/models/pong";
 import { Box } from "@mui/joy";
 import { useCurrentUser } from "@hooks/user";
 import LobbyGameTypography from "./LobbyGameTypography";
+import SoccerIcon from "@components/icons/SoccerIcon";
+import { FormHelperText } from "@mui/joy";
+import PongModel from "@typings/models/pong";
+import MenuLeftOutlineIcon from "@components/icons/MenuLeftOutlineIcon";
+import MenuRightOutlineIcon from "@components/icons/MenuRightOutlineIcon";
+import inventoryState from "@apps/Inventory/state";
+import tunnel from "@lib/tunnel";
+import notifications from "@lib/notifications/hooks";
 
 export function LobbySettings() {
   const lobby = useRecoilValue(pongGamesState.gameLobby)!;
-  const gameModeOptions = [
-    { value: 1, label: "POWERS" },
-    { value: 2, label: "CLASSIC" },
-  ];
   const self = useCurrentUser();
+
+  const [open, setOpen] = React.useState<boolean>(false);
+  const [score, setScore] = React.useState<string>(lobby.score.toString());
+  const [powersSwitchValue, setPowersSwitchValue] = React.useState<boolean>(
+    lobby.gameType === PongModel.Models.LobbyGameType.Powers ? true : false
+  );
+  const [keys] = React.useState<string[]>(() => [...ballsConfig.keys()]);
+  const [currentIndex, setCurrentIndex] = React.useState<number>(0);
+  const [errors, setErrors] = React.useState({
+    name: "",
+    score: "",
+  });
+
+  const handleSubmitModalClose = useRecoilCallback(
+    (ctx) => async (): Promise<void> => {
+      try {
+        console.log("submit");
+
+        if (score === "") {
+          setErrors((prev) => ({ ...prev, score: "Score is required" }));
+          return;
+        }
+        if (parseInt(score) < 1) {
+          setErrors((prev) => ({ ...prev, score: "Score must be at least 1" }));
+          return;
+        }
+        if (parseInt(score) > 100) {
+          setErrors((prev) => ({
+            ...prev,
+            score: "Score must be at most 100",
+          }));
+          return;
+        }
+        await tunnel.post(PongModel.Endpoints.Targets.UpdateLobbySettings, {
+          lobbyId: lobby.id,
+          score: parseInt(score),
+          type: powersSwitchValue,
+          ballSkin: ballsConfig.get(keys[currentIndex])!,
+        });
+        setOpen(false);
+        ctx.set(pongGamesState.gameLobby, (prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            score: parseInt(score),
+            gameType: powersSwitchValue
+              ? PongModel.Models.LobbyGameType.Powers
+              : PongModel.Models.LobbyGameType.Classic,
+            ballSkin: ballsConfig.get(keys[currentIndex])!,
+          };
+        });
+        notifications.success("Lobby settings updated");
+      } catch (error) {
+        console.error("Failed to submit lobby settings", error);
+        notifications.error("Failed to submit lobby settings");
+      }
+    },
+    [lobby.id, score, powersSwitchValue, currentIndex, keys]
+  );
+
+  const items = useRecoilValue(inventoryState.inventoryByType("pong-ball"));
+
+  const handleSwitchValue = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setPowersSwitchValue(event.target.checked);
+  };
+
   const player = React.useMemo(
     () =>
       lobby.teams[0].players
@@ -33,137 +105,111 @@ export function LobbySettings() {
     [lobby, self?.id]
   );
 
-  const ballTexture = [
-    {
-      value: 1,
-      label: "BOLA 1",
-      src: PongModel.Endpoints.Targets.BallTexture1,
-    },
-    {
-      value: 2,
-      label: "BOLA 2",
-      src: PongModel.Endpoints.Targets.PowerWaterTexture,
-    },
-    {
-      value: 3,
-      label: "BOLA 3",
-      src: PongModel.Endpoints.Targets.PowerIceTexture,
-    },
-  ];
-  const backgroundTexture = [
-    {
-      value: 1,
-      label: "BACKGROUND 1",
-      src: PongModel.Endpoints.Targets.MarioBoxTexture,
-    },
-    {
-      value: 2,
-      label: "BACKGROUND 2",
-      src: PongModel.Endpoints.Targets.MarioBoxTexture,
-    },
-    {
-      value: 3,
-      label: "BACKGROUND 3",
-      src: PongModel.Endpoints.Targets.MarioBoxTexture,
-    },
-  ];
+  const onNext = React.useCallback(() => {
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % keys.length);
+  }, [keys]);
 
-  function renderValue(option: SelectOption<number> | null) {
-    if (!option) {
-      return null;
-    }
+  const onPrev = React.useCallback(() => {
+    setCurrentIndex((prevIndex) => (prevIndex - 1 + keys.length) % keys.length);
+  }, [keys]);
 
-    return (
-      <Stack direction="row" alignItems="center" spacing={1} width="100%">
-        <Avatar
-          size="sm"
-          src={ballTexture.find((o) => o.value === option.value)?.src}
-        />
-        <Typography>{option.label}</Typography>
-      </Stack>
-    );
-  }
-  function renderValue2(option: SelectOption<number> | null) {
-    if (!option) {
-      return null;
-    }
-
-    return (
-      <Stack direction="row" alignItems="center" spacing={1} width="100%">
-        <Avatar
-          size="sm"
-          src={backgroundTexture.find((o) => o.value === option.value)?.src}
-        />
-        <Typography>{option.label}</Typography>
-      </Stack>
-    );
-  }
-
-  // Options need to be set according to the values of the player loaded from the DB
+  if (!ballsConfig.has(keys[currentIndex])) return <></>;
+  const currentPowerPath = ballsConfig.get(keys[currentIndex])!;
 
   if (player === undefined) return null;
   if (lobby === null) return null;
-
   return (
-    <Box flex={1} sx={{display:'flex', flexDirection:'column', justifyContent:'space-between'}}>
-      <LobbyGameTypography>Game Mode:</LobbyGameTypography>
-      <Select defaultValue={1}>
-        {gameModeOptions.map((option) => (
-          <React.Fragment key={option.value}>
-            <Option value={option.value} label={option.label}>
-              {option.label}
-            </Option>
-          </React.Fragment>
-        ))}
-      </Select>
-      <LobbyGameTypography>Ball Texture:</LobbyGameTypography>
-      <Select defaultValue={1} renderValue={renderValue}>
-        {ballTexture.map((option, index) => (
-          <React.Fragment key={option.value}>
-            {index !== 0 ? (
-              <ListDivider role="none" inset="startContent" />
-            ) : null}
-            <Option value={option.value}>
-              <ListItemDecorator>
-                <Avatar size="sm" src={option.src} />
-              </ListItemDecorator>
-              {option.label}
-            </Option>
-          </React.Fragment>
-        ))}
-      </Select>
+    <Box
+      flex={1}
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+      }}
+    >
+      <Button onClick={() => setOpen(true)} />
+      <Modal open={open} onClose={handleSubmitModalClose}>
+        <ModalDialog>
+          <DialogTitle>Settings</DialogTitle>
+          <Box>
+            <LobbyGameTypography>Game Mode:</LobbyGameTypography>
+            <Box>
+              <IconButton onClick={onPrev}>
+                <MenuLeftOutlineIcon />
+              </IconButton>
+              <Tooltip title={keys[currentIndex]} placement="top">
+                <img src={currentPowerPath ?? undefined} />
+              </Tooltip>
+              <IconButton onClick={onNext}>
+                <MenuRightOutlineIcon />
+              </IconButton>
+            </Box>
+            <Typography
+              component="label"
+              endDecorator={
+                <Switch
+                  sx={{ ml: 1 }}
+                  checked={powersSwitchValue}
+                  onChange={handleSwitchValue}
+                />
+              }
+            >
+              Powers Activated
+            </Typography>
+            <FormControl
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+              }}
+            >
+              <FormLabel required>
+                <LobbyGameTypography>Score</LobbyGameTypography>
+              </FormLabel>
+              <Input
+                placeholder="Enter Score"
+                type="number"
+                slotProps={{
+                  input: {
+                    min: 1,
+                    max: 100,
+                  },
+                }}
+                startDecorator={<SoccerIcon />}
+                required
+                color={errors.score ? "danger" : "warning"}
+                value={score}
+                onChange={(e) => setScore(e.target.value)}
+              />
+              {errors.score && <FormHelperText>{errors.score}</FormHelperText>}{" "}
+            </FormControl>
+          </Box>
+        </ModalDialog>
+      </Modal>
 
-      <LobbyGameTypography>Background Texture:</LobbyGameTypography>
-      <Select defaultValue={1} renderValue={renderValue2}>
-        {backgroundTexture.map((option, index) => (
-          <React.Fragment key={option.value}>
-            {index !== 0 ? (
-              <ListDivider role="none" inset="startContent" />
-            ) : null}
-            <Option value={option.value}>
-              <ListItemDecorator>
-                <Avatar size="sm" src={option.src} />
-              </ListItemDecorator>
-              {option.label}
-            </Option>
-          </React.Fragment>
-        ))}
-      </Select>
-      <LobbyGameTypography>Play until max score: </LobbyGameTypography>
-      <Select placeholder="Choose one…" defaultValue={1} >
-        <Option value={1}>5</Option>
-        <Option value={2}>7</Option>
-        <Option value={3}>11</Option>
-        <Option value={4}>20</Option>
-      </Select>
-      <LobbyGameTypography>Currrent Keys: </LobbyGameTypography>
-
+      <LobbyGameTypography>
+        Game Mode: {`${lobby.gameType}`}
+      </LobbyGameTypography>
+      <LobbyGameTypography>
+        Ball:{" "}
+        {
+          <Avatar
+            size="sm"
+            src={lobby.ballTexture}
+            sx={{
+              display: "inline-block",
+            }}
+          />
+        }
+      </LobbyGameTypography>
+      <LobbyGameTypography>
+        Score to win: {`${lobby.score}`}
+      </LobbyGameTypography>
       <Box display="flex" gap={3} justifyContent="space-evenly">
-        {Object.keys(player.keys).map((key, i) => (
+        {Object.keys(player.keys!).map((key, i) => (
           <LobbyGameTypography textTransform="capitalize" key={i}>
             {key}:{" "}
             <KeyDisplayer
-              keycode={player.keys[key as keyof typeof player.keys]}
+              keycode={player.keys![key as keyof typeof player.keys]}
             />
           </LobbyGameTypography>
         ))}
@@ -171,6 +217,21 @@ export function LobbySettings() {
     </Box>
   );
 }
+
+const ballsConfig = new Map<string, string>([
+  [PongModel.Models.Balls.Red, PongModel.Endpoints.Targets.RedBallTexture],
+  [
+    PongModel.Models.Balls.Coffee,
+    PongModel.Endpoints.Targets.CoffeeBallTexture,
+  ],
+  [PongModel.Models.Balls.Earth, PongModel.Endpoints.Targets.EarthBallTexture],
+  [PongModel.Models.Balls.Fire, PongModel.Endpoints.Targets.FireBallTexture],
+  [PongModel.Models.Balls.Fog, PongModel.Endpoints.Targets.FogBallTexture],
+  [PongModel.Models.Balls.Ice, PongModel.Endpoints.Targets.IceBallTexture],
+  [PongModel.Models.Balls.Light, PongModel.Endpoints.Targets.LightBallTexture],
+  [PongModel.Models.Balls.Void, PongModel.Endpoints.Targets.VoidBallTexture],
+  [PongModel.Models.Balls.Wind, PongModel.Endpoints.Targets.WindBallTexture],
+]);
 
 export function KeyDisplayer({ keycode }: { keycode: string }) {
   return (

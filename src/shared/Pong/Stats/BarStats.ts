@@ -1,6 +1,6 @@
-import PongHistoryModel from '@typings/models/pong/history';
-import PongModel from '../../../typings/models/pong/index';
-import { Bar } from '../Paddles/Bar';
+import PongHistoryModel from "@typings/models/pong/history";
+import PongModel from "../../../typings/models/pong/index";
+import { Bar } from "../Paddles/Bar";
 
 export class BarStatistics {
   private goalsScored: number = 0; // increment when goal is scored
@@ -16,6 +16,8 @@ export class BarStatistics {
 
   private manaSpent: number = 0; // shotsFired * powerCost
 
+  private ballBounces: number = 0; // increment when ball bounces on bar
+
   private bubble_DirectGoal: number = 0; // increment when goal and last collider was bubble
   private fire_DirectGoal: number = 0; // increment when goal and last collider was fire
   private ice_ScoredOpponentAffected: number = 0; // increment when goal and opponent status === status.slowed or status.frozen
@@ -25,9 +27,7 @@ export class BarStatistics {
   constructor(private powerCost: number) {}
 
   public incrementSpecialPowerStat(power: string) {
-    if (power === PongModel.Models.LobbyParticipantSpecialPowerType.none)
-      return;
-    else if (power === PongModel.Models.LobbyParticipantSpecialPowerType.bubble)
+    if (power === PongModel.Models.LobbyParticipantSpecialPowerType.bubble)
       this.bubble_DirectGoal++;
     else if (power === PongModel.Models.LobbyParticipantSpecialPowerType.fire)
       this.fire_DirectGoal++;
@@ -69,7 +69,7 @@ export class BarStatistics {
   }
 
   public gameOver(): void {
-    this.powerAccuracy = (this.shotHit / this.shotsFired) * 100;
+    this.powerAccuracy = this.shotsFired === 0 ? 0 :(this.shotHit / this.shotsFired) * 100;
     this.manaSpent = this.shotsFired * this.powerCost;
   }
 
@@ -77,7 +77,12 @@ export class BarStatistics {
     this.goalsScored++;
   }
 
+  public increaseBallBounces(): void {
+    this.ballBounces++;
+  }
+
   public exportStats(): PongHistoryModel.Models.PlayerStats {
+    if (this.shotHit > this.shotsFired) this.shotHit = this.shotsFired;
     return {
       goalsScored: this.goalsScored,
       shotsFired: this.shotsFired,
@@ -93,6 +98,8 @@ export class BarStatistics {
       winningGoal: this.winningGoal,
       moneyEarned: this.moneyEarned,
       playerScore: this.playerScore,
+      ballBounces: this.ballBounces,
+      elo: 0
     };
   }
 }

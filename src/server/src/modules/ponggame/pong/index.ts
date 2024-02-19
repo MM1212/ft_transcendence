@@ -22,7 +22,9 @@ import { PongHistoryService } from '@/modules/ponghistory/history.service';
 import PongHistoryModel from '@typings/models/pong/history';
 import { PongLobbyService } from '@/modules/ponglobbies/ponglobby.service';
 import { PongService } from '../pong.service';
-// import { Bot } from '@shared/Pong/Paddles/Bot';
+import { Bot } from '@shared/Pong/Paddles/Bot';
+import type { LeaderboardService } from '@/modules/leaderboard/leaderboard.service';
+import type { UsersService } from '@/modules/users/services/users.service';
 
 type Room = BroadcastOperator<DefaultEventsMap, any>;
 
@@ -49,13 +51,30 @@ export class ServerGame extends Game {
     public historyService: PongHistoryService,
     public lobbyService: PongLobbyService,
     public pongService: PongService,
+    public usersService: UsersService,
+    public leaderboardService: LeaderboardService,
   ) {
-    super(WINDOWSIZE_X, WINDOWSIZE_Y);
+    super(
+      WINDOWSIZE_X,
+      WINDOWSIZE_Y,
+      lobbyInterface.gameType as PongModel.Models.LobbyGameType,
+    );
     if (config.maxScore >= 1 && config.maxScore <= 100)
       this.maxScore = config.maxScore;
     this.UUID = config.UUID;
     this.room = server.to(this.UUID);
     this.buildObjects();
+    this.config.teams[0].players
+      .concat(this.config.teams[1].players)
+      .forEach((player) => {
+        if (player.type === 'bot') {
+          this.nbConnectedPlayers++;
+          if (player instanceof Bot) {
+            player.getBallRef();
+          }
+        }
+      });
+
     console.log(`Room ${this.UUID}: created`);
   }
   /***/
@@ -86,33 +105,52 @@ export class ServerGame extends Game {
       if (state) player.onKeyDown(key);
       else player.onKeyUp(key);
 
-      const [action, powertag] = player.handleShoot();
-      switch (action) {
-        case SHOOT_ACTION.CREATE:
-          this.room.emit(PongModel.Socket.Events.CreatePower, {
-            tag: player.tag,
-            powertag: powertag,
-          });
-          this.room.emit(PongModel.Socket.Events.EnergyManaUpdate, [
-            {
+      if (this.gamemode === PongModel.Models.LobbyGameType.Powers) {
+        const [action, powertag] = player.handleShoot();
+        switch (action) {
+          case SHOOT_ACTION.CREATE:
+            this.room.emit(PongModel.Socket.Events.CreatePower, {
               tag: player.tag,
-              mana: player.mana.manaCur,
-              energy: player.energy.energyCur,
-            },
-          ]);
-          break;
-        case SHOOT_ACTION.SHOOT:
-          this.room.emit(PongModel.Socket.Events.ShootPower, {
-            tag: player.tag,
-          });
-          break;
+              powertag: powertag,
+            });
+            this.room.emit(PongModel.Socket.Events.EnergyManaUpdate, [
+              {
+                tag: player.tag,
+                mana: player.mana.manaCur,
+                energy: player.energy.energyCur,
+              },
+            ]);
+            break;
+          case SHOOT_ACTION.SHOOT:
+            this.sendShooterTimeout = player.tag;
+            this.room.emit(PongModel.Socket.Events.ShootPower, {
+              tag: player.tag,
+            });
+            break;
+        }
       }
     }
   }
 
-  public start() {
+  async doSetTimeout(i: number): Promise<void> {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        this.room.emit(PongModel.Socket.Events.Countdown, { countdown: i });
+        resolve();
+      }, 1000);
+    });
+  }
+
+  public async start() {
     console.log(`Game ${this.UUID}: started!`);
+
+    await this.doSetTimeout(3);
+    await this.doSetTimeout(2);
+    await this.doSetTimeout(1);
+    await this.doSetTimeout(0);
+
     this.room.emit(PongModel.Socket.Events.Start);
+
     this.startTick();
   }
 
@@ -180,10 +218,19 @@ export class ServerGame extends Game {
           ),
         );
       } else {
-        // MISSING: SpecialPowers in bot
-        //this.add( new Bot (
-        //
-        //))
+        this.add(
+          new Bot(
+            startX,
+            this.height / 2,
+            p.tag,
+            direction,
+            p.specialPower as PongModel.Models.LobbyParticipantSpecialPowerType,
+            this,
+            p.teamId,
+            p.paddle as keyof typeof paddleConfig,
+            p.userId,
+          ),
+        );
       }
     }
   }
@@ -191,13 +238,17 @@ export class ServerGame extends Game {
   handleFocusLoss(userId: number): void {
     const player = this.getPlayerInstanceById(userId);
     if (player) {
-      console.log('turning off keys');
       this.handleKeys(userId, player.keys.up, false);
       this.handleKeys(userId, player.keys.down, false);
       this.handleKeys(userId, player.keys.boost, false);
       this.handleKeys(userId, player.keys.shoot, false);
-      console.log(player.keys);
     }
+  }
+
+  public sendStartTime(): void {
+    this.room.emit(PongModel.Socket.Events.TimeStart, {
+      time_start: this.gameStats.startTime,
+    });
   }
 
   static readonly fixedDeltaTime: number = 1000 / 60; // 60 FPS in seconds
@@ -205,6 +256,7 @@ export class ServerGame extends Game {
     let lastTimeStamp = performance.now();
     let lastFPSTimestamp = performance.now();
     this.gameStats.startTimer();
+    this.sendStartTime();
     this.gameStats.startNewRound();
     const tick = () => {
       const timestamp = performance.now();
@@ -320,19 +372,32 @@ export class ServerGame extends Game {
       console.log('team1' + this.gameStats.teamStats.exportStats(1));
       console.log('game' + this.gameStats.exportStats());
 
+      const rewards = await this.leaderboardService.computeEndGameElo(
+        this.config,
+        this.lobbyInterface,
+      );
+
       const getPlayerStats = (
         player: PongModel.Models.IPlayerConfig,
       ): PongHistoryModel.DTO.DB.CreatePlayer => {
+        const stats = (
+          this.getObjectByTag(player.tag) as Bar
+        ).stats.exportStats();
         return {
           gear: {
             paddle: player.paddle,
             specialPower: player.specialPower,
           },
-          stats: (this.getObjectByTag(player.tag) as Bar).stats.exportStats(),
-          mvp: player.tag === mvpScores.tag ? true : false,
-          owner: this.config.ownerId === player.userId ? true : false,
+          stats: {
+            ...stats,
+            elo:
+              rewards.find((reward) => reward.userId === player.userId)
+                ?.value ?? null,
+          },
+          mvp: player.tag === mvpScores.tag,
+          owner: this.config.ownerId === player.userId,
           userId: player.userId,
-          score: player.scored,
+          score: stats.playerScore,
           teamId: player.teamId,
         };
       };
@@ -342,17 +407,20 @@ export class ServerGame extends Game {
       ): PongHistoryModel.DTO.DB.CreateTeam => {
         let wonVal: boolean;
         if (team.id === 0) {
-          wonVal = this.score[0] > this.score[1] ? true : false;
+          wonVal = this.score[0] > this.score[1];
         } else {
-          wonVal = this.score[0] > this.score[1] ? false : true;
+          wonVal = this.score[0] <= this.score[1];
         }
+        const players =
+          team.players.map<PongHistoryModel.DTO.DB.CreatePlayer>(
+            getPlayerStats,
+          );
         return {
-          players: team.players.map<PongHistoryModel.DTO.DB.CreatePlayer>(
-            (player) => {
-              return getPlayerStats(player);
-            },
+          players,
+          score: players.reduce(
+            (acc, player) => acc + player.stats.playerScore,
+            0,
           ),
-          score: team.score,
           stats: this.gameStats.teamStats.exportStats(team.id),
           won: wonVal,
         };
@@ -368,9 +436,23 @@ export class ServerGame extends Game {
         ),
       };
 
+      if (this.lobbyInterface.queueType !== PongModel.Models.LobbyType.Custom) {
+        await Promise.all(
+          creatorMatchHistory.teams[0].players
+            .concat(creatorMatchHistory.teams[1].players)
+            .map(async (player) => {
+              const user = await this.usersService.get(player.userId);
+              if (!user || user.isBot) return;
+              console.log(player);
+              await user.credits.add(player.stats.moneyEarned);
+            }),
+        );
+      }
+
       const matchHistory =
         await this.historyService.saveGame(creatorMatchHistory);
       this.room.emit(PongModel.Socket.Events.Stop, matchHistory);
+
       setImmediate(async () => {
         this.server.socketsLeave(this.UUID);
         this.shutdown();
@@ -420,6 +502,9 @@ export class ServerGame extends Game {
             y: (obj as Bar).getCenter.y,
           };
         }),
+    });
+    client.emit(PongModel.Socket.Events.TimeStart, {
+      time_start: this.gameStats.startTime,
     });
   }
 
@@ -522,6 +607,13 @@ export class ServerGame extends Game {
       },
     );
 
+    if (this.sendShooterTimeout != '') {
+      this.room.emit(PongModel.Socket.Events.ShooterTimeout, {
+        tag: this.sendShooterTimeout,
+      });
+      this.sendShooterTimeout = '';
+    }
+
     if (this.sendPaddlesScale.length > 0 || this.scored === true) {
       this.room.emit(PongModel.Socket.Events.UpdateScore, {
         score: this.score,
@@ -541,7 +633,6 @@ export class ServerGame extends Game {
     }
   }
 
-  /***/
   public getPlayerInstanceById(id: number): Player | undefined {
     return this.gameObjects.find((gameObject: GameObject) => {
       if (gameObject instanceof Player) {

@@ -94,7 +94,7 @@ const ponglobbyValidator = new (class PongLobbyControllerValidator {
   } satisfies ComputeToZodKeys<PongModel.DTO.Kick>);
 
   inviteSchema: ZodType<PongModel.DTO.Invite> = z.object({
-    lobbyId: z.number().int().nonnegative(),
+    lobbyId: z.number().int().nonnegative().or(z.undefined()),
     source: z.enum(
       [PongModel.Models.InviteSource.Lobby, PongModel.Models.InviteSource.Chat],
       {
@@ -113,6 +113,19 @@ const ponglobbyValidator = new (class PongLobbyControllerValidator {
       )
       .array(),
   } satisfies ComputeToZodKeys<PongModel.DTO.Invite>);
+
+  addBotSchema: ZodType<PongModel.DTO.AddBot> = z.object({
+    lobbyId: z.number().int().nonnegative(),
+    teamId: z.number().int().min(0).max(1),
+    teamPosition: z.number().int().min(0).max(1),
+  } satisfies ComputeToZodKeys<PongModel.DTO.AddBot>);
+
+  updateLobbySettingsSchema: ZodType<PongModel.DTO.UpdateLobbySettings> = z.object({
+    lobbyId: z.number().int().nonnegative(),
+    score: z.number().int().min(1).max(100),
+    type: z.boolean(),
+    ballSkin: z.string(),
+  } satisfies ComputeToZodKeys<PongModel.DTO.UpdateLobbySettings>);
 })();
 
 export default ponglobbyValidator;

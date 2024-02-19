@@ -1,4 +1,12 @@
-import { Box, Chip, Stack, TabPanel, Typography, tabClasses } from '@mui/joy';
+import {
+  Box,
+  Chip,
+  Grid,
+  Stack,
+  TabPanel,
+  Typography,
+  tabClasses,
+} from '@mui/joy';
 import { Tab, TabList, Tabs } from '@mui/joy';
 import ShopCard from './ShopCard';
 import React from 'react';
@@ -11,47 +19,90 @@ import {
   useShopCategories,
   useShopItems,
   useShopSubCategories,
+  useShopSubCategory,
+  useShopSubCategoryPage,
 } from '../hooks';
 import { useInventoryByType } from '@apps/Inventory/hooks/useInventory';
+import { numberExtentFormatter, numberFormatter } from '@lib/intl';
+import Pagination from '@components/Pagination';
+import GenericPlaceholder from '@components/GenericPlaceholder';
+import CartOffIcon from '@components/icons/CartOffIcon';
+
+const ITEMS_PER_PAGE = 6;
 
 function CustomizationItems({
-  category,
-  subCategory,
+  category: categoryId,
+  subCategory: subCategoryId,
   credits,
 }: {
   category: string;
   subCategory: string;
   credits: number;
 }) {
-  const items = useShopItems(category, subCategory);
-  const inventory = useInventoryByType(`${category}-${subCategory}`);
+  const items = useShopItems(categoryId, subCategoryId);
+  const subCategory = useShopSubCategory(categoryId, subCategoryId);
+  const inventory = useInventoryByType(`${categoryId}-${subCategoryId}`);
+  const [page, setPage] = useShopSubCategoryPage(categoryId, subCategoryId);
+  const paginatedItems = React.useMemo(
+    () =>
+      [...new Array(ITEMS_PER_PAGE)]
+        .map((_, i) => items[i + (page - 1) * ITEMS_PER_PAGE])
+        .filter(Boolean),
+    [items, page]
+  );
   return (
     <Box
       display="flex"
-      mt={2}
-      flexWrap="wrap"
-      alignItems="flex-start"
-      gap={(theme) => theme.spacing(2)}
+      flexDirection="column"
+      height="100%"
+      gap={2}
+      alignItems="center"
     >
-      {items.map((item) => (
-        <Box key={item.id} sx={{ height: 'fit-content' }}>
-          <ShopCard
-            key={item.id}
-            canBuy={credits >= item.price}
-            owned={inventory.some((i) => i.name === item.id)}
-            {...item}
-          />
-        </Box>
-      ))}
+      <Stack direction="row" spacing={0.5} alignItems="center" width="100%">
+        <subCategory.Icon size="lg" />
+        <Typography level="h3">{subCategory.label}</Typography>
+      </Stack>
+      <Grid container spacing={2} flexGrow={1} overflow="auto" width="100%">
+        {paginatedItems.length > 0 ? (
+          paginatedItems.map((item) => (
+            <Grid xs={4} key={item.id}>
+              <ShopCard
+                key={item.id}
+                canBuy={credits >= item.price}
+                owned={inventory.some((i) => i.name === item.id)}
+                {...item}
+              />
+            </Grid>
+          ))
+        ) : (
+          <Grid xs={12}>
+            <GenericPlaceholder
+              icon={<CartOffIcon />}
+              title="No items available"
+              centerVertical
+            />
+          </Grid>
+        )}
+      </Grid>
+      <Sheet
+        sx={{
+          p: 0.5,
+          borderRadius: 'md',
+        }}
+      >
+        <Pagination
+          count={Math.ceil(items.length / ITEMS_PER_PAGE)}
+          page={page}
+          onChange={(_, page) => setPage(page)}
+          color="neutral"
+          variant="plain"
+          showFirstButton
+          showLastButton
+        />
+      </Sheet>
     </Box>
   );
 }
-
-const numberFormatter = new Intl.NumberFormat('en-US', {
-  notation: 'compact',
-  compactDisplay: 'short',
-  maximumFractionDigits: 3,
-});
 
 function ShopSubCategoryTab(subCategory: ShopModel.Models.SubCategory) {
   return (
@@ -162,7 +213,7 @@ function ShopTabs() {
             justifyContent="space-between"
           >
             <Typography level="title-sm">Credits:</Typography>
-            <Tooltip title={user.credits}>
+            <Tooltip title={numberExtentFormatter.format(user.credits)}>
               <Chip startDecorator={<CurrencyTwdIcon />} color="success">
                 {numberFormatter.format(user.credits)}
               </Chip>
@@ -180,7 +231,6 @@ function ShopTabs() {
               width: '80%',
               height: '100%',
               backgroundColor: 'background.level1',
-              overflowY: 'auto',
             }}
           >
             <CustomizationItems

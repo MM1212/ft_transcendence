@@ -205,14 +205,55 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
         team.players[0].teamPosition = PongModel.Models.TeamPosition.Top;
     });
     this.status = PongModel.Models.LobbyStatus.Playing;
-
-    const game = await this.helpers.gameService.initGameSession(this, this.service, this.helpers.gameService);
+    const game = await this.helpers.gameService.initGameSession(
+      this,
+      this.service,
+      this.helpers.gameService,
+    );
     this.gameUUId = game.UUID;
+    return true;
+  }
+
+  public addBot(bot: User, teamId: number, teamPosition: number): boolean {
+    if (this.teams[teamId].players.length === 2) return false;
+    if (
+      this.teams[teamId].players.some(
+        (player) => player.teamPosition === teamPosition,
+      )
+    )
+      return false;
+    const botPlayer = new PongLobbyParticipant(
+      bot,
+      this,
+      bot.id,
+      bot.nickname,
+      bot.avatar,
+      this.id,
+    );
+    this.removePlayerFromTeam(bot.id);
+    this.addToTeam(botPlayer, teamId, teamPosition);
+    console.log(`Lobby-${this.id}: ${bot.nickname} joined.`);
+    console.log('nb players: ' + this.nPlayers);
+    botPlayer.keys = undefined;
+    botPlayer.status = PongModel.Models.LobbyStatus.Ready;
+    botPlayer.type = 'bot';
     return true;
   }
 
   public get owner(): Promise<User> {
     return this.helpers.usersService.get(this.ownerId) as Promise<User>;
+  }
+
+  public get onlyBots(): boolean {
+    return this.allInLobby.every((player) => player.type === 'bot');
+  }
+
+  public async removeAllBots(): Promise<void> {
+    await Promise.all(
+      this.allPlayers.map(async (player) => {
+        if (player.type === 'bot') await this.removeFromLobby(player.id);
+      }),
+    );
   }
 
   public async delete(): Promise<void> {
@@ -341,6 +382,7 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
             data: {
               lobbyId: this.id,
               nonce: this.nonce,
+              authorization: this.authorization,
             },
             dismissable: true,
           });
@@ -380,6 +422,39 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
     );
   }
 
+  public updateSettings(score: number, type: boolean, ballSkin: string): boolean {
+    if (score < 1 || score > 100) return false;
+    this.score = score;
+    // TODO - verify if user has this ball skin
+    if (ballSkin !== '') {
+      const ballPath = ballSkin.split('/');
+      const ballFile = ballPath[ballPath.length - 1];
+      const ballName = ballFile.split('.')[0];
+      this.ballTexture = ballName;
+    }
+    this.gameType =
+      type === true
+        ? PongModel.Models.LobbyGameType.Powers
+        : PongModel.Models.LobbyGameType.Classic;
+    return true;
+  }
+
+  public syncSettings(): void {
+    this.helpers.sseService.emitToTargets<PongModel.Sse.UpdateLobbySettings>(
+      PongModel.Sse.Events.UpdateLobbySettings,
+      this.allInLobby.map((player) => player.id),
+      {
+        lobbyId: this.id,
+        score: this.score,
+        type:
+          this.gameType === PongModel.Models.LobbyGameType.Powers
+            ? true
+            : false,
+        ballSkin: this.ballTexture,
+      },
+    );
+  }
+
   public sendToParticipant(
     userId: number,
     event: PongModel.Sse.Events,
@@ -404,7 +479,9 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
 
   private async assignNewOwner() {
     // does this work?
-    const newOwner = this.allInLobby.find((p) => p.id !== this.ownerId);
+    const newOwner = this.allInLobby.find(
+      (p) => p.id !== this.ownerId && p.type !== 'bot',
+    );
     if (newOwner) {
       await this.setAsOwner(newOwner as PongLobbyParticipant);
     }

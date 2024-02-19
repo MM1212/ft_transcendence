@@ -1,5 +1,6 @@
 import { ArenaWall } from '../Collisions/Arena';
 import { GameObject } from '../GameObject';
+import { Bar } from '../Paddles/Bar';
 import { TeamStatistics } from './TeamStats';
 
 export class GameStatistics {
@@ -16,7 +17,7 @@ export class GameStatistics {
   private currentBounceStreak: number = 0; // increment when ball bounces, reset when goal is scored
   private longestBounceStreak: number = 0; // every time currentBounceStreak > longestBounceStreak, longestBounceStreak = currentBounceStreak
 
-  private startTime: number = 0; // Date.now() when game starts
+  public startTime: number = 0; // Date.now() when game starts
   private endTime: number = 0; // Date.now() when game ends
   private gameDuration: number = 0; // endTime - startTime
 
@@ -46,6 +47,9 @@ export class GameStatistics {
     this.currentBounceStreak++;
     if (this.currentBounceStreak > this.longestBounceStreak) {
       this.longestBounceStreak = this.currentBounceStreak;
+    }
+    if (obj instanceof Bar) {
+      obj.stats.increaseBallBounces();
     }
   }
 

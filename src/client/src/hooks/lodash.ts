@@ -15,6 +15,14 @@ export const useDebounce = <T extends (...args: any[]) => any>(
   ) as unknown as DebouncedFunc<T>;
 };
 
+export const useDebouncedValue = <T extends (...args: any[]) => any>(
+  value: T,
+  delay: number = 500,
+  deps: React.DependencyList
+): ReturnType<T> => {
+  const debounced = useDebounce(value, delay, deps);
+  return React.useMemo(() => (debounced as any)(), [debounced]);
+};
 interface DebouncedFunc<T extends (...args: any[]) => any> {
   /**
    * Call the original function, but applying the debounce rules.

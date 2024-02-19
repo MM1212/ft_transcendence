@@ -23,6 +23,8 @@ namespace PongHistoryModel {
       winningGoal: number;
       moneyEarned: number;
       playerScore: number;
+      ballBounces: number;
+      elo: number | null;
     }
     export interface PlayerGear extends Record<string, unknown> {
       paddle: string;
@@ -52,7 +54,7 @@ namespace PongHistoryModel {
       id: number;
       teams: Team[];
       winnerTeamId: number;
-      stats: {};
+      stats: Record<string, unknown>;
       createdAt: number;
     }
   }
