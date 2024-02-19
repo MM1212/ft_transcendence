@@ -404,9 +404,8 @@ export class UIGame extends Game {
       const countdown = new PIXI.Text(n.toString(), style);
       if (n === 0) countdown.text = 'GO!';
       countdown.anchor.set(0.5);
-      console.log(this.app.view.width);
-      countdown.x = this.app.view.width / 2;
-      countdown.y = this.app.view.height / 2;
+      countdown.x = WINDOWSIZE_X / 2;
+      countdown.y = WINDOWSIZE_Y / 2;
       this.app.stage.addChild(countdown);
 
       let i = 0;
