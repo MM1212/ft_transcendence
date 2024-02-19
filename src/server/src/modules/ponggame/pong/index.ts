@@ -368,9 +368,9 @@ export class ServerGame extends Game {
       // execute all players stats game over
       this.calculatePlayerStats(mvpScores);
 
-      console.log('team0' + this.gameStats.teamStats.exportStats(0));
-      console.log('team1' + this.gameStats.teamStats.exportStats(1));
-      console.log('game' + this.gameStats.exportStats());
+      // console.log('team0' , this.gameStats.teamStats.exportStats(0));
+      // console.log('team1' , this.gameStats.teamStats.exportStats(1));
+      // console.log('game' , this.gameStats.exportStats());
 
       const rewards = await this.leaderboardService.computeEndGameElo(
         this.config,
@@ -417,10 +417,7 @@ export class ServerGame extends Game {
           );
         return {
           players,
-          score: players.reduce(
-            (acc, player) => acc + player.stats.playerScore,
-            0,
-          ),
+          score: this.score[team.id],
           stats: this.gameStats.teamStats.exportStats(team.id),
           won: wonVal,
         };
@@ -434,6 +431,7 @@ export class ServerGame extends Game {
             return getTeamStats(team);
           },
         ),
+        type: this.lobbyInterface.queueType,
       };
 
       if (this.lobbyInterface.queueType !== PongModel.Models.LobbyType.Custom) {
