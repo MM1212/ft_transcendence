@@ -1,3 +1,254 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:ed281958535ac828820f1e1b8cedb7b7428c2e659883ead0f02b206e27bb7841
-size 5309
+[
+  {
+    "id": "cloth:1",
+    "label": "Dark Blue",
+    "description": "Dark Blue Skin Color",
+    "price": 50,
+    "meta": {
+      "clothId": 1,
+      "ICON": "{ASSET_PATH}/1/icon.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/1/icon.webp"
+    },
+    "flags": []
+  },
+  {
+    "id": "cloth:2",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "color",
+    "label": "Green",
+    "description": "Green Skin Color",
+    "meta": {
+      "clothId": 2,
+      "ICON": "{ASSET_PATH}/2/icon.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/2/icon.webp"
+    },
+    "price": 100
+  },
+  {
+    "id": "cloth:3",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "color",
+    "label": "Pink",
+    "description": "Pink Skin Color",
+    "meta": {
+      "clothId": 3,
+      "ICON": "{ASSET_PATH}/3/icon.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/3/icon.webp"
+    },
+    "price": 100
+  },
+  {
+    "id": "cloth:4",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "color",
+    "label": "Black",
+    "description": "Black Skin Color",
+    "meta": {
+      "clothId": 4,
+      "ICON": "{ASSET_PATH}/4/icon.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/4/icon.webp"
+    },
+    "price": 100
+  },
+  {
+    "id": "cloth:5",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "color",
+    "label": "Red",
+    "description": "Red Skin Color",
+    "meta": {
+      "clothId": 5,
+      "ICON": "{ASSET_PATH}/5/icon.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/5/icon.webp"
+    },
+    "price": 100
+  },
+  {
+    "id": "cloth:6",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "color",
+    "label": "Orange",
+    "description": "Orange Skin Color",
+    "meta": {
+      "clothId": 6,
+      "ICON": "{ASSET_PATH}/6/icon.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/6/icon.webp"
+    },
+    "price": 100
+  },
+  {
+    "id": "cloth:7",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "color",
+    "label": "Yellow",
+    "description": "Yellow Skin Color",
+    "meta": {
+      "clothId": 7,
+      "ICON": "{ASSET_PATH}/7/icon.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/7/icon.webp"
+    },
+    "price": 100
+  },
+  {
+    "id": "cloth:8",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "color",
+    "label": "Dark Purple",
+    "description": "Dark Purple Skin Color",
+    "meta": {
+      "clothId": 8,
+      "ICON": "{ASSET_PATH}/8/icon.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/8/icon.webp"
+    },
+    "price": 100
+  },
+  {
+    "id": "cloth:9",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "color",
+    "label": "Brown",
+    "description": "Brown Skin Color",
+    "meta": {
+      "clothId": 9,
+      "ICON": "{ASSET_PATH}/9/icon.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/9/icon.webp"
+    },
+    "price": 100
+  },
+  {
+    "id": "cloth:10",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "color",
+    "label": "Peach",
+    "description": "Peach Skin Color",
+    "meta": {
+      "clothId": 10,
+      "ICON": "{ASSET_PATH}/10/icon.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/10/icon.webp"
+    },
+    "price": 100
+  },
+  {
+    "id": "cloth:11",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "color",
+    "label": "Dark Green",
+    "description": "Dark Green Skin Color",
+    "meta": {
+      "clothId": 11,
+      "ICON": "{ASSET_PATH}/11/icon.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/11/icon.webp"
+    },
+    "price": 100
+  },
+  {
+    "id": "cloth:12",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "color",
+    "label": "Light Blue",
+    "description": "Light Blue Skin Color",
+    "meta": {
+      "clothId": 12,
+      "ICON": "{ASSET_PATH}/12/icon.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/12/icon.webp"
+    },
+    "price": 100
+  },
+  {
+    "id": "cloth:13",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "color",
+    "label": "Lime Green",
+    "description": "Lime Green Skin Color",
+    "meta": {
+      "clothId": 13,
+      "ICON": "{ASSET_PATH}/13/icon.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/13/icon.webp"
+    },
+    "price": 100
+  },
+  {
+    "id": "cloth:15",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "color",
+    "label": "Aqua",
+    "description": "Aqua Skin Color",
+    "meta": {
+      "clothId": 15,
+      "ICON": "{ASSET_PATH}/15/icon.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/15/icon.webp"
+    },
+    "price": 100
+  },
+  {
+    "id": "cloth:16",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "color",
+    "label": "Arctic White",
+    "description": "Arctic White Skin Color",
+    "meta": {
+      "clothId": 16,
+      "ICON": "{ASSET_PATH}/16/icon.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/16/icon.webp"
+    },
+    "price": 100
+  }
+]
