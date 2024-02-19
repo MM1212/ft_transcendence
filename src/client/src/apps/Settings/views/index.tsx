@@ -15,7 +15,8 @@ import {
   accordionDetailsClasses,
   accordionSummaryClasses,
 } from '@mui/joy';
-import { useSetSettingValue, useSetting, useSettingValue } from '../hooks';
+import { useSetting, useSettingValue } from '../hooks';
+import { keySettingsDefault, type KeySettings, type KeySettingsKey } from '../state';
 
 function Tab({
   title,
@@ -84,31 +85,6 @@ function FormInput({
     </FormControl>
   );
 }
-
-type KeySettingsKey =
-  | 'Move Up'
-  | 'Move Down'
-  | 'Move Left'
-  | 'Move Right'
-  | 'Snowball'
-  | 'Dance'
-  | 'Wave'
-  | 'Sit';
-
-export type KeySettings = {
-  [key in KeySettingsKey]: string;
-};
-
-const keySettingsDefault = {
-  'Move Up': 'w',
-  'Move Down': 's',
-  'Move Left': 'a',
-  'Move Right': 'd',
-  Snowball: 'f',
-  Dance: 'g',
-  Wave: 'h',
-  Sit: 'j',
-};
 
 export default function SettingsView(): JSX.Element {
   // const [keySettings, setKeySettings] = useSetting<KeySettings>('keySettings');

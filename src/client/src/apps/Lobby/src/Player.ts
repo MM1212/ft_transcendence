@@ -4,9 +4,7 @@ import * as PIXI from 'pixi.js';
 import { LOBBY_PLAYER_CONTAINER_SCALE } from '@shared/Lobby/constants';
 import { ClientCharacter } from './Character';
 import LobbyModel from '@typings/models/lobby';
-import { useSettingValue } from '@apps/Settings/hooks';
-import type { KeySettings } from '@apps/Settings/views';
-import settingsState from '@apps/Settings/state';
+import settingsState, { keySettingsDefault, type KeySettings } from '@apps/Settings/state';
 import type { RecoilValue } from 'recoil';
 
 export class ClientPlayer extends Player {
@@ -121,8 +119,10 @@ export class ClientPlayer extends Player {
   }
 
   async handleAction(key: string): Promise<boolean> {
-    const keySettings = await this.lobby.snapshot?.getPromise<KeySettings>(settingsState.storage("keySettings") as RecoilValue<KeySettings>);
-    console.log(key, "keySettings", keySettings);
+    const keySettings = await this.lobby.snapshot?.getPromise<KeySettings>(
+      settingsState.storage('keySettings') as RecoilValue<KeySettings>
+    );
+    // console.log(key, 'keySettings', keySettings);
     switch (key) {
       case keySettings?.Snowball.toLowerCase():
         await this.throwSnowball();
@@ -178,5 +178,46 @@ export class ClientPlayer extends Player {
     if (!this.isIdle) return;
     this.transform.speed = 0;
     await this.character.playAnimation(`wave`);
+  }
+
+  // Override movent keys
+  public async getMoveUpKey() {
+    const keySettings = await this.lobby.snapshot!.getPromise<KeySettings>(
+      settingsState.storage('keySettings') as RecoilValue<KeySettings>
+    );
+    return keySettings['Move Up']
+  }
+
+  public get moveDownKey() {
+    let key = keySettingsDefault['Move Down'];
+    const keySettingsP = this.lobby.snapshot?.getPromise<KeySettings>(
+      settingsState.storage('keySettings') as RecoilValue<KeySettings>
+    );
+    keySettingsP!.then((keySettings) => {
+      key = keySettings['Move Down'];
+    });
+    return key;
+  }
+
+  public get moveLeftKey() {
+    let key = keySettingsDefault['Move Left'];
+    const keySettingsP = this.lobby.snapshot?.getPromise<KeySettings>(
+      settingsState.storage('keySettings') as RecoilValue<KeySettings>
+    );
+    keySettingsP!.then((keySettings) => {
+      key = keySettings['Move Left'];
+    });
+    return key;
+  }
+  
+  public get moveRightKey() {
+    let key = keySettingsDefault['Move Right'];
+    const keySettingsP = this.lobby.snapshot?.getPromise<KeySettings>(
+      settingsState.storage('keySettings') as RecoilValue<KeySettings>
+    );
+    keySettingsP!.then((keySettings) => {
+      key = keySettings['Move Right'];
+    });
+    return key;
   }
 }

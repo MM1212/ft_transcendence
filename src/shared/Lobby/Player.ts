@@ -95,37 +95,56 @@ export class Player
     return false;
   }
 
-  handleMovement(key: string, pressed: boolean): boolean {
+  public async getMoveUpKey() {
+    return 'w';
+  }
+  public async getMoveDownKey() {
+    return 's';
+  }
+  public async getMoveLeftKey() {
+    return 'a';
+  }
+  public async getMoveRightKey() {
+    return 'd';
+  }
+
+  async handleMovement(key: string, pressed: boolean) {
+    console.log('key', key);
     switch (key) {
-      case 'w': {
+      case await this.getMoveUpKey(): {
         this.transform.direction = new Vector2D(
           this.transform.direction.x,
           pressed ? -1 : 0
         );
+        console.log('up');
         break;
       }
-      case 's': {
+      case await this.getMoveDownKey(): {
         this.transform.direction = new Vector2D(
           this.transform.direction.x,
           pressed ? 1 : 0
         );
+        console.log('down');
         break;
       }
-      case 'a': {
+      case await this.getMoveLeftKey(): {
         this.transform.direction = new Vector2D(
           pressed ? -1 : 0,
           this.transform.direction.y
         );
+        console.log('left');
         break;
       }
-      case 'd': {
+      case await this.getMoveRightKey(): {
         this.transform.direction = new Vector2D(
           pressed ? 1 : 0,
           this.transform.direction.y
         );
+        console.log('right');
         break;
       }
       default:
+        console.log('false');
         return false;
     }
     if (this.transform.direction.length() !== 0) this.transform.speed = 3.5;
@@ -159,12 +178,12 @@ export class Player
     await this.character.playAnimation(`${type}/${dir}`);
   }
   async onKeyPress(key: string): Promise<void> {
-    if (!this.handleMovement(key, true)) return;
+    if (!(await this.handleMovement(key, true))) return;
     await this.handleNewAnimation();
   }
   async onKeyRelease(key: string): Promise<void> {
     if (await this.handleAction(key)) return;
-    if (!this.handleMovement(key, false)) return;
+    if (!(await this.handleMovement(key, false))) return;
     await this.handleNewAnimation();
   }
   async resetKeys(): Promise<void> {
