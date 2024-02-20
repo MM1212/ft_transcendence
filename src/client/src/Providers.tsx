@@ -6,7 +6,6 @@ import { SWRConfig } from 'swr';
 import StateMounter from '@state/mounter';
 import NotificationsProvider from '@lib/notifications/Provider';
 import moment from 'moment';
-import ErrorBoundary from '@components/ExceptionCatcher';
 import CustomScrollBar from '@theme/scrollBar';
 import { Pixi } from '@hooks/pixiRenderer';
 import * as Sentry from '@sentry/react';
