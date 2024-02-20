@@ -1,33 +1,33 @@
-import { CssBaseline, CssVarsProvider } from "@mui/joy";
-import React from "react";
-import { RecoilRoot } from "recoil";
-import theme from "./theme";
-import { SWRConfig } from "swr";
-import StateMounter from "@state/mounter";
-import NotificationsProvider from "@lib/notifications/Provider";
-import moment from "moment";
-import ErrorBoundary from "@components/ExceptionCatcher";
-import CustomScrollBar from "@theme/scrollBar";
-import { Pixi } from "@hooks/pixiRenderer";
-import * as Sentry from "@sentry/react";
-import ErrorPage from "@apps/Error/views/index";
+import { CssBaseline, CssVarsProvider } from '@mui/joy';
+import React from 'react';
+import { RecoilRoot } from 'recoil';
+import theme from './theme';
+import { SWRConfig } from 'swr';
+import StateMounter from '@state/mounter';
+import NotificationsProvider from '@lib/notifications/Provider';
+import moment from 'moment';
+import ErrorBoundary from '@components/ExceptionCatcher';
+import CustomScrollBar from '@theme/scrollBar';
+import { Pixi } from '@hooks/pixiRenderer';
+import * as Sentry from '@sentry/react';
+import ErrorPage from '@apps/Error/views/index';
 
-moment.updateLocale("en", {
+moment.updateLocale('en', {
   relativeTime: {
-    future: "in %s",
-    past: "%s ago",
-    s: "1s",
-    ss: "%ss",
-    m: "1m",
-    mm: "%dm",
-    h: "1h",
-    hh: "%dh",
-    d: "1d",
-    dd: "%dd",
-    M: "1M",
-    MM: "%dM",
-    y: "1Y",
-    yy: "%dY",
+    future: 'in %s',
+    past: '%s ago',
+    s: '1s',
+    ss: '%ss',
+    m: '1m',
+    mm: '%dm',
+    h: '1h',
+    hh: '%dh',
+    d: '1d',
+    dd: '%dd',
+    M: '1M',
+    MM: '%dM',
+    y: '1Y',
+    yy: '%dY',
   },
 });
 
@@ -61,28 +61,29 @@ export default function AppProviders({
   children,
 }: React.PropsWithChildren<{}>): JSX.Element {
   return (
-    <Sentry.ErrorBoundary fallback={props => <ErrorPage {...props} />} showDialog>
-      <RecoilRoot>
-        {/* <DebugObserver /> */}
-        <SWRConfig
-          value={{
-            fetcher: (resource, init) =>
-              fetch(resource, init).then((res) => res.json()),
-            onError: console.error,
-            onErrorRetry: (error) => {
-              // Never retry on 404.
-              if (error.status === 404) return;
-            },
-          }}
-        >
-          <StateMounter />
-          <CssVarsProvider theme={theme} defaultMode="system">
-            <CssBaseline />
-            <CustomScrollBar />
-            <NotificationsProvider />\{children}
-          </CssVarsProvider>
-        </SWRConfig>
-      </RecoilRoot>
-    </Sentry.ErrorBoundary>
+    <RecoilRoot>
+      {/* <DebugObserver /> */}
+      <SWRConfig
+        value={{
+          fetcher: (resource, init) =>
+            fetch(resource, init).then((res) => res.json()),
+          onError: console.error,
+          onErrorRetry: (error) => {
+            // Never retry on 404.
+            if (error.status === 404) return;
+          },
+        }}
+      >
+        <StateMounter />
+        <CssVarsProvider theme={theme} defaultMode="system">
+          <CssBaseline />
+          <CustomScrollBar />
+          <NotificationsProvider />
+          <Sentry.ErrorBoundary fallback={(props) => <ErrorPage {...props} />}>
+            {children}
+          </Sentry.ErrorBoundary>
+        </CssVarsProvider>
+      </SWRConfig>
+    </RecoilRoot>
   );
 }
