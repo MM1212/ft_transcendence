@@ -8,7 +8,6 @@ import TableTennisIcon from '@components/icons/TableTennisIcon';
 import React from 'react';
 
 export default function LeaderboardEntries(): JSX.Element {
-  a.b.c;
   const { data, isLoading, error } =
     useTunnelEndpoint<LeaderboardModel.Endpoints.GetLeaderboard>(
       LeaderboardModel.Endpoints.Targets.GetLeaderboard
