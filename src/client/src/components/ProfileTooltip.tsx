@@ -57,7 +57,6 @@ function ProfileTooltipContent({
   const { contents: averageAvatarColor, state } = useRecoilValueLoadable(
     cacheSelector(user.avatar)
   );
-  console.log(averageAvatarColor);
 
   return (
     <Box
