@@ -77,14 +77,23 @@ namespace PongModel {
 
     export enum Balls {
       Red = "RedBall",
-      Coffee = "Coffee",
-      Earth = "Earth",
-      Fire = "Fire",
-      Fog = "Fog",
-      Ice = "Ice",
-      Light = "Light",
-      Void = "Void",
-      Wind = "Wind",
+      FootBall = "FootBallBall",
+      Pool = "PoolBall",
+      Tennis = "TennisBall",
+      Volley = "VolleyBall",
+    }
+
+    export enum Paddles {
+      PaddleRed = "PaddleRed",
+      PaddleAcid = "PaddleAcid",
+      PaddleBush = "PaddleBush",
+      PaddleGengar = "PaddleGengar",
+      PaddleMinion = "PaddleMinion",
+      PaddlePenguinBros = "PaddlePenguinBros",
+      PaddleRonaldo = "PaddleRonaldo",
+      PaddleRainbow = "PaddleRainbow",
+      PaddleSnake = "PaddleSnake",
+      PaddleWaveColors = "PaddleWaveColors",
     }
 
     export type IGameKeyTypes = "up" | "down" | "boost" | "shoot";
@@ -522,6 +531,10 @@ namespace PongModel {
       // Balls
       Balls = "/assets/pong/Balls",
       RedBallTexture = "/assets/pong/Balls/RedBall/RedBall.webp",
+      FootBallBallTexture = "/assets/pong/Balls/FootBallBall/FootBallBall.webp",
+      PoolBallTexture = "/assets/pong/Balls/PoolBall/PoolBall.webp",
+      TennisBallTexture = "/assets/pong/Balls/TennisBall/TennisBall.webp",
+      VolleyBallTexture = "/assets/pong/Balls/VolleyBall/VolleyBall.webp",
     }
     export type All = GroupEndpointTargets<Targets>;
 

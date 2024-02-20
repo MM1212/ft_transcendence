@@ -3,10 +3,14 @@ import PlusIcon from '@components/icons/PlusIcon';
 import { useUser } from '@hooks/user';
 import { Box, Stack } from '@mui/joy';
 import { Typography } from '@mui/joy';
-import { ChangePower } from './PlayerSettingsModals/ChangePower';
 import PongLobbyMatchmakingBanner from './Banner';
+import { ArrowSelector } from '@components/ArrowSelector/ArrowSelector';
+
 export default function LobbyPlayerBanner({ id }: { id: number | undefined }) {
   const user = useUser(id!);
+
+  // add here the player's special power value
+
   return (
     <div
       style={{
@@ -103,7 +107,7 @@ export default function LobbyPlayerBanner({ id }: { id: number | undefined }) {
                 />
                 <Typography>{user?.nickname}</Typography>
               </Stack>
-              <ChangePower />
+              <ArrowSelector selectType='special_power'/>
             </Box>
           </Box>
         </>

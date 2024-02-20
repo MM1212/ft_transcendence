@@ -1,12 +1,11 @@
 import { UserAvatar } from "@components/AvatarWithStatus";
-import { useCurrentUser, useUser } from "@hooks/user";
+import { useUser } from "@hooks/user";
 import { Badge, Box, Chip, Divider, Tooltip } from "@mui/joy";
 import { Typography } from "@mui/joy";
 import { Stack } from "@mui/joy";
 import PongModel from "@typings/models/pong";
-import { useRecoilValue } from "recoil";
+import { useRecoilCallback, useRecoilValue } from "recoil";
 import pongGamesState from "../state";
-import InformationVariantCircleIcon from "@components/icons/InformationVariantCircleIcon";
 import CrownIcon from "@components/icons/CrownIcon";
 import LobbyGameTypography from "./LobbyGameTypography";
 import {
@@ -19,14 +18,11 @@ import CheckIcon from "@components/icons/CheckIcon";
 import CogOutlineIcon from "@components/icons/CogOutlineIcon";
 import { Modal } from "@mui/joy";
 import { ModalDialog } from "@mui/joy";
-import React, { useEffect } from "react";
-import { IconButton } from "@mui/joy";
-import { ChangePower, specialPowerConfig } from "./PlayerSettingsModals/ChangePower";
+import React from "react";
 import LobbyPongButton from "./LobbyPongBottom";
 import { FindMatchWrapper } from "./LobbyMatchMaking";
-import ChangePaddle from "./PlayerSettingsModals/ChangePaddle";
 import { GroupEnumValues } from "@typings/utils";
-import LobbyModel from "@typings/models/lobby";
+import { ArrowSelector } from "@components/ArrowSelector/ArrowSelector";
 
 export default function LobbyPlayerPlaceholder({
   id,
@@ -44,10 +40,26 @@ export default function LobbyPlayerPlaceholder({
   isMe: boolean;
 }) {
 
-  const specialPowerPath = specialPowerConfig.get(specialPower ?? '');
   const user = useUser(id!);
   const [open, setOpen] = React.useState<boolean>(false);
   const lobbyOwner = useRecoilValue(pongGamesState.lobbyOwner);
+
+  const [currPower, setCurrPower] = React.useState<string>(PongModel.Endpoints.Targets.PowerSparkTexture);
+  const [currPaddle, setCurrPaddle] = React.useState<string>(PongModel.Models.Paddles.PaddleRed);
+
+
+  const handleCloseModalSendOptions = useRecoilCallback((ctx) => async () => {
+    try {
+      console.log('submit' + currPower + currPaddle);
+
+      setOpen(false);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setOpen(false);
+    }
+  })
+
   if (lobbyOwner === null) return null;
   return (
     <>
@@ -63,8 +75,8 @@ export default function LobbyPlayerPlaceholder({
           variant="outlined"
           badgeInset="8%"
           anchorOrigin={{
-            vertical: "bottom",
-            horizontal: "right",
+            vertical: 'bottom',
+            horizontal: 'right',
           }}
           slotProps={{
             badge: {
@@ -78,15 +90,15 @@ export default function LobbyPlayerPlaceholder({
             isMe && (
               <Tooltip title={specialPower} placement="top">
                 <img
-                  src={specialPowerPath}
-                  style={{ width: "1.2dvh", height: "1.2dvh" }}
+                  src={currPower}
+                  style={{ width: '1.2dvh', height: '1.2dvh' }}
                 />
               </Tooltip>
             )
           }
         >
           <UserAvatar
-            color={ready ? "success" : "warning"}
+            color={ready ? 'success' : 'warning'}
             variant="soft"
             src={!ready ? user?.avatar : undefined}
             sx={{ width: 50, height: 50 }}
@@ -114,26 +126,29 @@ export default function LobbyPlayerPlaceholder({
             {isMe ? (
               <>
                 <CogOutlineIcon onClick={() => setOpen(true)} size="sm" />
-                <Modal open={open} onClose={() => setOpen(false)}>
+                <Modal
+                  open={open}
+                  onClose={handleCloseModalSendOptions}
+                >
                   <ModalDialog>
                     <Box
                       gap={4}
                       sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
                       }}
                     >
                       <LobbyGameTypography level="body-lg">
                         Pick Your Poison
                       </LobbyGameTypography>
-                      <ChangePower />
-                      <ChangePaddle />
+                      <ArrowSelector selectType="special_power" onClick={setCurrPower} />
+                      <ArrowSelector selectType="paddle" onClick={setCurrPaddle} />
                     </Box>
                     <FindMatchWrapper
                       sx={{
-                        position: "relative",
-                        m: "auto!important",
+                        position: 'relative',
+                        m: 'auto!important',
                       }}
                       onClick={() => setOpen(false)}
                     >

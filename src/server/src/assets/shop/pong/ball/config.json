@@ -2,5 +2,7 @@
   "id": "ball",
   "label": "Balls",
   "icon": "{ICON_PATH}/cat/Ball",
-  "env": {}
+  "env": {
+    "ASSET_PATH": "{ASSET_PATH}/Balls"
+  }
 }
