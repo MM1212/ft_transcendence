@@ -23,6 +23,7 @@ import type UsersModel from '@typings/models/users';
 function AchievementUnlocked(
   achievement: AchievementsModel.DTO.IMixedAchievement & { idx: number }
 ): JSX.Element {
+  // return <button onClick={() => methodDoesNotExist()}>Break the world</button>;
   if (!achievement.unlocked) return <></>;
   return (
     <Card>
@@ -187,11 +188,6 @@ export default function Achievements(user: UsersModel.Models.IUserInfo) {
   const { achievements, total } = data;
   return (
     <>
-      {/* <Checkbox
-        checked={fetchAll}
-        onChange={() => setFetchAll(!fetchAll)}
-        label="Show All"
-      /> */}
       <AchievementHead
         user={user}
         acquired={acquiredAchievementsLength}
