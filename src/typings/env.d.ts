@@ -23,6 +23,7 @@ interface ImportMetaEnv {
   readonly FRONTEND_API_ENDPOINT: string;
   readonly FRONTEND_PUBLIC_PATH: string;
   readonly FRONTEND_PUBLIC_CDN_URL: string;
+  readonly FRONTEND_SENTRY_DSN: string;
 }
 
 interface ImportMeta {

@@ -4,8 +4,9 @@ import publicPath from '@utils/public';
 import { Modal, Sheet, Typography } from '@mui/joy';
 import BugIcon from '@components/icons/BugIcon';
 import { navigate } from 'wouter/use-location';
+import type { FallbackRender } from '@sentry/react';
 
-function ErrorModal({ stack }: { stack?: string }) {
+function ErrorModal(props: React.ComponentProps<FallbackRender>) {
   return (
     <Modal
       open={true}
@@ -43,6 +44,8 @@ function ErrorModal({ stack }: { stack?: string }) {
             p: 2,
             borderRadius: 'md',
             bgcolor: 'background.level1',
+            maxHeight: '30vh',
+            overflowY: 'auto',
           }}
         >
           <Typography
@@ -51,17 +54,22 @@ function ErrorModal({ stack }: { stack?: string }) {
             color="danger"
             variant="plain"
           >
-            {stack ?? 'No stack trace available'}
+            {props.componentStack ?? 'No stack trace available'}
           </Typography>
         </Sheet>
         <Typography level="body-xs">
-          We&apos;ve collected some information about this session to help us fix the issue.
+          We&apos;ve collected some information about this session to help us
+          fix the issue.
+        </Typography>
+        <Typography level="body-xs">
+          Sentry ID: {props.eventId ?? 'No event ID available'}
         </Typography>
         <Button
           variant="soft"
           color="neutral"
           onClick={() => {
             navigate('/', { replace: true });
+            props.resetError();
             window.location.reload();
           }}
         >
@@ -72,7 +80,7 @@ function ErrorModal({ stack }: { stack?: string }) {
   );
 }
 
-export default function ErrorPage({ stack }: { stack?: string }) {
+export default function ErrorPage(props: React.ComponentProps<FallbackRender>) {
   return (
     <Box
       style={{
@@ -84,7 +92,7 @@ export default function ErrorPage({ stack }: { stack?: string }) {
         backgroundPosition: 'center',
       }}
     >
-      <ErrorModal stack={stack} />
+      <ErrorModal {...props} />
     </Box>
   );
 }
