@@ -21,6 +21,7 @@ import { computeUserAvatar } from '@utils/computeAvatar';
 import ColorThief from 'colorthief';
 import { darken } from '@theme';
 import { selectorFamily, useRecoilValueLoadable } from 'recoil';
+import BotTag from './BotTag';
 
 export interface IProfileTooltipProps {
   user: UsersModel.Models.IUserInfo;
@@ -56,6 +57,11 @@ function ProfileTooltipContent({
   const { goToMessages, goToProfile } = useFriend(user.id);
   const { contents: averageAvatarColor, state } = useRecoilValueLoadable(
     cacheSelector(user.avatar)
+  );
+  const isBot = user.type === UsersModel.Models.Types.Bot;
+  const renderBadges = React.useMemo(
+    () => [isBot ? <BotTag key="bot" /> : null, ...(badges ?? [])],
+    [badges, isBot]
   );
 
   return (
@@ -113,7 +119,7 @@ function ProfileTooltipContent({
           }}
           background="level1"
         />
-        {badges?.length ? (
+        {renderBadges?.length ? (
           <Stack
             spacing={0.5}
             direction="row"
@@ -123,7 +129,7 @@ function ProfileTooltipContent({
             py={0.25}
             borderRadius="sm"
           >
-            {badges}
+            {renderBadges}
           </Stack>
         ) : null}
       </Box>
