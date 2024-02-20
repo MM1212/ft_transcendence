@@ -7,6 +7,7 @@ export class ServerCollision extends Collision {
     super();
   }
   private collisionFileMapPath: string = 'dist/assets/lobby/mask.png';
+
   async onMount(): Promise<void> {
     const stream = fs.createReadStream(this.collisionFileMapPath);
     // eslint-disable-next-line @typescript-eslint/no-this-alias

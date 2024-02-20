@@ -6,8 +6,9 @@ import {
   Typography,
   Sheet,
   CircularProgress,
-  Checkbox,
   Box,
+  Tooltip,
+  type AvatarProps,
 } from '@mui/joy';
 import { Avatar } from '@mui/joy';
 import GenericPlaceholder from '@components/GenericPlaceholder';
@@ -17,24 +18,76 @@ import AchievementsModel from '@typings/models/users/achievements/index';
 import React from 'react';
 import publicPath from '@utils/public';
 import LockIcon from '@components/icons/LockIcon';
-import AchievementHead from './AchievementHead';
+import AchievementHead, { AchievementHeadSkeleton } from './AchievementHead';
 import type UsersModel from '@typings/models/users';
+import ProgressHelperIcon from '@components/icons/ProgressHelperIcon';
+import moment from 'moment';
 
-function AchievementUnlocked(
-  achievement: AchievementsModel.DTO.IMixedAchievement & { idx: number }
+const ACHIEVEMENT_LEVEL_TYPES_CSS: Record<
+  AchievementsModel.Models.IAchievementLevel['type'],
+  string
+> = {
+  gold: 'sepia(1) saturate(2)',
+  silver: 'saturate(0.10)',
+  bronze: 'sepia(1)',
+  platinum: 'sepia(1) hue-rotate(125deg) saturate(150%)',
+  diamond: 'sepia(1) hue-rotate(175deg) saturate(400%)',
+};
+
+export function AchievementLogoUnlocked(
+  props: Required<AchievementsModel.DTO.IMixedAchievement> & {
+    size?: AvatarProps['size'];
+  }
 ): JSX.Element {
-  // return <button onClick={() => methodDoesNotExist()}>Break the world</button>;
-  if (!achievement.unlocked) return <></>;
+  const {
+    achievement,
+    currentLevel,
+    unlocked,
+    previousLevel,
+    userAchievement,
+  } = props;
+  const levelToRender =
+    userAchievement && unlocked ? previousLevel! : currentLevel;
   return (
-    <Card>
-      <CardContent
-        sx={{
-          width: '100%',
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'row',
-          pr: 15,
-        }}
+    <Avatar
+      sx={(theme) => ({
+        width: props.size ? undefined : theme.spacing(12),
+        height: props.size ? undefined : theme.spacing(12),
+        borderRadius: 'md',
+        border: '2px solid',
+        borderColor: 'divider',
+        ...(levelToRender && {
+          filter: ACHIEVEMENT_LEVEL_TYPES_CSS[levelToRender.type],
+        }),
+      })}
+      size={props.size}
+      src={publicPath(`/achievements/${achievement.icon}`)}
+      alt={achievement.title}
+    />
+  );
+}
+
+function AchievementLogoLocked(
+  props: AchievementsModel.DTO.IMixedAchievement
+): JSX.Element {
+  const {
+    achievement,
+    unlocked,
+    userAchievement,
+    currentLevel,
+    previousLevel,
+  } = props;
+  const hasButLocked = userAchievement && !userAchievement.unlocked;
+  const levelToRender =
+    userAchievement && unlocked ? previousLevel! : currentLevel;
+  return (
+    <Tooltip size="md" title={hasButLocked ? 'In Progress' : 'Locked'}>
+      <Box
+        sx={(theme) => ({
+          width: theme.spacing(12),
+          height: theme.spacing(12),
+          position: 'relative',
+        })}
       >
         <Avatar
           sx={(theme) => ({
@@ -43,85 +96,27 @@ function AchievementUnlocked(
             borderRadius: 'md',
             border: '2px solid',
             borderColor: 'divider',
-            ...(achievement.idx === 0 && {
-              filter: 'sepia(1) saturate(2)',
-            }),
-            ...(achievement.idx === 1 && {
-              filter: 'saturate(0.10)',
-            }),
-            ...(achievement.idx === 2 && {
-              filter: 'sepia(1)',
+            filter: 'brightness(0.25) blur(1px)',
+            ...(hasButLocked && {
+              filter: `${
+                ACHIEVEMENT_LEVEL_TYPES_CSS[levelToRender.type]
+              } brightness(0.25) blur(1px)`,
             }),
           })}
-          src={publicPath(`/achievements/${achievement.config.icon}`)}
-          alt={achievement.config.title}
+          src={publicPath(`/achievements/${achievement.icon}`)}
+          alt={levelToRender.title}
         />
-        <Stack spacing={2}>
-          <Typography level="body-md" fontWeight="lg">
-            {achievement.config.title}
-          </Typography>
-          <Typography
-            level="body-xs"
-            sx={{
-              color: `${achievement.config.bannerColor}.softColor`,
+        {hasButLocked ? (
+          <ProgressHelperIcon
+            style={{
+              position: 'absolute',
+              zIndex: 1,
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
             }}
-          >
-            {achievement.config.description}
-          </Typography>
-        </Stack>
-      </CardContent>
-      <CardCover>
-        <Sheet
-          variant="solid"
-          color="neutral"
-          sx={{
-            position: 'absolute',
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            filter: 'blur(4px)',
-            opacity: 0.4,
-            bgcolor: `${achievement.config.bannerColor}.softBg`,
-          }}
-        />
-      </CardCover>
-    </Card>
-  );
-}
-
-function AchievementLocked(
-  achievement: AchievementsModel.Models.IAchievement
-): JSX.Element {
-  return (
-    <Card>
-      <CardContent
-        sx={{
-          width: '100%',
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'row',
-          pr: 15,
-        }}
-      >
-        <Box
-          sx={(theme) => ({
-            width: theme.spacing(12),
-            height: theme.spacing(12),
-            position: 'relative',
-          })}
-        >
-          <Avatar
-            sx={(theme) => ({
-              width: theme.spacing(12),
-              height: theme.spacing(12),
-              borderRadius: 'md',
-              border: '2px solid',
-              borderColor: 'divider',
-              filter: 'brightness(0.25) blur(1px)',
-            })}
-            src={publicPath(`/achievements/${achievement.icon}`)}
-            alt={achievement.title}
           />
+        ) : (
           <LockIcon
             style={{
               position: 'absolute',
@@ -131,20 +126,86 @@ function AchievementLocked(
               transform: 'translate(-50%, -50%)',
             }}
           />
-        </Box>
-        <Stack spacing={2}>
-          <Typography level="body-md" fontWeight="lg">
-            {achievement.title}
-          </Typography>
+        )}
+      </Box>
+    </Tooltip>
+  );
+}
+
+function AchievementUnlocked(
+  props: AchievementsModel.DTO.IMixedAchievement & { idx: number }
+): JSX.Element {
+  const {
+    unlocked,
+    achievement,
+    userAchievement,
+    currentLevel,
+    previousLevel,
+  } = props;
+  const levelToRender =
+    userAchievement && unlocked ? previousLevel! : currentLevel;
+  return (
+    <Card>
+      <CardContent
+        sx={{
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'row',
+        }}
+      >
+        {unlocked ? (
+          <AchievementLogoUnlocked
+            {...(props as Required<AchievementsModel.DTO.IMixedAchievement>)}
+          />
+        ) : (
+          <AchievementLogoLocked {...props} />
+        )}
+        <Box gap={2} display="flex" flexDirection="column" flexGrow={1}>
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+          >
+            <Typography level="body-md" fontWeight="lg">
+              {userAchievement ? levelToRender.title : achievement.title}
+            </Typography>
+            {unlocked && (
+              <Tooltip
+                title={moment(userAchievement!.updatedAt).format(
+                  'MMM Do, YYYY HH:mm'
+                )}
+              >
+                <Typography level="body-xs">
+                  {moment(userAchievement!.updatedAt).format('MMM Do, YYYY')}
+                </Typography>
+              </Tooltip>
+            )}
+          </Box>
           <Typography
             level="body-xs"
             sx={{
               color: `${achievement.bannerColor}.softColor`,
             }}
           >
-            {achievement.description}
+            {levelToRender.description}
           </Typography>
-        </Stack>
+          {userAchievement && (
+            <Typography level="title-xs" mt="auto" ml="auto">
+              {unlocked ? 'Next Level' : 'Unlocks At'}:{' '}
+              <Typography
+                level="body-xs"
+                sx={{
+                  color: `${achievement.bannerColor}.softColor`,
+                }}
+              >
+                {String(userAchievement.meta[currentLevel.milestone.metaKey])}/
+                {String(currentLevel.milestone.metaValue)}
+              </Typography>{' '}
+              {achievement.trackMessageSuffix}
+            </Typography>
+          )}
+        </Box>
       </CardContent>
       <CardCover>
         <Sheet
@@ -157,7 +218,7 @@ function AchievementLocked(
             objectFit: 'cover',
             filter: 'blur(4px)',
             opacity: 0.4,
-            bgcolor: `neutral.softBg`,
+            bgcolor: `${achievement.bannerColor}.softBg`,
           }}
         />
       </CardCover>
@@ -166,8 +227,8 @@ function AchievementLocked(
 }
 
 export default function Achievements(user: UsersModel.Models.IUserInfo) {
-  const [fetchAll, setFetchAll] = React.useState(true);
-  const { data, isLoading, error, isValidating } =
+  const [fetchAll, setFetchAll] = React.useState(false);
+  const { data, isLoading, error } =
     useTunnelEndpoint<AchievementsModel.Endpoints.GetUserAchievements>(
       AchievementsModel.Endpoints.Targets.GetUserAchievements,
       { all: fetchAll, userId: user.id }
@@ -176,7 +237,13 @@ export default function Achievements(user: UsersModel.Models.IUserInfo) {
     () => (data ? data.achievements.filter((a) => a.unlocked) : []).length,
     [data]
   );
-  if (isLoading || isValidating) return <CircularProgress variant="plain" />;
+  if (isLoading)
+    return (
+      <>
+        <AchievementHeadSkeleton />
+        <CircularProgress variant="plain" sx={{ m: 'auto' }} />
+      </>
+    );
   if (error || !data)
     return (
       <GenericPlaceholder
@@ -205,13 +272,13 @@ export default function Achievements(user: UsersModel.Models.IUserInfo) {
         overflow="auto"
       >
         {achievements.length > 0 ? (
-          achievements.map((achievement, index) =>
-            achievement.unlocked ? (
-              <AchievementUnlocked {...achievement} key={index} idx={index} />
-            ) : (
-              <AchievementLocked {...achievement} key={index} />
-            )
-          )
+          achievements.map((achievement, index) => (
+            <AchievementUnlocked
+              key={achievement.achievement.tag}
+              {...achievement}
+              idx={index}
+            />
+          ))
         ) : (
           <div
             style={{
@@ -224,7 +291,7 @@ export default function Achievements(user: UsersModel.Models.IUserInfo) {
             <GenericPlaceholder
               title="No Achievements Earned"
               icon={<TrophyBrokenIcon fontSize="xl4" />}
-              path=""
+              label="Check 'Show All' to see all achievements"
             />
           </div>
         )}

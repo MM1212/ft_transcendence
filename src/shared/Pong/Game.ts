@@ -17,14 +17,19 @@ export class Game {
   protected sendObjects: GameObject[] = [];
   protected sendRemoveObjects: string[] = [];
   protected sendShooter: GameObject[] = [];
+  public sendShooterTimeout: string = "";
   protected sendEffects: GameObject[] = [];
   public scored: boolean = false;
+
+  public gamemode: PongModel.Models.LobbyGameType = PongModel.Models.LobbyGameType.Powers;
 
   public gameStats: GameStatistics = new GameStatistics();
 
   public delta: number = 0;
 
-  constructor(public width: number, public height: number) {}
+  constructor(public width: number, public height: number, gametype: PongModel.Models.LobbyGameType) {
+    this.gamemode = gametype;
+  }
 
   start() {}
 
@@ -36,10 +41,9 @@ export class Game {
     this.sendRemoveObjects.length = 0;
     this.sendPaddlesScale.length = 0;
     this.gameObjects.forEach((gameObject: GameObject) => {
-      gameObject.collider?.reset()
+      gameObject.collider?.reset();
       gameObject.effectSendOpt = effectSendOption.NONE;
-    }
-    );
+    });
   }
 
   update(delta: number) {
@@ -61,7 +65,8 @@ export class Game {
         (gameObject: GameObject) => gameObject.hasChangedShooter
       );
       this.sendEffects = this.gameObjects.filter(
-        (gameObject: GameObject) => gameObject.effectSendOpt !== effectSendOption.NONE
+        (gameObject: GameObject) =>
+          gameObject.effectSendOpt !== effectSendOption.NONE
       );
       if (this.remove_gameObjects.length > 0) this.removeObjects();
     }
@@ -78,14 +83,14 @@ export class Game {
     this.sendRemoveObjects.length = 0;
     this.sendEffects.length = 0;
     this.sendShooter.length = 0;
+    this.sendShooterTimeout = "";
     this.sendPaddlesScale.length = 0;
   }
 
   public add(gameObject: GameObject) {
     this.gameObjects.push(gameObject);
 
-    if (!!gameObject.onCollide)
-      this.collider_gameObjects.push(gameObject);
+    if (!!gameObject.onCollide) this.collider_gameObjects.push(gameObject);
     if (gameObject.tag === PongModel.InGame.ObjType.Ball)
       this.ballRef = gameObject;
   }
@@ -115,7 +120,8 @@ export class Game {
   }
 
   public getObjectByTag(tag: string): GameObject | undefined {
-    if (tag === PongModel.InGame.ObjType.Ball && this.ballRef) return this.ballRef;
+    if (tag === PongModel.InGame.ObjType.Ball && this.ballRef)
+      return this.ballRef;
     return this.gameObjects.find(
       (gameObject: GameObject) => gameObject.tag === tag
     );

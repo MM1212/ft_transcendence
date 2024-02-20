@@ -71,6 +71,13 @@ export class UIPlayer extends Player {
     }
   }
 
+  shooterTimeout(): void {
+    if (this.shooter !== undefined) {
+      this.shooter.erase()
+      this.shooter = undefined;
+    }
+  }
+
   updateShooter(line: { start: number[]; end: number[] }): void {
     if (this.shooter !== undefined) {
       this.shooter.draw(line);

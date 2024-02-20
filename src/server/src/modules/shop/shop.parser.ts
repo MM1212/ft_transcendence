@@ -56,12 +56,10 @@ export class ShopConfigParser {
     this.loaded = true;
     this.resolveWaitingPromises();
     // console.log(this.config);
-    // this.config.categories.forEach((category) => {
+    // Object.values(this.config.categories).forEach((category) => {
     //   category.subCategories.forEach((subCategory) => {
-    //     console.log(subCategory);
-    //     subCategory.items.forEach((item) => {
-    //       console.log(item);
-    //     });
+    //     console.log(this.config.subCategories[subCategory]);
+    //     console.log(this.config.subCategories[subCategory].items.map((item) => this.config.items[item]));
     //   });
     // });
   }

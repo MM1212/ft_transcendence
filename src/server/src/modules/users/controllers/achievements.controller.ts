@@ -6,14 +6,14 @@ import {
   ParseBoolPipe,
   Query,
 } from '@nestjs/common';
-import { OnEvent } from '@nestjs/event-emitter';
-import type { Quest } from '../user/ext/Quests';
 import { InternalEndpointResponse } from '@typings/api/index';
 import AchievementsModel from '@typings/models/users/achievements/index';
 import UserCtx from '../decorators/User.pipe';
 import { UserAchievementsService } from '../services/achievements.service';
 import User from '../user/index';
 import { AchievementsService } from '@/modules/achievements/achievements.service';
+import HttpCtx from '@/helpers/decorators/httpCtx';
+import type { HTTPContext } from '@typings/http';
 
 @Auth()
 @Controller()
@@ -35,8 +35,15 @@ export class UsersAchievementsController {
     return { achievements, total: this.configService.getSize() };
   }
 
-  @OnEvent('user.quests.completed')
-  public async onQuestCompleted(user: User, quest: Quest): Promise<void> {
-    await this.service.onQuestCompleted(user, quest);
+  @Get(AchievementsModel.Endpoints.Targets.GetSessionAchievements)
+  public async getSessionAchievements(
+    @HttpCtx() { user }: HTTPContext<true>,
+    @Query('all', new DefaultValuePipe(false), new ParseBoolPipe())
+    all: boolean,
+  ): Promise<
+    InternalEndpointResponse<AchievementsModel.Endpoints.GetUserAchievements>
+  > {
+    const achievements = this.service.getUserAchievements(user, all);
+    return { achievements, total: this.configService.getSize() };
   }
 }

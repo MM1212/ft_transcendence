@@ -1,6 +1,6 @@
 {
   "id": "feet",
   "label": "Feet",
-  "icon": "{ICON_PATH}/cat/Feet.tsx",
+  "icon": "{ICON_PATH}/cat/Feet",
   "env": {}
 }

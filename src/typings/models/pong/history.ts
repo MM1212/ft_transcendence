@@ -4,6 +4,8 @@ import {
   GetEndpoint,
   GroupEndpointTargets,
 } from '@typings/api';
+import type PongModel from '.';
+import type { GroupEnumValues } from '@typings/utils';
 
 namespace PongHistoryModel {
   export namespace Models {
@@ -23,6 +25,7 @@ namespace PongHistoryModel {
       winningGoal: number;
       moneyEarned: number;
       playerScore: number;
+      ballBounces: number;
       elo: number | null;
     }
     export interface PlayerGear extends Record<string, unknown> {
@@ -51,9 +54,10 @@ namespace PongHistoryModel {
     }
     export interface Match {
       id: number;
+      type: GroupEnumValues<PongModel.Models.LobbyType>;
       teams: Team[];
       winnerTeamId: number;
-      stats: {};
+      stats: Record<string, unknown>;
       createdAt: number;
     }
   }
@@ -89,7 +93,7 @@ namespace PongHistoryModel {
         players: CreatePlayer[];
         }
       export interface CreateMatch
-        extends Pick<Models.Match, 'stats' | 'winnerTeamId'> {
+        extends Pick<Models.Match, 'stats' | 'winnerTeamId' | 'type'> {
         teams: CreateTeam[];
         }
     }

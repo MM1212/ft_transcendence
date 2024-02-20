@@ -5,16 +5,16 @@ import {
   AccordionSummary,
   Box,
   CircularProgress,
-} from "@mui/joy";
-import MatchHistoryScoreBoard from "@apps/MatchHistory/components/MatchHistoryScoreBoard";
-import MatchHistoryEntry from "./MatchHistoryEntry";
-import useQuery from "@hooks/useQuery";
-import React, { memo, useEffect } from "react";
-import PongHistoryModel from "@typings/models/pong/history";
-import { useTunnelEndpoint } from "@hooks/tunnel";
-import { Typography } from "@mui/joy";
-import GenericPlaceholder from "@components/GenericPlaceholder";
-import TableTennisIcon from "@components/icons/TableTennisIcon";
+} from '@mui/joy';
+import MatchHistoryScoreBoard from '@apps/MatchHistory/components/MatchHistoryScoreBoard';
+import MatchHistoryEntry from './MatchHistoryEntry';
+import useQuery from '@hooks/useQuery';
+import React, { memo, useEffect } from 'react';
+import PongHistoryModel from '@typings/models/pong/history';
+import { useTunnelEndpoint } from '@hooks/tunnel';
+import { Typography } from '@mui/joy';
+import GenericPlaceholder from '@components/GenericPlaceholder';
+import TableTennisIcon from '@components/icons/TableTennisIcon';
 
 const Entry = memo(function Entry({
   selected,
@@ -52,7 +52,13 @@ const Entry = memo(function Entry({
   );
 });
 
-export default function MatchHistoryList({ targetId }: { targetId: number }) {
+export default function MatchHistoryList({
+  targetId,
+  isMe = false,
+}: {
+  targetId: number;
+  isMe?: boolean;
+}) {
   const { match_id } = useQuery<{ match_id: string }>();
   const ref = React.useRef<HTMLDivElement>(null);
   const [selected, setSelected] = React.useState<number | null>(null);
@@ -69,8 +75,8 @@ export default function MatchHistoryList({ targetId }: { targetId: number }) {
       );
       if (!target) return;
       target.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
+        behavior: 'smooth',
+        block: 'center',
       });
     }, 350);
   }, [match_id]);
@@ -87,15 +93,15 @@ export default function MatchHistoryList({ targetId }: { targetId: number }) {
       if (expanded)
         setTimeout(() => {
           target.parentElement?.parentElement?.scrollIntoView({
-            behavior: "smooth",
-            block: "center",
+            behavior: 'smooth',
+            block: 'center',
           });
         }, 350);
       setSelected(expanded ? id : null);
     },
     [setSelected]
   );
-  const { isLoading, error, data, isValidating } =
+  const { isLoading, error, data } =
     useTunnelEndpoint<PongHistoryModel.Endpoints.GetAllByUserId>(
       PongHistoryModel.Endpoints.Targets.GetAllByUserId,
       {
@@ -104,8 +110,16 @@ export default function MatchHistoryList({ targetId }: { targetId: number }) {
     );
   return (
     <Box overflow="auto" height="100%" width="100%" ref={ref}>
-      {isLoading || isValidating ? (
-        <CircularProgress variant="plain" />
+      {isLoading ? (
+        <Box
+          display="flex"
+          width="100%"
+          height="100%"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <CircularProgress variant="plain" />
+        </Box>
       ) : !data || error ? (
         <Box
           display="flex"
@@ -116,7 +130,7 @@ export default function MatchHistoryList({ targetId }: { targetId: number }) {
           p={1}
         >
           <Typography color="danger" level="title-md">
-            {error?.toString() ?? "No data found"}
+            {error?.toString() ?? 'No data found'}
           </Typography>
         </Box>
       ) : (
@@ -136,17 +150,19 @@ export default function MatchHistoryList({ targetId }: { targetId: number }) {
           ) : (
             <div
               style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                height: "100%",
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '100%',
               }}
             >
               <GenericPlaceholder
                 title="No Match Records"
                 icon={<TableTennisIcon fontSize="xl4" />}
-                label="Play a Match"
-                path="/pong/play/queue"
+                label={
+                  isMe ? 'Play a Match' : 'This user has no match records.'
+                }
+                path={isMe ? '/pong/play/queue' : undefined}
               />
             </div>
           )}
@@ -155,4 +171,3 @@ export default function MatchHistoryList({ targetId }: { targetId: number }) {
     </Box>
   );
 }
-

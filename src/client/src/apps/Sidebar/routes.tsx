@@ -4,7 +4,6 @@ import InboxUnreadSidebarDecoration from '@apps/Inbox/views/sidebar';
 import AccountGroupIcon from '@components/icons/AccountGroupIcon';
 import AccountIcon from '@components/icons/AccountIcon';
 import AccountSearchIcon from '@components/icons/AccountSearchIcon';
-import CartIcon from '@components/icons/CartIcon';
 import CogIcon from '@components/icons/CogIcon';
 import ControllerIcon from '@components/icons/ControllerIcon';
 import DevToIcon from '@components/icons/DevToIcon';
@@ -13,9 +12,9 @@ import HangerIcon from '@components/icons/HangerIcon';
 import HistoryIcon from '@components/icons/HistoryIcon';
 import HomeIcon from '@components/icons/HomeIcon';
 import InboxIcon from '@components/icons/InboxIcon';
+import ListBoxIcon from '@components/icons/ListBoxIcon';
 import PlayIcon from '@components/icons/PlayIcon';
 import PodiumIcon from '@components/icons/PodiumIcon';
-import StoreIcon from '@components/icons/StoreIcon';
 import TableTennisIcon from '@components/icons/TableTennisIcon';
 import TrophyIcon from '@components/icons/TrophyIcon';
 import React from 'react';
@@ -153,6 +152,13 @@ if (import.meta.env.DEV) {
         icon: <HangerIcon />,
         exact: false,
         Component: React.lazy(() => import('@views/ClothingShowcase')),
+      },
+      {
+        label: 'Clothing List',
+        path: '/dev/clothing-list',
+        icon: <ListBoxIcon />,
+        exact: false,
+        Component: React.lazy(() => import('@views/ClothingItems')),
       },
     ],
   });

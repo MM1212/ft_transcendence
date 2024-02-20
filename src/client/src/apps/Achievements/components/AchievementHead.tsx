@@ -1,8 +1,61 @@
-import { Box, IconButton, Sheet, Checkbox } from '@mui/joy';
+import { Box, Sheet, Checkbox, Avatar, Skeleton } from '@mui/joy';
 import { Stack, Typography } from '@mui/joy';
 import AchivementBar from './AchievementBar';
 import { UserAvatar } from '@components/AvatarWithStatus';
 import UsersModel from '@typings/models/users/index';
+
+export function AchievementHeadSkeleton(): JSX.Element {
+  return (
+    <Stack
+      direction="row"
+      justifyContent="space-between"
+      sx={{
+        borderBottom: '1px solid',
+        borderColor: 'divider',
+      }}
+      py={{ xs: 2, md: 2 }}
+      px={{ xs: 1, md: 2 }}
+    >
+      <Stack
+        direction="row"
+        spacing={{ xs: 1, md: 2 }}
+        flexGrow={1}
+        alignItems="top"
+      >
+        <Avatar size="lg">
+          <Skeleton variant="circular" />
+        </Avatar>
+        <Sheet
+          sx={{
+            width: '100%',
+          }}
+        >
+          <Typography fontWeight="lg" fontSize="lg" component="h2" noWrap>
+            Achievements
+          </Typography>
+          <Skeleton variant="text" level="body-sm" width="20%" />
+          <Skeleton variant="text" level="body-xs" width="35%" />
+          <Box flexDirection="row-reverse" display="flex">
+            <Skeleton level="body-sm" variant="text" width="5%" />
+          </Box>
+          <Skeleton variant="rectangular">
+            <AchivementBar percentage={0} />
+          </Skeleton>
+        </Sheet>
+        <Checkbox
+          disabled
+          variant="soft"
+          size="sm"
+          label="Show All"
+          sx={{
+            display: { xs: 'none', md: 'flex' },
+            whiteSpace: 'nowrap',
+          }}
+        />
+      </Stack>
+    </Stack>
+  );
+}
 
 export default function AchievementHead({
   user,
@@ -17,8 +70,6 @@ export default function AchievementHead({
   checked: any;
   changer: any;
 }) {
-  console.log(user);
-
   const percentage = (acquired / total) * 100;
 
   return (
@@ -36,7 +87,7 @@ export default function AchievementHead({
         direction="row"
         spacing={{ xs: 1, md: 2 }}
         alignItems="top"
-        sx={{ width: '100%' }}
+        flexGrow={1}
       >
         <UserAvatar size="lg" src={user.avatar} />
         <Sheet
@@ -49,24 +100,24 @@ export default function AchievementHead({
           </Typography>
           {user.nickname}
           <Typography level="body-sm">
-            {acquired} of 12 achievements completed
+            {acquired} of {total} achievements completed
           </Typography>
           <Box flexDirection="row-reverse" display="flex">
             <Typography level="body-sm">({percentage.toFixed(2)}%)</Typography>
           </Box>
           <AchivementBar percentage={percentage} />
         </Sheet>
-          <Checkbox 
+        <Checkbox
           variant="soft"
-          size="sm" 
+          size="sm"
           label="Show All"
-          display="flex"
           checked={checked}
           onChange={changer}
-          />
-      </Stack>
-      <Stack spacing={1} direction="row" alignItems="center">
-        <IconButton size="sm" variant="plain" color="neutral"></IconButton>
+          sx={{
+            display: { xs: 'none', md: 'flex' },
+            whiteSpace: 'nowrap',
+          }}
+        />
       </Stack>
     </Stack>
   );
