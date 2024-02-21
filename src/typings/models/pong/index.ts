@@ -126,6 +126,7 @@ namespace PongModel {
       nonce: number;
       ownerId: number;
       name: string;
+      createdAt: number;
       queueType: GroupEnumValues<LobbyType>;
       gameType: GroupEnumValues<LobbyGameType>;
       spectatorVisibility: GroupEnumValues<LobbySpectatorVisibility>; // this will set all users's spectator visibility to this

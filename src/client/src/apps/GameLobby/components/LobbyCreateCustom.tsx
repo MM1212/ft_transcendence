@@ -6,24 +6,24 @@ import {
   Input,
   RadioGroup,
   Sheet,
-} from "@mui/joy";
-import { Stack } from "@mui/joy";
-import React from "react";
-import LobbyPlayerBanner from "./LobbyPlayerBanner";
-import LabelIcon from "@components/icons/LabelIcon";
-import { Typography } from "@mui/joy";
-import { Box } from "@mui/joy";
-import { Radio } from "@mui/joy";
-import LobbyRoom from "./LobbyRoom";
-import LobbyGameTypography from "./LobbyGameTypography";
-import tunnel from "@lib/tunnel";
-import PongModel from "@typings/models/pong";
-import notifications from "@lib/notifications/hooks";
-import { useRecoilCallback, useRecoilValue } from "recoil";
-import pongGamesState from "../state";
-import { useCurrentUser } from "@hooks/user";
-import LobbyPongButton from "./LobbyPongBottom";
-import { FindMatchWrapper } from "./LobbyMatchMaking";
+} from '@mui/joy';
+import { Stack } from '@mui/joy';
+import React from 'react';
+import LobbyPlayerBanner from './LobbyPlayerBanner';
+import LabelIcon from '@components/icons/LabelIcon';
+import { Typography } from '@mui/joy';
+import { Box } from '@mui/joy';
+import { Radio } from '@mui/joy';
+import LobbyRoom from './LobbyRoom';
+import LobbyGameTypography from './LobbyGameTypography';
+import tunnel from '@lib/tunnel';
+import PongModel from '@typings/models/pong';
+import notifications from '@lib/notifications/hooks';
+import { useRecoilCallback, useRecoilValue } from 'recoil';
+import pongGamesState from '../state';
+import { useCurrentUser } from '@hooks/user';
+import LobbyPongButton from './LobbyPongBottom';
+import { FindMatchWrapper } from './LobbyMatchMaking';
 import KeyIcon from '@components/icons/KeyIcon';
 import SoccerIcon from '@components/icons/SoccerIcon';
 
@@ -57,7 +57,7 @@ export default function LobbyCreateCustom() {
       newErrors.score = 'Score must be between 1 and 100';
     }
     setErrors(newErrors);
-    return !Object.values(newErrors).some((error) => error !== "");
+    return !Object.values(newErrors).some((error) => error !== '');
   };
 
   const [loading, setLoading] = React.useState(false);
@@ -69,11 +69,14 @@ export default function LobbyCreateCustom() {
         name: name.trim() as string,
         spectators: spectators as PongModel.Models.LobbySpectatorVisibility,
         lobbyType: PongModel.Models.LobbyType.Custom,
-        lobbyAccess: pass !== '' ? PongModel.Models.LobbyAccess.Protected : PongModel.Models.LobbyAccess.Public,
+        lobbyAccess:
+          pass !== ''
+            ? PongModel.Models.LobbyAccess.Protected
+            : PongModel.Models.LobbyAccess.Public,
         gameType: PongModel.Models.LobbyGameType.Powers,
         score: parseInt(score.trim()),
       };
-      const notif = notifications.default("Creating lobby...");
+      const notif = notifications.default('Creating lobby...');
       try {
         setLoading(true);
         const lobby = await tunnel.put(
@@ -81,15 +84,15 @@ export default function LobbyCreateCustom() {
           payload
         );
         notif.update({
-          message: "Lobby created successfully!",
-          color: "success",
+          message: 'Lobby created successfully!',
+          color: 'success',
         });
 
         ctx.set(pongGamesState.gameLobby, lobby);
 
         console.log(lobby);
       } catch (error) {
-        notifications.error("Failed to create lobby", (error as Error).message);
+        notifications.error('Failed to create lobby', (error as Error).message);
       } finally {
         setLoading(false);
       }
@@ -99,20 +102,20 @@ export default function LobbyCreateCustom() {
   return (
     <Sheet
       sx={{
-        display: "flex",
-        width: "100%",
-        height: "100%",
-        backgroundColor: "unset",
-        flexDirection: "column",
-        alignItems: "center",
+        display: 'flex',
+        width: '100%',
+        height: '100%',
+        backgroundColor: 'unset',
+        flexDirection: 'column',
+        alignItems: 'center',
       }}
     >
       {!isCustom ? (
         <>
           <LobbyPlayerBanner id={user?.id} />
           <Divider sx={{ mt: 4 }} />
-          <Box sx={{ width: "100%", display: "flex", flexDirection: "row" }}>
-            <Stack spacing={2} sx={{ display: "flex", mt: 5 }}>
+          <Box sx={{ width: '100%', display: 'flex', flexDirection: 'row' }}>
+            <Stack spacing={2} sx={{ display: 'flex', mt: 5 }}>
               <FormControl>
                 <FormLabel required>
                   <LobbyGameTypography level="body-sm">
@@ -120,20 +123,22 @@ export default function LobbyCreateCustom() {
                   </LobbyGameTypography>
                 </FormLabel>
                 <Input
-                  color={errors.name ? "danger" : "warning"}
+                  color={errors.name ? 'danger' : 'warning'}
                   required
                   placeholder="Enter room name"
                   slotProps={{
                     input: {
-                      maxlength: 20,
-                    }
+                      maxLength: 20,
+                    },
                   }}
                   startDecorator={<LabelIcon />}
-                  endDecorator={<Typography level="body-sm">{name.length}/20</Typography>}
+                  endDecorator={
+                    <Typography level="body-sm">{name.length}/20</Typography>
+                  }
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                 />
-                {errors.name && <FormHelperText>{errors.name}</FormHelperText>}{" "}
+                {errors.name && <FormHelperText>{errors.name}</FormHelperText>}{' '}
               </FormControl>
               <FormControl>
                 <FormLabel>
@@ -157,12 +162,12 @@ export default function LobbyCreateCustom() {
                 </FormLabel>
                 <Input
                   placeholder="Enter Score"
-                  type='number'
+                  type="number"
                   slotProps={{
                     input: {
                       min: 1,
                       max: 100,
-                    }
+                    },
                   }}
                   startDecorator={<SoccerIcon />}
                   required
@@ -170,23 +175,25 @@ export default function LobbyCreateCustom() {
                   value={score}
                   onChange={(e) => setScore(e.target.value)}
                 />
-                {errors.score && <FormHelperText>{errors.score}</FormHelperText>}{' '}
+                {errors.score && (
+                  <FormHelperText>{errors.score}</FormHelperText>
+                )}{' '}
               </FormControl>
             </Stack>
             <Stack
               sx={{
-                alignItems: "center",
-                width: "100%",
-                display: "flex",
+                alignItems: 'center',
+                width: '100%',
+                display: 'flex',
                 mt: 5,
-                flexDirection: "column",
+                flexDirection: 'column',
               }}
             >
               <FormControl
-                sx={{ mt: 2, display: "flex", flexDirection: "column" }}
+                sx={{ mt: 2, display: 'flex', flexDirection: 'column' }}
               >
                 <FormLabel>
-                  {" "}
+                  {' '}
                   <LobbyGameTypography level="body-md">
                     ALLOW SPECTATORS
                   </LobbyGameTypography>
@@ -228,11 +235,14 @@ export default function LobbyCreateCustom() {
           </Box>
           <FindMatchWrapper
             sx={{
-              position: "relative",
+              position: 'relative',
             }}
-            onClick={handleCreateRoom}
           >
-            <LobbyPongButton label="Create" />
+            <LobbyPongButton
+              onClick={handleCreateRoom}
+              label="Create"
+              loading={loading}
+            />
           </FindMatchWrapper>
         </>
       ) : (
