@@ -60,7 +60,10 @@ function ProfileTooltipContent({
   );
   const isBot = user.type === UsersModel.Models.Types.Bot;
   const renderBadges = React.useMemo(
-    () => [isBot ? <BotTag key="bot" /> : null, ...(badges ?? [])],
+    () => [
+      isBot ? <BotTag key="bot" size="sm" variant="plain" icon /> : null,
+      ...(badges ?? []),
+    ],
     [badges, isBot]
   );
 
@@ -163,28 +166,30 @@ function ProfileTooltipContent({
             {moment(user.createdAt).format('MMM Do YYYY')}
           </Typography>
         </Stack>
-        <Box mt="auto" gap={1} display="flex" alignItems="center">
-          <Button
-            variant="outlined"
-            color="neutral"
-            startDecorator={<AccountIcon />}
-            size="sm"
-            onClick={goToProfile}
-            fullWidth
-          >
-            Profile
-          </Button>
-          <Button
-            variant="outlined"
-            color="neutral"
-            startDecorator={<MessageIcon size="sm" />}
-            size="sm"
-            onClick={goToMessages}
-            fullWidth
-          >
-            Message
-          </Button>
-        </Box>
+        {!isBot && (
+          <Box mt="auto" gap={1} display="flex" alignItems="center">
+            <Button
+              variant="outlined"
+              color="neutral"
+              startDecorator={<AccountIcon />}
+              size="sm"
+              onClick={goToProfile}
+              fullWidth
+            >
+              Profile
+            </Button>
+            <Button
+              variant="outlined"
+              color="neutral"
+              startDecorator={<MessageIcon size="sm" />}
+              size="sm"
+              onClick={goToMessages}
+              fullWidth
+            >
+              Message
+            </Button>
+          </Box>
+        )}
       </Sheet>
     </Box>
   );

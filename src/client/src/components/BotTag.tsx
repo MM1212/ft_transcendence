@@ -1,6 +1,10 @@
 import { Chip, type ChipProps } from '@mui/joy';
+import RobotIcon from './icons/RobotIcon';
 
-export default function BotTag(props: ChipProps) {
+export default function BotTag({
+  icon,
+  ...props
+}: ChipProps & { icon?: boolean }) {
   return (
     <Chip
       variant="solid"
@@ -11,7 +15,7 @@ export default function BotTag(props: ChipProps) {
       }}
       {...props}
     >
-      {props.children ?? 'BOT'}
+      {props.children ?? (icon ? <RobotIcon /> : 'BOT')}
     </Chip>
   );
 }
