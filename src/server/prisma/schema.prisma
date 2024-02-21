@@ -26,7 +26,7 @@ enum UserStatus {
 
 model User {
   id            Int               @id @default(autoincrement())
-  studentId     Int               @unique @map("student_id")
+  studentId     Int?              @unique @map("student_id")
   nickname      String            @unique
   type          UserType          @default(USER)
   avatar        String
@@ -51,7 +51,7 @@ model User {
 
   gamesPlayed MatchHistoryPlayer[]
 
-  @@index([studentId, nickname])
+  @@index([type, nickname])
   @@map("users")
 }
 

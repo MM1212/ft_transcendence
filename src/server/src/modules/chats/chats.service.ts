@@ -146,6 +146,10 @@ export class ChatsService {
     user: User,
     target: User,
   ): Promise<[boolean, Chat | null]> {
+    if (user.id === target.id)
+      throw new ForbiddenException('You cannot chat with yourself.');
+    if (target.isBot)
+      throw new ForbiddenException('You cannot chat with a bot.');
     const chatId = await this.db.chats.checkChatWithParticipants(
       ChatModel.Models.ChatType.Direct,
       user.id,

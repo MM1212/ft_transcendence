@@ -220,7 +220,7 @@ export default function UpdateUserModal(): JSX.Element {
                     required
                     value={input.nickname}
                     onChange={updateInputProperty('nickname')}
-                    error={!input.nickname}
+                    error={!input.nickname || input.nickname.length < 3 || input.nickname.length > 10 || input.nickname.includes(' ')}
                   />
                 </FormControl>
                 <FormControl>

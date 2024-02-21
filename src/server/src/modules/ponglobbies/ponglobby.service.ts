@@ -46,7 +46,6 @@ export class PongLobbyService {
       user = await this.deps.usersService.create({
         avatar: botSpec.avatar,
         nickname: botSpec.nickname,
-        studentId: -botSpec.id,
         inventory: botSpec.inventory,
         type: UsersModel.Models.Types.Bot
       });

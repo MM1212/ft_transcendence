@@ -174,7 +174,6 @@ export class AuthService {
 
     if (!dummyUser) {
       dummyUser = await this.usersService.create({
-        studentId: dummyId,
         avatar: UsersModel.Models.DEFAULT_AVATAR,
         nickname: `Dummy${dummyId}`,
       });
