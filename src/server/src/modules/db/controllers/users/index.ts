@@ -49,6 +49,7 @@ export class Users {
       enabled: user.tfaEnabled,
       secret: user.tfaSecret ?? undefined,
     };
+    if (formatted.studentId === null) delete formatted.studentId;
     delete (formatted as any).tfaEnabled;
     delete (formatted as any).tfaSecret;
     formatted.friends = [
@@ -217,7 +218,6 @@ export class Users {
       avatar: user.avatar,
       credits: user.credits,
       firstLogin: user.firstLogin,
-      studentId: user.studentId,
       createdAt: user.createdAt.getTime(),
       status: UsersModel.Models.Status.Offline,
       leaderboard: {

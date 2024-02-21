@@ -8,7 +8,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/tile0000.webp",
       "css": {
-        "borderRadius": "lg"
+        "borderRadius": "sm"
       }
     },
     "flags": []
@@ -22,7 +22,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/tile0001.webp",
       "css": {
-        "borderRadius": "lg"
+        "borderRadius": "sm"
       }
     },
     "flags": []
@@ -36,7 +36,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/tile0002.webp",
       "css": {
-        "borderRadius": "lg"
+        "borderRadius": "sm"
       }
     },
     "flags": []
@@ -50,7 +50,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/tile0003.webp",
       "css": {
-        "borderRadius": "lg"
+        "borderRadius": "sm"
       }
     },
     "flags": []
@@ -64,7 +64,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/tile0004.webp",
       "css": {
-        "borderRadius": "lg"
+        "borderRadius": "sm"
       }
     },
     "flags": []
@@ -78,7 +78,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/tile0005.webp",
       "css": {
-        "borderRadius": "lg"
+        "borderRadius": "sm"
       }
     },
     "flags": []
@@ -92,7 +92,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/tile0006.webp",
       "css": {
-        "borderRadius": "lg"
+        "borderRadius": "sm"
       }
     },
     "flags": []
@@ -106,7 +106,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/tile0007.webp",
       "css": {
-        "borderRadius": "lg"
+        "borderRadius": "sm"
       }
     },
     "flags": []
@@ -120,7 +120,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/tile0008.webp",
       "css": {
-        "borderRadius": "lg"
+        "borderRadius": "sm"
       }
     },
     "flags": []
@@ -134,7 +134,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/tile0009.webp",
       "css": {
-        "borderRadius": "lg"
+        "borderRadius": "sm"
       }
     },
     "flags": []
@@ -148,7 +148,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/tile0010.webp",
       "css": {
-        "borderRadius": "lg"
+        "borderRadius": "sm"
       }
     },
     "flags": []
@@ -162,7 +162,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/tile0011.webp",
       "css": {
-        "borderRadius": "lg"
+        "borderRadius": "sm"
       }
     },
     "flags": []
@@ -176,7 +176,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/tile0012.webp",
       "css": {
-        "borderRadius": "lg"
+        "borderRadius": "sm"
       }
     },
     "flags": []
@@ -190,7 +190,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/tile0013.webp",
       "css": {
-        "borderRadius": "lg"
+        "borderRadius": "sm"
       }
     },
     "flags": []
@@ -204,7 +204,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/tile0014.webp",
       "css": {
-        "borderRadius": "lg"
+        "borderRadius": "sm"
       }
     },
     "flags": []
@@ -218,7 +218,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/tile0015.webp",
       "css": {
-        "borderRadius": "lg"
+        "borderRadius": "sm"
       }
     },
     "flags": []
@@ -232,7 +232,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/tile0016.webp",
       "css": {
-        "borderRadius": "lg"
+        "borderRadius": "sm"
       }
     },
     "flags": []
@@ -246,7 +246,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/tile0017.webp",
       "css": {
-        "borderRadius": "lg"
+        "borderRadius": "sm"
       }
     },
     "flags": []
@@ -260,7 +260,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/tile0018.webp",
       "css": {
-        "borderRadius": "lg"
+        "borderRadius": "sm"
       }
     },
     "flags": []
@@ -274,7 +274,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/tile0019.webp",
       "css": {
-        "borderRadius": "lg"
+        "borderRadius": "sm"
       }
     },
     "flags": []
@@ -288,7 +288,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/tile0020.webp",
       "css": {
-        "borderRadius": "lg"
+        "borderRadius": "sm"
       }
     },
     "flags": []
@@ -302,7 +302,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/tile0021.webp",
       "css": {
-        "borderRadius": "lg"
+        "borderRadius": "sm"
       }
     },
     "flags": []
@@ -316,7 +316,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/tile0022.webp",
       "css": {
-        "borderRadius": "lg"
+        "borderRadius": "sm"
       }
     },
     "flags": []
@@ -330,7 +330,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/tile0023.webp",
       "css": {
-        "borderRadius": "lg"
+        "borderRadius": "sm"
       }
     },
     "flags": []
@@ -344,7 +344,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/tile0024.webp",
       "css": {
-        "borderRadius": "lg"
+        "borderRadius": "sm"
       }
     },
     "flags": []
@@ -358,7 +358,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/tile0025.webp",
       "css": {
-        "borderRadius": "lg"
+        "borderRadius": "sm"
       }
     },
     "flags": []
@@ -372,7 +372,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/tile0026.webp",
       "css": {
-        "borderRadius": "lg"
+        "borderRadius": "sm"
       }
     },
     "flags": []
@@ -386,7 +386,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/tile0027.webp",
       "css": {
-        "borderRadius": "lg"
+        "borderRadius": "sm"
       }
     },
     "flags": []
@@ -400,7 +400,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/tile0028.webp",
       "css": {
-        "borderRadius": "lg"
+        "borderRadius": "sm"
       }
     },
     "flags": []
@@ -414,7 +414,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/tile0029.webp",
       "css": {
-        "borderRadius": "lg"
+        "borderRadius": "sm"
       }
     },
     "flags": []
@@ -428,7 +428,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/tile0030.webp",
       "css": {
-        "borderRadius": "lg"
+        "borderRadius": "sm"
       }
     },
     "flags": []
@@ -442,7 +442,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/tile0031.webp",
       "css": {
-        "borderRadius": "lg"
+        "borderRadius": "sm"
       }
     },
     "flags": []
@@ -456,7 +456,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/tile0032.webp",
       "css": {
-        "borderRadius": "lg"
+        "borderRadius": "sm"
       }
     },
     "flags": []
@@ -470,7 +470,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/tile0033.webp",
       "css": {
-        "borderRadius": "lg"
+        "borderRadius": "sm"
       }
     },
     "flags": []
@@ -484,7 +484,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/tile0034.webp",
       "css": {
-        "borderRadius": "lg"
+        "borderRadius": "sm"
       }
     },
     "flags": []
@@ -498,7 +498,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/tile0035.webp",
       "css": {
-        "borderRadius": "lg"
+        "borderRadius": "sm"
       }
     },
     "flags": []
@@ -512,7 +512,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/tile0036.webp",
       "css": {
-        "borderRadius": "lg"
+        "borderRadius": "sm"
       }
     },
     "flags": []
@@ -526,7 +526,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/tile0037.webp",
       "css": {
-        "borderRadius": "lg"
+        "borderRadius": "sm"
       }
     },
     "flags": []
@@ -540,7 +540,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/tile0038.webp",
       "css": {
-        "borderRadius": "lg"
+        "borderRadius": "sm"
       }
     },
     "flags": []
@@ -554,7 +554,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/tile0039.webp",
       "css": {
-        "borderRadius": "lg"
+        "borderRadius": "sm"
       }
     },
     "flags": []
@@ -568,7 +568,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/tile0040.webp",
       "css": {
-        "borderRadius": "lg"
+        "borderRadius": "sm"
       }
     },
     "flags": []
@@ -582,7 +582,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/tile0041.webp",
       "css": {
-        "borderRadius": "lg"
+        "borderRadius": "sm"
       }
     },
     "flags": []
@@ -596,7 +596,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/tile0042.webp",
       "css": {
-        "borderRadius": "lg"
+        "borderRadius": "sm"
       }
     },
     "flags": []

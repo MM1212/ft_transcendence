@@ -28,7 +28,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/2/icon.webp"
     },
-    "price": 100
+    "price": 50
   },
   {
     "id": "cloth:3",
@@ -45,7 +45,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/3/icon.webp"
     },
-    "price": 100
+    "price": 50
   },
   {
     "id": "cloth:4",
@@ -62,7 +62,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/4/icon.webp"
     },
-    "price": 100
+    "price": 50
   },
   {
     "id": "cloth:5",
@@ -79,7 +79,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/5/icon.webp"
     },
-    "price": 100
+    "price": 50
   },
   {
     "id": "cloth:6",
@@ -96,7 +96,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/6/icon.webp"
     },
-    "price": 100
+    "price": 50
   },
   {
     "id": "cloth:7",
@@ -113,7 +113,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/7/icon.webp"
     },
-    "price": 100
+    "price": 50
   },
   {
     "id": "cloth:8",
@@ -130,7 +130,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/8/icon.webp"
     },
-    "price": 100
+    "price": 50
   },
   {
     "id": "cloth:9",
@@ -147,7 +147,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/9/icon.webp"
     },
-    "price": 100
+    "price": 50
   },
   {
     "id": "cloth:10",
@@ -164,7 +164,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/10/icon.webp"
     },
-    "price": 100
+    "price": 50
   },
   {
     "id": "cloth:11",
@@ -181,7 +181,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/11/icon.webp"
     },
-    "price": 100
+    "price": 50
   },
   {
     "id": "cloth:12",
@@ -198,7 +198,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/12/icon.webp"
     },
-    "price": 100
+    "price": 50
   },
   {
     "id": "cloth:13",
@@ -215,7 +215,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/13/icon.webp"
     },
-    "price": 100
+    "price": 50
   },
   {
     "id": "cloth:15",
@@ -232,7 +232,7 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/15/icon.webp"
     },
-    "price": 100
+    "price": 50
   },
   {
     "id": "cloth:16",
@@ -249,6 +249,6 @@
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/16/icon.webp"
     },
-    "price": 100
+    "price": 50
   }
 ]

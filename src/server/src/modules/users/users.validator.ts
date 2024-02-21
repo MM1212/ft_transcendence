@@ -16,7 +16,7 @@ const usersValidator = new (class UsersValidator {
       .or(z.string().url()),
     nickname: z
       .string()
-      .min(1)
+      .min(3)
       .max(10)
       .refine((s) => !s.includes(' '), {
         message: 'Invalid nickname',

@@ -38,6 +38,7 @@ class User extends CacheObserver<UsersModel.Models.IUser> {
   /* eslint-disable @typescript-eslint/no-unused-vars */
   public get public(): UsersModel.Models.IUserInfo {
     const {
+      studentId,
       friends,
       blocked,
       chats,
@@ -70,7 +71,7 @@ class User extends CacheObserver<UsersModel.Models.IUser> {
     return this.type === UsersModel.Models.Types.Bot;
   }
 
-  public get studentId(): number {
+  public get studentId(): number | undefined {
     return this.get('studentId');
   }
 
