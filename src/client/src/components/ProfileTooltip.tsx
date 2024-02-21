@@ -22,6 +22,7 @@ import ColorThief from 'colorthief';
 import { darken } from '@theme';
 import { selectorFamily, useRecoilValueLoadable } from 'recoil';
 import BotTag from './BotTag';
+import { useCurrentUser } from '@hooks/user';
 
 export interface IProfileTooltipProps {
   user: UsersModel.Models.IUserInfo;
@@ -59,6 +60,7 @@ function ProfileTooltipContent({
     cacheSelector(user.avatar)
   );
   const isBot = user.type === UsersModel.Models.Types.Bot;
+  const self = useCurrentUser();
   const renderBadges = React.useMemo(
     () => [
       isBot ? <BotTag key="bot" size="sm" variant="plain" icon /> : null,
@@ -178,16 +180,18 @@ function ProfileTooltipContent({
             >
               Profile
             </Button>
-            <Button
-              variant="outlined"
-              color="neutral"
-              startDecorator={<MessageIcon size="sm" />}
-              size="sm"
-              onClick={goToMessages}
-              fullWidth
-            >
-              Message
-            </Button>
+            {self && self.id !== user.id && (
+              <Button
+                variant="outlined"
+                color="neutral"
+                startDecorator={<MessageIcon size="sm" />}
+                size="sm"
+                onClick={goToMessages}
+                fullWidth
+              >
+                Message
+              </Button>
+            )}
           </Box>
         )}
       </Sheet>
