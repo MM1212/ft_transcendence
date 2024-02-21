@@ -58,6 +58,14 @@ const ponglobbyValidator = new (class PongLobbyControllerValidator {
     }),
   } satisfies ComputeToZodKeys<PongModel.DTO.CreateLobby>);
 
+  updatePersonalSchema: ZodType<PongModel.DTO.UpdatePersonal> = z.object({
+    lobbyId: z.number().int().nonnegative({
+      message: 'Lobby ID must be a positive integer',
+    }),
+    paddleSkin: z.string(),
+    specialPower: z.string(),
+  } satisfies ComputeToZodKeys<PongModel.DTO.UpdatePersonal>);
+
   checkIdSchema: ZodType<PongModel.DTO.CheckId> = z.object({
     lobbyId: z.number().int().nonnegative(),
   } satisfies ComputeToZodKeys<PongModel.DTO.CheckId>);

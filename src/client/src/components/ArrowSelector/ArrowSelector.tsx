@@ -10,13 +10,15 @@ import { Stack } from '@mui/joy';
 export function ArrowSelector({
   selectType,
   onClick,
+  indexElem,
 }: {
   selectType: 'ball' | 'paddle' | 'special_power';
   onClick?: (tex: string) => void;
+  indexElem?: number;
 }) {
   const items = useInventoryByType(`pong-${selectType}`);
 
-  const [currentIndex, setCurrentIndex] = React.useState<number>(0);
+  const [currentIndex, setCurrentIndex] = React.useState<number>(indexElem || 0);
   const [keys, setKeys] = React.useState<string[]>([]);
 
   const config =
@@ -43,7 +45,7 @@ export function ArrowSelector({
   }, [keys, currentIndex, onClick]);
 
   if (keys.length === 0) return null;
-  if (!config.has(keys[currentIndex])) return null;
+  //if (!config.has(keys[currentIndex])) return null;
   return (
     <>
       <Stack direction="row" spacing={1} alignItems="center">

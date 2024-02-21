@@ -109,7 +109,7 @@ export default function LobbyCreateCustom() {
     >
       {!isCustom ? (
         <>
-          <LobbyPlayerBanner id={user?.id} />
+          <LobbyPlayerBanner id={user?.id} showSelector={false}/>
           <Divider sx={{ mt: 4 }} />
           <Box sx={{ width: "100%", display: "flex", flexDirection: "row" }}>
             <Stack spacing={2} sx={{ display: "flex", mt: 5 }}>

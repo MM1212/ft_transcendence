@@ -43,8 +43,6 @@ export function LobbySettings() {
   const handleSubmitModalClose = useRecoilCallback(
     (ctx) => async (): Promise<void> => {
       try {
-        console.log('submit');
-
         if (score === '') {
           setErrors((prev) => ({ ...prev, score: 'Score is required' }));
           return;
@@ -60,24 +58,15 @@ export function LobbySettings() {
           }));
           return;
         }
-        await tunnel.post(PongModel.Endpoints.Targets.UpdateLobbySettings, {
+        const updatedLobby = await tunnel.post(PongModel.Endpoints.Targets.UpdateLobbySettings, {
           lobbyId: lobby.id,
           score: parseInt(score),
           type: powersSwitchValue,
           ballSkin: currBall,
         });
+        ctx.set(pongGamesState.gameLobby, updatedLobby);
         setOpen(false);
-        ctx.set(pongGamesState.gameLobby, (prev) => {
-          if (!prev) return prev;
-          return {
-            ...prev,
-            score: parseInt(score),
-            gameType: powersSwitchValue
-              ? PongModel.Models.LobbyGameType.Powers
-              : PongModel.Models.LobbyGameType.Classic,
-            ballSkin: currBall,
-          };
-        });
+
         notifications.success('Lobby settings updated');
       } catch (error) {
         console.error('Failed to submit lobby settings', error);
@@ -117,7 +106,7 @@ export function LobbySettings() {
           <DialogTitle>Settings</DialogTitle>
           <Box>
             <LobbyGameTypography>Game Mode:</LobbyGameTypography>
-            <ArrowSelector selectType="ball" onClick={setCurrBall} />
+            <ArrowSelector selectType="ball" onClick={setCurrBall} indexElem={Array.from(ballsConfig.keys()).indexOf(currBall)}/>
             <Typography
               component="label"
               endDecorator={

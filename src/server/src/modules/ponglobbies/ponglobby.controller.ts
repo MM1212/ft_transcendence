@@ -33,6 +33,22 @@ export class PongLobbyController {
     private readonly ponggameService: PongService,
   ) {}
 
+  @Put(Targets.UpdatePersonal)
+  async updatePersonal(
+    @HttpCtx() ctx: HTTPContext<true>,
+    @Body(new ObjectValidationPipe(ponglobbyValidator.updatePersonalSchema))
+    body: EndpointData<PongModel.Endpoints.UpdatePersonal>,
+  ): Promise<InternalEndpointResponse<PongModel.Endpoints.UpdatePersonal>> {
+    const lobby = await this.service.updatePersonal(
+      ctx.user.id,
+      body.lobbyId,
+      body.paddleSkin,
+      body.specialPower,
+    );
+    console.log(lobby);
+    return lobby;
+  }
+
   @Put(Targets.LeaveQueue)
   async leaveQueue(
     @HttpCtx() ctx: HTTPContext<true>,
@@ -80,16 +96,21 @@ export class PongLobbyController {
   @Post(Targets.UpdateLobbySettings)
   async updateLobbySettings(
     @HttpCtx() ctx: HTTPContext<true>,
-    @Body(new ObjectValidationPipe(ponglobbyValidator.updateLobbySettingsSchema))
+    @Body(
+      new ObjectValidationPipe(ponglobbyValidator.updateLobbySettingsSchema),
+    )
     body: EndpointData<PongModel.Endpoints.UpdateLobbySettings>,
-  ): Promise<InternalEndpointResponse<PongModel.Endpoints.UpdateLobbySettings>> {
-    await this.service.updateLobbySettings(
+  ): Promise<
+    InternalEndpointResponse<PongModel.Endpoints.UpdateLobbySettings>
+  > {
+    const lobby = await this.service.updateLobbySettings(
       ctx.user.id,
       body.lobbyId,
       body.score,
       body.type,
       body.ballSkin,
     );
+    return lobby;
   }
 
   @Post(Targets.StartGame)
@@ -107,7 +128,12 @@ export class PongLobbyController {
     @Body(new ObjectValidationPipe(ponglobbyValidator.addBotSchema))
     body: EndpointData<PongModel.Endpoints.AddBot>,
   ): Promise<InternalEndpointResponse<PongModel.Endpoints.AddBot>> {
-    await this.service.addBot(ctx.user.id, body.lobbyId, body.teamId, body.teamPosition);
+    await this.service.addBot(
+      ctx.user.id,
+      body.lobbyId,
+      body.teamId,
+      body.teamPosition,
+    );
   }
 
   @Post(Targets.JoinLobby)
@@ -233,8 +259,7 @@ export class PongLobbyController {
   }
 
   @Get(Targets.GetAllGames)
-  async getAllGames(
-  ): Promise<
+  async getAllGames(): Promise<
     InternalEndpointResponse<PongModel.Endpoints.GetAllGames>
   > {
     return this.ponggameService.getAllGames();

@@ -10,20 +10,20 @@ import { useRecoilCallback, useRecoilValue } from 'recoil';
 import pongGamesState from '../state';
 import { OpenGameModal } from '@apps/GamePong/PongModal';
 
-export const FindMatchWrapper = styled("div")(({ theme }) => ({
-  "& > img": {
-    transition: theme.transitions.create("filter", {
+export const FindMatchWrapper = styled('div')(({ theme }) => ({
+  '& > img': {
+    transition: theme.transitions.create('filter', {
       duration: theme.transitions.duration.shortest,
     }),
-    pointerEvents: "none",
+    pointerEvents: 'none',
   },
-  "& > span": {
-    pointerEvents: "none",
+  '& > span': {
+    pointerEvents: 'none',
   },
-  "&:hover": {
-    cursor: "pointer",
-    "& > img": {
-      filter: "brightness(1.15)",
+  '&:hover': {
+    cursor: 'pointer',
+    '& > img': {
+      filter: 'brightness(1.15)',
     },
   },
 }));
@@ -37,9 +37,9 @@ export function LobbyMatchMaking() {
   const handleStartMatchmaking = useRecoilCallback(
     (ctx) => async () => {
       if (!isMatchmakingStarted) setIsMatchmakingStarted(true);
-      else  setIsMatchmakingStarted(false);
+      else setIsMatchmakingStarted(false);
       try {
-         let lobby = await ctx.snapshot.getPromise(pongGamesState.gameLobby);
+        let lobby = await ctx.snapshot.getPromise(pongGamesState.gameLobby);
         if (!lobby) {
           lobby = await tunnel.put(PongModel.Endpoints.Targets.NewLobby, {
             password: null,
@@ -51,22 +51,22 @@ export function LobbyMatchMaking() {
             score: 7,
           });
           ctx.set(pongGamesState.gameLobby, lobby);
-          console.log("newLobby");
 
+          // update paddle and power here
           await tunnel.put(PongModel.Endpoints.Targets.AddToQueue, {
             lobbyId: lobby.id,
           });
         }
       } catch {
-        console.log("error in: create lobby and add to queue");
+        console.log('error in: create lobby and add to queue');
       }
     },
     [isMatchmakingStarted, user]
   );
-  
+
   // const handleInviteList = useRecoilCallback(
   //   (ctx) => async () => {
-  //     setIsLobbyActive(true); 
+  //     setIsLobbyActive(true);
   //     try {
   //       let lobby = await ctx.snapshot.getPromise(pongGamesState.gameLobby);
   //       if (!lobby) {
@@ -117,7 +117,7 @@ export function LobbyMatchMaking() {
   //   },
   //   [user, selectInvites, setIsLobbyActive, lobby]
   // );
-  
+
   // const handleLeaveLobby = useRecoilCallback((ctx) => async () => {
   //   const notif = notifications.default("Leaving lobby...");
   //   setIsLobbyActive(false);
@@ -141,34 +141,34 @@ export function LobbyMatchMaking() {
   return (
     <div
       style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
       }}
     >
       <div
         style={{
-          display: "flex",
-          flexDirection: "row",
-          height: "100%",
-          width: "100%",
-          justifyContent: "space-evenly",
+          display: 'flex',
+          flexDirection: 'row',
+          height: '100%',
+          width: '100%',
+          justifyContent: 'space-evenly',
         }}
       >
-        <LobbyPlayerBanner id={user.id} />
-        {isLobbyActive  ? (
-          <LobbyPlayerBanner id={user.id} />
+        <LobbyPlayerBanner id={user.id} showSelector={true} />
+        {isLobbyActive ? (
+          <LobbyPlayerBanner id={user.id} showSelector={true} />
         ) : (
-          <LobbyPlayerBanner id={undefined} />
+          <LobbyPlayerBanner id={undefined} showSelector={false} />
           // <Button onClick={handleInviteList} > Invite PLayers</Button>
         )}
       </div>
       <div
         style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          marginTop: "10dvh",
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          marginTop: '10dvh',
         }}
       >
         {isMatchmakingStarted && (
@@ -177,14 +177,14 @@ export function LobbyMatchMaking() {
         {!isMatchmakingStarted && (
           <FindMatchWrapper
             sx={{
-              position: "relative",
+              position: 'relative',
             }}
             onClick={handleStartMatchmaking}
           >
             <LobbyPongButton label="Find Match" />
           </FindMatchWrapper>
         )}
-          <OpenGameModal isPlaying={isPlaying} />
+        <OpenGameModal isPlaying={isPlaying} />
         {/* <Button onClick={handleLeaveLobby}>Leave Lobby</Button> */}
       </div>
     </div>

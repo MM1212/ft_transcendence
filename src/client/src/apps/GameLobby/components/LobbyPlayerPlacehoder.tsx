@@ -1,64 +1,80 @@
-import { UserAvatar } from "@components/AvatarWithStatus";
-import { useUser } from "@hooks/user";
-import { Badge, Box, Chip, Divider, Tooltip } from "@mui/joy";
-import { Typography } from "@mui/joy";
-import { Stack } from "@mui/joy";
-import PongModel from "@typings/models/pong";
-import { useRecoilCallback, useRecoilValue } from "recoil";
-import pongGamesState from "../state";
-import CrownIcon from "@components/icons/CrownIcon";
-import LobbyGameTypography from "./LobbyGameTypography";
+import { UserAvatar } from '@components/AvatarWithStatus';
+import { useUser } from '@hooks/user';
+import { Badge, Box, Chip, Divider, Tooltip } from '@mui/joy';
+import { Typography } from '@mui/joy';
+import { Stack } from '@mui/joy';
+import PongModel from '@typings/models/pong';
+import { useRecoilCallback, useRecoilValue } from 'recoil';
+import pongGamesState from '../state';
+import CrownIcon from '@components/icons/CrownIcon';
+import LobbyGameTypography from './LobbyGameTypography';
 import {
   ChangeOwnerButton,
   AddBotButton,
   ChangeTeamButton,
   KickParticipantButton,
-} from "./LobbyParticipantButtons";
-import CheckIcon from "@components/icons/CheckIcon";
-import CogOutlineIcon from "@components/icons/CogOutlineIcon";
-import { Modal } from "@mui/joy";
-import { ModalDialog } from "@mui/joy";
-import React from "react";
-import LobbyPongButton from "./LobbyPongBottom";
-import { FindMatchWrapper } from "./LobbyMatchMaking";
-import { GroupEnumValues } from "@typings/utils";
-import { ArrowSelector } from "@components/ArrowSelector/ArrowSelector";
+} from './LobbyParticipantButtons';
+import CheckIcon from '@components/icons/CheckIcon';
+import CogOutlineIcon from '@components/icons/CogOutlineIcon';
+import { Modal } from '@mui/joy';
+import { ModalDialog } from '@mui/joy';
+import React from 'react';
+import LobbyPongButton from './LobbyPongBottom';
+import { FindMatchWrapper } from './LobbyMatchMaking';
+import { ArrowSelector } from '@components/ArrowSelector/ArrowSelector';
+import tunnel from '@lib/tunnel';
+import { paddleConfig, specialPConfig } from '@components/ArrowSelector/ItemConfigs';
+import notifications from '@lib/notifications/hooks';
 
 export default function LobbyPlayerPlaceholder({
   id,
   teamId,
   teamPosition,
   ready,
-  specialPower,
   isMe,
 }: {
   id: number | undefined;
   teamId: PongModel.Models.TeamSide;
   teamPosition: number | undefined;
   ready: boolean | undefined;
-  specialPower: GroupEnumValues<PongModel.Models.LobbyParticipantSpecialPowerType> | undefined;
   isMe: boolean;
 }) {
-
   const user = useUser(id!);
   const [open, setOpen] = React.useState<boolean>(false);
   const lobbyOwner = useRecoilValue(pongGamesState.lobbyOwner);
 
-  const [currPower, setCurrPower] = React.useState<string>(PongModel.Endpoints.Targets.PowerSparkTexture);
-  const [currPaddle, setCurrPaddle] = React.useState<string>(PongModel.Models.Paddles.PaddleRed);
+  const lobby = useRecoilValue(pongGamesState.gameLobby)!;
+  const player = lobby.teams[0].players
+    .concat(lobby.teams[1].players)
+    .find((p) => p.id === id);
 
+  let power = player?.specialPower;
+  if (!power) power = PongModel.Models.LobbyParticipantSpecialPowerType.spark;
+  let paddle = player?.paddle;
+  if (!paddle) paddle = PongModel.Models.Paddles.PaddleRed;
+
+  const [currPower, setCurrPower] = React.useState<string>(power);
+  const [currPaddle, setCurrPaddle] = React.useState<string>(paddle);
 
   const handleCloseModalSendOptions = useRecoilCallback((ctx) => async () => {
     try {
-      console.log('submit' + currPower + currPaddle);
-
+      console.log("POWER" + power)
+      console.log("PADDLE" + paddle)
+      const updatedLobby = await tunnel.post(PongModel.Endpoints.Targets.UpdatePersonal, {
+        lobbyId: lobby.id,
+        paddleSkin: currPaddle,
+        specialPower: currPower,
+      });
+      ctx.set(pongGamesState.gameLobby, updatedLobby);
+      notifications.success('Personal settings updated');
       setOpen(false);
     } catch (error) {
       console.error(error);
+      notifications.error('Failed to update personal settings', (error as Error).message);
     } finally {
       setOpen(false);
     }
-  })
+  });
 
   if (lobbyOwner === null) return null;
   return (
@@ -85,12 +101,12 @@ export default function LobbyPlayerPlaceholder({
               },
             },
           }}
-          invisible={!specialPower}
+          invisible={!power}
           badgeContent={
             isMe && (
-              <Tooltip title={specialPower} placement="top">
+              <Tooltip title={power} placement="top">
                 <img
-                  src={currPower}
+                  src={specialPConfig.get(power)}
                   style={{ width: '1.2dvh', height: '1.2dvh' }}
                 />
               </Tooltip>
@@ -126,10 +142,7 @@ export default function LobbyPlayerPlaceholder({
             {isMe ? (
               <>
                 <CogOutlineIcon onClick={() => setOpen(true)} size="sm" />
-                <Modal
-                  open={open}
-                  onClose={handleCloseModalSendOptions}
-                >
+                <Modal open={open} onClose={handleCloseModalSendOptions}>
                   <ModalDialog>
                     <Box
                       gap={4}
@@ -142,8 +155,20 @@ export default function LobbyPlayerPlaceholder({
                       <LobbyGameTypography level="body-lg">
                         Pick Your Poison
                       </LobbyGameTypography>
-                      <ArrowSelector selectType="special_power" onClick={setCurrPower} />
-                      <ArrowSelector selectType="paddle" onClick={setCurrPaddle} />
+                      <ArrowSelector
+                        selectType="special_power"
+                        onClick={setCurrPower}
+                        indexElem={Array.from(specialPConfig.keys()).indexOf(
+                          currPower
+                        )}
+                      />
+                      <ArrowSelector
+                        selectType="paddle"
+                        onClick={setCurrPaddle}
+                        indexElem={Array.from(paddleConfig.keys()).indexOf(
+                          currPaddle
+                        )}
+                      />
                     </Box>
                     <FindMatchWrapper
                       sx={{

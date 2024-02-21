@@ -6,11 +6,13 @@ import { Typography } from '@mui/joy';
 import PongLobbyMatchmakingBanner from './Banner';
 import { ArrowSelector } from '@components/ArrowSelector/ArrowSelector';
 
-export default function LobbyPlayerBanner({ id }: { id: number | undefined }) {
+export default function LobbyPlayerBanner({ id, showSelector }: { id: number | undefined, showSelector: boolean}) {
   const user = useUser(id!);
 
   // add here the player's special power value
-
+  // and
+  // indexElem={Array.from(paddleConfig.keys()).indexOf(currPaddle)}
+  // indexElem={Array.from(SpecialPConfig.keys()).indexOf(currPower)}
   return (
     <div
       style={{
@@ -107,7 +109,7 @@ export default function LobbyPlayerBanner({ id }: { id: number | undefined }) {
                 />
                 <Typography>{user?.nickname}</Typography>
               </Stack>
-              <ArrowSelector selectType='special_power'/>
+              {showSelector && <ArrowSelector selectType="special_power" />}
             </Box>
           </Box>
         </>
