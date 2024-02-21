@@ -133,6 +133,7 @@ export const useUsersService = () => {
       const session = await ctx.snapshot.getPromise(sessionAtom);
       if (!session) return;
       const { data } = ev;
+      const {id} = data;
       for (const key in data) {
         if (data[key as keyof typeof data] === undefined)
           delete data[key as keyof typeof data];
@@ -140,7 +141,7 @@ export const useUsersService = () => {
       if (id === session.id) {
         ctx.set(sessionAtom, (prev) => ({
           ...prev!,
-          ...userUpdate,
+          ...data,
         }));
         return;
       }
@@ -153,7 +154,7 @@ export const useUsersService = () => {
           ? prev
           : {
               ...prev,
-              ...userUpdate,
+              ...data,
             }
       );
     },
