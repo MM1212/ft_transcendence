@@ -33,6 +33,7 @@ import TrophyAwardIcon from '@components/icons/TrophyAwardIcon';
 import { useTunnelEndpoint } from '@hooks/tunnel';
 import GenericPlaceholder from '@components/GenericPlaceholder';
 import AccountOffIcon from '@components/icons/AccountOffIcon';
+import BotTag from '@components/BotTag';
 
 function OtherOptions({
   user,
@@ -41,7 +42,10 @@ function OtherOptions({
   user: UsersModel.Models.IUserInfo;
   friend: boolean;
 }) {
+  const isBot = user.type === UsersModel.Models.Types.Bot;
   const { goToMessages, sendFriendRequest } = useFriend(user.id);
+
+  if (isBot) return null;
   return (
     <ButtonGroup size="sm" variant="outlined">
       <Button
@@ -84,6 +88,8 @@ function UserProfile({
   affiliation: 'me' | 'friend' | 'unknown';
 }) {
   const { open: openUpdateModal } = useUpdateUserModalActions();
+
+  const isBot = user.type === UsersModel.Models.Types.Bot;
   return (
     <Stack
       direction="column"
@@ -118,7 +124,7 @@ function UserProfile({
                 },
               },
             })}
-            src={user?.avatar}
+            src={user.avatar}
             onClick={() => openUpdateModal()}
           />
         ) : (
@@ -127,15 +133,18 @@ function UserProfile({
               width: theme.spacing(17),
               height: theme.spacing(17),
             })}
-            src={user?.avatar}
-            status={user?.status}
+            src={user.avatar}
+            status={user.status}
             badgeProps={{
               size: 'lg',
             }}
           />
         )}
         <Stack alignItems="center" spacing={1}>
-          <Typography level="h2">{user.nickname}</Typography>
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <Typography level="h2">{user.nickname}</Typography>
+            {isBot && <BotTag />}
+          </Stack>
           <Stack direction="row" alignItems="center" spacing={1}>
             {affiliation === 'me' && (
               <Tooltip
@@ -151,18 +160,19 @@ function UserProfile({
                 </Chip>
               </Tooltip>
             )}
-            <Tooltip title="Elo Rating">
-              <Chip
-                variant="soft"
-                color="warning"
-                size="lg"
-                startDecorator={<TrophyAwardIcon />}
-              >
-                {user.leaderboard.elo}
-              </Chip>
-            </Tooltip>
+            {!isBot && (
+              <Tooltip title="Elo Rating">
+                <Chip
+                  variant="soft"
+                  color="warning"
+                  size="lg"
+                  startDecorator={<TrophyAwardIcon />}
+                >
+                  {user.leaderboard.elo}
+                </Chip>
+              </Tooltip>
+            )}
           </Stack>
-          {/* <Typography>Rank Placeholder</Typography> */}
         </Stack>
         {affiliation !== 'me' && (
           <OtherOptions user={user} friend={affiliation === 'friend'} />
@@ -171,7 +181,10 @@ function UserProfile({
       <Divider />
       <UserAchievements id={affiliation === 'me' ? undefined : user.id} />
       <Divider />
-      <ProfileMatchHistory id={affiliation === 'me' ? undefined : user.id} />
+      <ProfileMatchHistory
+        id={affiliation === 'me' ? undefined : user.id}
+        isBot={isBot}
+      />
     </Stack>
   );
 }
