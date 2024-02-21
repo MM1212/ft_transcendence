@@ -1,4 +1,4 @@
-import { Box, Divider, Stack, Tooltip, Typography } from '@mui/joy';
+import { Box, Divider, Grid, Stack, Tooltip, Typography } from '@mui/joy';
 import PlayerStatsRow from './PlayerStatsRow';
 import React, { ReactElement } from 'react';
 import PongHistoryModel from '@typings/models/pong/history';
@@ -7,13 +7,11 @@ import { statsMapping } from '../constants';
 
 function IconStats({
   icon,
-  gridColumnStart,
   statValue,
   message,
   first,
 }: {
   icon: ReactElement;
-  gridColumnStart: number;
   statValue: React.ReactNode;
   message: string;
   first: boolean;
@@ -22,12 +20,11 @@ function IconStats({
     <Box
       style={{
         justifySelf: 'right',
-        display: 'grid',
-        gridColumnStart: gridColumnStart,
+        display: 'flex',
       }}
     >
       <Stack
-        gap={1.5}
+        gap={0.5}
         style={{
           display: 'flex',
           flexDirection: 'row',
@@ -78,43 +75,46 @@ export default function MatchHistoryScoreBoard(
     <>
       {match.teams.map((team, index) => (
         <>
-          <Box
+          <Grid
+            container
             sx={{
-              gap: 2,
-              display: 'grid',
-              gridTemplateColumns: '5fr 7fr 4fr 4fr 4fr 4fr 4fr',
+              width: '100%',
+              gap: 1,
               p: 1,
-              borderRadius: 'md',
-              justifySelf: 'left',
             }}
           >
-            <Typography
-              style={{
-                display: 'grid',
-                gridColumnStart: '1',
-                alignSelf: 'left',
-              }}
-              textColor={index === 0 ? 'primary.300' : 'danger.400'}
-            >
-              Team {index + 1}
-            </Typography>
-            {statsMapping.map(
-              (stat, iconIndex) =>
-                teamPlayersAccumulatedStats[index][stat.statKey] !== null && (
-                  <IconStats
-                    key={iconIndex}
-                    icon={stat.icon}
-                    gridColumnStart={iconIndex + 2}
-                    statValue={
-                      (teamPlayersAccumulatedStats[index][
-                        stat.statKey
-                      ] as React.ReactNode) ?? 'N/A'
-                    }
-                    first={index === 0}
-                    message={stat.label}
-                  />
-                )
-            )}
+            <Grid xs={12} container>
+              <Grid xs={5}>
+                <Typography
+                  style={{
+                    display: 'grid',
+                    gridColumnStart: '1',
+                    alignSelf: 'left',
+                  }}
+                  textColor={index === 0 ? 'primary.300' : 'danger.400'}
+                >
+                  Team {index + 1}
+                </Typography>
+              </Grid>
+              {statsMapping.map(
+                (stat, iconIndex) =>
+                  teamPlayersAccumulatedStats[index][stat.statKey] !== null && (
+                    <Grid xs key={iconIndex} container justifyContent="right">
+                      <IconStats
+                        key={iconIndex}
+                        icon={stat.icon}
+                        statValue={
+                          (teamPlayersAccumulatedStats[index][
+                            stat.statKey
+                          ] as React.ReactNode) ?? 'N/A'
+                        }
+                        first={index === 0}
+                        message={stat.label}
+                      />
+                    </Grid>
+                  )
+              )}
+            </Grid>
             {team.players.map((player, i) => (
               <PlayerStatsRow
                 key={i}
@@ -122,7 +122,7 @@ export default function MatchHistoryScoreBoard(
                 isSelf={player.userId === session.id}
               />
             ))}
-          </Box>
+          </Grid>
           {index === 0 && <Divider />}
         </>
       ))}
