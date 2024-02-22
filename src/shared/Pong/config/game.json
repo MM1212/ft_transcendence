@@ -10,6 +10,26 @@
       "diameter": 32,
       "vertices": 8,
       "folder": "RedBall"
+    },
+    "FootBallBall": {
+      "diameter": 32,
+      "vertices": 8,
+      "folder": "FootBallBall"
+    },
+    "TennisBall": {
+      "diameter": 32,
+      "vertices": 8,
+      "folder": "TennisBall"
+    },
+    "PoolBall": {
+      "diameter": 32,
+      "vertices": 8,
+      "folder": "PoolBall"
+    },
+    "VolleyBall": {
+      "diameter": 32,
+      "vertices": 8,
+      "folder": "VolleyBall"
     }
   },
   "paddles": {
