@@ -1,6 +1,6 @@
 import { useCurrentUser } from '@hooks/user';
 import { Box, styled } from '@mui/joy';
-import React, { useState } from 'react';
+import React from 'react';
 import MatchMakingCounter from './MatchMakingCounter';
 import LobbyPongButton from './LobbyPongBottom';
 import { LobbySelfBanner } from './LobbyPlayerBanner';
@@ -29,13 +29,13 @@ export const FindMatchWrapper = styled('div')(({ theme }) => ({
   },
 }));
 export function LobbyMatchMaking() {
-  const [isMatchmakingStarted, setIsMatchmakingStarted] = useState(false);
   const isPlaying = useRecoilValue(pongGamesState.isPlaying);
   const lobby = useRecoilValue(pongGamesState.gameLobby);
   const user = useCurrentUser();
 
   const [currentPower, setCurrentPower] = React.useState<string | null>();
   const [currentPaddle, setCurrentPaddle] = React.useState<string | null>();
+  const [loading, setLoading] = React.useState(false);
 
   const handleStartMatchmaking = useRecoilCallback(
     (ctx) => async () => {
@@ -45,9 +45,8 @@ export function LobbyMatchMaking() {
         );
         return;
       }
-      if (!isMatchmakingStarted) setIsMatchmakingStarted(true);
-      else setIsMatchmakingStarted(false);
       try {
+        setLoading(true);
         const cLobby = await ctx.snapshot.getPromise(pongGamesState.gameLobby);
         if (cLobby) throw new Error('Already in a lobby');
         const { id } = await tunnel.put(PongModel.Endpoints.Targets.NewLobby, {
@@ -75,14 +74,15 @@ export function LobbyMatchMaking() {
         notifications.success('Queue started');
       } catch (error: unknown) {
         notifications.error('Failed to enter queue', (error as Error).message);
+      } finally {
+        setLoading(false);
       }
     },
-    [currentPaddle, currentPower, isMatchmakingStarted, user]
+    [currentPaddle, currentPower, user]
   );
 
   const handleStopMatchmaking = useRecoilCallback(
     (ctx) => async () => {
-      setIsMatchmakingStarted(false);
       try {
         const lobby = await ctx.snapshot.getPromise(pongGamesState.gameLobby);
         if (!lobby) return;
@@ -122,14 +122,11 @@ export function LobbyMatchMaking() {
             startedAt={lobby.createdAt}
           />
         ) : (
-          <FindMatchWrapper
-            sx={{
-              position: 'relative',
-            }}
+          <LobbyPongButton
+            label="Find Match"
+            loading={loading}
             onClick={handleStartMatchmaking}
-          >
-            <LobbyPongButton label="Find Match" />
-          </FindMatchWrapper>
+          />
         )}
       </Box>
       <OpenGameModal isPlaying={isPlaying} />

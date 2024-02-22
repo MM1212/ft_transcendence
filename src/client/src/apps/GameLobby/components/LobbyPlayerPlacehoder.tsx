@@ -19,7 +19,6 @@ import { Modal } from '@mui/joy';
 import { ModalDialog } from '@mui/joy';
 import React from 'react';
 import LobbyPongButton from './LobbyPongBottom';
-import { FindMatchWrapper } from './LobbyMatchMaking';
 import { ArrowSelector } from '@components/ArrowSelector/ArrowSelector';
 import tunnel from '@lib/tunnel';
 import {
@@ -28,6 +27,7 @@ import {
 } from '@components/ArrowSelector/ItemConfigs';
 import notifications from '@lib/notifications/hooks';
 import TrophyAwardIcon from '@components/icons/TrophyAwardIcon';
+import ContentSaveIcon from '@components/icons/ContentSaveIcon';
 
 function EditSettingsModal({
   handleCloseModalSendOptions,
@@ -54,7 +54,7 @@ function EditSettingsModal({
     <Modal open={open} onClose={loadAndRun(handleCloseModalSendOptions)}>
       <ModalDialog>
         <Box
-          gap={4}
+          gap={2}
           sx={{
             display: 'flex',
             flexDirection: 'column',
@@ -74,16 +74,17 @@ function EditSettingsModal({
             onClick={setCurrPaddle}
             selected={currPaddle}
           />
+          <LobbyPongButton
+            sx={{
+              position: 'relative',
+              m: 'auto!important',
+            }}
+            startDecorator={<ContentSaveIcon />}
+            label="Save"
+            loading={loading}
+            onClick={loadAndRun(handleCloseModalSendOptions)}
+          />
         </Box>
-        <FindMatchWrapper
-          sx={{
-            position: 'relative',
-            m: 'auto!important',
-          }}
-          onClick={loadAndRun(handleCloseModalSendOptions)}
-        >
-          <LobbyPongButton label="Confirm" loading={loading} />
-        </FindMatchWrapper>
       </ModalDialog>
     </Modal>
   );

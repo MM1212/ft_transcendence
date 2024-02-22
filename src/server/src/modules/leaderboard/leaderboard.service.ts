@@ -68,7 +68,7 @@ export class LeaderboardService {
     return users.reduce((acc, user) => acc + user.elo.rating, 0) / users.length;
   }
   private async updateTeamElo(
-    team: PongModel.Models.IGameTeam,
+    team: PongModel.Models.ITeam,
     result: LeaderboardModel.Models.MatchResult,
     opponentElo: number,
   ): Promise<LeaderboardModel.Models.Reward[]> {
@@ -88,14 +88,22 @@ export class LeaderboardService {
     }
     const Qb = 10 ^ (opponentElo / LeaderboardService.C_FACTOR);
     for await (const player of team.players) {
-      const user = await this.usersService.get(player.userId);
+      const user = await this.usersService.get(player.id);
       if (!user || user.type !== UsersModel.Models.Types.User) continue;
       const Qa = 10 ^ (user.elo.rating / LeaderboardService.C_FACTOR);
       const expectedToWin = Qa / (Qa + Qb);
+      console.log(
+        `${user.nickname}[${user.id}] wonWeight: ${wonWeight}, expectedToWin: ${expectedToWin}`,
+      );
+
       const newElo = Math.round(
         user.elo.rating +
           LeaderboardService.K_FACTOR * (wonWeight - expectedToWin),
       );
+      console.log(
+        `${user.nickname}[${user.id}] newElo: ${newElo}, oldElo: ${user.elo.rating}`,
+      );
+
       rewards.push({ userId: user.id, value: newElo - user.elo.rating });
       await user.elo.updateRating(
         Math.max(newElo, LeaderboardService.MIN_ELO),
@@ -110,12 +118,13 @@ export class LeaderboardService {
     game: PongModel.Models.IGameConfig,
     lobby: PongModel.Models.ILobby,
   ): Promise<LeaderboardModel.Models.Reward[]> {
-    console.log(lobby);
+    console.log('lobby', lobby);
     if (lobby.queueType === PongModel.Models.LobbyType.Custom) return [];
-    const [leftTeam, rightTeam] = game.teams;
+    const [leftTeam, rightTeam] = lobby.teams;
     const [leftTeamElo, rightTeamElo] = await Promise.all(
       game.teams.map(this.computeTeamAverageElo.bind(this)),
     );
+    console.log('teams', leftTeam, rightTeam);
     const rewards: LeaderboardModel.Models.Reward[] = [];
     let result: LeaderboardModel.Models.MatchResult =
       leftTeam.score === rightTeam.score
@@ -132,6 +141,8 @@ export class LeaderboardService {
         ? LeaderboardModel.Models.MatchResult.Win
         : LeaderboardModel.Models.MatchResult.Tie;
     rewards.push(...(await this.updateTeamElo(rightTeam, result, leftTeamElo)));
+    console.log(rewards);
+
     this.sortPositionsCache();
     return rewards;
   }

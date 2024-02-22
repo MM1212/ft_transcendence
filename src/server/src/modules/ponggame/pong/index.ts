@@ -371,7 +371,9 @@ export class ServerGame extends Game {
       // console.log('team0' , this.gameStats.teamStats.exportStats(0));
       // console.log('team1' , this.gameStats.teamStats.exportStats(1));
       // console.log('game' , this.gameStats.exportStats());
-
+      this.lobbyInterface.teams.forEach((team) => {
+        team.score = this.score[team.id];
+      });
       const rewards = await this.leaderboardService.computeEndGameElo(
         this.config,
         this.lobbyInterface,
