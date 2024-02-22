@@ -64,6 +64,7 @@ namespace AchievementsModel {
       previousLevel?: Models.IAchievementLevel;
       currentLevel: Models.IAchievementLevel;
       nextLevel?: Models.IAchievementLevel;
+      completed: boolean;
     };
     export namespace DB {
       export interface IUserAchievement

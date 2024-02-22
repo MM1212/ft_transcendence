@@ -21,6 +21,11 @@ export class UserExtCredits extends UserExtBase {
     if (sync) {
       this.user.propagate('credits');
     }
+    const achievement = await this.user.achievements.get<{count: number}>('store:credits');
+    await achievement.update( previous => ({
+      ...previous,
+      count: previous.count + value
+    }))
   }
 
   public async remove(value: number, sync: boolean = true): Promise<void> {
