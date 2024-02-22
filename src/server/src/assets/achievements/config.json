@@ -396,7 +396,7 @@
     },
     "defaultDescription": "Get {{milestone.metaValue}} store credits",
     "defaultTrackMetaKey": "count",
-    "trackMessageSuffix": "times",
+    "trackMessageSuffix": "credits",
     "levels": [
       {
         "type": "bronze",

@@ -21,10 +21,11 @@ export class UserAchievementsService {
           previousLevel: a.completed ? a.currentLevel : a.previousLevel,
           currentLevel: a.currentLevel,
           nextLevel: a.nextLevel,
+          completed: a.completed,
         } satisfies AchievementsModel.DTO.IMixedAchievement;
       })
       .filter(Boolean) as AchievementsModel.DTO.IMixedAchievement[];
-    if (!all) return userAchievements.filter((a) => a.unlocked);
+    if (!all) return userAchievements
     const lockedAchievements = this.achievementsService
       .getAll()
       .filter((a) => !user.achievements.has(a.tag, false))
@@ -32,6 +33,7 @@ export class UserAchievementsService {
         unlocked: false,
         achievement: a,
         currentLevel: a.levels[0],
+        completed: false,
       }));
     userAchievements.push(...lockedAchievements);
     return userAchievements;
