@@ -132,7 +132,29 @@ export class LeaderboardService {
         ? LeaderboardModel.Models.MatchResult.Win
         : LeaderboardModel.Models.MatchResult.Tie;
     rewards.push(...(await this.updateTeamElo(rightTeam, result, leftTeamElo)));
+    const playersPositions = new Map<number, number>();
+    leftTeam.players.concat(rightTeam.players).forEach((player) => {
+      playersPositions.set(
+        player.userId,
+        this.getPositionForUser(player.userId),
+      );
+    });
     this.sortPositionsCache();
+    const entries = playersPositions.entries();
+    for await (const [userId, position] of entries) {
+      const newPosition = this.getPositionForUser(userId);
+      if (newPosition === position || newPosition !== 0) {
+        continue;
+      }
+      // give achievement
+      const user = await this.usersService.get(userId);
+      if (!user) continue;
+      const achievement = await user.achievements.get<{ count: number }>(
+        'pong:rank:highest',
+      );
+      if (achievement.completed) continue;
+      await achievement.update({ count: 1 });
+    }
     return rewards;
   }
 }

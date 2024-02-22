@@ -143,6 +143,9 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
     this.spectatorVisibility = data.spectators;
     this.ownerId = owner.id;
     this.score = data.score;
+    if (this.queueType === PongModel.Models.LobbyType.Single) {
+      this.score = 7;
+    }
     this.authorization = data.lobbyAccess;
     if (data.lobbyAccess !== PongModel.Models.LobbyAccess.Private) {
       this.setAuthorization(data.password);

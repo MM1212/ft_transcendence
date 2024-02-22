@@ -54,6 +54,9 @@ export class UIPlayer extends Player {
     this.displayObject.anchor.set(0.5);
     this.displayObject.x = this.center.x;
     this.displayObject.y = this.center.y;
+    if (this.teamId === 1) {
+      this.displayObject.scale.x = -1;
+    }
     this.scale = 1;
     this.shooter = undefined;
     this.effect = undefined;
