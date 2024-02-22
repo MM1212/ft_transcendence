@@ -84,7 +84,7 @@ export default function MatchHistoryScoreBoard(
             }}
           >
             <Grid xs={12} container>
-              <Grid xs={5}>
+              <Grid xs={4}>
                 <Typography
                   style={{
                     display: 'grid',

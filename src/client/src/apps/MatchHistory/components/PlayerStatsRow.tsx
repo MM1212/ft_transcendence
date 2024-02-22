@@ -1,14 +1,12 @@
 import { UserAvatar } from '@components/AvatarWithStatus';
 import ProfileTooltip from '@components/ProfileTooltip';
 import CrownIcon from '@components/icons/CrownIcon';
-import FireIcon from '@components/icons/FireIcon';
 import { useUser } from '@hooks/user';
 import { Avatar, Grid, Tooltip } from '@mui/joy';
 import { Stack, Typography } from '@mui/joy';
-import PongModel from '@typings/models/pong';
 import PongHistoryModel from '@typings/models/pong/history';
-import { randomInt } from '@utils/random';
 import { statsMapping } from '../constants';
+import { specialPConfig } from '@components/ArrowSelector/ItemConfigs';
 
 function AddStatsBoard({
   value,
@@ -38,24 +36,26 @@ export default function PlayerStatsRow(
   }
 ) {
   const user = useUser(player.userId);
-  const superPowers = [
-    PongModel.Endpoints.Targets.PowerIceTexture,
-    PongModel.Endpoints.Targets.PowerSparkTexture,
-    PongModel.Endpoints.Targets.PowerWaterTexture,
-  ];
   if (user === null) return null;
   const textColor = player.isSelf ? 'warning.300' : 'neutral';
   return (
     <Grid container xs={12}>
-      <Grid container xs={5}>
+      <Grid container xs={4}>
         <Stack spacing={1} direction="row" alignItems="center">
           <Avatar
             variant="outlined"
             sx={{ borderRadius: 'sm', p: 0.5 }}
             size="sm"
-            src={superPowers[randomInt(0, 3)]}
           >
-            <FireIcon size="xs" />
+            <img
+              src={specialPConfig.get(player.gear.specialPower)}
+              alt={player.gear.specialPower}
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'scale-down',
+              }}
+            />{' '}
           </Avatar>
           <ProfileTooltip user={user} placement="left-start">
             <UserAvatar src={user.avatar} size="md" />
