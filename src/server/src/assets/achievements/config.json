@@ -424,5 +424,83 @@
         "milestone": 100000
       }
     ]
+  },
+  {
+    "tag": "pong:match:shoot_powers",
+    "title": "Wizard of Pong",
+    "icon": "powers_shot.webp",
+    "bannerColor": "neutral",
+    "defaultMeta": {
+      "count": 0
+    },
+    "defaultDescription": "Shoot {{milestone.metaValue}} special powers in matches",
+    "defaultTrackMetaKey": "count",
+    "trackMessageSuffix": "matches",
+    "levels": [
+      {
+        "type": "bronze",
+        "titleMod": "Baby Wizard",
+        "milestone": 1
+      },
+      {
+        "type": "silver",
+        "titleMod": "Wizard",
+        "milestone": 20
+      },
+      {
+        "type": "gold",
+        "titleMod": "Sorcerer",
+        "milestone": 40
+      },
+      {
+        "type": "platinum",
+        "titleMod": "Mage",
+        "milestone": 80
+      },
+      {
+        "type": "diamond",
+        "titleMod": "Wizard King",
+        "milestone": 160
+      }
+    ]
+  },
+  {
+    "tag": "pong:match:bounces",
+    "title": "Ball Bouncer",
+    "icon": "bounces.webp",
+    "bannerColor": "neutral",
+    "defaultMeta": {
+      "count": 0
+    },
+    "defaultDescription": "Have the ball bounce on you{{milestone.metaValue}} times",
+    "defaultTrackMetaKey": "count",
+    "trackMessageSuffix": "matches",
+    "levels": [
+      {
+        "type": "bronze",
+        "titleMod": "Bounce Baby Bounce",
+        "milestone": 1
+      },
+      {
+        "type": "silver",
+        "titleMod": "Bounce? Bounce!",
+        "milestone": 50
+      },
+      {
+        "type": "gold",
+        "titleMod": "Mr. Bounce",
+        "milestone": 100
+      },
+      {
+        "type": "platinum",
+        "titleMod": "My Ball is a Bouncy Ball",
+        "milestone": 200
+      },
+      {
+        "type": "diamond",
+        "titleMod": "Bouncing Ball",
+        "milestone": 400
+      }
+    ]
   }
 ]

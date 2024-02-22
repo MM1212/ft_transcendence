@@ -48,6 +48,9 @@ function ErrorModal(props: React.ComponentProps<FallbackRender>) {
             overflowY: 'auto',
           }}
         >
+          <Typography level="body-md" color="warning" variant="plain">
+            {props.error?.toString() ?? 'No error message available'}
+          </Typography>
           <Typography
             component="pre"
             level="body-xs"

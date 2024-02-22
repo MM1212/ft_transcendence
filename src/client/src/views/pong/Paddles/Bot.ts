@@ -40,6 +40,9 @@ export class UIBot extends Bot {
     this.displayObject.x = x;
     this.displayObject.y = y;
     this.scale = 1;
+    if (this.teamId === 1) {
+      this.displayObject.scale.x = -1;
+    }
 
     this.shooter = undefined;
     this.effect = undefined;

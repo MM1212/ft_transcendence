@@ -8,6 +8,7 @@
     "ball"
   ],
   "env": {
-    "ICON_PATH": "pong"
+    "ICON_PATH": "pong",
+    "ASSET_PATH": "/assets/pong"
   }
 }

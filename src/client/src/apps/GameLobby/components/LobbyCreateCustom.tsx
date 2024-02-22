@@ -9,7 +9,7 @@ import {
 } from '@mui/joy';
 import { Stack } from '@mui/joy';
 import React from 'react';
-import LobbyPlayerBanner from './LobbyPlayerBanner';
+import { LobbySelfBanner } from './LobbyPlayerBanner';
 import LabelIcon from '@components/icons/LabelIcon';
 import { Typography } from '@mui/joy';
 import { Box } from '@mui/joy';
@@ -21,7 +21,6 @@ import PongModel from '@typings/models/pong';
 import notifications from '@lib/notifications/hooks';
 import { useRecoilCallback, useRecoilValue } from 'recoil';
 import pongGamesState from '../state';
-import { useCurrentUser } from '@hooks/user';
 import LobbyPongButton from './LobbyPongBottom';
 import { FindMatchWrapper } from './LobbyMatchMaking';
 import KeyIcon from '@components/icons/KeyIcon';
@@ -30,7 +29,6 @@ import SoccerIcon from '@components/icons/SoccerIcon';
 export default function LobbyCreateCustom() {
   const [name, setName] = React.useState<string>('');
   const [password, setPassword] = React.useState<string>('');
-  const user = useCurrentUser();
   const [spectators, setSpectators] = React.useState<string>(
     PongModel.Models.LobbySpectatorVisibility.All
   );
@@ -112,7 +110,7 @@ export default function LobbyCreateCustom() {
     >
       {!isCustom ? (
         <>
-          <LobbyPlayerBanner id={user?.id} />
+          <LobbySelfBanner showSelector={false} />
           <Divider sx={{ mt: 4 }} />
           <Box sx={{ width: '100%', display: 'flex', flexDirection: 'row' }}>
             <Stack spacing={2} sx={{ display: 'flex', mt: 5 }}>
