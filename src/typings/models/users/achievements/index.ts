@@ -21,10 +21,19 @@ namespace AchievementsModel {
       meta: T;
     }
 
+    export type IRawAchievementLevelOperator =
+      | 'eq'
+      | 'ne'
+      | 'gt'
+      | 'gte'
+      | 'lt'
+      | 'lte';
     export interface IAchievementLevelMilestone<T = unknown> {
       metaKey: string;
       metaValue: T;
+      operator: IRawAchievementLevelOperator;
     }
+
     export interface IAchievementLevel {
       type: 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond';
       title: string;
@@ -33,7 +42,10 @@ namespace AchievementsModel {
     }
 
     export interface IRawAchievementLevel<T = unknown>
-      extends Omit<IAchievementLevel, 'milestone' | 'title' | 'description'> {
+      extends Omit<
+        IAchievementLevel,
+        'milestone' | 'title' | 'description' | 'operator'
+      > {
       titleMod?: string;
       description?: string;
       milestone: T | IAchievementLevelMilestone<T>;
@@ -53,6 +65,7 @@ namespace AchievementsModel {
       extends Omit<IAchievement, 'levels'> {
       defaultDescription?: string;
       defaultTrackMetaKey?: string;
+      defaultOperator?: IRawAchievementLevelOperator;
       levels: IRawAchievementLevel<T>[];
     }
   }
