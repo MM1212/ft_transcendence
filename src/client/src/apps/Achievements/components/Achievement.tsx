@@ -141,6 +141,7 @@ function AchievementUnlocked(
     userAchievement,
     currentLevel,
     previousLevel,
+    completed,
   } = props;
   const levelToRender =
     userAchievement && unlocked ? previousLevel! : currentLevel;
@@ -190,7 +191,7 @@ function AchievementUnlocked(
           >
             {levelToRender.description}
           </Typography>
-          {userAchievement && (
+          {userAchievement && !completed &&(
             <Typography level="title-xs" mt="auto" ml="auto">
               {unlocked ? 'Next Level' : 'Unlocks At'}:{' '}
               <Typography

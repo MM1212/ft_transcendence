@@ -84,6 +84,23 @@ export class ShopService {
       itemConfig.meta,
       false,
     );
+    this.hasAllItems(user);
     return item;
+  }
+  
+  private async hasAllItems(user: User): Promise<boolean> {
+    let itemData = this.parser.config.items;
+    for (const item in itemData) {
+      if (!user.inventory.getByName(item)) {
+        return false;
+      }
+    }
+    const achievement = await user.achievements.get<{count: number}>('store:buy:all');
+    if (achievement.completed) return false;
+    await achievement.update( previous => ({
+      ...previous,
+      count:1
+    }))
+    return true;
   }
 }
