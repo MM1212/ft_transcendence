@@ -54,7 +54,6 @@ const inverty = position === 2 || position === 3 ? -1 : 1;
     }
   }
 
-  // TODO change these values
   getManaBarPosition(positionN: number): Vector2D {
     const position: Vector2D = new Vector2D(0, 0);
     switch (positionN) {

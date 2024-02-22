@@ -166,7 +166,6 @@ export class ServerLobby extends Lobby {
       this.cons.add(sock);
       this.logger.verbose('Player already exists in lobby, added connection!');
     } else {
-      // TODO: fetch char data from db
       const CHARACTER_DATA: LobbyModel.Models.ICharacter = {
         clothes: user.character.clothes,
         animation: 'idle/down',
