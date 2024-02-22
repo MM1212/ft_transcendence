@@ -569,10 +569,7 @@ export class ServerGame extends Game {
           );
         return {
           players,
-          score: players.reduce(
-            (acc, player) => acc + player.stats.playerScore,
-            0,
-          ),
+          score: this.score[team.id],
           stats: this.gameStats.teamStats.exportStats(team.id),
           won: wonVal,
         };
