@@ -62,13 +62,58 @@ export class Achievement<
     );
   }
 
+  hasAchievedMilestone(level: number): boolean {
+    const levelConfig = this.config.levels[level];
+    if (!levelConfig) return false;
+    const { milestone } = levelConfig;
+    const value = this.meta[milestone.metaKey];
+
+    switch (milestone.operator) {
+      case 'eq':
+        return value === milestone.metaValue;
+      case 'gt':
+        if (
+          typeof value !== 'number' ||
+          typeof milestone.metaValue !== 'number'
+        )
+          throw new Error('Invalid milestone value');
+        return value > milestone.metaValue;
+      case 'lt':
+        if (
+          typeof value !== 'number' ||
+          typeof milestone.metaValue !== 'number'
+        )
+          throw new Error('Invalid milestone value');
+        return value < milestone.metaValue;
+      case 'gte':
+        if (
+          typeof value !== 'number' ||
+          typeof milestone.metaValue !== 'number'
+        )
+          throw new Error('Invalid milestone value');
+        return value >= milestone.metaValue;
+      case 'lte':
+        if (
+          typeof value !== 'number' ||
+          typeof milestone.metaValue !== 'number'
+        )
+          throw new Error('Invalid milestone value');
+        return value <= milestone.metaValue;
+      case 'ne':
+        return value !== milestone.metaValue;
+      default:
+        return false;
+    }
+  }
+
+  get hasAchievedCurrentMilestone(): boolean {
+    return this.hasAchievedMilestone(this.currentLevelIdx);
+  }
+
   hasCompletedLevel(level: number): boolean {
     const levelConfig = this.config.levels[level];
     if (!levelConfig) return false;
-    return (
-      this.meta[levelConfig.milestone.metaKey] ===
-      levelConfig.milestone.metaValue
-    );
+    return this.hasAchievedMilestone(level);
   }
   get hasCompletedCurrentLevel(): boolean {
     return this.hasCompletedLevel(this.currentLevelIdx);
