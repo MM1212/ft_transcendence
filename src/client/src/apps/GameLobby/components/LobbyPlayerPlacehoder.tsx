@@ -241,7 +241,7 @@ export default function LobbyPlayerPlaceholder({
               component={!player ? 'i' : undefined}
               color={player ? 'warning' : 'neutral'}
             >
-              {user?.nickname ?? 'Empty Slot'}
+              {user?.nickname ?? 'empty slot'}
             </LobbyGameTypography>
             {user?.id === lobbyOwner && (
               <Tooltip title="Sensei 🥋">
@@ -266,7 +266,6 @@ export default function LobbyPlayerPlaceholder({
               </>
             )}
           </Box>
-          {/* <Typography level="body-sm">Rank Placeholder</Typography> */}
           <Stack direction="row" alignItems="center" spacing={0.5}>
             {ready && (
               <Chip color="success" variant="plain" size="sm">
