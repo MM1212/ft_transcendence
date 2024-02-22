@@ -78,18 +78,23 @@ function FormInput({
     <FormControl size={size}>
       <FormLabel>{label}</FormLabel>
       <Input
-        defaultValue={placeholder}
+        defaultValue={placeholder.toUpperCase()}
         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-          // console.log("event.target.value", event.target.value);
           if (event.target.value === '') return;
-          const inputKey = event.target.value[event.target.value.length - 1];
-          event.target.value = inputKey;
-          if (usedKeys.has(inputKey)) return;
-          //TODO: check if already in usedKeys
+          const inputKey =
+            event.target.value[event.target.value.length - 1].toLowerCase();
+          event.target.value = inputKey.toUpperCase();
+          if (
+            inputKey != keySettings[label as KeySettingsKey] &&
+            usedKeys.has(inputKey)
+          ) {
+            console.log(inputKey, ' is already being used');
+            event.target.value = 'Key Already In Use'.toLowerCase();
+            return;
+          }
+          usedKeys.delete(keySettings[label as KeySettingsKey]);
           const tmpKeySettings = { ...keySettings };
-          usedKeys.delete(tmpKeySettings[label as KeySettingsKey]);
-          tmpKeySettings[label as KeySettingsKey] =
-            event.target.value[0].toLowerCase();
+          tmpKeySettings[label as KeySettingsKey] = inputKey;
           console.log(tmpKeySettings);
           setKeySettings(tmpKeySettings);
           usedKeys.add(inputKey);
