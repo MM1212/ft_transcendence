@@ -2,13 +2,14 @@ import { useRecoilCallback, useRecoilValue } from 'recoil';
 import pongGamesState from '../state';
 import {
   Avatar,
-  Button,
   DialogTitle,
   FormControl,
   FormLabel,
   Input,
   Modal,
   ModalDialog,
+  Sheet,
+  Stack,
   Switch,
   Typography,
 } from '@mui/joy';
@@ -23,7 +24,10 @@ import tunnel from '@lib/tunnel';
 import notifications from '@lib/notifications/hooks';
 import { ArrowSelector } from '@components/ArrowSelector/ArrowSelector';
 import { ballsConfig } from '@components/ArrowSelector/ItemConfigs';
-
+import CogIcon from '@components/icons/CogIcon';
+import LobbyPongButton from './LobbyPongBottom';
+import ContentSaveIcon from '@components/icons/ContentSaveIcon';
+import { alpha } from '@theme';
 
 export function LobbySettings() {
   const lobby = useRecoilValue(pongGamesState.gameLobby)!;
@@ -39,7 +43,7 @@ export function LobbySettings() {
     score: '',
   });
   const [currBall, setCurrBall] = React.useState<string>(lobby.ballTexture);
-
+  const [loading, setLoading] = React.useState(false);
   const handleSubmitModalClose = useRecoilCallback(
     (ctx) => async (): Promise<void> => {
       try {
@@ -58,19 +62,27 @@ export function LobbySettings() {
           }));
           return;
         }
-        const updatedLobby = await tunnel.post(PongModel.Endpoints.Targets.UpdateLobbySettings, {
-          lobbyId: lobby.id,
-          score: parseInt(score),
-          type: powersSwitchValue,
-          ballSkin: currBall,
-        });
+        setLoading(true);
+        const updatedLobby = await tunnel.post(
+          PongModel.Endpoints.Targets.UpdateLobbySettings,
+          {
+            lobbyId: lobby.id,
+            score: parseInt(score),
+            type: powersSwitchValue,
+            ballSkin: currBall,
+          }
+        );
         ctx.set(pongGamesState.gameLobby, updatedLobby);
         setOpen(false);
 
         notifications.success('Lobby settings updated');
       } catch (error) {
-        console.error('Failed to submit lobby settings', error);
-        notifications.error('Failed to submit lobby settings');
+        notifications.error(
+          'Failed to submit lobby settings',
+          (error as Error).message
+        );
+      } finally {
+        setLoading(false);
       }
     },
     [lobby.id, score, powersSwitchValue, currBall]
@@ -98,33 +110,44 @@ export function LobbySettings() {
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
+        gap: 2,
       }}
     >
-      <Button onClick={() => setOpen(true)} />
+      <LobbyPongButton
+        onClick={() => setOpen(true)}
+        startDecorator={<CogIcon />}
+        label="Edit Settings"
+        fullWidth
+        disableMargin
+      />
       <Modal open={open} onClose={handleSubmitModalClose}>
         <ModalDialog>
           <DialogTitle>Settings</DialogTitle>
-          <Box>
-            <LobbyGameTypography>Game Mode:</LobbyGameTypography>
-            <ArrowSelector selectType="ball" onClick={setCurrBall} selected={currBall} />
-            <Typography
+          <Box display="flex" flexDirection="column" gap={1}>
+            <Stack direction="row" spacing={2} alignItems="center">
+              <LobbyGameTypography>Game Ball:</LobbyGameTypography>
+              <React.Suspense fallback={null}>
+                <ArrowSelector
+                  selectType="ball"
+                  onClick={setCurrBall}
+                  selected={currBall}
+                />
+              </React.Suspense>
+            </Stack>
+            <LobbyGameTypography
               component="label"
               endDecorator={
                 <Switch
                   sx={{ ml: 1 }}
+                  color="warning"
                   checked={powersSwitchValue}
                   onChange={handleSwitchValue}
                 />
               }
             >
               Powers Activated
-            </Typography>
-            <FormControl
-              sx={{
-                display: 'flex',
-                flexDirection: 'row',
-              }}
-            >
+            </LobbyGameTypography>
+            <FormControl>
               <FormLabel required>
                 <LobbyGameTypography>Score</LobbyGameTypography>
               </FormLabel>
@@ -137,6 +160,7 @@ export function LobbySettings() {
                     max: 100,
                   },
                 }}
+                sx={{ width: '50%' }}
                 startDecorator={<SoccerIcon />}
                 required
                 color={errors.score ? 'danger' : 'warning'}
@@ -146,42 +170,53 @@ export function LobbySettings() {
               {errors.score && <FormHelperText>{errors.score}</FormHelperText>}{' '}
             </FormControl>
           </Box>
+          <LobbyPongButton
+            disableMargin
+            label="Save"
+            startDecorator={<ContentSaveIcon />}
+            loading={loading}
+            onClick={handleSubmitModalClose}
+          />
         </ModalDialog>
       </Modal>
 
-      <LobbyGameTypography>
-        Game Mode: {`${lobby.gameType}`}
-      </LobbyGameTypography>
-      <LobbyGameTypography>
-        Ball:{' '}
-        {
-          <Avatar
-            size="sm"
-            src={ballsConfig.get(lobby.ballTexture)}
-            sx={{
-              display: 'inline-block',
-            }}
-          />
-        }
-      </LobbyGameTypography>
-      <LobbyGameTypography>
-        Score to win: {`${lobby.score}`}
-      </LobbyGameTypography>
-      <Box display="flex" gap={3} justifyContent="space-evenly">
-        {Object.keys(player.keys!).map((key, i) => (
-          <LobbyGameTypography textTransform="capitalize" key={i}>
-            {key}:{' '}
-            <KeyDisplayer
-              keycode={player.keys![key as keyof typeof player.keys]}
-            />
-          </LobbyGameTypography>
-        ))}
-      </Box>
+      <Sheet
+        sx={{
+          p: 2,
+          flexGrow: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-around',
+          borderRadius: 'sm',
+          bgcolor: (theme) =>
+            alpha(theme.resolveVar('palette-background-surface'), 0.75),
+        }}
+        variant="outlined"
+      >
+        <LobbyGameTypography>
+          Game Mode: <Typography color="neutral">{lobby.gameType}</Typography>
+        </LobbyGameTypography>
+        <Stack direction="row" spacing={1} alignItems="center">
+          <LobbyGameTypography>Ball:</LobbyGameTypography>
+          <Avatar size="sm" src={ballsConfig.get(lobby.ballTexture)} />
+        </Stack>
+        <LobbyGameTypography>
+          Score to win: <Typography color="neutral">{lobby.score}</Typography>
+        </LobbyGameTypography>
+        <Box display="flex" gap={3} justifyContent="space-evenly">
+          {Object.keys(player.keys!).map((key, i) => (
+            <LobbyGameTypography textTransform="capitalize" key={i}>
+              {key}:{' '}
+              <KeyDisplayer
+                keycode={player.keys![key as keyof typeof player.keys]}
+              />
+            </LobbyGameTypography>
+          ))}
+        </Box>
+      </Sheet>
     </Box>
   );
 }
-
-
 
 export function KeyDisplayer({ keycode }: { keycode: string }) {
   return (

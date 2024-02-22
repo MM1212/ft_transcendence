@@ -186,7 +186,7 @@ export default function LobbyRoom() {
       <LobbbyCustomMatchPlayers leftTeam={leftTeam} rightTeam={rightTeam} />
       <Box display="flex" width="100%" flexGrow={1} mt={2} gap={8}>
         <LobbyPongCustomMatchTabs />
-        <LobbySettings key={3} />
+        <LobbySettings />
       </Box>
       {user?.id === lobby.ownerId ? (
         <FindMatchWrapper
