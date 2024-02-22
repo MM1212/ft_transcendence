@@ -1,7 +1,7 @@
 import { useInventoryByType } from '@apps/Inventory/hooks/useInventory';
 import MenuLeftOutlineIcon from '@components/icons/MenuLeftOutlineIcon';
 import MenuRightOutlineIcon from '@components/icons/MenuRightOutlineIcon';
-import { Tooltip } from '@mui/joy';
+import { Box, Tooltip } from '@mui/joy';
 import { IconButton } from '@mui/joy';
 import React from 'react';
 import { ballsConfig, paddleConfig, specialPConfig } from './ItemConfigs';
@@ -10,15 +10,17 @@ import { Stack } from '@mui/joy';
 export function ArrowSelector({
   selectType,
   onClick,
-  indexElem,
+  selected,
+  disabled = false,
 }: {
   selectType: 'ball' | 'paddle' | 'special_power';
   onClick?: (tex: string) => void;
-  indexElem?: number;
+  selected?: string;
+  disabled?: boolean;
 }) {
   const items = useInventoryByType(`pong-${selectType}`);
 
-  const [currentIndex, setCurrentIndex] = React.useState<number>(indexElem || 0);
+  const [currentIndex, setCurrentIndex] = React.useState<number>(0);
   const [keys, setKeys] = React.useState<string[]>([]);
 
   const config =
@@ -32,6 +34,12 @@ export function ArrowSelector({
     setKeys(items.map((item) => item.name));
   }, [items]);
 
+  React.useEffect(() => {
+    const idx = !selected ? 0 : keys.findIndex((itemId) => itemId === selected);
+    setCurrentIndex(idx);
+    onClick && onClick(keys[idx]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [keys, selected]);
   const onNext = React.useCallback(() => {
     const newIndex = (currentIndex + 1) % keys.length;
     setCurrentIndex(newIndex);
@@ -45,17 +53,40 @@ export function ArrowSelector({
   }, [keys, currentIndex, onClick]);
 
   if (keys.length === 0) return null;
-  //if (!config.has(keys[currentIndex])) return null;
+  if (keys.length === 1) disabled = true;
+  if (!config.has(keys[currentIndex])) return null;
   return (
     <>
       <Stack direction="row" spacing={1} alignItems="center">
-        <IconButton onClick={onPrev}>
+        <IconButton onClick={onPrev} size="sm" disabled={disabled}>
           <MenuLeftOutlineIcon />
         </IconButton>
         <Tooltip title={keys[currentIndex]} placement="top">
-          <img src={config.get(keys[currentIndex])!} alt={keys[currentIndex]} />
+          <Box
+            sx={{
+              width: '4dvh',
+              aspectRatio: '1/1',
+              overflow: 'hidden',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            <img
+              src={config.get(keys[currentIndex])!}
+              alt={keys[currentIndex]}
+              style={{
+                ...(selectType === 'paddle' && {
+                  transform: 'rotate(90deg)',
+                }),
+                width: '100%',
+                height: '100%',
+                objectFit: 'scale-down',
+              }}
+            />
+          </Box>
         </Tooltip>
-        <IconButton onClick={onNext}>
+        <IconButton onClick={onNext} size="sm" disabled={disabled}>
           <MenuRightOutlineIcon />
         </IconButton>
       </Stack>

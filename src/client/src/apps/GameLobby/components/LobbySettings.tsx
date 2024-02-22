@@ -106,7 +106,7 @@ export function LobbySettings() {
           <DialogTitle>Settings</DialogTitle>
           <Box>
             <LobbyGameTypography>Game Mode:</LobbyGameTypography>
-            <ArrowSelector selectType="ball" onClick={setCurrBall} indexElem={Array.from(ballsConfig.keys()).indexOf(currBall)}/>
+            <ArrowSelector selectType="ball" onClick={setCurrBall} selected={currBall} />
             <Typography
               component="label"
               endDecorator={

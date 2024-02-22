@@ -33,12 +33,14 @@ export class PongLobbyController {
     private readonly ponggameService: PongService,
   ) {}
 
-  @Put(Targets.UpdatePersonal)
+  @Post(Targets.UpdatePersonal)
   async updatePersonal(
     @HttpCtx() ctx: HTTPContext<true>,
     @Body(new ObjectValidationPipe(ponglobbyValidator.updatePersonalSchema))
     body: EndpointData<PongModel.Endpoints.UpdatePersonal>,
   ): Promise<InternalEndpointResponse<PongModel.Endpoints.UpdatePersonal>> {
+    console.log('BOAS');
+    
     const lobby = await this.service.updatePersonal(
       ctx.user.id,
       body.lobbyId,
@@ -110,7 +112,7 @@ export class PongLobbyController {
       body.type,
       body.ballSkin,
     );
-    return lobby;
+    return (await this.service.getLobby(body.lobbyId)).interface;
   }
 
   @Post(Targets.StartGame)

@@ -269,7 +269,7 @@ export class ServerGame extends Game {
         lastFPSTimestamp = timestamp;
       }
     };
-    this.updateHandle = setInterval(tick, ServerGame.fixedDeltaTime);
+    this.updateHandle = setInterval(tick, 8);
   }
 
   private calculateMoneyEarned(

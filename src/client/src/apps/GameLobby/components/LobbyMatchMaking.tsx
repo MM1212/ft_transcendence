@@ -1,9 +1,9 @@
 import { useCurrentUser } from '@hooks/user';
-import { styled } from '@mui/joy';
-import { useState } from 'react';
+import { Box, styled } from '@mui/joy';
+import React, { useState } from 'react';
 import MatchMakingCounter from './MatchMakingCounter';
 import LobbyPongButton from './LobbyPongBottom';
-import LobbyPlayerBanner from './LobbyPlayerBanner';
+import { LobbySelfBanner } from './LobbyPlayerBanner';
 import tunnel from '@lib/tunnel';
 import PongModel from '@typings/models/pong';
 import { useRecoilCallback, useRecoilValue } from 'recoil';
@@ -34,35 +34,50 @@ export function LobbyMatchMaking() {
   const lobby = useRecoilValue(pongGamesState.gameLobby);
   const user = useCurrentUser();
 
+  const [currentPower, setCurrentPower] = React.useState<string | null>();
+  const [currentPaddle, setCurrentPaddle] = React.useState<string | null>();
+
   const handleStartMatchmaking = useRecoilCallback(
     (ctx) => async () => {
+      if (!currentPower || !currentPaddle) {
+        notifications.error(
+          'Cannot start queue, no paddle or special power selected'
+        );
+        return;
+      }
       if (!isMatchmakingStarted) setIsMatchmakingStarted(true);
       else setIsMatchmakingStarted(false);
       try {
-        let lobby = await ctx.snapshot.getPromise(pongGamesState.gameLobby);
-        if (!lobby) {
-          lobby = await tunnel.put(PongModel.Endpoints.Targets.NewLobby, {
-            password: null,
-            name: user!.nickname,
-            spectators: PongModel.Models.LobbySpectatorVisibility.All,
-            lobbyType: PongModel.Models.LobbyType.Single,
-            gameType: PongModel.Models.LobbyGameType.Powers,
-            lobbyAccess: PongModel.Models.LobbyAccess.Private,
-            score: 7,
-          });
-          ctx.set(pongGamesState.gameLobby, lobby);
-
-          // update paddle and power here
-          await tunnel.put(PongModel.Endpoints.Targets.AddToQueue, {
-            lobbyId: lobby.id,
-          });
-          notifications.success('Queue started');
-        }
+        const cLobby = await ctx.snapshot.getPromise(pongGamesState.gameLobby);
+        if (cLobby) throw new Error('Already in a lobby');
+        const { id } = await tunnel.put(PongModel.Endpoints.Targets.NewLobby, {
+          password: null,
+          name: user!.nickname,
+          spectators: PongModel.Models.LobbySpectatorVisibility.All,
+          lobbyType: PongModel.Models.LobbyType.Single,
+          gameType: PongModel.Models.LobbyGameType.Powers,
+          lobbyAccess: PongModel.Models.LobbyAccess.Private,
+          score: 7,
+        });
+        const lobby = await tunnel.post(
+          PongModel.Endpoints.Targets.UpdatePersonal,
+          {
+            lobbyId: id,
+            paddleSkin: currentPaddle,
+            specialPower: currentPower,
+          }
+        );
+        ctx.set(pongGamesState.gameLobby, lobby);
+        // update paddle and power here
+        await tunnel.put(PongModel.Endpoints.Targets.AddToQueue, {
+          lobbyId: id,
+        });
+        notifications.success('Queue started');
       } catch (error: unknown) {
         notifications.error('Failed to enter queue', (error as Error).message);
       }
     },
-    [isMatchmakingStarted, user]
+    [currentPaddle, currentPower, isMatchmakingStarted, user]
   );
 
   const handleStopMatchmaking = useRecoilCallback(
@@ -90,27 +105,17 @@ export function LobbyMatchMaking() {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
+        justifyContent: 'space-around',
+        height: '100%',
       }}
     >
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-          height: '100%',
-          width: '100%',
-          justifyContent: 'space-evenly',
-        }}
-      >
-        <LobbyPlayerBanner id={user.id} />
-      </div>
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          marginTop: '10dvh',
-        }}
-      >
+      <LobbySelfBanner
+        showSelector
+        disabled={!!lobby}
+        onPaddleChange={setCurrentPaddle}
+        onSpecialPowerChange={setCurrentPower}
+      />
+      <Box height="10dvh" display="flex" alignItems="center">
         {lobby ? (
           <MatchMakingCounter
             stop={handleStopMatchmaking}
@@ -126,8 +131,8 @@ export function LobbyMatchMaking() {
             <LobbyPongButton label="Find Match" />
           </FindMatchWrapper>
         )}
-        <OpenGameModal isPlaying={isPlaying} />
-      </div>
+      </Box>
+      <OpenGameModal isPlaying={isPlaying} />
     </div>
   );
 }
