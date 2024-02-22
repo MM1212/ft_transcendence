@@ -16,7 +16,11 @@ import {
   accordionSummaryClasses,
 } from '@mui/joy';
 import { useSetting, useSettingValue } from '../hooks';
-import { keySettingsDefault, type KeySettings, type KeySettingsKey } from '../state';
+import {
+  keySettingsDefault,
+  type KeySettings,
+  type KeySettingsKey,
+} from '../state';
 
 function Tab({
   title,
@@ -68,7 +72,7 @@ function FormInput({
 }): JSX.Element {
   const [keySettings, setKeySettings] = useSetting<KeySettings>('keySettings');
   const usedKeys = new Set<string>(Object.values(keySettings));
-  console.log("usedKeys", usedKeys);
+  console.log('usedKeys', usedKeys);
 
   return (
     <FormControl size={size}>
@@ -77,14 +81,18 @@ function FormInput({
         defaultValue={placeholder}
         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
           // console.log("event.target.value", event.target.value);
-          if (event.target.value === "")
-            return;
-          event.target.value = event.target.value[event.target.value.length -1];
+          if (event.target.value === '') return;
+          const inputKey = event.target.value[event.target.value.length - 1];
+          event.target.value = inputKey;
+          if (usedKeys.has(inputKey)) return;
           //TODO: check if already in usedKeys
-          const tmpKeySettings = {...keySettings};
-          tmpKeySettings[label as KeySettingsKey] = event.target.value[0].toLowerCase();
+          const tmpKeySettings = { ...keySettings };
+          usedKeys.delete(tmpKeySettings[label as KeySettingsKey]);
+          tmpKeySettings[label as KeySettingsKey] =
+            event.target.value[0].toLowerCase();
           console.log(tmpKeySettings);
           setKeySettings(tmpKeySettings);
+          usedKeys.add(inputKey);
         }}
       />
     </FormControl>
@@ -94,9 +102,8 @@ function FormInput({
 export default function SettingsView(): JSX.Element {
   // const [keySettings, setKeySettings] = useSetting<KeySettings>('keySettings');
   // if (!keySettings) setKeySettings(keySettingsDefault);
-  let keySettings = useSettingValue<KeySettings>("keySettings");
-  if (!keySettings)
-    keySettings = keySettingsDefault;
+  let keySettings = useSettingValue<KeySettings>('keySettings');
+  if (!keySettings) keySettings = keySettingsDefault;
 
   return (
     <Sheet
