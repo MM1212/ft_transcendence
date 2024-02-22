@@ -10,18 +10,23 @@ import { HttpError } from '@/helpers/decorators/httpError';
 import { AuthModel } from '@typings/api';
 import UserExtAlerts from './ext/Alerts';
 import UserExtCharacter from './ext/Character';
-import UserExtQuests from './ext/Quests';
 import UserExtInventory from './ext/Inventory';
 import UserExtNotifications from './ext/Notifications';
+import { UserExtCredits } from './ext/Credits';
+import { GroupEnumValues } from '@typings/utils';
+import { UserExtElo } from './ext/Elo';
+import UserExtAchievements from './ext/Achievements/index';
 
 class User extends CacheObserver<UsersModel.Models.IUser> {
   public readonly friends: UserExtFriends = new UserExtFriends(this);
   public readonly alerts: UserExtAlerts = new UserExtAlerts(this);
   public readonly character: UserExtCharacter = new UserExtCharacter(this);
-  public readonly quests: UserExtQuests = new UserExtQuests(this);
+  public readonly achievements: UserExtAchievements = new UserExtAchievements(this);
   public readonly inventory: UserExtInventory = new UserExtInventory(this);
   public readonly notifications: UserExtNotifications =
     new UserExtNotifications(this);
+  public readonly credits: UserExtCredits = new UserExtCredits(this);
+  public readonly elo: UserExtElo = new UserExtElo(this);
 
   constructor(
     data: UsersModel.Models.IUser,
@@ -33,6 +38,7 @@ class User extends CacheObserver<UsersModel.Models.IUser> {
   /* eslint-disable @typescript-eslint/no-unused-vars */
   public get public(): UsersModel.Models.IUserInfo {
     const {
+      studentId,
       friends,
       blocked,
       chats,
@@ -40,9 +46,14 @@ class User extends CacheObserver<UsersModel.Models.IUser> {
       tfa,
       connected,
       character,
-      quests,
+      notifications,
+      inventory,
+      achievements,
       ...user
     } = this.get();
+    (user as UsersModel.Models.IUserInfo).leaderboard = {
+      elo: user.leaderboard.elo,
+    };
     return user satisfies UsersModel.Models.IUserInfo;
   }
   /* eslint-enable @typescript-eslint/no-unused-vars */
@@ -52,7 +63,15 @@ class User extends CacheObserver<UsersModel.Models.IUser> {
     return this.get('id');
   }
 
-  public get studentId(): number {
+  public get type(): GroupEnumValues<UsersModel.Models.Types> {
+    return this.get('type');
+  }
+
+  public get isBot(): boolean {
+    return this.type === UsersModel.Models.Types.Bot;
+  }
+
+  public get studentId(): number | undefined {
     return this.get('studentId');
   }
 
@@ -68,7 +87,7 @@ class User extends CacheObserver<UsersModel.Models.IUser> {
     return this.get('createdAt');
   }
 
-  public get status(): UsersModel.Models.Status {
+  public get status(): GroupEnumValues<UsersModel.Models.Status> {
     return this.get('status');
   }
 
@@ -111,10 +130,8 @@ class User extends CacheObserver<UsersModel.Models.IUser> {
     }
   }
 
-  /**
-   * Syncs the user with all connected clients
-   */
-  public propagate(
+  private propagateTo(
+    targets: number[],
     firstKey: keyof UsersModel.Models.IUserInfo,
     ...keys: (keyof UsersModel.Models.IUserInfo)[]
   ): void {
@@ -124,11 +141,34 @@ class User extends CacheObserver<UsersModel.Models.IUser> {
       {} as Partial<UsersModel.Models.IUserInfo>,
     );
 
-    this.helpers.sseService.emitWithTarget<UsersModel.Sse.UserUpdatedEvent>(
+    if (targets.length === 0) {
+      this.helpers.sseService.emitToAll<UsersModel.Sse.UserUpdatedEvent>(
+        UsersModel.Sse.Events.UserUpdated,
+        { id: this.id, ...data },
+      );
+      return;
+    }
+    this.helpers.sseService.emitToTargets<UsersModel.Sse.UserUpdatedEvent>(
       UsersModel.Sse.Events.UserUpdated,
-      this.id,
+      targets,
       { id: this.id, ...data },
     );
+  }
+
+  /**
+   * Syncs the user with all connected clients
+   */
+  public propagate(
+    firstKey: keyof UsersModel.Models.IUserInfo,
+    ...keys: (keyof UsersModel.Models.IUserInfo)[]
+  ): void {
+    this.propagateTo([], firstKey, ...keys);
+  }
+  public propagateSelf(
+    firstKey: keyof UsersModel.Models.IUserInfo,
+    ...keys: (keyof UsersModel.Models.IUserInfo)[]
+  ): void {
+    this.propagateTo([this.id], firstKey, ...keys);
   }
 
   // EXT

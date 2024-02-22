@@ -3,7 +3,7 @@ import { Collision } from '@shared/Lobby/Collision';
 import { PNG as PNGBrowser } from 'pngjs/browser';
 import { type PNG as PNGNative } from 'pngjs';
 import publicPath from '@utils/public';
-import Worker from './Collision.worker?worker&inline';
+import Worker from './Collision.worker?worker';
 const PNG: typeof PNGNative = PNGBrowser;
 
 export class ClientCollision extends Collision {
@@ -29,7 +29,7 @@ export class ClientCollision extends Collision {
         worker.terminate();
         r();
       };
-      worker.postMessage([this.collisionFileMapPath]);
+      worker.postMessage([`${document.location.origin}${this.collisionFileMapPath}`]);
     });
   }
 }

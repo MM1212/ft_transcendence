@@ -1,0 +1,14 @@
+{
+  "id": "pong",
+  "label": "Pong",
+  "icon": "{ICON_PATH}/Pong",
+  "subCategories": [
+    "special_power",
+    "paddle",
+    "ball"
+  ],
+  "env": {
+    "ICON_PATH": "pong",
+    "ASSET_PATH": "/assets/pong"
+  }
+}

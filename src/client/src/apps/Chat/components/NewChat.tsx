@@ -355,7 +355,6 @@ function _NewChatModal(): JSX.Element {
             description: (e as Error).message,
             color: 'danger',
           });
-          // TODO: send notification to the user
         } finally {
           setLoading(false);
         }

@@ -98,7 +98,10 @@ const ColorSchemeToggle = memo(function ColorSchemeToggle(): JSX.Element {
         <Option
           value="light"
           label={
-            <OptionDecorator label="System" icon={<CogIcon size="sm" />} />
+            <OptionDecorator
+              label="Light"
+              icon={<WhiteBalanceSunnyIcon size="sm" />}
+            />
           }
         >
           <OptionDecorator
@@ -109,7 +112,10 @@ const ColorSchemeToggle = memo(function ColorSchemeToggle(): JSX.Element {
         <Option
           value="dark"
           label={
-            <OptionDecorator label="System" icon={<CogIcon size="sm" />} />
+            <OptionDecorator
+              label="Dark"
+              icon={<WeatherNightIcon size="sm" />}
+            />
           }
         >
           <OptionDecorator label="Dark" icon={<WeatherNightIcon size="sm" />} />
@@ -214,7 +220,7 @@ export default function UpdateUserModal(): JSX.Element {
                     required
                     value={input.nickname}
                     onChange={updateInputProperty('nickname')}
-                    error={!input.nickname}
+                    error={!input.nickname || input.nickname.length < 3 || input.nickname.length > 10 || input.nickname.includes(' ')}
                   />
                 </FormControl>
                 <FormControl>

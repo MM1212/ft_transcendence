@@ -1,111 +1,131 @@
-import LobbyGameTypography from "@apps/GameLobby/components/LobbyGameTypography";
-import { Box, Divider, Stack, Typography } from "@mui/joy";
-import PlayerStatsRow from "./PlayerStatsRow";
-import CurrencyTwdIcon from "@components/icons/CurrencyTwdIcon";
-import SoccerIcon from "@components/icons/SoccerIcon";
+import { Box, Divider, Grid, Stack, Tooltip, Typography } from '@mui/joy';
+import PlayerStatsRow from './PlayerStatsRow';
+import React, { ReactElement } from 'react';
+import PongHistoryModel from '@typings/models/pong/history';
+import { useCurrentUser } from '@hooks/user';
+import { statsMapping } from '../constants';
 
-export default function MatchHistoryScoreBoard() {
-    const teams = [ 
-        "Team 1", "Team 2"
-    ]
+function IconStats({
+  icon,
+  statValue,
+  message,
+  first,
+}: {
+  icon: ReactElement;
+  statValue: React.ReactNode;
+  message: string;
+  first: boolean;
+}) {
+  return (
+    <Box
+      style={{
+        justifySelf: 'right',
+        display: 'flex',
+      }}
+    >
+      <Stack
+        gap={0.5}
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+        }}
+      >
+        <Typography textColor={first ? 'primary.300' : 'danger.400'}>
+          {statValue}
+        </Typography>
+        <Tooltip title={message}>{icon}</Tooltip>
+      </Stack>
+    </Box>
+  );
+}
+
+export default function MatchHistoryScoreBoard(
+  match: PongHistoryModel.Models.Match
+) {
+  const session = useCurrentUser();
+  if (!session) return null;
+
+  const teamPlayersAccumulatedStats = match.teams.map((team) =>
+    team.players.reduce(
+      (acc, player) => {
+        (
+          Object.keys(
+            player.stats
+          ) as (keyof PongHistoryModel.Models.PlayerStats)[]
+        ).forEach((key) => {
+          switch (typeof key) {
+            case 'number':
+              acc[key] = (acc[key] || 0) + player.stats[key];
+              break;
+            case 'boolean':
+              acc[key] = acc[key] || false || player.stats[key];
+              break;
+            default:
+              acc[key] = player.stats[key];
+              break;
+          }
+        });
+        return acc;
+      },
+      {} as Record<string, unknown>
+    )
+  );
   return (
     <>
-    {teams.map((team, index) => (
+      {match.teams.map((team, index) => (
         <>
-        <Stack
-          sx={{
-            display: "grid",
-            gridTemplateColumns: "5fr 7fr 4fr 4fr",
-            justifyItems: "left",
-            p: 1,
-            borderRadius: "md",
-            justifyContent: "space-between",
-          }}
-        >
-          <Typography
-            style={{ display: "grid", gridColumnStart: "1", alignSelf: "left" }}
-            textColor= {team === "Team 1" ? "primary.300" : "danger.400"}
-          >
-            {team}
-          </Typography>
-          <Box
-            style={{
-              justifySelf: "center",
-              alignSelf: "center",
-              display: "grid",
-              gridColumnStart: "2",
+          <Grid
+            container
+            sx={{
+              width: '100%',
+              gap: 1,
+              p: 1,
             }}
           >
-            <Stack
-              gap={1.5}
-              style={{
-                display: "flex",
-                flexDirection: "row",
-              }}
-            >
-              <Typography textColor={"primary.300"}>Paddle</Typography>
-            </Stack>
-          </Box>
-          <Box
-            style={{  justifySelf: "right", display: "grid", gridColumnStart: "3"}}
-          >
-            <Stack
-              gap={1.5}
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-              }}
-            >
-              <Typography textColor= {team === "Team 1" ? "primary.300" : "danger.400"}>9</Typography>
-              <SoccerIcon />
-            </Stack>
-          </Box>
-          <Box
-            style={{ justifySelf: "right", display: "grid", gridColumnStart: "4", alignSelf: "left" }}
-          >
-            <Stack
-              gap={1.5}
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-              }}
-            >
-              <Typography textColor= {team === "Team 1" ? "primary.300" : "danger.400"}>30,468 </Typography>
-              <CurrencyTwdIcon />
-            </Stack>
-          </Box>
-        </Stack>
-        <PlayerStatsRow id={12} />
-        <PlayerStatsRow id={3} />
-        <Divider />
+            <Grid xs={12} container>
+              <Grid xs={4}>
+                <Typography
+                  style={{
+                    display: 'grid',
+                    gridColumnStart: '1',
+                    alignSelf: 'left',
+                  }}
+                  textColor={index === 0 ? 'primary.300' : 'danger.400'}
+                >
+                  Team {index + 1}
+                </Typography>
+              </Grid>
+              {statsMapping.map(
+                (stat, iconIndex) =>
+                  teamPlayersAccumulatedStats[index][stat.statKey] !== null && (
+                    <Grid xs key={iconIndex} container justifyContent="right">
+                      <IconStats
+                        key={iconIndex}
+                        icon={stat.icon}
+                        statValue={
+                          (teamPlayersAccumulatedStats[index][
+                            stat.statKey
+                          ] as React.ReactNode) ?? 'N/A'
+                        }
+                        first={index === 0}
+                        message={stat.label}
+                      />
+                    </Grid>
+                  )
+              )}
+            </Grid>
+            {team.players.map((player, i) => (
+              <PlayerStatsRow
+                key={i}
+                {...player}
+                isSelf={player.userId === session.id}
+              />
+            ))}
+          </Grid>
+          {index === 0 && <Divider />}
         </>
-        ))}
-        {/* <Stack
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <Typography textColor={"danger.400"}>Team 2</Typography>
-          <Typography textColor={"danger.400"}>Paddle</Typography>
-          <Box
-            gap={1.5}
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-            }}
-          >
-            <Typography textColor={"danger.400"}>20,268 </Typography>
-            <CurrencyTwdIcon />
-          </Box>
-        </Stack>
-        <PlayerStatsRow id={2} />
-        <PlayerStatsRow id={5} /> */}
+      ))}
     </>
   );
 }

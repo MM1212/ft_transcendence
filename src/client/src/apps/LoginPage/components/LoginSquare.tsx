@@ -15,6 +15,7 @@ import {
 } from '@mui/joy';
 import { AuthModel } from '@typings/models';
 import UsersModel from '@typings/models/users';
+import React from 'react';
 
 function LoggedInSquare({ user }: { user: UsersModel.Models.IUserInfo }) {
   const { logout } = useSessionActions();
@@ -88,7 +89,7 @@ function LoggedInSquare({ user }: { user: UsersModel.Models.IUserInfo }) {
 
 export function LoginSquare() {
   const { user, loading, loggedIn } = useSession();
-  // logout(); //TODO: remove this
+  const [forceLoading, setForceLoading] = React.useState(false);
   if (loggedIn) return <LoggedInSquare user={user} />;
 
   return (
@@ -102,6 +103,8 @@ export function LoginSquare() {
           color="primary"
           variant="solid"
           size="lg"
+          onClick={() => setForceLoading(true)}
+          loading={forceLoading}
         >
           <Typography
             level="title-lg"

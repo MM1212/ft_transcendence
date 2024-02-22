@@ -73,6 +73,14 @@ export class UsersService {
     user?.setTo(data);
     return user ?? this.build(data);
   }
+  public async getMany(ids: number[]): Promise<User[]> {
+    const toFetch = ids.filter((id) => !this.has(id));
+    if (toFetch.length > 0) {
+      const data = await this.fetchMany(toFetch);
+      for (const user of data) this.build(user);
+    }
+    return ids.map((id) => this.users.get(id)!);
+  }
   public async getByStudentId(
     studentId: number,
     fetch: boolean = false,
@@ -94,6 +102,9 @@ export class UsersService {
   private async fetch(id: number): Promise<UsersModel.Models.IUser | null> {
     return await this.db.users.get(id);
   }
+  private async fetchMany(ids: number[]): Promise<UsersModel.Models.IUser[]> {
+    return await this.db.users.getMany(ids);
+  }
   private build(data: UsersModel.Models.IUser): User {
     const user = new User(data, this.deps);
     this.users.set(data.id, user);
@@ -107,6 +118,18 @@ export class UsersService {
   }
 
   public async create(data: UsersModel.DTO.DB.IUserCreate): Promise<User> {
+    let attempts = 0;
+    while (attempts < 5) {
+      try {
+        if (await this.db.users.exists(data.nickname)) {
+          data.nickname += `_${Math.floor(Math.random() * 100)}`;
+        } else break;
+        attempts++;
+      } catch (e) {
+        throw new HttpError('Failed to create user');
+      }
+    }
+    if (attempts >= 5) throw new HttpError('Failed to create user');
     const userData = await this.db.users.create(data);
     if (!userData) throw new HttpError('Failed to create user');
     return this.build(userData);
@@ -116,5 +139,9 @@ export class UsersService {
     if (!user) return false;
     this.users.delete(id);
     return !!(await this.db.users.delete(id));
+  }
+
+  public async exists(id: number | string): Promise<boolean> {
+    return await this.db.users.exists(id);
   }
 }

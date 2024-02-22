@@ -4,6 +4,8 @@ import {
   DefaultValuePipe,
   ForbiddenException,
   Get,
+  NotFoundException,
+  Param,
   ParseBoolPipe,
   ParseIntPipe,
   Patch,
@@ -19,24 +21,42 @@ import HttpCtx from '@/helpers/decorators/httpCtx';
 import { HTTPContext } from '@typings/http';
 import UserCtx from '../decorators/User.pipe';
 import User from '../user';
+import { ObjectValidationPipe } from '@/helpers/decorators/validator';
+import usersValidator from '../users.validator';
+import AchievementsModel from '@typings/models/users/achievements/index';
 
 @Auth()
 @Controller()
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Get(UsersModel.Endpoints.Targets.GetUsers)
-  async getAll(
-    @Query('limit', new DefaultValuePipe(50), ParseIntPipe) limit: number,
-    @Query('offset', new DefaultValuePipe(0), ParseIntPipe) offset: number,
-  ): Promise<InternalEndpointResponse<UsersModel.Endpoints.GetUsers>> {
-    const users = await this.usersService.getAll({ limit, offset });
-    return users;
-  }
+  // @Get(UsersModel.Endpoints.Targets.GetUsers)
+  // async getAll(
+  //   @Query('limit', new DefaultValuePipe(50), ParseIntPipe) limit: number,
+  //   @Query('offset', new DefaultValuePipe(0), ParseIntPipe) offset: number,
+  // ): Promise<InternalEndpointResponse<UsersModel.Endpoints.GetUsers>> {
+  //   const users = await this.usersService.getAll({ limit, offset });
+  //   return users;
+  // }
 
   @Get(UsersModel.Endpoints.Targets.GetUser)
   async get(@UserCtx() user: User) {
-    return user?.public;
+    if (!user) throw new NotFoundException('User does not exist');
+    return user.public;
+  }
+
+  @Get(UsersModel.Endpoints.Targets.QueryUserByNickname)
+  async queryByNickname(
+    @Param('nickname', ValidationPipe) nickname: string,
+  ): Promise<
+    InternalEndpointResponse<UsersModel.Endpoints.QueryUserByNickname>
+  > {
+    const user = await this.usersService.getByNickname(nickname);
+    if (!user)
+      throw new NotFoundException(
+        'User with the given nickname does not exist',
+      );
+    return user.public;
   }
 
   @Post(UsersModel.Endpoints.Targets.SearchUsers)
@@ -46,12 +66,15 @@ export class UsersController {
     exclude: number[],
     @Body('excludeSelf', new DefaultValuePipe(true), ParseBoolPipe)
     excludeSelf: boolean,
+    @Body('excludeBots', new DefaultValuePipe(true), ParseBoolPipe)
+    excludeBots: boolean,
     @Query('limit', new DefaultValuePipe(50), ParseIntPipe) limit: number,
     @Query('offset', new DefaultValuePipe(0), ParseIntPipe) offset: number,
     @HttpCtx() { user }: HTTPContext<true>,
   ): Promise<InternalEndpointResponse<UsersModel.Endpoints.GetUsers>> {
     const users = await this.usersService.search(query, { limit, offset });
     return users.filter((u) => {
+      if (excludeBots && u.type === UsersModel.Models.Types.Bot) return false;
       if (exclude.includes(u.id)) return false;
       if (excludeSelf && u.id === user.id) return false;
       return true;
@@ -61,7 +84,8 @@ export class UsersController {
   @Patch(UsersModel.Endpoints.Targets.PatchUser)
   async patch(
     @UserCtx() target: User,
-    @Body() { avatar, nickname, status, firstLogin }: UsersModel.DTO.PatchUser,
+    @Body(new ObjectValidationPipe(usersValidator.patchUserSchema))
+    { avatar, nickname, status, firstLogin }: UsersModel.DTO.PatchUser,
     @HttpCtx() { user }: HTTPContext<true>,
   ): Promise<InternalEndpointResponse<UsersModel.Endpoints.PatchUser>> {
     if (user.id !== target.id) throw new ForbiddenException();
@@ -71,5 +95,10 @@ export class UsersController {
         'Failed to update profile: nickname is already taken',
       );
     return user.public;
+  }
+
+  @Get(UsersModel.Endpoints.Targets.GetCredits)
+  async getCredits(@UserCtx() user: User) {
+    return user.credits;
   }
 }

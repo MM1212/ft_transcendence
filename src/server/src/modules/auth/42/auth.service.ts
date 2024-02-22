@@ -13,6 +13,8 @@ import { UsersService } from '@/modules/users/services/users.service';
 import { HttpError } from '@/helpers/decorators/httpError';
 import UsersModel from '@typings/models/users';
 import { UserExtWithSession } from '@/modules/users/user';
+import { ShopService } from '@/modules/shop/shop.service';
+import defaultItems from '@/assets/inventory/default_items.json';
 
 @Injectable()
 export class AuthService {
@@ -20,6 +22,7 @@ export class AuthService {
     private readonly config: ConfigService<ImportMetaEnv>,
     private readonly intra: IntraAPI,
     private readonly usersService: UsersService,
+    private readonly shopService: ShopService,
   ) {}
   private get clientId(): string {
     return this.config.get('BACKEND_42_CLIENT_ID')!;
@@ -35,6 +38,11 @@ export class AuthService {
   }
   private get requestTokenUri(): string {
     return this.config.get('BACKEND_42_REQUEST_TOKEN_URI')!;
+  }
+  private get useIntraCredits(): boolean {
+    return new Boolean(
+      this.config.get('BACKEND_USER_USE_DEFAULT_INTRA_CREDITS')!,
+    ).valueOf();
   }
 
   private genNonce(): string {
@@ -128,17 +136,27 @@ export class AuthService {
       if ((apiData as any).error) throw new HttpError((apiData as any).error);
       const { id, login } = apiData;
       let user = await this.usersService.getByStudentId(id);
-      if (!user)
+      if (!user) {
         user = await this.usersService.create({
           studentId: id,
           avatar: UsersModel.Models.DEFAULT_AVATAR,
           nickname: login,
+          credits: this.useIntraCredits ? apiData.wallet : 0,
+          inventory: await Promise.all(
+            defaultItems.map((item) => this.shopService.createItem(item)),
+          ),
         });
+      }
+
       const uSession = user.withSession(req.session);
       uSession.session.auth.updateNewToken(resp.data);
       if (user.get('tfa.enabled')) return this.handleTFA(uSession);
       uSession.session.sync().loggedIn = true;
-      console.log(`[Auth] [42] Logged in as `, user.public, resp.data.access_token);
+      console.log(
+        `[Auth] [42] Logged in as `,
+        user.public,
+        resp.data.access_token,
+      );
       return { url: `${this.config.get<string>('FRONTEND_URL')}` };
     } catch (e) {
       console.error(e);
@@ -156,7 +174,6 @@ export class AuthService {
 
     if (!dummyUser) {
       dummyUser = await this.usersService.create({
-        studentId: dummyId,
         avatar: UsersModel.Models.DEFAULT_AVATAR,
         nickname: `Dummy${dummyId}`,
       });

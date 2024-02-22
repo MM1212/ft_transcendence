@@ -1,0 +1,11 @@
+{
+  "id": "user",
+  "label": "User",
+  "icon": "{ICON_PATH}/User",
+  "subCategories": [
+    "icons"
+  ],
+  "env": {
+    "ICON_PATH": "user"
+  }
+}

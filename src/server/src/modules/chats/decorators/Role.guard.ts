@@ -7,6 +7,7 @@ import {
   applyDecorators,
   ForbiddenException,
   UseGuards,
+  HttpException,
 } from '@nestjs/common';
 import { Request } from '@typings/http';
 import { ChatsService } from '../chats.service';
@@ -48,6 +49,7 @@ export class RolesGuard implements CanActivate {
       if (!roles || !roles.length) return true;
       if (!roles.includes(cParticipant.role)) throw new ForbiddenException();
     } catch (e) {
+      if (e instanceof HttpException) throw e;
       throw new UnauthorizedException();
     }
     return true;

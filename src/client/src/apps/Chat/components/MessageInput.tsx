@@ -14,6 +14,7 @@ import TimelapseIcon from '@components/icons/TimelapseIcon';
 import MessageInputBlocked from './MessageInputBlocked';
 import { urlRegex } from './NewChat';
 import { useDebounce, useThrottle } from '@hooks/lodash';
+import escape from 'lodash.escape';
 
 function _ParticipantsTyping({ id }: { id: number; selfId: number }) {
   const participantNames = useChat(id).useParticipantNamesTyping();
@@ -53,6 +54,7 @@ export interface ChatMessageInputProps {
   rootProps?: React.ComponentProps<typeof Stack>;
   inputProps?: React.ComponentProps<typeof Textarea>;
   submitBtnProps?: React.ComponentProps<typeof IconButton>;
+  autoFocus?: boolean; // @default true
 }
 
 function MessageInput({
@@ -60,6 +62,7 @@ function MessageInput({
   rootProps,
   inputProps,
   submitBtnProps,
+  autoFocus = true,
 }: ChatMessageInputProps) {
   const [input, setInput] = useRecoilState(chatsState.chatsInput(id));
   const formRef = React.useRef<HTMLFormElement>(null);
@@ -104,7 +107,7 @@ function MessageInput({
         );
         const nonce = Math.random().toString(36).slice(2);
         const messagePayload: ChatsModel.DTO.NewMessage = {
-          message: input.trim(),
+          message: escape(input.trim()),
           type: ChatsModel.Models.ChatMessageType.Normal,
           meta: {},
         };
@@ -173,9 +176,10 @@ function MessageInput({
   );
   const inputRef = React.useRef<HTMLTextAreaElement>(null);
   React.useEffect(() => {
-    if (inputRef.current) {
+    if (inputRef.current && autoFocus) {
       inputRef.current.focus();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inputRef, id]);
 
   const self = useChat(id).useSelfParticipant();

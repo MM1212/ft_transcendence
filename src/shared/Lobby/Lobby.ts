@@ -19,7 +19,8 @@ export class Lobby implements IClassLifeCycle {
       LOBBY_STAGE_SIZE.divide(2),
       Vector2D.Zero,
       0
-    )
+    ),
+    public chatId: number = -1
   ) {
     this.players = players.map(
       (p) => new PlayerConstructor(p.id, p.name, p.character, p.transform, this)
@@ -32,6 +33,7 @@ export class Lobby implements IClassLifeCycle {
         ...p.public,
         main: false,
       })),
+      chatId: this.chatId,
     };
   }
 
@@ -49,11 +51,8 @@ export class Lobby implements IClassLifeCycle {
     }
   }
   async onMount(): Promise<void> {
-    console.log('loading collision');
-    
     await this.collision.onMount();
-    console.log('collision loaded');
-    
+
     for (const player of this.players) {
       await player.onMount();
     }

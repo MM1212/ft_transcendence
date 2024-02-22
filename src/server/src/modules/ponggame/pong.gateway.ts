@@ -17,7 +17,10 @@ import { ClientSocket } from '@typings/ws';
 import { AuthGatewayGuard } from '../auth/guards/auth-gateway.guard';
 import { ServerGame } from './pong';
 import User from '../users/user';
+import { GlobalFilter } from '@/filters/GlobalFilter';
+import { Logger, UseFilters } from '@nestjs/common';
 
+@UseFilters(GlobalFilter)
 @WebSocketGateway({
   namespace: 'api/pong',
   cors: {
@@ -33,6 +36,7 @@ export class PongGateway
 {
   @WebSocketServer()
   private readonly server: Server;
+  private readonly logger = new Logger(PongGateway.name);
 
   constructor(
     private usersService: UsersService,
@@ -42,11 +46,20 @@ export class PongGateway
     private lobbyService: PongLobbyService,
   ) {}
 
+  getAllGames(): PongModel.Models.IGameInfoDisplay[] {
+    return this.service.getAllGames();
+  }
+
+  @SubscribeMessage(PongModel.Socket.Events.FocusLoss)
+  handleFocusLoss(client: Socket, data: { roomId: string }): void {
+    this.service.handleFocusLoss(client, data.roomId);
+  }
+
   @SubscribeMessage(PongModel.Socket.Events.KeyPress)
   handleKeyPress(client: Socket, data: { key: string; state: boolean }): void {
     this.service.handleKeys(client, data);
   }
-  
+
   @SubscribeMessage(PongModel.Socket.Events.UpdateDisconnected)
   handleUpdateDisconnected(client: Socket, data: { roomId: string }): void {
     this.service.handleUpdateDisconnected(client, data.roomId);
@@ -65,6 +78,13 @@ export class PongGateway
         const spectator = game.getSpectatorSocketByUserId(user.id);
         if (!spectator) {
           game.joinSpectators(client);
+          this.service.clientInGames.set(user.id, game.UUID);
+          this.logger.verbose(`${client.data.user.nickname} connected!`);
+          client.emit(PongModel.Socket.Events.SetUI, {
+            state: true,
+            config: game.config,
+          });
+          if (game.run === true) game.emitUpdateGame(client);
         }
       } else {
         if (
@@ -80,9 +100,12 @@ export class PongGateway
             nickname: player.nickname,
           });
         }
+        // if player
         game.joinPlayer(client, player);
+        // if spectator
+        //game.joinSpectators(client);
         this.service.clientInGames.set(user.id, game.UUID);
-        console.log(`${client.data.user.nickname} connected`);
+        this.logger.verbose(`${client.data.user.nickname} connected!`);
         client.emit(PongModel.Socket.Events.SetUI, {
           state: true,
           config: game.config,
@@ -102,8 +125,7 @@ export class PongGateway
       if (!user || !game) return client.disconnect(true), void 0;
 
       const player = game.getPlayerByUserId(user.id);
-      if (player)
-      {
+      if (player) {
         if (game.userIdToSocketId.get(user.id) === client.id) {
           game.leavePlayer(client, player);
         } else {
@@ -111,7 +133,15 @@ export class PongGateway
         }
       } else {
         const spectator = game.getSpectatorSocketByUserId(user.id);
-        if (spectator) game.leaveSpectators(client);
+        if (spectator) {
+          game.leaveSpectators(client);
+          this.service.clientInGames.delete(user.id);
+          this.logger.verbose(`${client.data.user.nickname} disconnected!`);
+          client.emit(PongModel.Socket.Events.SetUI, {
+            state: false,
+            config: null,
+          });
+        }
       }
       if (game.run === true && player !== null) {
         game.room.emit(PongModel.Socket.Events.Disconnected, {
@@ -120,13 +150,13 @@ export class PongGateway
         });
       }
       this.service.clientInGames.delete(user.id);
-      console.log(`${client.data.user.nickname} disconnected`);
+      this.logger.verbose(`${client.data.user.nickname} disconnected!`);
       client.emit(PongModel.Socket.Events.SetUI, {
         state: false,
         config: null,
       });
-    } catch (error) {
-      console.log(error);
+    } catch {
+      /* empty */
     }
   }
 
@@ -148,7 +178,7 @@ export class PongGateway
   }
 
   afterInit() {
-    console.log('PongGateway initialized');
+    this.logger.log('Initialized!');
     // @ts-expect-error impl
     this.service.server = this.server;
   }

@@ -12,6 +12,7 @@ import HangerIcon from '@components/icons/HangerIcon';
 import HistoryIcon from '@components/icons/HistoryIcon';
 import HomeIcon from '@components/icons/HomeIcon';
 import InboxIcon from '@components/icons/InboxIcon';
+import ListBoxIcon from '@components/icons/ListBoxIcon';
 import PlayIcon from '@components/icons/PlayIcon';
 import PodiumIcon from '@components/icons/PodiumIcon';
 import TableTennisIcon from '@components/icons/TableTennisIcon';
@@ -35,6 +36,7 @@ export interface ISidebarNestedRoute {
   icon: React.ReactNode;
   label: string;
   children: ISidebarRoute[];
+  fallbackRoute?: string;
 }
 
 export type ISidebarRoute = ISidebarSingleRoute | ISidebarNestedRoute;
@@ -87,7 +89,8 @@ const routes: ISidebarRoute[] = [
   },
   {
     label: 'Achievements',
-    path: '/achievements',
+    path: '/achievements/me',
+    routePath: '/achievements/:rest*',
     icon: <TrophyIcon />,
     exact: false,
     Component: React.lazy(() => import('@apps/Achievements/views')),
@@ -107,6 +110,7 @@ const routes: ISidebarRoute[] = [
         label: 'Pong',
         path: '/pong',
         icon: <TableTennisIcon />,
+        fallbackRoute: '/pong/play/',
         children: [
           {
             label: 'Play',
@@ -118,7 +122,8 @@ const routes: ISidebarRoute[] = [
           },
           {
             label: 'Match History',
-            path: '/history',
+            path: '/history/me',
+            routePath: '/history/:id',
             icon: <HistoryIcon />,
             exact: false,
             Component: React.lazy(() => import('@apps/MatchHistory/views')),
@@ -147,6 +152,13 @@ if (import.meta.env.DEV) {
         icon: <HangerIcon />,
         exact: false,
         Component: React.lazy(() => import('@views/ClothingShowcase')),
+      },
+      {
+        label: 'Clothing List',
+        path: '/dev/clothing-list',
+        icon: <ListBoxIcon />,
+        exact: false,
+        Component: React.lazy(() => import('@views/ClothingItems')),
       },
     ],
   });

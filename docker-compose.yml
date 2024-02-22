@@ -3,7 +3,7 @@ version: '3.1'
 services:
   postgresql:
     image: postgres:latest
-    container_name: postgresql
+    container_name: transcendence_db
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${BACKEND_DB_USER}
@@ -12,7 +12,7 @@ services:
     expose:
       - "${BACKEND_DB_PORT}:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - transcendence_db:/var/lib/postgresql/data
     user: postgres
     privileged: false
     networks:
@@ -33,6 +33,6 @@ services:
 
   
 volumes:
-  pgdata:
+  transcendence_db:
 networks:
   transcendence:

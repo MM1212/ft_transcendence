@@ -1,7 +1,7 @@
 import React from "react";
 
 export const useKeybindsToggle = <T extends string[]>(
-  keys: T,
+  keys: T | undefined,
   handler: (
     key: T[number],
     pressed: boolean,
@@ -12,7 +12,7 @@ export const useKeybindsToggle = <T extends string[]>(
   React.useEffect(() => {
     const keyHandler = (down: boolean) => (ev: KeyboardEvent) => {
       if (ev.repeat) return;
-      keys.includes(ev.code) && handler(ev.code, down, ev);
+      (keys === undefined || keys.includes(ev.code)) && handler(ev.code, down, ev);
     };
     const keydownHandler = keyHandler(true);
     const keyupHandler = keyHandler(false);

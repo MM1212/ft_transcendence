@@ -2,7 +2,7 @@ import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { PrismaService } from '@/modules/db/prisma';
 import UsersModel from '@typings/models/users';
 import { Prisma } from '@prisma/client';
-import { UserQuests } from './quests';
+import { UserAchievements } from './achievements'; //new
 import { UserInventory } from './inventory';
 import { UserNotifications } from './notifications';
 
@@ -20,16 +20,17 @@ const USER_EXT_QUERY = Prisma.validator<Prisma.UserSelect>()({
     select: { id: true },
   },
   character: true,
-  quests: true,
+  achievements: true, //new
   inventory: true,
   notifications: true,
+  leaderboard: true,
 });
 
 @Injectable()
 export class Users {
   constructor(
     private readonly prisma: PrismaService,
-    @Inject(forwardRef(() => UserQuests)) public readonly quests: UserQuests,
+    @Inject(forwardRef(() => UserAchievements)) public readonly achievements: UserAchievements, //new
     @Inject(forwardRef(() => UserInventory))
     public readonly inventory: UserInventory,
     @Inject(forwardRef(() => UserNotifications))
@@ -48,6 +49,7 @@ export class Users {
       enabled: user.tfaEnabled,
       secret: user.tfaSecret ?? undefined,
     };
+    if (formatted.studentId === null) delete formatted.studentId;
     delete (formatted as any).tfaEnabled;
     delete (formatted as any).tfaSecret;
     formatted.friends = [
@@ -61,11 +63,11 @@ export class Users {
     formatted.createdAt = user.createdAt.getTime();
     formatted.status = UsersModel.Models.Status.Offline;
     formatted.connected = false;
-    formatted.quests = user.quests.map((quest) => ({
-      ...quest,
-      createdAt: quest.createdAt.getTime(),
-      updatedAt: quest.updatedAt.getTime(),
-      finishedAt: quest.finishedAt?.getTime(),
+    formatted.achievements = user.achievements.map((achievement) => ({ //achievement
+      ...achievement,
+      createdAt: achievement.createdAt.getTime(),
+      updatedAt: achievement.updatedAt.getTime(),
+      unlockedAt: achievement.unlockedAt?.getTime() ?? null,
     }));
     formatted.inventory = user.inventory.map((item) => ({
       ...item,
@@ -75,6 +77,7 @@ export class Users {
       ...notification,
       createdAt: notification.createdAt.getTime(),
     }));
+    delete (formatted as any).leaderboardId;
     return formatted as unknown as U;
   }
 
@@ -86,17 +89,28 @@ export class Users {
       await this.prisma.user.findMany({
         skip: offset,
         take: limit,
+        include: {
+          leaderboard: {
+            select: {
+              elo: true
+            }
+          },  
+        },
       })
     ).map<UsersModel.Models.IUserInfo>((user) => ({
       ...user,
       createdAt: user.createdAt.getTime(),
       status: UsersModel.Models.Status.Offline,
+      leaderboardId: undefined
     }));
   }
-  async exists(id: number): Promise<boolean> {
+  async exists(id: number | string): Promise<boolean> {
     return (
       (await this.prisma.user.count({
-        where: { id },
+        where: {
+          ...(typeof id === 'number' && { id }),
+          ...(typeof id === 'string' && { nickname: id }),
+        },
       })) === 1
     );
   }
@@ -107,6 +121,14 @@ export class Users {
         include: USER_EXT_QUERY,
       }),
     );
+  }
+  async getMany(ids: number[]): Promise<UsersModel.Models.IUser[]> {
+    return (
+      await this.prisma.user.findMany({
+        where: { id: { in: ids } },
+        include: USER_EXT_QUERY,
+      })
+    ).map(this.formatUser);
   }
   async getByStudentId(
     studentId: number,
@@ -138,6 +160,14 @@ export class Users {
           character: {
             create: {},
           },
+          inventory: {
+            createMany: {
+              data: [...(data.inventory ?? [])],
+            },
+          },
+          leaderboard: {
+            create: {}
+          },
         },
         include: USER_EXT_QUERY,
       }),
@@ -150,11 +180,17 @@ export class Users {
     return await this.prisma.user.update({
       where: { id },
       data,
+      include: {
+        leaderboard: true,
+      },
     });
   }
   async delete(id: number): Promise<UsersModel.DTO.DB.IUserInfo> {
     return await this.prisma.user.delete({
       where: { id },
+      include: {
+        leaderboard: true,
+      },
     });
   }
   async search(
@@ -171,11 +207,23 @@ export class Users {
         },
         skip: filter.offset,
         take: filter.limit,
+        include: {
+          leaderboard: true,
+        },
       })
     ).map<UsersModel.Models.IUserInfo>((user) => ({
-      ...user,
+      id: user.id,
+      type: user.type,
+      nickname: user.nickname,
+      avatar: user.avatar,
+      credits: user.credits,
+      firstLogin: user.firstLogin,
       createdAt: user.createdAt.getTime(),
       status: UsersModel.Models.Status.Offline,
+      leaderboard: {
+        elo: user.leaderboard.elo,
+      },
+
     }));
   }
 }

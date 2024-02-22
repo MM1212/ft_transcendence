@@ -2,7 +2,7 @@ import { AuthModel, EndpointResponse } from '@typings/api';
 import {
   FetchError,
   buildTunnelEndpoint,
-  useTunnelEndpoint,
+  useRawTunnelEndpoint,
 } from '@/hooks/tunnel';
 import React from 'react';
 import {} from 'wouter';
@@ -54,7 +54,7 @@ export const useSession = (
   options: SWRConfiguration<EndpointResponse<AuthModel.Endpoints.Session>> = {}
 ): Session => {
   const { data, isLoading, isValidating, error } =
-    useTunnelEndpoint<AuthModel.Endpoints.Session>(
+    useRawTunnelEndpoint<AuthModel.Endpoints.Session>(
       AuthModel.Endpoints.Targets.Session,
       undefined,
       options
@@ -129,24 +129,24 @@ export const useIsLoggedIn = (): boolean => useRecoilValue(isLoggedInSelector);
 
 export const useUsersService = () => {
   const onUserUpdate = useRecoilCallback(
-    (ctx) => (ev: UsersModel.Sse.UserUpdatedEvent) => {
-      const {
-        data: { id, avatar, nickname, studentId, status },
-      } = ev;
-      const userUpdate: Partial<UsersModel.Models.IUserInfo> = {
-        avatar,
-        nickname,
-        studentId,
-        status,
-      };
-      for (const key in userUpdate) {
-        if (userUpdate[key as keyof typeof userUpdate] === undefined)
-          delete userUpdate[key as keyof typeof userUpdate];
+    (ctx) => async (ev: UsersModel.Sse.UserUpdatedEvent) => {
+      const session = await ctx.snapshot.getPromise(sessionAtom);
+      if (!session) return;
+      const { data } = ev;
+      const {id} = data;
+      for (const key in data) {
+        if (data[key as keyof typeof data] === undefined)
+          delete data[key as keyof typeof data];
       }
-      const { state } = ctx.snapshot.getLoadable(usersAtom(id));
+      if (id === session.id) {
+        ctx.set(sessionAtom, (prev) => ({
+          ...prev!,
+          ...data,
+        }));
+        return;
+      }
       const { isActive } = ctx.snapshot.getInfo_UNSTABLE(usersAtom(id));
-      if (state === 'loading' || !isActive) {
-        console.warn('User not found in cache, skipping update');
+      if (!isActive) {
         return;
       }
       ctx.set(usersAtom(id), (prev) =>
@@ -154,7 +154,7 @@ export const useUsersService = () => {
           ? prev
           : {
               ...prev,
-              ...userUpdate,
+              ...data,
             }
       );
     },

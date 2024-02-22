@@ -11,6 +11,9 @@ import { LOBBY_STAGE_SIZE, LOBBY_TARGET_FPS } from '@shared/Lobby/constants';
 import { Logger } from '@nestjs/common';
 import { Character } from '@shared/Lobby/Character';
 import { vector2 } from '@typings/vector';
+import type Chat from '@/modules/chats/chat';
+import ChatsModel from '@typings/models/chat';
+import type { LobbyServices } from './Services';
 
 class ServerEvents extends Events {
   protected readonly emitter: EventEmitter2 = new EventEmitter2({
@@ -25,12 +28,32 @@ export class ServerLobby extends Lobby {
   public cons: Set<Socket> = new Set();
   private readonly logger = new Logger(ServerLobby.name);
   private tickHandle: NodeJS.Timeout | null = null;
-  constructor(public readonly sock: Server) {
+  private readonly chat: Chat;
+  constructor(
+    public readonly sock: Server,
+    private readonly services: LobbyServices,
+  ) {
     super([], -1, new ServerCollision(), new ServerEvents(), ServerPlayer);
     this.tickHandle = setInterval(
       this.tick.bind(this),
       1000 / LOBBY_TARGET_FPS / 2,
     );
+  }
+  async onMount(): Promise<void> {
+    await super.onMount();
+    // @ts-expect-error impl
+    this.chat = await this.services.chats.createTemporary({
+      name: 'PongLobbyChat',
+      type: ChatsModel.Models.ChatType.Temp,
+      id: 'lobby-chat',
+      authorization: ChatsModel.Models.ChatAccess.Public,
+      authorizationData: {},
+      participants: [],
+      photo: '',
+      topic: 'Lobby chat',
+    }, undefined, false);
+    this.logger.verbose(`Lobby chat created with id: ${this.chat.id}!`);
+    this.chatId = this.chat.id;
   }
   public destructor(): Promise<void> {
     if (this.tickHandle) clearInterval(this.tickHandle);
@@ -65,6 +88,8 @@ export class ServerLobby extends Lobby {
     transform?: LobbyModel.Models.ITransform,
     sock?: Socket,
   ): Promise<ServerPlayer> {
+    const user = await this.services.users.get(playerData.id);
+    if (!user) throw new Error(`User ${playerData.id} not found in db`);
     const player = await super.addPlayer(
       playerData,
       characterData,
@@ -75,6 +100,18 @@ export class ServerLobby extends Lobby {
     this.logger.verbose('Sending player:join event to lobby..');
     await this.broadcast('player:join', player.public);
     if (sock) this.cons.add(sock);
+
+    try {
+      await this.services.chats.joinChat(this.chat.id, user);
+      this.services.sse.emitTo<ChatsModel.Sse.NewChatEvent>(
+        ChatsModel.Sse.Events.NewChat,
+        user.id,
+        { chatId: this.chat.id },
+      );
+      this.logger.verbose(`User ${user.id} added to lobby chat`);
+    } catch (e) {
+      this.logger.warn(`Failed to add user ${user.id} to lobby chat`);
+    }
     return player as ServerPlayer;
   }
   public getPlayer(playerId: number): ServerPlayer | undefined;
@@ -96,10 +133,18 @@ export class ServerLobby extends Lobby {
     const playerHandle =
       player instanceof ServerPlayer ? player : this.getPlayer(player as any);
     if (!playerHandle) throw new Error(`Player ${player} not found in lobby`);
+    const user = await this.services.users.get(playerHandle.id);
+    if (!user) throw new Error(`User ${playerHandle.id} not found in db`);
     const ok = await super.removePlayer(player as any);
     if (!ok) return false;
     playerHandle.cons.forEach(this.cons.delete);
     await this.broadcast('player:leave', { id: playerHandle.id });
+    try {
+      await this.services.chats.leaveChat(this.chat.id, user, false);
+      this.logger.verbose(`User ${user.id} removed from lobby chat`);
+    } catch (e) {
+      this.logger.warn(`Failed to remove user ${user.id} from lobby chat`);
+    }
     return ok;
   }
 
@@ -121,7 +166,6 @@ export class ServerLobby extends Lobby {
       this.cons.add(sock);
       this.logger.verbose('Player already exists in lobby, added connection!');
     } else {
-      // TODO: fetch char data from db
       const CHARACTER_DATA: LobbyModel.Models.ICharacter = {
         clothes: user.character.clothes,
         animation: 'idle/down',
@@ -190,13 +234,9 @@ export class ServerLobby extends Lobby {
       ...player.character.clothes,
       ...changed,
     });
-    this.broadcastToSync(
-      'player:clothes',
-      this.getConnectionsExcept(sock),
-      {
-        id: player.id,
-        changed,
-      },
-    );
+    this.broadcastToSync('player:clothes', this.getConnectionsExcept(sock), {
+      id: player.id,
+      changed,
+    });
   }
 }

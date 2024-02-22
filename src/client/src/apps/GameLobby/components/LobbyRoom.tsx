@@ -5,7 +5,6 @@ import LobbbyCustomMatchPlayers from './LobbyCustomMatchPlayers';
 import { useRecoilCallback, useRecoilValue } from 'recoil';
 import { useCurrentUser } from '@hooks/user';
 import React from 'react';
-// import AddFriendRoom from "./AddFriendRoom";
 import { FindMatchWrapper } from './LobbyMatchMaking';
 import LobbyPongButton from './LobbyPongBottom';
 import pongGamesState from '../state';
@@ -17,7 +16,6 @@ import AccountPlusIcon from '@components/icons/AccountPlusIcon';
 import LobbyPongCustomMatchTabs from './LobbyPongCustomMatchTabs';
 import EyeArrowRightIcon from '@components/icons/EyeArrowRightIcon';
 import { LobbySettings } from './LobbySettings';
-import { useModalActions } from '@hooks/useModal';
 import {
   ChatSelectedData,
   useChatSelectModalActions,
@@ -29,7 +27,6 @@ export default function LobbyRoom() {
   const [leftTeam, rightTeam] = lobby.teams;
   const isPlaying = useRecoilValue(pongGamesState.isPlaying);
   const user = useCurrentUser();
-  //const {open} = useModalActions(LobbyInviteId)
   const { select: selectInvites } = useChatSelectModalActions();
   const player = leftTeam.players
     .concat(rightTeam.players)
@@ -42,8 +39,8 @@ export default function LobbyRoom() {
         lobbyId: lobby.id,
       });
       notifications.success('Game is starting soon!');
-    } catch {
-      console.log('Failed to start game');
+    } catch (error) {
+      console.log('Failed to start game', error);
       notifications.error('Failed to start game');
     }
   });
@@ -82,8 +79,11 @@ export default function LobbyRoom() {
       await tunnel.post(PongModel.Endpoints.Targets.JoinSpectators, {
         lobbyId: lobby.id,
       });
-    } catch {
-      console.log('Failed to join spectators');
+    } catch (error) {
+      notifications.error(
+        'Failed to join spectators',
+        (error as Error).message
+      );
     }
   }, [lobby.id]);
 
@@ -111,6 +111,7 @@ export default function LobbyRoom() {
       await tunnel.post(PongModel.Endpoints.Targets.Invite, {
         lobbyId: lobby.id,
         data: selected,
+        source: PongModel.Models.InviteSource.Lobby,
       });
     } catch (error) {
       console.log(error);
@@ -173,7 +174,6 @@ export default function LobbyRoom() {
           Leave
         </Button>
       </Stack>
-      {/* <AddFriendRoom open={open} setOpen={setOpen} roomSize={teamSizeInt} /> */}
       <Stack sx={{ display: 'flex', flexDirection: 'row' }}>
         <LobbyGameTypography level="body-sm">{lobby.name}</LobbyGameTypography>
         <ShurikenIcon size="xs" sx={{ ml: 1, mr: 1, mt: 0.7 }} />
@@ -186,9 +186,7 @@ export default function LobbyRoom() {
       <LobbbyCustomMatchPlayers leftTeam={leftTeam} rightTeam={rightTeam} />
       <Box display="flex" width="100%" flexGrow={1} mt={2} gap={8}>
         <LobbyPongCustomMatchTabs />
-        <Box flex={1}>
-          <LobbySettings key={3} />
-        </Box>
+        <LobbySettings />
       </Box>
       {user?.id === lobby.ownerId ? (
         <FindMatchWrapper
@@ -198,10 +196,7 @@ export default function LobbyRoom() {
           }}
           onClick={handleStartMatch}
         >
-          <LobbyPongButton
-            label="Start Match"
-            src="/matchMaking/button1.webp"
-          />
+          <LobbyPongButton label="Start Match" />
         </FindMatchWrapper>
       ) : (
         <FindMatchWrapper
@@ -214,10 +209,9 @@ export default function LobbyRoom() {
           <LobbyPongButton
             label={
               player.status === PongModel.Models.LobbyStatus.Ready
-                ? 'Ready'
-                : 'Not Ready'
+                ? 'Not Ready'
+                : 'Ready'
             }
-            src="/matchMaking/button1.webp"
           />
         </FindMatchWrapper>
       )}

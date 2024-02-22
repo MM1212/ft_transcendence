@@ -6,9 +6,10 @@ import { SWRConfig } from 'swr';
 import StateMounter from '@state/mounter';
 import NotificationsProvider from '@lib/notifications/Provider';
 import moment from 'moment';
-import ErrorBoundary from '@components/ExceptionCatcher';
 import CustomScrollBar from '@theme/scrollBar';
 import { Pixi } from '@hooks/pixiRenderer';
+import * as Sentry from '@sentry/react';
+import ErrorPage from '@apps/Error/views/index';
 
 moment.updateLocale('en', {
   relativeTime: {
@@ -33,6 +34,28 @@ Pixi.Assets.setPreferences({
   preferWorkers: true,
 });
 
+Sentry.init({
+  dsn: import.meta.env.FRONTEND_SENTRY_DSN,
+  integrations: [
+    Sentry.browserTracingIntegration(),
+    Sentry.replayIntegration({
+      maskAllText: false,
+      blockAllMedia: false,
+    }),
+  ],
+
+  // Performance Monitoring
+  tracesSampleRate: 1.0, //  Capture 100% of the transactions
+  // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
+  tracePropagationTargets: [
+    import.meta.env.FRONTEND_HOST,
+    import.meta.env.BACKEND_HOST,
+  ],
+  // Session Replay
+  replaysSessionSampleRate: 0.1, // This sets the sample rate at 10%. You may want to change it to 100% while in development and then sample at a lower rate in production.
+  replaysOnErrorSampleRate: 1.0, // If you're not already sampling the entire session, change the sample rate to 100% when sampling sessions where errors occur.
+});
+
 export default function AppProviders({
   children,
 }: React.PropsWithChildren<{}>): JSX.Element {
@@ -55,7 +78,9 @@ export default function AppProviders({
           <CssBaseline />
           <CustomScrollBar />
           <NotificationsProvider />
-          <ErrorBoundary>{children}</ErrorBoundary>
+          <Sentry.ErrorBoundary fallback={(props) => <ErrorPage {...props} />}>
+            {children}
+          </Sentry.ErrorBoundary>
         </CssVarsProvider>
       </SWRConfig>
     </RecoilRoot>

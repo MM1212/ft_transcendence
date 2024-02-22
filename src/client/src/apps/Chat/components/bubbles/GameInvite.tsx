@@ -3,19 +3,17 @@ import { ChatDefaultMessageBubbleProps } from './Default';
 import Bubble from '../Bubble';
 import { Avatar, Badge, Button, Skeleton, Stack, Typography } from '@mui/joy';
 import LockIcon from '@components/icons/LockIcon';
-import React from 'react';
+import React, { useCallback } from 'react';
 import AlertIcon from '@components/icons/AlertIcon';
 import { useRecoilCallback, useRecoilValue } from 'recoil';
-import { useTunnelEndpoint } from '@hooks/tunnel';
+import { useRawTunnelEndpoint } from '@hooks/tunnel';
 import { randomInt } from '@utils/random';
 import pongGamesState from '@apps/GameLobby/state';
 import { useCurrentUser } from '@hooks/user';
 import PongModel from '@typings/models/pong';
-import tunnel from '@lib/tunnel';
-import notifications from '@lib/notifications/hooks';
 import { navigate } from 'wouter/use-location';
 import TableTennisIcon from '@components/icons/TableTennisIcon';
-import { useChatPasswordInputModalActions } from '@apps/Chat/modals/ChatPasswordInputModal/hooks/useChatPasswordInputModal';
+import { useLobbyActions } from '@apps/GameLobby/hooks/actions';
 
 interface IChatEmbedAttachmentsBubbleProps
   extends ChatDefaultMessageBubbleProps {
@@ -52,7 +50,7 @@ function _ChatEmbedGameInviteBubble({
   ...props
 }: IChatEmbedAttachmentsBubbleProps) {
   const { data, error, isLoading } =
-    useTunnelEndpoint<PongModel.Endpoints.GetLobby>(
+    useRawTunnelEndpoint<PongModel.Endpoints.GetLobby>(
       brokenInvitesCache.has(`${embed.lobbyId}.${embed.nonce}`)
         ? null
         : PongModel.Endpoints.Targets.GetLobby,
@@ -76,43 +74,27 @@ function _ChatEmbedGameInviteBubble({
     if (deleted) brokenInvitesCache.add(`${embed.lobbyId}.${embed.nonce}`);
   }, [deleted, embed.lobbyId, embed.nonce]);
 
-  const { prompt } = useChatPasswordInputModalActions();
+  const { joinGame } = useLobbyActions();
 
   const lobby = !error && data?.status === 'ok' ? data.data : undefined;
   const [loading, setLoading] = React.useState(false);
-  const attemptToJoin = useRecoilCallback(
-    (ctx) => async () => {
-      if (joined) return navigate('/pong/play/create');
+  const attemptToJoin = useCallback(
+     async () => {
+      if (joined) return navigate('/pong/play/');
       if (!lobby) return;
-      try {
-        setLoading(true);
-        let pass: string | null = null;
-        if (lobby.authorization === PongModel.Models.LobbyAccess.Protected) {
-          pass = await prompt({
-            chatName: lobby.name,
-          });
-          if (!pass) {
-            setLoading(false);
-            return;
-          }
-        }
-        const lobbyJoined = await tunnel.post(
-          PongModel.Endpoints.Targets.JoinLobby,
-          {
-            lobbyId: lobby.id,
-            nonce: embed.nonce,
-            password: pass,
-          }
-        );
-        ctx.set(pongGamesState.gameLobby, lobbyJoined);
-        navigate('/pong/play/create');
-      } catch (error) {
-        notifications.error('Failed to join lobby', (error as Error).message);
-      } finally {
-        setLoading(false);
-      }
+
+      const lobbyJoined = await joinGame(
+        lobby.id,
+        embed.nonce,
+        lobby.authorization,
+        lobby.name,
+      );
+      if (!lobbyJoined) return;
+      navigate('/pong/play/');
+
+      setLoading(false);
     },
-    [joined, lobby, embed.nonce, prompt]
+    [joined, lobby, embed.nonce, joinGame]
   );
 
   return (

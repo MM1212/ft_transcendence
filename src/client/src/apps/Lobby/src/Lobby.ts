@@ -14,6 +14,7 @@ import { Socket } from 'socket.io-client';
 import LobbyModel from '@typings/models/lobby';
 import { Network } from './Network';
 import { enablePlayerInput } from '@apps/Lobby_Old/state';
+import { InteractionManager } from './Interaction';
 
 interface ExtendedSnapshot extends Snapshot {
   mutate: ClientLobby['mutateSnapshot'];
@@ -26,6 +27,9 @@ export class ClientLobby extends Lobby {
   private _snapshot: ExtendedSnapshot | null = null;
 
   public readonly network: Network = new Network(this);
+  public readonly interactions: InteractionManager = new InteractionManager(
+    this
+  );
 
   private readonly domEvents: [
     {
@@ -85,14 +89,29 @@ export class ClientLobby extends Lobby {
       emitter.removeEventListener(event, listener);
     });
     await super.destructor();
-    this.app.destroy(true, {
+    this.stage.destroy({
       children: true,
     });
+    this.app.destroy(true);
   }
   async onMount(): Promise<void> {
     await this.setupBackground();
-    this.app.ticker.add(this.onUpdate.bind(this));
+    const onUpdateHandler = this.onUpdate.bind(this);
+    this.app.ticker.add(onUpdateHandler);
+    this.domEvents.push([
+      {
+        removeEventListener: (_, listener) => this.app.ticker.remove(listener),
+      },
+      'update',
+      onUpdateHandler,
+    ]);
+
     await super.onMount();
+  }
+  async onUpdate(delta: number): Promise<void> {
+    if (!this.app.stage || !this.stage || this.loading) return;
+    await super.onUpdate(delta);
+    await this.interactions.update();
   }
 
   private async setupBackground(): Promise<void> {
@@ -130,7 +149,10 @@ export class ClientLobby extends Lobby {
   }
 
   private async isInputEnabled(): Promise<boolean> {
-    return (await this.snapshot?.getPromise(enablePlayerInput)) ?? false;
+    return (
+      (!this.loading && (await this.snapshot?.getPromise(enablePlayerInput))) ??
+      false
+    );
   }
 
   private async handleMouseMove(ev: PIXI.FederatedMouseEvent): Promise<void> {
@@ -169,6 +191,15 @@ export class ClientLobby extends Lobby {
     const onKeyReleaseHandler = onKeyPress(false);
     window.addEventListener('keyup', onKeyReleaseHandler);
     this.domEvents.push([window, 'keyup', onKeyReleaseHandler]);
+
+    const focusChangeHandler = async (): Promise<void> => {
+      const mainPlayer = this.mainPlayer;
+      if (!mainPlayer) return;
+      if (!(await this.isInputEnabled())) return;
+      await mainPlayer.resetKeys();
+    };
+    window.addEventListener('blur', focusChangeHandler);
+    this.domEvents.push([window, 'blur', focusChangeHandler]);
   }
 
   public get snapshot(): ExtendedSnapshot | null {
@@ -193,18 +224,27 @@ export class ClientLobby extends Lobby {
     if (ret instanceof Promise)
       return new Promise<void>((r) =>
         ret.then((snapshot) => {
-          this.snapshot = snapshot;
+          this.__handleNewSnapshot(snapshot);
           r();
         })
       );
-    else this.snapshot = ret;
+    this.__handleNewSnapshot(ret);
+  }
+
+  private retainRef: () => void | null = () => void 0;
+  public __handleNewSnapshot(snapshot: Snapshot): void {
+    this.retainRef();
+    this.snapshot = snapshot;
+    if (!this.snapshot) return;
+    this.retainRef = this.snapshot.retain();
   }
 
   // Socket Calls
   public async __sockLobbyInit(data: LobbyModel.Models.ILobby): Promise<void> {
-    if (this.mainPlayer) {
-      await this.destructor();
-    }
+    this.loading = true;
+    this.chatId = data.chatId;
+    await Promise.all(this.players.map((p) => p.destructor()));
+
     this.mainPlayerId = data.players.find((p) => p.main)!.id;
     // @ts-expect-error impl
     this.players = data.players.map(

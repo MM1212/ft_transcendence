@@ -1,0 +1,6 @@
+{
+  "id": "body",
+  "label": "Body",
+  "icon": "{ICON_PATH}/cat/Body",
+  "env": {}
+}

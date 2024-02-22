@@ -9,18 +9,23 @@ import {
 } from '@typings/api';
 import { GroupEnumValues } from '@typings/utils';
 import LobbyModel from '../lobby';
-import QuestsModel from './quests';
+import AchievementsModel from './achievements'; //new
 import InventoryModel from './inventory';
 import NotificationsModel from '../notifications';
+import type LeaderboardModel from '../leaderboard';
 
 namespace UsersModel {
   export namespace Models {
     export const DEFAULT_AVATAR = '13';
+    export enum Types {
+      User = 'USER',
+      Bot = 'BOT',
+    }
     export enum Status {
-      Offline,
-      Online,
-      Busy,
-      Away,
+      Offline = 'OFFLINE',
+      Online = 'ONLINE',
+      Busy = 'BUSY',
+      Away = 'AWAY',
     }
     export interface ICharacter {
       id: number;
@@ -28,12 +33,13 @@ namespace UsersModel {
     }
     export interface IUser {
       id: number;
-      studentId: number;
+      studentId?: number;
       nickname: string;
+      type: GroupEnumValues<Types>;
       avatar: string;
       createdAt: number;
-      status: Status;
-      storedStatus: Status;
+      status: GroupEnumValues<Status>;
+      storedStatus: GroupEnumValues<Status>;
       firstLogin: boolean;
       friends: number[];
       blocked: number[];
@@ -41,39 +47,46 @@ namespace UsersModel {
       tfa: AuthModel.Models.TFA;
       connected: boolean;
       character: ICharacter;
-      quests: QuestsModel.Models.IQuest[];
+      achievements: AchievementsModel.Models.IUserAchievement[]; //new
       inventory: InventoryModel.Models.IItem[];
       notifications: NotificationsModel.Models.INotification[];
+      credits: number;
+      leaderboard: LeaderboardModel.Models.Leaderboard;
     }
     export interface IUserInfo
       extends Omit<
         IUser,
         | 'friends'
+        | 'studentId'
         | 'blocked'
         | 'chats'
         | 'storedStatus'
         | 'tfa'
         | 'connected'
         | 'character'
-        | 'quests'
+        | 'achievements' //new
         | 'inventory'
         | 'notifications'
-      > {}
+        | 'leaderboard'
+      > {
+      leaderboard: Pick<LeaderboardModel.Models.Leaderboard, 'elo'>;
+    }
   }
   export namespace DTO {
     export namespace DB {
       export interface IUser
-        extends Omit<Models.IUserInfo, 'createdAt' | 'status'> {
+        extends Omit<Models.IUserInfo, 'createdAt' | 'status' | 'studentId'> {
+        studentId: number | null;
         createdAt: Date;
         friends: { id: number }[];
         friendOf: { id: number }[];
         chats: { id: number }[];
         blocked: { id: number }[];
-        storedStatus: Models.Status;
+        storedStatus: GroupEnumValues<Models.Status>;
         tfaEnabled: boolean;
         tfaSecret: string | null;
 
-        quests: QuestsModel.DTO.DB.IQuest[];
+        achievements: AchievementsModel.DTO.DB.IUserAchievement[]; //new
         inventory: InventoryModel.DTO.DB.IItem[];
         notifications: NotificationsModel.DTO.DB.Notification[];
       }
@@ -82,7 +95,12 @@ namespace UsersModel {
         createdAt: Date;
       }
       export interface IUserCreate
-        extends Pick<Models.IUserInfo, 'studentId' | 'nickname' | 'avatar'> {}
+        extends Pick<Models.IUserInfo, 'nickname' | 'avatar'> {
+        type?: Models.Types;
+        studentId?: number;
+        credits?: number;
+        inventory?: Omit<InventoryModel.DTO.DB.CreateItem, 'userId'>[];
+      }
       export interface GetLimits {
         limit?: number;
         offset?: number;
@@ -130,18 +148,21 @@ namespace UsersModel {
     }
 
     export interface FriendRequestNotification
-      extends NotificationsModel.Models.INotification<
-        Record<string, unknown> & {
-          type: 'sender' | 'receiver';
-          uId: number;
-          status: 'pending' | 'accepted' | 'declined';
-        }
-      > {}
+      extends NotificationsModel.Models.INotification<{
+        type: 'sender' | 'receiver';
+        uId: number;
+        status: 'pending' | 'accepted' | 'declined';
+      }> {}
+
+    export interface QueryUserByNicknameParams extends Record<string, unknown> {
+      nickname: string;
+    }
   }
   export namespace Endpoints {
     export enum Targets {
       GetUsers = '/users',
       GetUser = '/users/:id',
+      QueryUserByNickname = '/users/query/nickname/:nickname',
       SearchUsers = '/users/search',
       PatchUser = '/users/:id',
       GetFriends = '/users/:id/friends',
@@ -153,6 +174,7 @@ namespace UsersModel {
       RemoveFriend = '/users/:id/friends/:friendId',
       BlockUser = '/users/:id/blocked/:blockedId',
       UnblockUser = '/users/:id/blocked/:blockedId',
+      GetCredits = '/users/:id/credits',
     }
 
     export type All = GroupEnumValues<Targets>;
@@ -231,14 +253,26 @@ namespace UsersModel {
         undefined,
         DTO.BlockedParams
       > {}
+
+    export interface GetCredits
+      extends GetEndpoint<Targets.GetCredits, number, DTO.GetUserParams> {}
+
+    export interface QueryUserByNickname
+      extends GetEndpoint<
+        Targets.QueryUserByNickname,
+        Models.IUserInfo,
+        DTO.QueryUserByNicknameParams
+      > {}
     export type Registry = {
       [EndpointMethods.Get]: {
-        [Targets.GetUsers]: GetUsers;
+        // [Targets.GetUsers]: GetUsers;
         [Targets.GetUser]: GetUser;
         [Targets.GetFriends]: GetFriends;
         [Targets.GetBlocked]: GetBlocked;
         [Targets.GetSessionFriends]: GetSessionFriends;
         [Targets.GetSessionBlocked]: GetSessionBlocked;
+        [Targets.GetCredits]: GetCredits;
+        [Targets.QueryUserByNickname]: QueryUserByNickname;
       };
       [EndpointMethods.Post]: {
         [Targets.SearchUsers]: SearchUsers;

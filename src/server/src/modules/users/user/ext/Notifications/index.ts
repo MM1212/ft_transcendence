@@ -136,6 +136,7 @@ class UserExtNotifications extends UserExtBase {
   public get read(): Notification[] {
     return this.all.filter((n) => n.read);
   }
+  
 
   public get count(): number {
     return this.raw.length;

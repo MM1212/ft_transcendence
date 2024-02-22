@@ -1,0 +1,8 @@
+{
+  "id": "special_power",
+  "label": "Special Powers",
+  "icon": "{ICON_PATH}/cat/SpecialPower",
+  "env": {
+    "ASSET_PATH": "{ASSET_PATH}/Powers"
+  }
+}

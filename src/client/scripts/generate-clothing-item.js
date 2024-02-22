@@ -1,11 +1,14 @@
 import fs from 'fs/promises';
 import path from 'path';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const generateCloth = async (clothId, backPaper = false) => {
   if (!clothId || isNaN(clothId))
     throw new Error('Please provide a valid clothing id');
 
-  const REPOSITORY = 'https://media.cplegacy.net/assets/media/clothing/';
+  const REPOSITORY = `${process.env.FRONTEND_PUBLIC_CDN_URL}/client/dist/assets/media/clothing`;
   const TARGET_DIR = `public/assets/penguin/clothing/${clothId}`;
 
   console.log(`Fetching sprite icon...`);

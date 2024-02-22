@@ -2,6 +2,7 @@ import { Typography, VariantProp } from '@mui/joy';
 import Bubble from '../Bubble';
 import { urlRegex } from '../NewChat';
 import React from 'react';
+import escape from 'lodash.escape';
 
 export interface ChatDefaultMessageBubbleProps {
   messageId: number;
@@ -21,7 +22,7 @@ export default function ChatDefaultMessageBubble({
   variant,
 }: ChatDefaultMessageBubbleProps): JSX.Element {
   const messageFormatted = React.useMemo(() => {
-    return message.replace(new RegExp(urlRegex, 'g'), (url) => {
+    return escape(message).replace(new RegExp(urlRegex, 'g'), (url) => {
       return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`;
     });
   }, [message]);

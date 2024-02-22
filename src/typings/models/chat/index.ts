@@ -149,13 +149,15 @@ namespace ChatsModel {
       export type GetPublicChats = Models.IChatInfo[];
       export interface CreateDBParticipant
         extends Pick<Models.IChatParticipant, 'role' | 'userId' | 'chatId'> {}
+      export interface CreateChatParticipant
+        extends Omit<CreateDBParticipant, 'chatId'> {}
       export interface CreateChat
         extends Pick<
           Models.IChat,
           'type' | 'authorization' | 'name' | 'photo' | 'topic'
         > {
         authorizationData: Models.IChatAuthorizationData | null;
-        participants: Omit<CreateDBParticipant, 'chatId'>[];
+        participants: CreateChatParticipant[];
       }
       export interface CreateMessage
         extends Pick<

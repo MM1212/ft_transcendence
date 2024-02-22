@@ -7,21 +7,18 @@ import { hash } from '@shared/hash';
 import Chat from '@/modules/chats/chat';
 import ChatsModel from '@typings/models/chat';
 import { PongLobbyService } from '../ponglobby.service';
-import { read } from 'fs';
 import { ServerGame } from '@/modules/ponggame/pong';
-import { ballsConfig } from '@shared/Pong/config/configInterface';
+import NotificationsModel from '@typings/models/notifications';
+import UserProfileMessageInjector from '@/modules/users/user/ext/Notifications/MessageInjectors/UserProfile';
 
 /* ---- LOBBY PARTICIPANT ---- */
 
 export class PongLobbyParticipant
   implements PongModel.Models.ILobbyParticipant
 {
-  public keys: PongModel.Models.IGamekeys | undefined =
-    PongModel.Models.TemporaryLobbyParticipant.keys;
-  public paddle: string =
-    PongModel.Models.TemporaryLobbyParticipant.paddle;
-  public specialPower: GroupEnumValues<PongModel.Models.LobbyParticipantSpecialPowerType> =
-    PongModel.Models.TemporaryLobbyParticipant.specialPower;
+  public keys: PongModel.Models.IGamekeys | undefined;
+  public paddle: string;
+  public specialPower: GroupEnumValues<PongModel.Models.LobbyParticipantSpecialPowerType> = PongModel.Models.LobbyParticipantSpecialPowerType.spark;
   public status: GroupEnumValues<PongModel.Models.LobbyStatus> =
     PongModel.Models.LobbyStatus.Waiting;
   public role: GroupEnumValues<PongModel.Models.LobbyParticipantRole> =
@@ -35,16 +32,22 @@ export class PongLobbyParticipant
   constructor(
     public user: User,
     lobby: PongLobby,
+    paddle: string,
+    keys: PongModel.Models.IGamekeys | undefined,
+    specialP: GroupEnumValues<PongModel.Models.LobbyParticipantSpecialPowerType>,
     public id: number = user.id,
     public nickname: string = user.nickname,
     public avatar: string = user.avatar,
     public lobbyId: number = lobby.id,
   ) {
+    this.paddle = paddle;
+    this.keys = keys;
+    this.specialPower = specialP;
     if (lobby.nPlayers < 4) lobby.addPlayerToPlayers(this);
     else lobby.addPlayerToSpectators(this);
-    
-    if (user.nickname === 'bot') // HARDCODED, BUT JUST NEEDS THIS TO BE CHANGED TO IMPLEMENT BOT
-    {
+
+    if (user.nickname === 'bot') {
+      // HARDCODED, BUT JUST NEEDS THIS TO BE CHANGED TO IMPLEMENT BOT
       this.keys = undefined;
       this.status = PongModel.Models.LobbyStatus.Ready;
       this.type = 'bot';
@@ -103,8 +106,9 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
   ];
   public spectators: PongLobbyParticipant[] = [];
   public invited: number[] = [];
-  public ballTexture: string = "RedBall"; // default value
-
+  public ballTexture: string = 'RedBall'; // default value
+  public score: number = 7; // default value
+  public createdAt: number = Date.now();
   public readonly chat: Chat;
   public readonly nonce: number = Math.floor(Math.random() * 1000000);
   public gameUUId: string | null = null;
@@ -125,7 +129,9 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
       name: string;
       spectators: PongModel.Models.LobbySpectatorVisibility;
       lobbyType: PongModel.Models.LobbyType;
+      lobbyAccess: PongModel.Models.LobbyAccess;
       gameType: PongModel.Models.LobbyGameType;
+      score: number;
     },
     lobbyId: number,
     owner: User,
@@ -136,7 +142,14 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
     this.gameType = data.gameType;
     this.spectatorVisibility = data.spectators;
     this.ownerId = owner.id;
-    this.setAuthorization(data.password);
+    this.score = data.score;
+    if (this.queueType === PongModel.Models.LobbyType.Single) {
+      this.score = 7;
+    }
+    this.authorization = data.lobbyAccess;
+    if (data.lobbyAccess !== PongModel.Models.LobbyAccess.Private) {
+      this.setAuthorization(data.password);
+    }
 
     // @ts-expect-error Impl
     return this.helpers.chatsService
@@ -158,7 +171,13 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
       .then(async (chat) => {
         // @ts-expect-error Impl
         this.chat = chat;
-        const newUser = new PongLobbyParticipant(owner, this);
+        const newUser = new PongLobbyParticipant(
+          owner,
+          this,
+          PongModel.Models.Paddles.PaddleRed,
+          PongModel.Models.DEFAULT_GAME_KEYS,
+          PongModel.Models.LobbyParticipantSpecialPowerType.spark,
+        );
         newUser.privileges = PongModel.Models.LobbyParticipantPrivileges.Owner;
         this.service.usersInGames.set(newUser.id, this.id);
         return this;
@@ -176,6 +195,15 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
     );
   }
 
+  public async updatePersonal(userId: number, paddleSkin:string, specialPower:string): Promise<boolean>
+  {
+    const player = this.getPlayerFromBoth(userId);
+    if (!player) return false;
+    player.paddle = paddleSkin;
+    player.specialPower = specialPower as GroupEnumValues<PongModel.Models.LobbyParticipantSpecialPowerType>;
+    return true;
+  }
+
   public async startGame(userId: number): Promise<boolean> {
     const player = this.getPlayerFromTeam(userId);
     if (this.teams[0].players.length === 0) return false;
@@ -187,7 +215,6 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
         (player) => player.status !== PongModel.Models.LobbyStatus.Ready,
       )
     ) {
-      console.log('NOT ALL READY');
       player!.status = PongModel.Models.LobbyStatus.Waiting;
       return false;
     }
@@ -199,11 +226,50 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
       if (team.players.length === 1)
         team.players[0].teamPosition = PongModel.Models.TeamPosition.Top;
     });
-    console.log('ALL READY');
     this.status = PongModel.Models.LobbyStatus.Playing;
-
-    const game = await this.helpers.gameService.initGameSession(this);
+    const game = await this.helpers.gameService.initGameSession(
+      this,
+      this.service,
+      this.helpers.gameService,
+    );
     this.gameUUId = game.UUID;
+    return true;
+  }
+
+  public addBot(bot: User, teamId: number, teamPosition: number): boolean {
+    if (this.teams[teamId].players.length === 2) return false;
+    if (
+      this.teams[teamId].players.some(
+        (player) => player.teamPosition === teamPosition,
+      )
+    )
+      return false;
+    const keys = undefined;
+    const random = Math.floor(Math.random() * 4);
+    let paddle;
+    if (random === 0) paddle = PongModel.Models.Paddles.PaddleAcid;
+    else if (random === 1) paddle = PongModel.Models.Paddles.PaddleGengar;
+    else if (random === 2) paddle = PongModel.Models.Paddles.PaddleSnake;
+    else paddle = PongModel.Models.Paddles.PaddlePenguinBros;
+    const specialPower = PongModel.Models.LobbyParticipantSpecialPowerType.bubble;
+    const botPlayer = new PongLobbyParticipant(
+      bot,
+      this,
+      paddle,
+      keys,
+      specialPower,
+      bot.id,
+      bot.nickname,
+      bot.avatar,
+      this.id,
+    );
+    this.removePlayerFromTeam(bot.id);
+    this.addToTeam(botPlayer, teamId, teamPosition);
+    console.log(`Lobby-${this.id}: ${bot.nickname} joined.`);
+    console.log('nb players: ' + this.nPlayers);
+    botPlayer.keys = undefined;
+    botPlayer.status = PongModel.Models.LobbyStatus.Ready;
+    botPlayer.type = 'bot';
     return true;
   }
 
@@ -211,8 +277,36 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
     return this.helpers.usersService.get(this.ownerId) as Promise<User>;
   }
 
+  public get onlyBots(): boolean {
+    return this.allInLobby.every((player) => player.type === 'bot');
+  }
+
+  public async removeAllBots(): Promise<void> {
+    await Promise.all(
+      this.allPlayers.map(async (player) => {
+        if (player.type === 'bot') await this.removeFromLobby(player.id);
+      }),
+    );
+  }
+
   public async delete(): Promise<void> {
     await this.helpers.chatsService.nukeChat(this.chat.id);
+    await Promise.all(
+      this.invited.map(async (id) => {
+        const user = await this.helpers.usersService.get(id);
+        if (!user) return;
+        const notifications = user.notifications.getByTag(
+          NotificationsModel.Models.Tags.PongLobbyInvite,
+        );
+        const notif = notifications.find(
+          (notif) =>
+            notif.data.lobbyId === this.id && notif.data.nonce === this.nonce,
+        );
+        if (notif) {
+          await notif.dismiss(true);
+        }
+      }),
+    );
   }
 
   public removePlayerFromSpectator(
@@ -255,7 +349,7 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
     );
   }
 
-  private get allPlayers(): PongModel.Models.ILobbyParticipant[] {
+  public get allPlayers(): PongModel.Models.ILobbyParticipant[] {
     return this.teams[0].players.concat(this.teams[1].players);
   }
 
@@ -278,36 +372,54 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
   public async invite(
     user: User,
     data: PongModel.Endpoints.ChatSelectedData[],
+    source: PongModel.Models.InviteSource,
   ): Promise<void> {
     const allPlayers = this.allInLobby;
 
     for (const i in data) {
       if (data[i].type === 'user') {
-        console.log(data[i]);
         if (allPlayers.some((player) => player.id === data[i].id)) continue;
         if (this.invited.some((player) => player === data[i].id)) continue;
         this.invited.push(data[i].id);
         const target = await this.helpers.usersService.get(data[i].id);
-        console.log(target);
         if (!target) continue;
-        const [, chat] =
-          await this.helpers.chatsService.checkOrCreateDirectChat(user, target);
-        if (!chat) continue;
-        console.log(chat);
-        console.log(user.id + ' invited ' + target.id);
-        await chat.addMessage(
-          user,
-          {
-            type: ChatsModel.Models.ChatMessageType.Embed,
-            message: 'Pong Invite',
-            meta: {
-              type: ChatsModel.Models.Embeds.Type.GameInvite,
+        if (source === PongModel.Models.InviteSource.Chat) {
+          const [, chat] =
+            await this.helpers.chatsService.checkOrCreateDirectChat(
+              user,
+              target,
+            );
+          if (!chat) continue;
+          console.log(user.id + ' invited ' + target.id);
+          await chat.addMessage(
+            user,
+            {
+              type: ChatsModel.Models.ChatMessageType.Embed,
+              message: 'Pong Invite',
+              meta: {
+                type: ChatsModel.Models.Embeds.Type.GameInvite,
+                lobbyId: this.id,
+                nonce: this.nonce,
+              },
+            },
+            true,
+          );
+        } else if (source === PongModel.Models.InviteSource.Lobby) {
+          await target.notifications.create({
+            type: NotificationsModel.Models.Types.Temporary,
+            tag: NotificationsModel.Models.Tags.PongLobbyInvite,
+            title: 'Pong Game Invite',
+            message: `${new UserProfileMessageInjector(
+              user,
+            )} invited you to a game of Pong`,
+            data: {
               lobbyId: this.id,
               nonce: this.nonce,
+              authorization: this.authorization,
             },
-          },
-          true,
-        );
+            dismissable: true,
+          });
+        }
       }
       if (data[i].type === 'chat') {
         const chat = await this.helpers.chatsService.get(data[i].id);
@@ -339,9 +451,45 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
         teams: this.interface.teams,
         spectators: this.interface.spectators,
         ownerId: this.ownerId,
+        ballTexture: this.ballTexture,
+        score: this.score,
+        gameType: this.gameType,
       },
     );
   }
+
+  public updateSettings(score: number, type: boolean, ballSkin: string): boolean {
+    if (score < 1 || score > 100) return false;
+    this.score = score;
+    console.log('ballSkin: ' + ballSkin);
+    if (ballSkin !== '') {
+      const ballPath = ballSkin.split('/');
+      const ballFile = ballPath[ballPath.length - 1];
+      const ballName = ballFile.split('.')[0];
+      this.ballTexture = ballName;
+    }
+    this.gameType =
+      type === true
+        ? PongModel.Models.LobbyGameType.Powers
+        : PongModel.Models.LobbyGameType.Classic;
+    return true;
+  }
+
+  // public syncSettings(): void {
+  //   this.helpers.sseService.emitToTargets<PongModel.Sse.UpdateLobbySettings>(
+  //     PongModel.Sse.Events.UpdateLobbySettings,
+  //     this.allInLobby.map((player) => player.id),
+  //     {
+  //       lobbyId: this.id,
+  //       score: this.score,
+  //       type:
+  //         this.gameType === PongModel.Models.LobbyGameType.Powers
+  //           ? true
+  //           : false,
+  //       ballSkin: this.ballTexture,
+  //     },
+  //   );
+  // }
 
   public sendToParticipant(
     userId: number,
@@ -367,9 +515,10 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
 
   private async assignNewOwner() {
     // does this work?
-    const newOwner = this.allInLobby.find((p) => p.id !== this.ownerId);
+    const newOwner = this.allInLobby.find(
+      (p) => p.id !== this.ownerId && p.type !== 'bot',
+    );
     if (newOwner) {
-      console.log('NEW OWNER : ', newOwner);
       await this.setAsOwner(newOwner as PongLobbyParticipant);
     }
   }
@@ -390,6 +539,7 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
   public get interface(): PongModel.Models.ILobby {
     return {
       id: this.id,
+      nonce: this.nonce,
       ownerId: this.ownerId,
       name: this.name,
       queueType: this.queueType,
@@ -399,6 +549,7 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
       authorization: this.authorization,
       authorizationData: null,
       nPlayers: this.nPlayers,
+      createdAt: this.createdAt,
       teams: this.teams.map((team) => ({
         ...team,
         players: (team.players as PongLobbyParticipant[]).map(
@@ -409,6 +560,7 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
       invited: this.invited,
       chatId: this.chat.id,
       ballTexture: this.ballTexture,
+      score: this.score,
     };
   }
 
@@ -416,6 +568,7 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
     return {
       id: this.id,
       name: this.name,
+      nonce: this.nonce,
       gameType: this.gameType,
       spectatorVisibility: this.spectatorVisibility,
       status: this.status,
@@ -423,6 +576,7 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
       nPlayers: this.nPlayers,
       ownerId: this.ownerId,
       spectators: this.spectators.length,
+      score: this.score,
     };
   }
 
@@ -438,18 +592,21 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
     userId: number,
     userToKickId: number,
   ): Promise<boolean> {
-    console.log(
-      'OWNER ID: ' +
-        this.ownerId +
-        ' USER ID: ' +
-        userId +
-        ' USER TO KICK ID: ' +
-        userToKickId,
-    );
-    console.log(this.invited);
+    const user = await this.helpers.usersService.get(userToKickId);
+    if (!user) return false;
     if (this.ownerId !== userId) return false;
     if (!this.invited.some((id) => id === userToKickId)) return false;
     this.invited = this.invited.filter((id) => id !== userToKickId);
+    const notifications = user.notifications.getByTag(
+      NotificationsModel.Models.Tags.PongLobbyInvite,
+    );
+    const notif = notifications.find(
+      (notif) =>
+        notif.data.lobbyId === this.id && notif.data.nonce === this.nonce,
+    );
+    if (notif) {
+      await notif.dismiss(true);
+    }
     return true;
   }
 
@@ -486,7 +643,6 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
       player.status === PongModel.Models.LobbyStatus.Ready
         ? PongModel.Models.LobbyStatus.Waiting
         : PongModel.Models.LobbyStatus.Ready;
-    console.log('new status: ', player.status);
     return true;
   }
 
@@ -535,7 +691,6 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
 
     currOwner.privileges = PongModel.Models.LobbyParticipantPrivileges.None;
     await this.setAsOwner(newOwner);
-    console.log('NEW OWNER : ', newOwner.nickname);
     return true;
   }
 

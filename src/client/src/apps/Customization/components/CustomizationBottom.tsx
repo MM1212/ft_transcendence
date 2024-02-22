@@ -6,46 +6,12 @@ import { Stack, TabPanel } from '@mui/joy';
 import CustomizationBox from './CustomizationBox';
 import {
   InventoryCategory,
+  categoryTabNames,
   getClothIcon,
-  inventoryBoughtCategoryItems,
+  useClothingItemsBoughtByCategory,
 } from '../state';
-import { useRecoilValue } from 'recoil';
 import { Box } from '@mui/joy';
 import { useLobbyPenguinClothes } from '@apps/Lobby/state';
-
-const categoryTabNames: {
-  category: InventoryCategory;
-  label: string;
-}[] = [
-  {
-    category: 'head',
-    label: 'Head',
-  },
-  {
-    category: 'face',
-    label: 'Face',
-  },
-  {
-    category: 'neck',
-    label: 'Neck',
-  },
-  {
-    category: 'body',
-    label: 'Body',
-  },
-  {
-    category: 'hand',
-    label: 'Hand',
-  },
-  {
-    category: 'feet',
-    label: 'Feet',
-  },
-  {
-    category: 'color',
-    label: 'Skin Color',
-  },
-];
 
 function CustomizationItems({
   category,
@@ -58,7 +24,7 @@ function CustomizationItems({
   updateCloth: (piece: InventoryCategory, id: number) => void;
   disabled?: boolean;
 }) {
-  const items = useRecoilValue(inventoryBoughtCategoryItems(category));
+  const items = useClothingItemsBoughtByCategory(category);
   return (
     <Stack
       direction="row"
@@ -66,23 +32,22 @@ function CustomizationItems({
         display: 'flex',
         width: '100%',
         flexWrap: 'wrap',
-        gap: (theme) => theme.spacing(1.2),
+        gap: 1.2,
       }}
     >
-      {items.map((clothId) => (
+      {items.map((item) => (
         <Box
-          key={clothId}
+          key={item.id}
           sx={{
             aspectRatio: '1/1',
             width: '8.7dvh',
           }}
         >
           <CustomizationBox
-            key={clothId}
-            selected={clothId === selected}
-            imageUrl={getClothIcon(clothId)}
+            selected={item.meta.clothId === selected}
+            imageUrl={getClothIcon(item.meta.clothId)}
             flex={0.1}
-            onClick={() => updateCloth(category, clothId)}
+            onClick={() => updateCloth(category, item.meta.clothId)}
             disabled={disabled}
           />
         </Box>
@@ -93,8 +58,7 @@ function CustomizationItems({
 
 export default function CustomizationBottom({
   updateCloth,
-  isLobbyLoading
-
+  isLobbyLoading,
 }: {
   updateCloth: (piece: InventoryCategory, id: number) => void;
   isLobbyLoading: boolean;

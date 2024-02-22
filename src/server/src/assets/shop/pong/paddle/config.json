@@ -1,0 +1,8 @@
+{
+  "id": "paddle",
+  "label": "Paddles",
+  "icon": "{ICON_PATH}/cat/Paddle",
+  "env": {
+    "ASSET_PATH": "{ASSET_PATH}/Paddles"
+  }
+}

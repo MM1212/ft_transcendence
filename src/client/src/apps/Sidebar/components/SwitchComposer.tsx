@@ -7,7 +7,6 @@ import routes, {
 } from '../routes';
 import React from 'react';
 import SidebarRouteFallbackSkeleton from './Skeleton';
-import SettingsView from '@apps/Settings/views';
 
 export default function SidebarSwitchComposer() {
   const possibleRoutes = React.useMemo(() => {
@@ -31,7 +30,14 @@ export default function SidebarSwitchComposer() {
               FallBackComponent: elem.FallBackComponent,
             },
           ];
-        return elem.children.flatMap(getPossibleRoutes(elem));
+        const array = elem.children.flatMap(getPossibleRoutes(elem));
+        if (elem.fallbackRoute) {
+          array.push({
+            Component: () => <Redirect href={elem.fallbackRoute!} replace={true} />,
+            path: `${elem.path}:rest*`,
+          })
+        }
+        return array;
       };
     return routes
       .flatMap(getPossibleRoutes(null))
@@ -52,11 +58,8 @@ export default function SidebarSwitchComposer() {
           </Route>
         )
       )}
-      <Route path="/settings">
-        <SettingsView />
-      </Route>
       <Route>
-        <Redirect to="/error?t=404" replace={true} />
+        <Redirect to="/" replace={true} />
       </Route>
     </Switch>
   );

@@ -9,18 +9,24 @@ import React from 'react';
 import Link from '@components/Link';
 import { useRecoilValue } from 'recoil';
 import pongGamesState from '../state';
+import PongModel from '@typings/models/pong';
+import { LobbySpectateActiveGame } from './LobbySpectateActiveGame';
 
-const tabs: {
+interface ITab {
   value: string;
   label: string;
-  disableIfInLobby?: boolean;
+  disableIfInLobby?: boolean; // default: false
+  disableIfInQueue?: boolean; // default: true
   component: React.ComponentType;
-}[] = [
+}
+
+const tabs: ITab[] = [
   {
     value: 'queue',
     label: 'Matchmaking',
     component: LobbyMatchMaking,
     disableIfInLobby: true,
+    disableIfInQueue: false
   },
   {
     value: 'create',
@@ -36,28 +42,40 @@ const tabs: {
   {
     value: 'ongoing',
     label: 'Active Games',
-    component: () => <div>Ongoing</div>,
+    component: LobbySpectateActiveGame,
     disableIfInLobby: true,
   },
 ];
 
 function LobbyTop() {
   const { tabId } = useParams<{ tabId: string }>();
-  const inLobby = useRecoilValue(pongGamesState.isInLobby);
-  const actualTabs = React.useMemo(
-    () => tabs.filter((tab) => !tab.disableIfInLobby || !inLobby),
-    [inLobby]
+  const lobbyType = useRecoilValue(pongGamesState.lobbyType);
+  const inLobby = !!lobbyType;
+  const actualTabs = React.useMemo<ITab[]>(
+    () => tabs.filter((tab) => {
+      if (inLobby) {
+        const inQueue = lobbyType !== PongModel.Models.LobbyType.Custom;
+        console.log(inQueue, tab);
+
+        if (inQueue)
+          return tab.disableIfInQueue === false;
+        if (tab.disableIfInLobby)
+          return false;
+      }
+      return true;
+    }),
+    [inLobby, lobbyType]
   );
   React.useEffect(() => {
     console.log(tabId);
 
-    if (!actualTabs.some((tab) => tab.value === tabId))
-      navigate(`${actualTabs[0].value}`, { replace: true });
+    if (!actualTabs.some((tab) => tab.value === tabId) && actualTabs.length > 0)
+      navigate(`/pong/play/${actualTabs[0].value}`, { replace: true });
   }, [actualTabs, tabId]);
 
   return (
     <Tabs
-      value={tabId ?? 'queue'}
+      value={tabId ?? tabs[0]?.value}
       sx={{
         height: '100%',
         display: 'flex',
@@ -79,7 +97,7 @@ function LobbyTop() {
       >
         {tabs.map((tab, index) => (
           <Tab
-            disabled={tab.disableIfInLobby && inLobby}
+            disabled={!actualTabs.includes(tab)}
             value={tab.value}
             key={index}
             component={Link}

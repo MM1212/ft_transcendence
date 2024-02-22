@@ -1,0 +1,6 @@
+{
+  "id": "color",
+  "label": "Skin Color",
+  "icon": "{ICON_PATH}/cat/Color",
+  "env": {}
+}

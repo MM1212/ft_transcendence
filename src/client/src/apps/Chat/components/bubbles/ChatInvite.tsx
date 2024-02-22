@@ -9,7 +9,7 @@ import React from 'react';
 import chatsState from '@apps/Chat/state';
 import AlertIcon from '@components/icons/AlertIcon';
 import { useRecoilValue } from 'recoil';
-import { useTunnelEndpoint } from '@hooks/tunnel';
+import { useRawTunnelEndpoint } from '@hooks/tunnel';
 import { randomInt } from '@utils/random';
 import { navigate } from 'wouter/use-location';
 
@@ -48,7 +48,7 @@ function _ChatEmbedChatInviteBubble({
   ...props
 }: IChatEmbedAttachmentsBubbleProps) {
   const { data, error, isLoading } =
-    useTunnelEndpoint<ChatsModel.Endpoints.GetChatInfo>(
+    useRawTunnelEndpoint<ChatsModel.Endpoints.GetChatInfo>(
       brokenInvitesCache.has(embed.chatId)
         ? null
         : ChatsModel.Endpoints.Targets.GetChatInfo,

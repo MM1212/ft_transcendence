@@ -1,24 +1,23 @@
-import { atom, selector, useRecoilValue } from 'recoil';
+import { atom, useRecoilValue } from 'recoil';
 import { ClientLobby } from '../src/Lobby';
 import { InventoryCategory } from '@apps/Customization/state';
 import React, { useSyncExternalStore } from 'react';
+import { InteractionData, type Interaction } from '../src/Interaction';
 
-export const lobbyAtom = atom<ClientLobby | null>({
-  key: 'lobby',
-  default: null,
-  dangerouslyAllowMutability: true,
-});
+const lobbyState = new (class LobbyState {
+  instance = atom<ClientLobby | null>({
+    key: 'lobby',
+    default: null,
+    dangerouslyAllowMutability: true,
+  });
 
-export const lobbyMainClothesAtom = selector<Record<InventoryCategory, number>>(
-  {
-    key: 'lobbyMainClothes',
-    get: ({ get }) => {
-      const lobby = get(lobbyAtom);
-      if (!lobby || !lobby.mainPlayer) return {} as any;
-      return lobby.mainPlayer.character.clothes;
-    },
-  }
-);
+  showingInteractions = atom<InteractionData[]>({
+    key: 'showingInteraction',
+    default: [],
+  });
+})();
+
+export const lobbyAtom = lobbyState.instance;
 
 const DEFAULT_CLOTHES = {
   color: 1,
@@ -44,10 +43,27 @@ export const useLobbyPenguinClothes = (): Record<InventoryCategory, number> => {
       return () => {
         lobby?.events.off('self:clothes:update', cb);
         lobby?.events.off('rerender', cb);
-      }
+      };
     },
     getLobbyClothes
   );
 
   return clothes;
 };
+
+export const useRegisterInteraction = (interaction: typeof Interaction) => {
+  const lobby = useRecoilValue(lobbyAtom);
+  React.useEffect(() => {
+    if (lobby) {
+      lobby.interactions.emplace(interaction);
+    }
+    return () => {
+      if (lobby) {
+        lobby.interactions.remove(interaction.ID);
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lobby]);
+};
+
+export default lobbyState;

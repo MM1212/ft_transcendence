@@ -2,6 +2,7 @@ import { vector2 } from '@typings/vector';
 
 export namespace LobbyModel {
   export namespace Models {
+
     export type InventoryCategory =
       | 'head'
       | 'face'
@@ -68,6 +69,7 @@ export namespace LobbyModel {
 
     export interface ILobby {
       players: (IPlayer & { main: boolean })[];
+      chatId: number;
     }
   }
   export namespace DTO {}

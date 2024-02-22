@@ -12,13 +12,26 @@ datasource db {
 
 // Infrastructure Modules
 
+enum UserType {
+  USER
+  BOT
+}
+
+enum UserStatus {
+  OFFLINE
+  ONLINE
+  BUSY
+  AWAY
+}
+
 model User {
   id            Int               @id @default(autoincrement())
-  studentId     Int               @unique @map("student_id")
+  studentId     Int?              @unique @map("student_id")
   nickname      String            @unique
+  type          UserType          @default(USER)
   avatar        String
   createdAt     DateTime          @default(now()) @map("created_at")
-  storedStatus  Int               @default(1) @map("stored_status")
+  storedStatus  UserStatus        @default(ONLINE) @map("stored_status")
   firstLogin    Boolean           @default(true) @map("first_login")
   friends       User[]            @relation("friends")
   friendOf      User[]            @relation("friends")
@@ -31,11 +44,14 @@ model User {
   inventory     Item[]
   character     Character         @relation(fields: [characterId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   characterId   Int               @unique @map("character_id")
-  quests        Quest[]
+  achievements  Achievement[]
+  credits       Int               @default(0)
+  leaderboard   Leaderboard       @relation(fields: [leaderboardId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  leaderboardId Int               @unique @map("elo_id")
 
-  gamesPlayed MatchHistory[] @relation("match_players")
+  gamesPlayed MatchHistoryPlayer[]
 
-  @@index([studentId, nickname])
+  @@index([type, nickname])
   @@map("users")
 }
 
@@ -167,26 +183,80 @@ model Item {
   @@map("user_items")
 }
 
-model Quest {
-  id         Int       @id @default(autoincrement())
-  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId     Int       @map("user_id")
-  tag        String
-  createdAt  DateTime  @default(now()) @map("created_at")
-  updatedAt  DateTime  @default(now()) @updatedAt @map("updated_at")
-  finishedAt DateTime? @map("finished_at")
-  completed  Boolean   @default(false)
-  meta       Json      @default("{}")
+model Achievement {
+  id           Int       @id @default(autoincrement())
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId       Int       @map("user_id")
+  tag          String
+  unlocked     Boolean   @default(false)
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @default(now()) @updatedAt @map("updated_at")
+  unlockedAt   DateTime? @map("unlocked_at")
+  currentLevel Int       @default(0) @map("current_level")
+  meta         Json      @default("{}")
+
+  @@unique([userId, tag], name: "achievement_unique")
+  @@index([tag])
+  @@map("user_achievements")
+}
+
+model MatchHistoryPlayer {
+  id        Int              @id @default(autoincrement())
+  User      User             @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId    Int              @map("user_id")
+  score     Int              @default(0)
+  gear      Json             @default("{}") // paddle, special power, etc..
+  stats     Json             @default("{}")
+  owner     Boolean          @default(false)
+  mvp       Boolean          @default(false)
+  team      MatchHistoryTeam @relation("match_players", fields: [teamId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  teamId    Int              @map("team_id")
+  createdAt DateTime         @default(now()) @map("created_at")
+
+  @@map("matches_history_players")
+}
+
+model MatchHistoryTeam {
+  id        Int                  @id @default(autoincrement())
+  score     Int                  @default(0)
+  match     MatchHistory         @relation(fields: [matchId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  matchId   Int                  @map("match_id")
+  players   MatchHistoryPlayer[] @relation("match_players")
+  stats     Json                 @default("{}")
+  createdAt DateTime             @default(now()) @map("created_at")
+  won       Boolean              @default(false)
+
+  @@map("matches_history_teams")
+}
+
+enum MatchHistoryGameType {
+  SINGLE
+  DOUBLE
+  CUSTOM
 }
 
 model MatchHistory {
-  id        Int      @id @default(autoincrement())
-  players   User[]   @relation("match_players")
-  winner    Int      @map("winner_id")
-  rounds    Int
-  gameType  String   @map("game_type")
-  gameTime  Int      @map("game_time")
-  createdAt DateTime @default(now()) @map("created_at")
+  id           Int                  @id @default(autoincrement())
+  type         MatchHistoryGameType @default(SINGLE)
+  teams        MatchHistoryTeam[]
+  winnerTeamId Int                  @map("winner_team_id")
+  stats        Json                 @default("{}")
+  createdAt    DateTime             @default(now()) @map("created_at")
 
   @@map("matches_history")
+}
+
+model Leaderboard {
+  id        Int      @id @default(autoincrement())
+  user      User?
+  elo       Int      @default(1000)
+  wins      Int      @default(0)
+  losses    Int      @default(0)
+  ties      Int      @default(0)
+  streak    Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@index([elo])
+  @@map("leaderboards")
 }

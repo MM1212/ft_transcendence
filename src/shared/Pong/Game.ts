@@ -1,8 +1,12 @@
 import { GameObject, effectSendOption } from "./GameObject";
 import { Collider } from "./Collisions/Collider";
+import { GameStatistics } from "./Stats/GameStats";
+import PongModel from "../../typings/models/pong";
+
 export class Game {
   public run = true;
   public gameObjects: GameObject[] = [];
+  private ballRef: GameObject | undefined;
   protected remove_gameObjects: GameObject[] = [];
   protected collider_gameObjects: GameObject[] = [];
   protected keydown_gameObjects: GameObject[] = [];
@@ -13,12 +17,19 @@ export class Game {
   protected sendObjects: GameObject[] = [];
   protected sendRemoveObjects: string[] = [];
   protected sendShooter: GameObject[] = [];
+  public sendShooterTimeout: string = "";
   protected sendEffects: GameObject[] = [];
   public scored: boolean = false;
 
+  public gamemode: PongModel.Models.LobbyGameType = PongModel.Models.LobbyGameType.Powers;
+
+  public gameStats: GameStatistics = new GameStatistics();
+
   public delta: number = 0;
 
-  constructor(public width: number, public height: number) {}
+  constructor(public width: number, public height: number, gametype: PongModel.Models.LobbyGameType) {
+    this.gamemode = gametype;
+  }
 
   start() {}
 
@@ -30,15 +41,13 @@ export class Game {
     this.sendRemoveObjects.length = 0;
     this.sendPaddlesScale.length = 0;
     this.gameObjects.forEach((gameObject: GameObject) => {
-      gameObject.collider?.reset()
+      gameObject.collider?.reset();
       gameObject.effectSendOpt = effectSendOption.NONE;
-    }
-    );
+    });
   }
 
   update(delta: number) {
     if (this.run) {
-      //console.log(delta);
       this.zeroS();
       this.collider_gameObjects.forEach((target: GameObject) => {
         this.gameObjects.forEach((gameObject: GameObject) => {
@@ -56,7 +65,8 @@ export class Game {
         (gameObject: GameObject) => gameObject.hasChangedShooter
       );
       this.sendEffects = this.gameObjects.filter(
-        (gameObject: GameObject) => gameObject.effectSendOpt !== effectSendOption.NONE
+        (gameObject: GameObject) =>
+          gameObject.effectSendOpt !== effectSendOption.NONE
       );
       if (this.remove_gameObjects.length > 0) this.removeObjects();
     }
@@ -73,14 +83,16 @@ export class Game {
     this.sendRemoveObjects.length = 0;
     this.sendEffects.length = 0;
     this.sendShooter.length = 0;
+    this.sendShooterTimeout = "";
     this.sendPaddlesScale.length = 0;
   }
 
   public add(gameObject: GameObject) {
     this.gameObjects.push(gameObject);
 
-    if (!!gameObject.onCollide)
-      this.collider_gameObjects.push(gameObject);
+    if (!!gameObject.onCollide) this.collider_gameObjects.push(gameObject);
+    if (gameObject.tag === PongModel.InGame.ObjType.Ball)
+      this.ballRef = gameObject;
   }
 
   public remove(gameObject: GameObject) {
@@ -108,6 +120,8 @@ export class Game {
   }
 
   public getObjectByTag(tag: string): GameObject | undefined {
+    if (tag === PongModel.InGame.ObjType.Ball && this.ballRef)
+      return this.ballRef;
     return this.gameObjects.find(
       (gameObject: GameObject) => gameObject.tag === tag
     );

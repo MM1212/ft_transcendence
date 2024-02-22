@@ -1,0 +1,508 @@
+[
+  {
+    "tag": "chat:activity",
+    "title": "Chat Activity",
+    "icon": "chat-activity.webp",
+    "bannerColor": "primary",
+    "defaultMeta": {
+      "count": 0
+    },
+    "defaultDescription": "Sent {{milestone.metaValue}} messages in any group chat",
+    "defaultTrackMetaKey": "count",
+    "trackMessageSuffix": "messages",
+    "levels": [
+      {
+        "type": "bronze",
+        "titleMod": "Wannabe",
+        "milestone": 100
+      },
+      {
+        "type": "silver",
+        "titleMod": "Socialite",
+        "milestone": 500
+      },
+      {
+        "type": "gold",
+        "titleMod": "Social Butterfly",
+        "milestone": 1000
+      },
+      {
+        "type": "platinum",
+        "titleMod": "Chatterbox",
+        "milestone": 5000
+      },
+      {
+        "type": "diamond",
+        "titleMod": "Chat Master",
+        "milestone": 10000
+      }
+    ]
+  },
+  {
+    "tag": "pong:match:perfect",
+    "title": "Unstoppable Force",
+    "icon": "perfect_game.webp",
+    "bannerColor": "warning",
+    "defaultMeta": {
+      "count": 0
+    },
+    "defaultDescription": "Win {{milestone.metaValue}} matches without letting the opponent score a single point",
+    "defaultTrackMetaKey": "count",
+    "trackMessageSuffix": "matches",
+    "levels": [
+      {
+        "type": "bronze",
+        "titleMod": "Lucky",
+        "milestone": 1
+      },
+      {
+        "type": "silver",
+        "titleMod": "Unbeatable",
+        "milestone": 5
+      },
+      {
+        "type": "gold",
+        "titleMod": "Unbreakable",
+        "milestone": 10
+      },
+      {
+        "type": "platinum",
+        "titleMod": "Unyielding",
+        "milestone": 25
+      },
+      {
+        "type": "diamond",
+        "titleMod": "Unstoppable",
+        "milestone": 50
+      }
+    ]
+  },
+  {
+    "tag": "pong:match:fast",
+    "title": "Speed Demon",
+    "icon": "30seconds.webp",
+    "bannerColor": "danger",
+    "defaultMeta": {
+      "count": 0
+    },
+    "defaultDescription": "Win {{milestone.metaValue}} matches within 30 seconds",
+    "defaultTrackMetaKey": "count",
+    "trackMessageSuffix": "matches",
+    "levels": [
+      {
+        "type": "bronze",
+        "titleMod": "Quick",
+        "milestone": 1
+      },
+      {
+        "type": "silver",
+        "titleMod": "Swift",
+        "milestone": 5
+      },
+      {
+        "type": "gold",
+        "titleMod": "Speedy",
+        "milestone": 10
+      },
+      {
+        "type": "platinum",
+        "titleMod": "Rapid",
+        "milestone": 25
+      },
+      {
+        "type": "diamond",
+        "titleMod": "Demon",
+        "milestone": 50
+      }
+    ]
+  },
+  {
+    "tag": "pong:match:underdog",
+    "title": "Underdog Victory",
+    "icon": "win_higher.webp",
+    "bannerColor": "warning",
+    "defaultMeta": {
+      "count": 0
+    },
+    "defaultDescription": "Win {{milestone.metaValue}} matches against an opponent with a significantly higher level or ranking",
+    "defaultTrackMetaKey": "count",
+    "trackMessageSuffix": "matches",
+    "levels": [
+      {
+        "type": "bronze",
+        "titleMod": "Lucky",
+        "milestone": 1
+      },
+      {
+        "type": "silver",
+        "titleMod": "Underdog",
+        "milestone": 5
+      },
+      {
+        "type": "gold",
+        "titleMod": "Champion",
+        "milestone": 10
+      },
+      {
+        "type": "platinum",
+        "titleMod": "Legend",
+        "milestone": 25
+      },
+      {
+        "type": "diamond",
+        "titleMod": "Myth",
+        "milestone": 50
+      }
+    ]
+  },
+  {
+    "tag": "pong:match:nopowerups",
+    "title": "Master Strategist",
+    "icon": "no-power-up.webp",
+    "bannerColor": "neutral",
+    "defaultMeta": {
+      "count": 0
+    },
+    "defaultDescription": "Win {{milestone.metaValue}} matches without using any power-ups",
+    "defaultTrackMetaKey": "count",
+    "trackMessageSuffix": "matches",
+    "levels": [
+      {
+        "type": "bronze",
+        "titleMod": "Lucky",
+        "milestone": 1
+      },
+      {
+        "type": "silver",
+        "titleMod": "Strategist",
+        "milestone": 5
+      },
+      {
+        "type": "gold",
+        "titleMod": "Tactician",
+        "milestone": 10
+      },
+      {
+        "type": "platinum",
+        "titleMod": "Mastermind",
+        "milestone": 25
+      },
+      {
+        "type": "diamond",
+        "titleMod": "Genius",
+        "milestone": 50
+      }
+    ]
+  },
+  {
+    "tag": "unlock:skin:rare",
+    "title": "Golden Paddle",
+    "icon": "paddle2.webp",
+    "bannerColor": "warning",
+    "defaultMeta": {
+      "count": 0
+    },
+    "defaultDescription": "Unlock and equip {{milestone.metaValue}} rare paddle skins",
+    "defaultTrackMetaKey": "count",
+    "trackMessageSuffix": "skins",
+    "levels": [
+      {
+        "type": "bronze",
+        "titleMod": "Lucky",
+        "milestone": 1
+      },
+      {
+        "type": "silver",
+        "titleMod": "Collector",
+        "milestone": 5
+      },
+      {
+        "type": "gold",
+        "titleMod": "Connoisseur",
+        "milestone": 10
+      },
+      {
+        "type": "platinum",
+        "titleMod": "Aficionado",
+        "milestone": 25
+      },
+      {
+        "type": "diamond",
+        "titleMod": "Golden",
+        "milestone": 50
+      }
+    ]
+  },
+  {
+    "tag": "pong:match:winstreak",
+    "title": "Pong Savant",
+    "icon": "10wins.webp",
+    "bannerColor": "danger",
+    "defaultMeta": {
+      "count": 0
+    },
+    "defaultDescription": "Achieve a win streak of {{milestone.metaValue}} matches",
+    "defaultTrackMetaKey": "count",
+    "trackMessageSuffix": "matches",
+    "levels": [
+      {
+        "type": "bronze",
+        "titleMod": "Lucky",
+        "milestone": 1
+      },
+      {
+        "type": "silver",
+        "titleMod": "Streaker",
+        "milestone": 5
+      },
+      {
+        "type": "gold",
+        "titleMod": "Dominant",
+        "milestone": 10
+      },
+      {
+        "type": "platinum",
+        "titleMod": "Unstoppable",
+        "milestone": 25
+      },
+      {
+        "type": "diamond",
+        "titleMod": "Savant",
+        "milestone": 50
+      }
+    ]
+  },
+  {
+    "tag": "pong:rank:highest",
+    "title": "Pong Legend",
+    "icon": "highest_rank2.webp",
+    "bannerColor": "success",
+    "defaultMeta": {
+      "count": 0
+    },
+    "defaultDescription": "Achieve the highest ranking in online multiplayer mode",
+    "defaultTrackMetaKey": "count",
+    "trackMessageSuffix": "times",
+    "levels": [
+      {
+        "type": "diamond",
+        "milestone": 1
+      }
+    ]
+  },
+  {
+    "tag": "store:buy:all",
+    "title": "Shopaholic",
+    "icon": "buy_all_sets3.webp",
+    "bannerColor": "success",
+    "defaultMeta": {
+      "count": 0
+    },
+    "defaultDescription": "Purchase all available items from the in-game shop, enhancing your Pong experience to the fullest",
+    "defaultTrackMetaKey": "count",
+    "trackMessageSuffix": "times",
+    "levels": [
+      {
+        "type": "gold",
+        "milestone": 1
+      }
+    ]
+  },
+  {
+    "tag": "pong:doubles:perfect",
+    "title": "Team Player",
+    "icon": "win_perfect_doubles.webp",
+    "bannerColor": "warning",
+    "defaultMeta": {
+      "count": 0
+    },
+    "defaultDescription": "Win {{milestone.metaValue}} doubles matches with a perfect score",
+    "defaultTrackMetaKey": "count",
+    "trackMessageSuffix": "matches",
+    "levels": [
+      {
+        "type": "bronze",
+        "titleMod": "Lucky",
+        "milestone": 1
+      },
+      {
+        "type": "silver",
+        "titleMod": "Team Player",
+        "milestone": 5
+      },
+      {
+        "type": "gold",
+        "titleMod": "Doubles Master",
+        "milestone": 10
+      },
+      {
+        "type": "platinum",
+        "titleMod": "Doubles Champion",
+        "milestone": 25
+      },
+      {
+        "type": "diamond",
+        "titleMod": "Doubles Legend",
+        "milestone": 50
+      }
+    ]
+  },
+  {
+    "tag": "pong:match:50wins",
+    "title": "Legendary Duelist",
+    "icon": "win50.webp",
+    "bannerColor": "neutral",
+    "defaultMeta": {
+      "count": 0
+    },
+    "defaultDescription": "Win {{milestone.metaValue}} matches against different opponents",
+    "defaultTrackMetaKey": "count",
+    "trackMessageSuffix": "matches",
+    "levels": [
+      {
+        "type": "bronze",
+        "titleMod": "Lucky",
+        "milestone": 1
+      },
+      {
+        "type": "silver",
+        "titleMod": "Duelist",
+        "milestone": 5
+      },
+      {
+        "type": "gold",
+        "titleMod": "Champion",
+        "milestone": 10
+      },
+      {
+        "type": "platinum",
+        "titleMod": "Legend",
+        "milestone": 25
+      },
+      {
+        "type": "diamond",
+        "titleMod": "Myth",
+        "milestone": 50
+      }
+    ]
+  },
+  {
+    "tag": "store:credits",
+    "title": "Musk's Millions",
+    "icon": "mucho_credits.webp",
+    "bannerColor": "success",
+    "defaultMeta": {
+      "count": 0
+    },
+    "defaultDescription": "Get {{milestone.metaValue}} store credits",
+    "defaultTrackMetaKey": "count",
+    "trackMessageSuffix": "credits",
+    "levels": [
+      {
+        "type": "bronze",
+        "titleMod": "Lucky",
+        "milestone": 1000
+      },
+      {
+        "type": "silver",
+        "titleMod": "Rich",
+        "milestone": 5000
+      },
+      {
+        "type": "gold",
+        "titleMod": "Wealthy",
+        "milestone": 10000
+      },
+      {
+        "type": "platinum",
+        "titleMod": "Millionaire",
+        "milestone": 50000
+      },
+      {
+        "type": "diamond",
+        "titleMod": "X Æ A-12",
+        "milestone": 100000
+      }
+    ]
+  },
+  {
+    "tag": "pong:match:shoot_powers",
+    "title": "Wizard of Pong",
+    "icon": "powers_shot.webp",
+    "bannerColor": "neutral",
+    "defaultMeta": {
+      "count": 0
+    },
+    "defaultDescription": "Shot {{milestone.metaValue}} special powers in matches",
+    "defaultTrackMetaKey": "count",
+    "trackMessageSuffix": "special powers",
+    "defaultOperator": "gte",
+    "levels": [
+      {
+        "type": "bronze",
+        "titleMod": "Baby Wizard",
+        "milestone": 1
+      },
+      {
+        "type": "silver",
+        "titleMod": "Wizard",
+        "milestone": 30
+      },
+      {
+        "type": "gold",
+        "titleMod": "Sorcerer",
+        "milestone": 60
+      },
+      {
+        "type": "platinum",
+        "titleMod": "Mage",
+        "milestone": 120
+      },
+      {
+        "type": "diamond",
+        "titleMod": "Wizard King",
+        "milestone": 240
+      }
+    ]
+  },
+  {
+    "tag": "pong:match:bounces",
+    "title": "Ball Bouncer",
+    "icon": "bounces.webp",
+    "bannerColor": "neutral",
+    "defaultMeta": {
+      "count": 0
+    },
+    "defaultDescription": "Have the ball bounce on you {{milestone.metaValue}} times",
+    "defaultTrackMetaKey": "count",
+    "trackMessageSuffix": "bounces",
+    "defaultOperator": "gte",
+    "levels": [
+      {
+        "type": "bronze",
+        "titleMod": "Bounce Baby Bounce",
+        "milestone": 1
+      },
+      {
+        "type": "silver",
+        "titleMod": "Bounce? Bounce!",
+        "milestone": 250
+      },
+      {
+        "type": "gold",
+        "titleMod": "Mr. Bounce",
+        "milestone": 500
+      },
+      {
+        "type": "platinum",
+        "titleMod": "My Ball is a Bouncy Ball",
+        "milestone": 750
+      },
+      {
+        "type": "diamond",
+        "titleMod": "Bouncing Ball",
+        "milestone": 1000
+      }
+    ]
+  }
+]

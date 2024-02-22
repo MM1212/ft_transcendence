@@ -1,5 +1,5 @@
 import { useRecoilValue } from 'recoil';
-import { lobbyAtom } from '../state';
+import lobbyState, { lobbyAtom } from '../state';
 import { useSyncExternalStore } from 'react';
 
 export const useIsLobbyLoading = (): boolean => {
@@ -15,3 +15,6 @@ export const useIsLobbyLoading = (): boolean => {
     () => !!lobbyRef?.loading
   );
 };
+
+export const useLobbyShowingInteractions = () =>
+  useRecoilValue(lobbyState.showingInteractions);

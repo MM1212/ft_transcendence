@@ -1,6 +1,51 @@
-import { Sheet, Stack } from '@mui/joy';
-import AchievementHead from '../components/AchievementHead';
-import AchievementLogo from '../components/AchievementLogo';
+import { Sheet } from '@mui/joy';
+import Achievements from '../components/Achievement';
+import { useParams } from 'wouter';
+import GenericPlaceholder from '@components/GenericPlaceholder';
+import TrophyBrokenIcon from '@components/icons/TrophyBrokenIcon';
+import { useCurrentUser, useUser } from '@hooks/user/index';
+
+function MyAchievements() {
+  const user = useCurrentUser();
+  if (!user)
+    return (
+      <GenericPlaceholder
+        icon={<TrophyBrokenIcon />}
+        title="Failed to load achievements"
+        label="Please try again later."
+      />
+    );
+  return <Achievements {...user} />;
+}
+
+function AchievementsByUserId({ id }: { id: number }) {
+  const user = useUser(id);
+  if (!user)
+    return (
+      <GenericPlaceholder
+        icon={<TrophyBrokenIcon />}
+        title="Failed to load achievements"
+        label="Please try again later."
+      />
+    );
+  return <Achievements {...user} />;
+}
+
+function AchievementEntries() {
+  const { rest: targetId } = useParams<{ rest: string }>();
+
+  if (targetId === 'me') return <MyAchievements />;
+
+  if (!targetId || isNaN(parseInt(targetId)))
+    return (
+      <GenericPlaceholder
+        icon={<TrophyBrokenIcon />}
+        title="Failed to load achievements"
+        label="Please try again later."
+      />
+    );
+  return <AchievementsByUserId id={parseInt(targetId)} />;
+}
 
 export default function AchievementsPanel() {
   return (
@@ -10,19 +55,11 @@ export default function AchievementsPanel() {
         height: '100%',
         borderLeft: '1px solid',
         borderColor: 'divider',
+        display: 'flex',
+        flexDirection: 'column',
       }}
     >
-      <AchievementHead />
-      <Stack
-        direction="column"
-        sx={{
-          width: '100%',
-          height: '80%',
-        }}
-        overflow="auto"
-      >
-        <AchievementLogo />
-      </Stack>
+      <AchievementEntries />
     </Sheet>
   );
 }

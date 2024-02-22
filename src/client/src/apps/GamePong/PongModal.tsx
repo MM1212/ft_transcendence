@@ -7,17 +7,19 @@ import { useRecoilValue } from "recoil";
 import { useListenerManager } from "./events/ListenerManager";
 
 export function OpenGameModal({ isPlaying }: { isPlaying: boolean }) {
-  const lobby = useRecoilValue(pongGamesState.gameLobby)!;
+  const lobby = useRecoilValue(pongGamesState.gameLobby);
 
+  console.log(lobby?.id);
   if (lobby === null) return;
   return (
     <>
       <Modal open={isPlaying} onClose={close}>
-        <ModalDialog layout="fullscreen">
+        <ModalDialog layout="fullscreen" sx={{
+            bgcolor: "divider",
+            backdropFilter: "blur(5px)",
+        }}>
           <ModalClose />
-          <Typography>Room: {lobby.name}</Typography>
-
-          <PongComponent lobby={lobby} />
+          <PongComponent lobby={lobby}/>
         </ModalDialog>
       </Modal>
     </>
@@ -31,16 +33,18 @@ function PongComponent({ lobby }: { lobby: PongModel.Models.ILobby }) {
   const mountRef = React.useMemo(() => <div ref={parentRef} />, [parentRef]);
 
   return alreadyConnected ? (
-    <Typography>You are already connected, either close the other browser or play on it!</Typography>
+    <Typography>
+      You are already connected, either close the other browser or play on it!
+    </Typography>
   ) : (
-    <>{mountRef}</>
-  );
+    <>
+      <div style={{
+        position: "absolute",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
 
-  //  return connectedPlayers.length !== lobby.nPlayers && game === null ? (
-  //    connectedPlayers.map((player) => (
-  //      <Typography key={player.userId}>connected: {player.nickname}</Typography>
-  //    ))
-  //  ) : (
-  //    <DialogContent ref={parentRef} />
-  //  );
+      }}>{mountRef}</div>
+    </>
+  );
 }

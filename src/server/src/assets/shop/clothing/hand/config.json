@@ -1,0 +1,6 @@
+{
+  "id": "hand",
+  "label": "Hand",
+  "icon": "{ICON_PATH}/cat/Hand",
+  "env": {}
+}

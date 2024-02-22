@@ -12,7 +12,7 @@ export class Shooter {
     protected ballRef: Ball | undefined;
 
     protected upDown: number = 1;
-    
+
     constructor(shooter: Bar, protected readonly game: Game)
     {
         this.line = {start: Vector2D.Zero, end: Vector2D.Zero};
@@ -20,10 +20,10 @@ export class Shooter {
         this.ballRef = this.game.getObjectByTag(PongModel.InGame.ObjType.Ball) as Ball;
         if (!this.ballRef)
             throw new Error("Ball not found");
-        
+
         shooter.setCenter(new Vector2D(shooter.getCenter.x, game.height / 2));
         this.ballRef.setCenter(new Vector2D(shooter.getCenter.x + (40 * shooter.direction.x), shooter.getCenter.y));
-        
+
         this.ballRef.setMove(false);
         this.center = this.ballRef.getCenter;
         this.direction = shooter.direction;
@@ -34,25 +34,27 @@ export class Shooter {
     {
         return {start: [this.line.start.x, this.line.start.y], end: [this.line.end.x, this.line.end.y]};
     }
-    
+
     shootBall(shooter: Bar): void
     {
-        shooter.setShooter(undefined);
-        shooter.setMove(true);
-    
-        this.ballRef?.setVelocity(new Vector2D(Math.cos(this.angle), Math.sin(this.angle)).multiply(this.ballRef.getVelocity.length() * 2));
-        this.ballRef?.setMove(true);
-        this.ballRef?.getEffect?.setStopEffect();
-        this.ballRef?.setEffect(undefined);
-        this.ballRef = undefined;
+        if (shooter !== undefined) {
+            shooter.setShooter(undefined);
+            shooter.setMove(true);
+
+            this.ballRef?.setVelocity(new Vector2D(Math.cos(this.angle), Math.sin(this.angle)).multiply(this.ballRef.getVelocity.length() * 2));
+            this.ballRef?.setMove(true);
+            this.ballRef?.getEffect?.setStopEffect();
+            this.ballRef?.setEffect(undefined);
+            this.ballRef = undefined;
+        }
     }
-    
+
     update(delta: number, shooter: Bar): boolean {
         if (shooter.shooting === false) return false;
         else {
             const lineLength = 60;
             const angleIncrement = 0.015;
-            
+
             this.angle += angleIncrement * this.direction.x * delta * this.upDown;
 
             if (this.direction.x === 1)
@@ -90,7 +92,7 @@ export class Shooter {
 
             if (this.ballRef?.getEffect?.isEffectOver === true)// || this.ballRef?.getEffect === undefined)
             {
-                console.log("effect over now shoot");
+                this.game.sendShooterTimeout = shooter.tag;
                 this.shootBall(shooter);
                 return false;
             }
