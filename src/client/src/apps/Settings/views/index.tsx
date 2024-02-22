@@ -72,7 +72,7 @@ function FormInput({
     <FormControl size={size}>
       <FormLabel>{label}</FormLabel>
       <Input
-        placeholder={placeholder}
+        defaultValue={placeholder}
         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
           // console.log("event.target.value", event.target.value);
           if (event.target.value === "")
