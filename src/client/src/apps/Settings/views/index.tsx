@@ -67,6 +67,8 @@ function FormInput({
   size: InputProps['size'];
 }): JSX.Element {
   const [keySettings, setKeySettings] = useSetting<KeySettings>('keySettings');
+  const usedKeys = new Set<string>(Object.values(keySettings));
+  console.log("usedKeys", usedKeys);
 
   return (
     <FormControl size={size}>
@@ -78,6 +80,7 @@ function FormInput({
           if (event.target.value === "")
             return;
           event.target.value = event.target.value[event.target.value.length -1];
+          //TODO: check if already in usedKeys
           const tmpKeySettings = {...keySettings};
           tmpKeySettings[label as KeySettingsKey] = event.target.value[0].toLowerCase();
           console.log(tmpKeySettings);
