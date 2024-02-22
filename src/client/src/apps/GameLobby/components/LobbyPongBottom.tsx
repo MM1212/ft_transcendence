@@ -1,6 +1,6 @@
-import { Button } from '@mui/joy';
+import { Button, type ButtonProps } from '@mui/joy';
 
-export default function LobbyPongButton({ label }: { label: string }) {
+export default function LobbyPongButton({ label, ...props }: { label: string } & ButtonProps) {
   return (
     <Button
       fullWidth
@@ -13,6 +13,7 @@ export default function LobbyPongButton({ label }: { label: string }) {
         border: '2px solid',
         borderColor: 'divider',
       })}
+      {...props}
     >
       {label}
     </Button>

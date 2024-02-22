@@ -15,7 +15,7 @@ export default function LeaderBoard() {
         justifyContent: 'flex-start',
       }}
     >
-      <Grid container spacing={2} direction="column" width="100%">
+      <Grid container spacing={2} direction="column" width="100%" height="100%">
         <Grid xs={12}>
           <LobbyGameTypography level="body-lg">Leaderboard</LobbyGameTypography>
         </Grid>
@@ -25,7 +25,9 @@ export default function LeaderBoard() {
         <Grid xs={12}>
           <LeaderBoardHeader />
         </Grid>
-        <LeaderboardEntries />
+        <Grid xs={12} flexGrow={1}>
+          <LeaderboardEntries />
+        </Grid>
       </Grid>
     </Sheet>
   );

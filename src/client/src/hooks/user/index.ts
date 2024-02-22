@@ -118,7 +118,6 @@ export const useSessionRecoilService = () => {
     updateSession(user);
   }, [updateSession, user, loading]);
 
-
   return null;
 };
 
@@ -133,23 +132,16 @@ export const useUsersService = () => {
     (ctx) => async (ev: UsersModel.Sse.UserUpdatedEvent) => {
       const session = await ctx.snapshot.getPromise(sessionAtom);
       if (!session) return;
-      const {
-        data: { id, avatar, nickname, studentId, status },
-      } = ev;
-      const userUpdate: Partial<UsersModel.Models.IUserInfo> = {
-        avatar,
-        nickname,
-        studentId,
-        status,
-      };
-      for (const key in userUpdate) {
-        if (userUpdate[key as keyof typeof userUpdate] === undefined)
-          delete userUpdate[key as keyof typeof userUpdate];
+      const { data } = ev;
+      const {id} = data;
+      for (const key in data) {
+        if (data[key as keyof typeof data] === undefined)
+          delete data[key as keyof typeof data];
       }
       if (id === session.id) {
         ctx.set(sessionAtom, (prev) => ({
           ...prev!,
-          ...userUpdate,
+          ...data,
         }));
         return;
       }
@@ -162,7 +154,7 @@ export const useUsersService = () => {
           ? prev
           : {
               ...prev,
-              ...userUpdate,
+              ...data,
             }
       );
     },

@@ -3,19 +3,17 @@ import ProfileTooltip from '@components/ProfileTooltip';
 import CrownIcon from '@components/icons/CrownIcon';
 import FireIcon from '@components/icons/FireIcon';
 import { useUser } from '@hooks/user';
-import { Avatar, Tooltip } from '@mui/joy';
-import { Box, Stack, Typography } from '@mui/joy';
+import { Avatar, Grid, Tooltip } from '@mui/joy';
+import { Stack, Typography } from '@mui/joy';
 import PongModel from '@typings/models/pong';
 import PongHistoryModel from '@typings/models/pong/history';
 import { randomInt } from '@utils/random';
 import { statsMapping } from '../constants';
 
 function AddStatsBoard({
-  gridColumnStart,
   value,
   textColor,
 }: {
-  gridColumnStart: number;
   value: string;
   textColor?: string;
 }) {
@@ -23,8 +21,7 @@ function AddStatsBoard({
     <Typography
       textColor={textColor}
       style={{
-        display: 'grid',
-        gridColumnStart: gridColumnStart,
+        display: 'flex',
         alignItems: 'center',
         justifySelf: 'right',
       }}
@@ -49,8 +46,8 @@ export default function PlayerStatsRow(
   if (user === null) return null;
   const textColor = player.isSelf ? 'warning.300' : 'neutral';
   return (
-    <>
-      <Box style={{ display: 'grid', gridColumnStart: '1', alignSelf: 'left' }}>
+    <Grid container xs={12}>
+      <Grid container xs={5}>
         <Stack spacing={1} direction="row" alignItems="center">
           <Avatar
             variant="outlined"
@@ -79,17 +76,15 @@ export default function PlayerStatsRow(
             {user.nickname}
           </Typography>
         </Stack>
-      </Box>
+      </Grid>
       {statsMapping.map(
         (stat, index) =>
           player.stats[stat.statKey] !== null && (
-            <AddStatsBoard
-              key={index}
-              gridColumnStart={index + 2}
-              value={String(player.stats[stat.statKey])}
-            />
+            <Grid xs key={index} container justifyContent="right">
+              <AddStatsBoard value={String(player.stats[stat.statKey])} />
+            </Grid>
           )
       )}
-    </>
+    </Grid>
   );
 }

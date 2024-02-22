@@ -108,7 +108,7 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
   public invited: number[] = [];
   public ballTexture: string = 'RedBall'; // default value
   public score: number = 7; // default value
-
+  public createdAt: number = Date.now();
   public readonly chat: Chat;
   public readonly nonce: number = Math.floor(Math.random() * 1000000);
   public gameUUId: string | null = null;
@@ -546,6 +546,7 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
       authorization: this.authorization,
       authorizationData: null,
       nPlayers: this.nPlayers,
+      createdAt: this.createdAt,
       teams: this.teams.map((team) => ({
         ...team,
         players: (team.players as PongLobbyParticipant[]).map(

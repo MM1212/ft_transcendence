@@ -2,6 +2,7 @@ import {
   ForbiddenException,
   Injectable,
   InternalServerErrorException,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { PongLobby, PongLobbyParticipant } from './ponglobby';
@@ -23,6 +24,7 @@ export class PongLobbyService {
 
   private readonly createBotsMutex = new Mutex('pong:create-bots');
   private readonly _bots: Map<string, User> = new Map();
+  private readonly logger = new Logger(PongLobbyService.name);
 
   constructor(private readonly deps: PongLobbyDependencies) {
     // @ts-expect-error - circular dependency
@@ -46,7 +48,6 @@ export class PongLobbyService {
       user = await this.deps.usersService.create({
         avatar: botSpec.avatar,
         nickname: botSpec.nickname,
-        studentId: -botSpec.id,
         inventory: botSpec.inventory,
         type: UsersModel.Models.Types.Bot,
       });
@@ -359,7 +360,7 @@ export class PongLobbyService {
       lobby.sendToParticipant(userId, PongModel.Sse.Events.Leave, null);
     }
 
-    console.log(`Lobby-${lobby.id}: ${lobby.name} left by ${userId}`);
+    this.logger.verbose(`Lobby-${lobby.id}: ${userId} left the lobby`);
     if (lobby.onlyBots) {
       await lobby.removeAllBots();
     }
@@ -367,7 +368,7 @@ export class PongLobbyService {
       lobby.allPlayers.forEach((player) => this.usersInGames.delete(player.id));
       await lobby.delete();
       this.games.delete(lobby.id);
-      console.log(`Lobby-${lobby.id}: ${lobby.name} deleted`);
+      this.logger.warn(`Lobby-${lobby.id}: ${lobby.name} deleted`);
     }
     return lobby;
   }
@@ -382,7 +383,7 @@ export class PongLobbyService {
     const lobby = await new PongLobby(this.deps, body, this.lobbyId, user);
     this.games.set(this.lobbyId, lobby);
     // this.usersInGames.set(user.id, lobby.id); THIS IS IN LOBBY CONSTRUCTOR
-    console.log(
+    this.logger.verbose(
       `Lobby-${lobby.id}: ${lobby.name} created by ${
         (await lobby.owner).nickname
       }`,
