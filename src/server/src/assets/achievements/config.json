@@ -433,9 +433,10 @@
     "defaultMeta": {
       "count": 0
     },
-    "defaultDescription": "Shoot {{milestone.metaValue}} special powers in matches",
+    "defaultDescription": "Shot {{milestone.metaValue}} special powers in matches",
     "defaultTrackMetaKey": "count",
-    "trackMessageSuffix": "matches",
+    "trackMessageSuffix": "special powers",
+    "defaultOperator": "gte",
     "levels": [
       {
         "type": "bronze",
@@ -445,22 +446,22 @@
       {
         "type": "silver",
         "titleMod": "Wizard",
-        "milestone": 20
+        "milestone": 30
       },
       {
         "type": "gold",
         "titleMod": "Sorcerer",
-        "milestone": 40
+        "milestone": 60
       },
       {
         "type": "platinum",
         "titleMod": "Mage",
-        "milestone": 80
+        "milestone": 120
       },
       {
         "type": "diamond",
         "titleMod": "Wizard King",
-        "milestone": 160
+        "milestone": 240
       }
     ]
   },
@@ -472,9 +473,10 @@
     "defaultMeta": {
       "count": 0
     },
-    "defaultDescription": "Have the ball bounce on you{{milestone.metaValue}} times",
+    "defaultDescription": "Have the ball bounce on you {{milestone.metaValue}} times",
     "defaultTrackMetaKey": "count",
-    "trackMessageSuffix": "matches",
+    "trackMessageSuffix": "bounces",
+    "defaultOperator": "gte",
     "levels": [
       {
         "type": "bronze",
@@ -484,22 +486,22 @@
       {
         "type": "silver",
         "titleMod": "Bounce? Bounce!",
-        "milestone": 50
+        "milestone": 250
       },
       {
         "type": "gold",
         "titleMod": "Mr. Bounce",
-        "milestone": 100
+        "milestone": 500
       },
       {
         "type": "platinum",
         "titleMod": "My Ball is a Bouncy Ball",
-        "milestone": 200
+        "milestone": 750
       },
       {
         "type": "diamond",
         "titleMod": "Bouncing Ball",
-        "milestone": 400
+        "milestone": 1000
       }
     ]
   }

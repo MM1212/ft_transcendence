@@ -51,10 +51,8 @@ export class AchievementsService {
     if (!cfg.description && !achievement.defaultDescription) {
       throw new Error('Achievement description is missing');
     }
-    if (
-      typeof cfg.milestone !== 'object' &&
-      (!achievement.defaultTrackMetaKey || !achievement.defaultOperator)
-    ) {
+    if (!achievement.defaultOperator) achievement.defaultOperator = 'eq';
+    if (typeof cfg.milestone !== 'object' && !achievement.defaultTrackMetaKey) {
       throw new Error('Achievement milestone is invalid');
     }
     const level: AchievementsModel.Models.IAchievementLevel = {

@@ -60,7 +60,6 @@ export class LeaderboardService {
     const users = await this.usersService.getMany(
       team.players
         .filter(
-          // TODO: when bot branch is merged, filter out bots
           (player) => player.type === UsersModel.Models.Types.User,
         )
         .map((player) => player.userId),

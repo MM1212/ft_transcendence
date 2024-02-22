@@ -475,7 +475,6 @@ export class UIGame extends Game {
 
   update(delta: number) {
     if (this.run) {
-      // TODO date now packet server
       this.renderTimePassed();
 
       this.debug.debugDraw(this.gameObjects as UIGameObject[]);
