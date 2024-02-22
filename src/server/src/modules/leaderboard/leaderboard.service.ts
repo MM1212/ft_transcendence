@@ -144,8 +144,8 @@ export class LeaderboardService {
     const playersPositions = new Map<number, number>();
     leftTeam.players.concat(rightTeam.players).forEach((player) => {
       playersPositions.set(
-        player.userId,
-        this.getPositionForUser(player.userId),
+        player.id,
+        this.getPositionForUser(player.id),
       );
     });
     this.sortPositionsCache();
