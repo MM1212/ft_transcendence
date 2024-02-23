@@ -99,7 +99,6 @@ export class Network {
   private onClothingChange(
     changed: Record<LobbyModel.Models.InventoryCategory, number>
   ) {
-    // console.log('broadcasting player clothing change', changed);
     this.sock.emit('lobby:net:player:clothes', changed);
   }
 
@@ -109,7 +108,6 @@ export class Network {
   ): Promise<void> {
     const player = this.lobby.getPlayer(playerId) as ClientPlayer;
     if (!player) return;
-    // console.log('netOnPlayerClothes', playerId, changed);
 
     for (const [category, id] of Object.entries(changed)) {
       await player.character.dress(
@@ -118,6 +116,7 @@ export class Network {
         false
       );
     }
-    this.lobby.events.emit('self:net:clothes:update', changed);
+    if (player.isMain)
+      this.lobby.events.emit('self:net:clothes:update', changed);
   }
 }
