@@ -151,9 +151,6 @@ export class LeaderboardService {
     const entries = playersPositions.entries();
     for await (const [userId, position] of entries) {
       const newPosition = this.getPositionForUser(userId);
-      console.log(
-        `ACHIEVEMENT: User ${userId} has reached position ${newPosition} from ${position}`,
-      );
       if (newPosition === position || newPosition !== 1) {
         continue;
       }
