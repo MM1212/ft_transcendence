@@ -70,6 +70,9 @@ namespace ShopModel {
     }
   }
   export namespace DTO {
+    export enum Events {
+      OnItemBought = 'shop:player:item:bought',
+    }
     export interface GetInitialData {
       categories: Models.Category[];
       subCategories: Record<string, Models.SubCategory>;
