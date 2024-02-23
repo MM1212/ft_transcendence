@@ -1,1 +1,578 @@
-[]
+[
+  {
+    "id": "cloth:234",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "hand",
+    "label": "Acoustic Guitar",
+    "description": "",
+    "meta": {
+      "clothId": 234,
+      "ICON": "{ASSET_PATH}/234/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/234/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/234/icon.webp"
+    },
+    "price": 550
+  },
+  {
+    "id": "cloth:5428",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "hand",
+    "label": "Pink Microphone",
+    "description": "",
+    "meta": {
+      "clothId": 5428,
+      "ICON": "{ASSET_PATH}/5428/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/5428/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/5428/icon.webp"
+    },
+    "price": 150
+  },
+  {
+    "id": "cloth:5158",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "hand",
+    "label": "Cosmic Super Gloves",
+    "description": "",
+    "meta": {
+      "clothId": 5158,
+      "ICON": "{ASSET_PATH}/5158/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/5158/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/5158/icon.webp"
+    },
+    "price": 470
+  },
+  {
+    "id": "cloth:5196",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "hand",
+    "label": "Piratey Stuffie",
+    "description": "",
+    "meta": {
+      "clothId": 5196,
+      "ICON": "{ASSET_PATH}/5196/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/5196/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/5196/icon.webp"
+    },
+    "price": 250
+  },
+  {
+    "id": "cloth:5061",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "hand",
+    "label": "Pirate Arm Bands",
+    "description": "",
+    "meta": {
+      "clothId": 5061,
+      "ICON": "{ASSET_PATH}/5061/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/5061/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/5061/icon.webp"
+    },
+    "price": 150
+  },
+  {
+    "id": "cloth:1235",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "hand",
+    "label": "Cadence's Puffle",
+    "description": "",
+    "meta": {
+      "clothId": 1235,
+      "ICON": "{ASSET_PATH}/1235/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/1235/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/1235/icon.webp"
+    },
+    "price": 500
+  },
+  {
+    "id": "cloth:343",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "hand",
+    "label": "Violino da Sofia",
+    "description": "",
+    "meta": {
+      "clothId": 343,
+      "ICON": "{ASSET_PATH}/343/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/343/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/343/icon.webp"
+    },
+    "price": 150
+  },
+  {
+    "id": "cloth:5189",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "hand",
+    "label": "Cool Mittens",
+    "description": "",
+    "meta": {
+      "clothId": 5189,
+      "ICON": "{ASSET_PATH}/5189/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/5189/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/5189/icon.webp"
+    },
+    "price": 692
+  },
+  {
+    "id": "cloth:5571",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "hand",
+    "label": "Rainbow Puffle Balloon",
+    "description": "",
+    "meta": {
+      "clothId": 5571,
+      "ICON": "{ASSET_PATH}/5571/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/5571/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/5571/icon.webp"
+    },
+    "price": 250
+  },
+  {
+    "id": "cloth:5564",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "hand",
+    "label": "Black Puffle Balloon",
+    "description": "",
+    "meta": {
+      "clothId": 5564,
+      "ICON": "{ASSET_PATH}/5564/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/5564/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/5564/icon.webp"
+    },
+    "price": 250
+  },
+  {
+    "id": "cloth:5565",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "hand",
+    "label": "Blue Puffle Balloon",
+    "description": "",
+    "meta": {
+      "clothId": 5565,
+      "ICON": "{ASSET_PATH}/5565/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/5565/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/5565/icon.webp"
+    },
+    "price": 250
+  },
+  {
+    "id": "cloth:5566",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "hand",
+    "label": "Brown Puffle Balloon",
+    "description": "",
+    "meta": {
+      "clothId": 5566,
+      "ICON": "{ASSET_PATH}/5566/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/5566/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/5566/icon.webp"
+    },
+    "price": 250
+  },
+  {
+    "id": "cloth:5567",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "hand",
+    "label": "Green Puffle Balloon",
+    "description": "",
+    "meta": {
+      "clothId": 5567,
+      "ICON": "{ASSET_PATH}/5567/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/5567/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/5567/icon.webp"
+    },
+    "price": 250
+  },
+  {
+    "id": "cloth:5568",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "hand",
+    "label": "Orange Puffle Balloon",
+    "description": "",
+    "meta": {
+      "clothId": 5568,
+      "ICON": "{ASSET_PATH}/5568/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/5568/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/5568/icon.webp"
+    },
+    "price": 250
+  },
+  {
+    "id": "cloth:5572",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "hand",
+    "label": "Red Puffle Balloon",
+    "description": "",
+    "meta": {
+      "clothId": 5572,
+      "ICON": "{ASSET_PATH}/5572/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/5572/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/5572/icon.webp"
+    },
+    "price": 250
+  },
+  {
+    "id": "cloth:5573",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "hand",
+    "label": "White Puffle Balloon",
+    "description": "",
+    "meta": {
+      "clothId": 5573,
+      "ICON": "{ASSET_PATH}/5573/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/5573/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/5573/icon.webp"
+    },
+    "price": 250
+  },
+  {
+    "id": "cloth:5574",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "hand",
+    "label": "Yellow Puffle Balloon",
+    "description": "",
+    "meta": {
+      "clothId": 5574,
+      "ICON": "{ASSET_PATH}/5574/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/5574/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/5574/icon.webp"
+    },
+    "price": 250
+  },
+  {
+    "id": "cloth:5575",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "hand",
+    "label": "Gold Puffle Balloon",
+    "description": "",
+    "meta": {
+      "clothId": 5575,
+      "ICON": "{ASSET_PATH}/5575/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/5575/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/5575/icon.webp"
+    },
+    "price": 250
+  },
+  {
+    "id": "cloth:5488",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "hand",
+    "label": "Puffle Watch",
+    "description": "",
+    "meta": {
+      "clothId": 5488,
+      "ICON": "{ASSET_PATH}/5488/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/5488/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/5488/icon.webp"
+    },
+    "price": 100
+  },
+  {
+    "id": "cloth:5194",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "hand",
+    "label": "Blue Puffle Stuffie",
+    "description": "",
+    "meta": {
+      "clothId": 5194,
+      "ICON": "{ASSET_PATH}/5194/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/5194/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/5194/icon.webp"
+    },
+    "price": 150
+  },
+  {
+    "id": "cloth:728",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "hand",
+    "label": "Spikester Cuffs",
+    "description": "",
+    "meta": {
+      "clothId": 728,
+      "ICON": "{ASSET_PATH}/728/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/728/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/728/icon.webp"
+    },
+    "price": 240
+  },
+  {
+    "id": "cloth:5561",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "hand",
+    "label": "Hand Lens",
+    "description": "",
+    "meta": {
+      "clothId": 5561,
+      "ICON": "{ASSET_PATH}/5561/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/5561/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/5561/icon.webp"
+    },
+    "price": 489
+  },
+  {
+    "id": "cloth:340",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "hand",
+    "label": "La Baqueta",
+    "description": "",
+    "meta": {
+      "clothId": 340,
+      "ICON": "{ASSET_PATH}/340/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/340/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/340/icon.webp"
+    },
+    "price": 250
+  },
+  {
+    "id": "cloth:321",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "hand",
+    "label": "Vai dar Cana",
+    "description": "",
+    "meta": {
+      "clothId": 321,
+      "ICON": "{ASSET_PATH}/321/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/321/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/321/icon.webp"
+    },
+    "price": 150
+  },
+  {
+    "id": "cloth:5337",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "hand",
+    "label": "Darth Vader's Lightsaber",
+    "description": "",
+    "meta": {
+      "clothId": 5337,
+      "ICON": "{ASSET_PATH}/5337/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/5337/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/5337/icon.webp"
+    },
+    "price": 250
+  },
+  {
+    "id": "cloth:5335",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "hand",
+    "label": "Luke's Lightsaber",
+    "description": "",
+    "meta": {
+      "clothId": 5335,
+      "ICON": "{ASSET_PATH}/5335/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/5335/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/5335/icon.webp"
+    },
+    "price": 566
+  },
+  {
+    "id": "cloth:5336",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "hand",
+    "label": "Anakin's Lightsaber",
+    "description": "",
+    "meta": {
+      "clothId": 5336,
+      "ICON": "{ASSET_PATH}/5336/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/5336/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/5336/icon.webp"
+    },
+    "price": 977
+  },
+  {
+    "id": "cloth:5511",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "hand",
+    "label": "Blue Lightsaber",
+    "description": "",
+    "meta": {
+      "clothId": 5511,
+      "ICON": "{ASSET_PATH}/5511/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/5511/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/5511/icon.webp"
+    },
+    "price": 436
+  },
+  {
+    "id": "cloth:5512",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "hand",
+    "label": "Purple Lightsaber",
+    "description": "",
+    "meta": {
+      "clothId": 5512,
+      "ICON": "{ASSET_PATH}/5512/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/5512/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/5512/icon.webp"
+    },
+    "price": 126
+  },
+  {
+    "id": "cloth:5513",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "hand",
+    "label": "Dual Lightsabers",
+    "description": "",
+    "meta": {
+      "clothId": 5513,
+      "ICON": "{ASSET_PATH}/5513/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/5513/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/5513/icon.webp"
+    },
+    "price": 901
+  },
+  {
+    "id": "cloth:5514",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "hand",
+    "label": "The Inquisitor's Lightsaber",
+    "description": "",
+    "meta": {
+      "clothId": 5514,
+      "ICON": "{ASSET_PATH}/5514/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/5514/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/5514/icon.webp"
+    },
+    "price": 890
+  },
+  {
+    "id": "cloth:5515",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "hand",
+    "label": "Hera's Blaster",
+    "description": "",
+    "meta": {
+      "clothId": 5515,
+      "ICON": "{ASSET_PATH}/5515/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/5515/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/5515/icon.webp"
+    },
+    "price": 835
+  }
+]

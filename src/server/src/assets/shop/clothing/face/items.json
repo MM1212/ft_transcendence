@@ -1,3 +1,470 @@
 [
- 
+  {
+    "id": "cloth:103",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "face",
+    "label": "3D Glasses",
+    "description": "",
+    "meta": {
+      "clothId": 103,
+      "ICON": "{ASSET_PATH}/103/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/103/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/103/icon.webp"
+    },
+    "price": 747
+  },
+  {
+    "id": "cloth:102",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "face",
+    "label": "Dark Vision Goggles",
+    "description": "",
+    "meta": {
+      "clothId": 102,
+      "ICON": "{ASSET_PATH}/102/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/102/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/102/icon.webp"
+    },
+    "price": 856
+  },
+  {
+    "id": "cloth:104",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "face",
+    "label": "Ninja Mask",
+    "description": "",
+    "meta": {
+      "clothId": 104,
+      "ICON": "{ASSET_PATH}/104/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/104/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/104/icon.webp"
+    },
+    "price": 727
+  },
+  {
+    "id": "cloth:105",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "face",
+    "label": "Eyepatch",
+    "description": "",
+    "meta": {
+      "clothId": 105,
+      "ICON": "{ASSET_PATH}/105/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/105/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/105/icon.webp"
+    },
+    "price": 366
+  },
+  {
+    "id": "cloth:120",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "face",
+    "label": "Alien Mask",
+    "description": "",
+    "meta": {
+      "clothId": 120,
+      "ICON": "{ASSET_PATH}/120/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/120/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/120/icon.webp"
+    },
+    "price": 987
+  },
+  {
+    "id": "cloth:122",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "face",
+    "label": "Robot Helmet",
+    "description": "",
+    "meta": {
+      "clothId": 122,
+      "ICON": "{ASSET_PATH}/122/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/122/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/122/icon.webp"
+    },
+    "price": 1000
+  },
+  {
+    "id": "cloth:128",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "face",
+    "label": "Pink Tiki Mask",
+    "description": "",
+    "meta": {
+      "clothId": 128,
+      "ICON": "{ASSET_PATH}/128/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/128/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/128/icon.webp"
+    },
+    "price": 702
+  },
+  {
+    "id": "cloth:125",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "face",
+    "label": "Aviator Sunglasses",
+    "description": "",
+    "meta": {
+      "clothId": 125,
+      "ICON": "{ASSET_PATH}/125/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/125/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/125/icon.webp"
+    },
+    "price": 526
+  },
+  {
+    "id": "cloth:112",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "face",
+    "label": "Funny-Face Glasses",
+    "description": "",
+    "meta": {
+      "clothId": 112,
+      "ICON": "{ASSET_PATH}/112/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/112/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/112/icon.webp"
+    },
+    "price": 212
+  },
+  {
+    "id": "cloth:138",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "face",
+    "label": "Oculos do Trance",
+    "description": "",
+    "meta": {
+      "clothId": 138,
+      "ICON": "{ASSET_PATH}/138/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/138/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/138/icon.webp"
+    },
+    "price": 540
+  },
+  {
+    "id": "cloth:2059",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "face",
+    "label": "Pink Starglasses",
+    "description": "",
+    "meta": {
+      "clothId": 2059,
+      "ICON": "{ASSET_PATH}/2059/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/2059/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/2059/icon.webp"
+    },
+    "price": 150
+  },
+  {
+    "id": "cloth:2045",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "face",
+    "label": "Blue Starglasses",
+    "description": "",
+    "meta": {
+      "clothId": 2045,
+      "ICON": "{ASSET_PATH}/2045/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/2045/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/2045/icon.webp"
+    },
+    "price": 150
+  },
+  {
+    "id": "cloth:2075",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "face",
+    "label": "Star Shades",
+    "description": "",
+    "meta": {
+      "clothId": 2075,
+      "ICON": "{ASSET_PATH}/2075/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/2075/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/2075/icon.webp"
+    },
+    "price": 150
+  },
+  {
+    "id": "cloth:2138",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "face",
+    "label": "Goldstache",
+    "description": "",
+    "meta": {
+      "clothId": 2138,
+      "ICON": "{ASSET_PATH}/2138/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/2138/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/2138/icon.webp"
+    },
+    "price": 901
+  },
+  {
+    "id": "cloth:2060",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "face",
+    "label": "Mask of Justice",
+    "description": "",
+    "meta": {
+      "clothId": 2060,
+      "ICON": "{ASSET_PATH}/2060/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/2060/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/2060/icon.webp"
+    },
+    "price": 400
+  },
+  {
+    "id": "cloth:2178",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "face",
+    "label": "Clown Face Paint",
+    "description": "",
+    "meta": {
+      "clothId": 2178,
+      "ICON": "{ASSET_PATH}/2178/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/2178/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/2178/icon.webp"
+    },
+    "price": 170
+  },
+  {
+    "id": "cloth:136",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "face",
+    "label": "Ski Goggles",
+    "description": "",
+    "meta": {
+      "clothId": 136,
+      "ICON": "{ASSET_PATH}/136/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/136/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/136/icon.webp"
+    },
+    "price": 190
+  },
+  {
+    "id": "cloth:137",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "face",
+    "label": "Swim Goggles",
+    "description": "",
+    "meta": {
+      "clothId": 137,
+      "ICON": "{ASSET_PATH}/137/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/137/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/137/icon.webp"
+    },
+    "price": 210
+  },
+  {
+    "id": "cloth:123",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "face",
+    "label": "Blue Superhero Mask",
+    "description": "",
+    "meta": {
+      "clothId": 123,
+      "ICON": "{ASSET_PATH}/123/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/123/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/123/icon.webp"
+    },
+    "price": 173
+  },
+  {
+    "id": "cloth:126",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "face",
+    "label": "Big Brow",
+    "description": "",
+    "meta": {
+      "clothId": 126,
+      "ICON": "{ASSET_PATH}/126/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/126/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/126/icon.webp"
+    },
+    "price": 100
+  },
+  {
+    "id": "cloth:135",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "face",
+    "label": "Yellow Snorkel",
+    "description": "",
+    "meta": {
+      "clothId": 135,
+      "ICON": "{ASSET_PATH}/135/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/135/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/135/icon.webp"
+    },
+    "price": 250
+  },
+  {
+    "id": "cloth:131",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "face",
+    "label": "Green Snorkel",
+    "description": "",
+    "meta": {
+      "clothId": 131,
+      "ICON": "{ASSET_PATH}/131/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/131/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/131/icon.webp"
+    },
+    "price": 250
+  },
+  {
+    "id": "cloth:132",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "face",
+    "label": "Blue Snorkel",
+    "description": "",
+    "meta": {
+      "clothId": 132,
+      "ICON": "{ASSET_PATH}/132/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/132/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/132/icon.webp"
+    },
+    "price": 250
+  },
+  {
+    "id": "cloth:127",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "face",
+    "label": "Blue Tiki Mask",
+    "description": "",
+    "meta": {
+      "clothId": 127,
+      "ICON": "{ASSET_PATH}/127/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/127/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/127/icon.webp"
+    },
+    "price": 300
+  },
+  {
+    "id": "cloth:124",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "face",
+    "label": "Pink Superhero Mask",
+    "description": "",
+    "meta": {
+      "clothId": 124,
+      "ICON": "{ASSET_PATH}/124/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/124/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/124/icon.webp"
+    },
+    "price": 100
+  },
+  {
+    "id": "cloth:2105",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "face",
+    "label": "Biggest Brow",
+    "description": "",
+    "meta": {
+      "clothId": 2105,
+      "ICON": "{ASSET_PATH}/2105/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/2105/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/2105/icon.webp"
+    },
+    "price": 430
+  }
 ]

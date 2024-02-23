@@ -1,1 +1,380 @@
-[]
+[
+  {
+    "id": "cloth:162",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "neck",
+    "label": "Santa Beard",
+    "description": "",
+    "meta": {
+      "clothId": 162,
+      "ICON": "{ASSET_PATH}/162/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/162/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/162/icon.webp"
+    },
+    "price": 350
+  },
+  {
+    "id": "cloth:187",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "neck",
+    "label": "Cheesy Necktie",
+    "description": "",
+    "meta": {
+      "clothId": 187,
+      "ICON": "{ASSET_PATH}/187/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/187/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/187/icon.webp"
+    },
+    "price": 250
+  },
+  {
+    "id": "cloth:196",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "neck",
+    "label": "Green Tabard",
+    "description": "",
+    "meta": {
+      "clothId": 196,
+      "ICON": "{ASSET_PATH}/196/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/196/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/196/icon.webp"
+    },
+    "price": 150
+  },
+  {
+    "id": "cloth:191",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "neck",
+    "label": "Life Vest",
+    "description": "",
+    "meta": {
+      "clothId": 191,
+      "ICON": "{ASSET_PATH}/191/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/191/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/191/icon.webp"
+    },
+    "price": 360
+  },
+  {
+    "id": "cloth:195",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "neck",
+    "label": "Camera",
+    "description": "",
+    "meta": {
+      "clothId": 195,
+      "ICON": "{ASSET_PATH}/195/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/195/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/195/icon.webp"
+    },
+    "price": 403
+  },
+  {
+    "id": "cloth:214",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "neck",
+    "label": "Black Bowtie",
+    "description": "",
+    "meta": {
+      "clothId": 214,
+      "ICON": "{ASSET_PATH}/214/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/214/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/214/icon.webp"
+    },
+    "price": 150
+  },
+  {
+    "id": "cloth:199",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "neck",
+    "label": "Backstage Pass",
+    "description": "",
+    "meta": {
+      "clothId": 199,
+      "ICON": "{ASSET_PATH}/199/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/199/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/199/icon.webp"
+    },
+    "price": 110
+  },
+  {
+    "id": "cloth:3101",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "neck",
+    "label": "Silver Star Necklace",
+    "description": "",
+    "meta": {
+      "clothId": 3101,
+      "ICON": "{ASSET_PATH}/3101/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/3101/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/3101/icon.webp"
+    },
+    "price": 150
+  },
+  {
+    "id": "cloth:186",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "neck",
+    "label": "Ruffle Collar",
+    "description": "",
+    "meta": {
+      "clothId": 186,
+      "ICON": "{ASSET_PATH}/186/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/186/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/186/icon.webp"
+    },
+    "price": 300
+  },
+  {
+    "id": "cloth:3052",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "neck",
+    "label": "Blue Climbing Rope",
+    "description": "",
+    "meta": {
+      "clothId": 3052,
+      "ICON": "{ASSET_PATH}/3052/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/3052/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/3052/icon.webp"
+    },
+    "price": 100
+  },
+  {
+    "id": "cloth:3053",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "neck",
+    "label": "Yellow Climbing Rope",
+    "description": "",
+    "meta": {
+      "clothId": 3053,
+      "ICON": "{ASSET_PATH}/3053/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/3053/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/3053/icon.webp"
+    },
+    "price": 100
+  },
+  {
+    "id": "cloth:3123",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "neck",
+    "label": "Pauldrons of Justice",
+    "description": "",
+    "meta": {
+      "clothId": 3123,
+      "ICON": "{ASSET_PATH}/3123/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/3123/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/3123/icon.webp"
+    },
+    "price": 689
+  },
+  {
+    "id": "cloth:3171",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "neck",
+    "label": "Rebel Reward Medal",
+    "description": "",
+    "meta": {
+      "clothId": 3171,
+      "ICON": "{ASSET_PATH}/3171/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/3171/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/3171/icon.webp"
+    },
+    "price": 381
+  },
+  {
+    "id": "cloth:13003",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "neck",
+    "label": "Gold Medal",
+    "description": "",
+    "meta": {
+      "clothId": 13003,
+      "ICON": "{ASSET_PATH}/13003/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/13003/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/13003/icon.webp"
+    },
+    "price": 416
+  },
+  {
+    "id": "cloth:3244",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "neck",
+    "label": "Cozy Blue Scarf",
+    "description": "",
+    "meta": {
+      "clothId": 3244,
+      "ICON": "{ASSET_PATH}/3244/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/3244/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/3244/icon.webp"
+    },
+    "price": 689
+  },
+  {
+    "id": "cloth:3219",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "neck",
+    "label": "Shadow Wings",
+    "description": "",
+    "meta": {
+      "clothId": 3219,
+      "ICON": "{ASSET_PATH}/3219/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/3219/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/3219/icon.webp"
+    },
+    "price": 630
+  },
+  {
+    "id": "cloth:303",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "neck",
+    "label": "Black Cape",
+    "description": "",
+    "meta": {
+      "clothId": 303,
+      "ICON": "{ASSET_PATH}/303/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/303/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/303/icon.webp"
+    },
+    "price": 259
+  },
+  {
+    "id": "cloth:305",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "neck",
+    "label": "Magicians Cape",
+    "description": "",
+    "meta": {
+      "clothId": 305,
+      "ICON": "{ASSET_PATH}/305/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/305/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/305/icon.webp"
+    },
+    "price": 397
+  },
+  {
+    "id": "cloth:10302",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "neck",
+    "label": "Blue Cape",
+    "description": "",
+    "meta": {
+      "clothId": 10302,
+      "ICON": "{ASSET_PATH}/10302/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/10302/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/10302/icon.webp"
+    },
+    "price": 587
+  },
+  {
+    "id": "cloth:13017",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "neck",
+    "label": "Blue Boa",
+    "description": "",
+    "meta": {
+      "clothId": 13017,
+      "ICON": "{ASSET_PATH}/13017/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/13017/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/13017/icon.webp"
+    },
+    "price": 857
+  },
+  {
+    "id": "cloth:3026",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "neck",
+    "label": "Big White Scarf",
+    "description": "",
+    "meta": {
+      "clothId": 3026,
+      "ICON": "{ASSET_PATH}/3026/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/3026/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/3026/icon.webp"
+    },
+    "price": 934
+  }
+]

@@ -1,2 +1,506 @@
 [
+  {
+    "id": "cloth:1199",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "head",
+    "label": "The Cosmic",
+    "description": "",
+    "meta": {
+      "clothId": 1199,
+      "ICON": "{ASSET_PATH}/1199/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/1199/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/1199/icon.webp"
+    },
+    "price": 495
+  },
+  {
+    "id": "cloth:1950",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "head",
+    "label": "Golden Pirate Hat",
+    "description": "",
+    "meta": {
+      "clothId": 1950,
+      "ICON": "{ASSET_PATH}/1950/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/1950/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/1950/icon.webp"
+    },
+    "price": 653
+  },
+  {
+    "id": "cloth:21008",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "head",
+    "label": "The Graceful",
+    "description": "",
+    "meta": {
+      "clothId": 21008,
+      "ICON": "{ASSET_PATH}/21008/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/21008/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/21008/icon.webp"
+    },
+    "price": 150
+  },
+  {
+    "id": "cloth:441",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "head",
+    "label": "Admirals Hat",
+    "description": "",
+    "meta": {
+      "clothId": 441,
+      "ICON": "{ASSET_PATH}/441/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/441/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/441/icon.webp"
+    },
+    "price": 250
+  },
+  {
+    "id": "cloth:1938",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "head",
+    "label": "The Popstar",
+    "description": "",
+    "meta": {
+      "clothId": 1938,
+      "ICON": "{ASSET_PATH}/1938/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/1938/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/1938/icon.webp"
+    },
+    "price": 150
+  },
+  {
+    "id": "cloth:1082",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "head",
+    "label": "Cosmic Star Hat",
+    "description": "",
+    "meta": {
+      "clothId": 1082,
+      "ICON": "{ASSET_PATH}/1082/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/1082/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/1082/icon.webp"
+    },
+    "price": 250
+  },
+  {
+    "id": "cloth:451",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "head",
+    "label": "Roman Helmet",
+    "description": "",
+    "meta": {
+      "clothId": 451,
+      "ICON": "{ASSET_PATH}/451/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/451/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/451/icon.webp"
+    },
+    "price": 160
+  },
+  {
+    "id": "cloth:455",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "head",
+    "label": "Pink Viking Helmet",
+    "description": "",
+    "meta": {
+      "clothId": 455,
+      "ICON": "{ASSET_PATH}/455/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/455/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/455/icon.webp"
+    },
+    "price": 300
+  },
+  {
+    "id": "cloth:1167",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "head",
+    "label": "Capacete da David",
+    "description": "",
+    "meta": {
+      "clothId": 1167,
+      "ICON": "{ASSET_PATH}/1167/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/1167/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/1167/icon.webp"
+    },
+    "price": 300
+  },
+  {
+    "id": "cloth:1020",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "head",
+    "label": "Chullo Hat",
+    "description": "",
+    "meta": {
+      "clothId": 1020,
+      "ICON": "{ASSET_PATH}/1020/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/1020/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/1020/icon.webp"
+    },
+    "price": 973
+  },
+  {
+    "id": "cloth:1168",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "head",
+    "label": "Capacete da Rafa",
+    "description": "",
+    "meta": {
+      "clothId": 1168,
+      "ICON": "{ASSET_PATH}/1168/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/1168/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/1168/icon.webp"
+    },
+    "price": 200
+  },
+  {
+    "id": "cloth:1637",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "head",
+    "label": "Darth Vader Helmet",
+    "description": "",
+    "meta": {
+      "clothId": 1637,
+      "ICON": "{ASSET_PATH}/1637/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/1637/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/1637/icon.webp"
+    },
+    "price": 178
+  },
+  {
+    "id": "cloth:11534",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "head",
+    "label": "Saber Toothed Helmet",
+    "description": "",
+    "meta": {
+      "clothId": 11534,
+      "ICON": "{ASSET_PATH}/11534/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/11534/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/11534/icon.webp"
+    },
+    "price": 800
+  },
+  {
+    "id": "cloth:21009",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "head",
+    "label": "The Flame",
+    "description": "",
+    "meta": {
+      "clothId": 21009,
+      "ICON": "{ASSET_PATH}/21009/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/21009/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/21009/icon.webp"
+    },
+    "price": 538
+  },
+  {
+    "id": "cloth:1258",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "head",
+    "label": "The Daydream",
+    "description": "",
+    "meta": {
+      "clothId": 1258,
+      "ICON": "{ASSET_PATH}/1258/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/1258/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/1258/icon.webp"
+    },
+    "price": 100
+  },
+  {
+    "id": "cloth:1206",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "head",
+    "label": "Santa Hat",
+    "description": "",
+    "meta": {
+      "clothId": 1206,
+      "ICON": "{ASSET_PATH}/1206/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/1206/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/1206/icon.webp"
+    },
+    "price": 200
+  },
+  {
+    "id": "cloth:486",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "head",
+    "label": "Feathered Tiara",
+    "description": "",
+    "meta": {
+      "clothId": 486,
+      "ICON": "{ASSET_PATH}/486/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/486/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/486/icon.webp"
+    },
+    "price": 800
+  },
+  {
+    "id": "cloth:1790",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "head",
+    "label": "Miss Piggy Head",
+    "description": "",
+    "meta": {
+      "clothId": 1790,
+      "ICON": "{ASSET_PATH}/1790/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/1790/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/1790/icon.webp"
+    },
+    "price": 561
+  },
+  {
+    "id": "cloth:1789",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "head",
+    "label": "Kermit the Frog Head",
+    "description": "",
+    "meta": {
+      "clothId": 1789,
+      "ICON": "{ASSET_PATH}/1789/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/1789/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/1789/icon.webp"
+    },
+    "price": 589
+  },
+  {
+    "id": "cloth:1006",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "head",
+    "label": "Tweed Hat",
+    "description": "",
+    "meta": {
+      "clothId": 1006,
+      "ICON": "{ASSET_PATH}/1006/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/1006/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/1006/icon.webp"
+    },
+    "price": 351
+  },
+  {
+    "id": "cloth:1601",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "head",
+    "label": "Sulley Mask",
+    "description": "",
+    "meta": {
+      "clothId": 1601,
+      "ICON": "{ASSET_PATH}/1601/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/1601/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/1601/icon.webp"
+    },
+    "price": 870
+  },
+  {
+    "id": "cloth:1603",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "head",
+    "label": "Randy Mask",
+    "description": "",
+    "meta": {
+      "clothId": 1603,
+      "ICON": "{ASSET_PATH}/1603/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/1603/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/1603/icon.webp"
+    },
+    "price": 350
+  },
+  {
+    "id": "cloth:1608",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "head",
+    "label": "George Mask",
+    "description": "",
+    "meta": {
+      "clothId": 1608,
+      "ICON": "{ASSET_PATH}/1608/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/1608/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/1608/icon.webp"
+    },
+    "price": 350
+  },
+  {
+    "id": "cloth:1635",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "head",
+    "label": "C-3PO Mask",
+    "description": "",
+    "meta": {
+      "clothId": 1635,
+      "ICON": "{ASSET_PATH}/1635/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/1635/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/1635/icon.webp"
+    },
+    "price": 999
+  },
+  {
+    "id": "cloth:1610",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "head",
+    "label": "Squishy's Mom Mask",
+    "description": "",
+    "meta": {
+      "clothId": 1610,
+      "ICON": "{ASSET_PATH}/1610/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/1610/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/1610/icon.webp"
+    },
+    "price": 350
+  },
+  {
+    "id": "cloth:1114",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "head",
+    "label": "Monkey King Mask",
+    "description": "",
+    "meta": {
+      "clothId": 1114,
+      "ICON": "{ASSET_PATH}/1114/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/1114/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/1114/icon.webp"
+    },
+    "price": 291
+  },
+  {
+    "id": "cloth:1645",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "head",
+    "label": "The Skywalker",
+    "description": "",
+    "meta": {
+      "clothId": 1645,
+      "ICON": "{ASSET_PATH}/1645/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/1645/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/1645/icon.webp"
+    },
+    "price": 266
+  },
+  {
+    "id": "cloth:1636",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "head",
+    "label": "Chewbacca Mask",
+    "description": "",
+    "meta": {
+      "clothId": 1636,
+      "ICON": "{ASSET_PATH}/1636/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/1636/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/1636/icon.webp"
+    },
+    "price": 999
+  }
 ]

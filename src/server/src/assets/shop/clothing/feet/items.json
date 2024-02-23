@@ -1,1 +1,398 @@
-[]
+[
+  {
+    "id": "cloth:374",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "feet",
+    "label": "Pirate Boots",
+    "description": "",
+    "meta": {
+      "clothId": 374,
+      "ICON": "{ASSET_PATH}/374/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/374/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/374/icon.webp"
+    },
+    "price": 297
+  },
+  {
+    "id": "cloth:388",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "feet",
+    "label": "Stardust Slippers",
+    "description": "",
+    "meta": {
+      "clothId": 388,
+      "ICON": "{ASSET_PATH}/388/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/388/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/388/icon.webp"
+    },
+    "price": 100
+  },
+  {
+    "id": "cloth:6158",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "feet",
+    "label": "Puffle Trainers",
+    "description": "",
+    "meta": {
+      "clothId": 6158,
+      "ICON": "{ASSET_PATH}/6158/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/6158/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/6158/icon.webp"
+    },
+    "price": 150
+  },
+  {
+    "id": "cloth:6283",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "feet",
+    "label": "Black Puffle Slippers",
+    "description": "",
+    "meta": {
+      "clothId": 6283,
+      "ICON": "{ASSET_PATH}/6283/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/6283/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/6283/icon.webp"
+    },
+    "price": 150
+  },
+  {
+    "id": "cloth:6284",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "feet",
+    "label": "Blue Puffle Slippers",
+    "description": "",
+    "meta": {
+      "clothId": 6284,
+      "ICON": "{ASSET_PATH}/6284/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/6284/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/6284/icon.webp"
+    },
+    "price": 150
+  },
+  {
+    "id": "cloth:6285",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "feet",
+    "label": "Brown Puffle Slippers",
+    "description": "",
+    "meta": {
+      "clothId": 6285,
+      "ICON": "{ASSET_PATH}/6285/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/6285/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/6285/icon.webp"
+    },
+    "price": 150
+  },
+  {
+    "id": "cloth:6286",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "feet",
+    "label": "Green Puffle Slippers",
+    "description": "",
+    "meta": {
+      "clothId": 6286,
+      "ICON": "{ASSET_PATH}/6286/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/6286/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/6286/icon.webp"
+    },
+    "price": 150
+  },
+  {
+    "id": "cloth:6287",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "feet",
+    "label": "Orange Puffle Slippers",
+    "description": "",
+    "meta": {
+      "clothId": 6287,
+      "ICON": "{ASSET_PATH}/6287/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/6287/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/6287/icon.webp"
+    },
+    "price": 150
+  },
+  {
+    "id": "cloth:6288",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "feet",
+    "label": "Pink Puffle Slippers",
+    "description": "",
+    "meta": {
+      "clothId": 6288,
+      "ICON": "{ASSET_PATH}/6288/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/6288/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/6288/icon.webp"
+    },
+    "price": 150
+  },
+  {
+    "id": "cloth:6289",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "feet",
+    "label": "Ghost Puffle Slippers",
+    "description": "",
+    "meta": {
+      "clothId": 6289,
+      "ICON": "{ASSET_PATH}/6289/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/6289/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/6289/icon.webp"
+    },
+    "price": 150
+  },
+  {
+    "id": "cloth:6290",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "feet",
+    "label": "Rainbow Puffle Slippers",
+    "description": "",
+    "meta": {
+      "clothId": 6290,
+      "ICON": "{ASSET_PATH}/6290/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/6290/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/6290/icon.webp"
+    },
+    "price": 150
+  },
+  {
+    "id": "cloth:380",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "feet",
+    "label": "Fuzzy Boots",
+    "description": "",
+    "meta": {
+      "clothId": 380,
+      "ICON": "{ASSET_PATH}/380/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/380/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/380/icon.webp"
+    },
+    "price": 492
+  },
+  {
+    "id": "cloth:6291",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "feet",
+    "label": "Red Puffle Slippers",
+    "description": "",
+    "meta": {
+      "clothId": 6291,
+      "ICON": "{ASSET_PATH}/6291/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/6291/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/6291/icon.webp"
+    },
+    "price": 150
+  },
+  {
+    "id": "cloth:6292",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "feet",
+    "label": "White Puffle Slippers",
+    "description": "",
+    "meta": {
+      "clothId": 6292,
+      "ICON": "{ASSET_PATH}/6292/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/6292/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/6292/icon.webp"
+    },
+    "price": 150
+  },
+  {
+    "id": "cloth:6293",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "feet",
+    "label": "Yellow Puffle Slippers",
+    "description": "",
+    "meta": {
+      "clothId": 6293,
+      "ICON": "{ASSET_PATH}/6293/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/6293/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/6293/icon.webp"
+    },
+    "price": 150
+  },
+  {
+    "id": "cloth:6294",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "feet",
+    "label": "Gold Puffle Slippers",
+    "description": "",
+    "meta": {
+      "clothId": 6294,
+      "ICON": "{ASSET_PATH}/6294/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/6294/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/6294/icon.webp"
+    },
+    "price": 150
+  },
+  {
+    "id": "cloth:6096",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "feet",
+    "label": "Snow Monkey Feet",
+    "description": "",
+    "meta": {
+      "clothId": 6096,
+      "ICON": "{ASSET_PATH}/6096/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/6096/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/6096/icon.webp"
+    },
+    "price": 158
+  },
+  {
+    "id": "cloth:6169",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "feet",
+    "label": "Cotton Sandals",
+    "description": "",
+    "meta": {
+      "clothId": 6169,
+      "ICON": "{ASSET_PATH}/6169/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/6169/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/6169/icon.webp"
+    },
+    "price": 150
+  },
+  {
+    "id": "cloth:6164",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "feet",
+    "label": "Cold Snap Sandals",
+    "description": "",
+    "meta": {
+      "clothId": 6164,
+      "ICON": "{ASSET_PATH}/6164/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/6164/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/6164/icon.webp"
+    },
+    "price": 150
+  },
+  {
+    "id": "cloth:6166",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "feet",
+    "label": "Icicle Sandals",
+    "description": "",
+    "meta": {
+      "clothId": 6166,
+      "ICON": "{ASSET_PATH}/6166/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/6166/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/6166/icon.webp"
+    },
+    "price": 150
+  },
+  {
+    "id": "cloth:6260",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "feet",
+    "label": "Pink and White Sandals",
+    "description": "",
+    "meta": {
+      "clothId": 6260,
+      "ICON": "{ASSET_PATH}/6260/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/6260/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/6260/icon.webp"
+    },
+    "price": 150
+  },
+  {
+    "id": "cloth:6253",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "feet",
+    "label": "Strapped Sandals",
+    "description": "",
+    "meta": {
+      "clothId": 6253,
+      "ICON": "{ASSET_PATH}/6253/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/6253/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/6253/icon.webp"
+    },
+    "price": 150
+  }
+]

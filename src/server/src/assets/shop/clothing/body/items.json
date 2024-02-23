@@ -1,2 +1,1190 @@
 [
+  {
+    "id": "cloth:215",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Life Jacket",
+    "description": "",
+    "meta": {
+      "clothId": 215,
+      "ICON": "{ASSET_PATH}/215/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/215/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/215/icon.webp"
+    },
+    "price": 450
+  },
+  {
+    "id": "cloth:240",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Pizza Apron",
+    "description": "",
+    "meta": {
+      "clothId": 240,
+      "ICON": "{ASSET_PATH}/240/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/240/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/240/icon.webp"
+    },
+    "price": 676
+  },
+  {
+    "id": "cloth:245",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Orange Space Suit",
+    "description": "",
+    "meta": {
+      "clothId": 245,
+      "ICON": "{ASSET_PATH}/245/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/245/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/245/icon.webp"
+    },
+    "price": 900
+  },
+  {
+    "id": "cloth:261",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Black Suit",
+    "description": "",
+    "meta": {
+      "clothId": 261,
+      "ICON": "{ASSET_PATH}/261/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/261/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/261/icon.webp"
+    },
+    "price": 300
+  },
+  {
+    "id": "cloth:242",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Victorian Dress",
+    "description": "",
+    "meta": {
+      "clothId": 242,
+      "ICON": "{ASSET_PATH}/242/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/242/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/242/icon.webp"
+    },
+    "price": 867
+  },
+  {
+    "id": "cloth:241",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Purple Suede Jacket",
+    "description": "",
+    "meta": {
+      "clothId": 241,
+      "ICON": "{ASSET_PATH}/241/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/241/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/241/icon.webp"
+    },
+    "price": 640
+  },
+  {
+    "id": "cloth:264",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Red Pirate Dress",
+    "description": "",
+    "meta": {
+      "clothId": 264,
+      "ICON": "{ASSET_PATH}/264/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/264/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/264/icon.webp"
+    },
+    "price": 450
+  },
+  {
+    "id": "cloth:270",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Purple Bikini",
+    "description": "",
+    "meta": {
+      "clothId": 270,
+      "ICON": "{ASSET_PATH}/270/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/270/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/270/icon.webp"
+    },
+    "price": 265
+  },
+  {
+    "id": "cloth:281",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Black Letterman Jacket",
+    "description": "",
+    "meta": {
+      "clothId": 281,
+      "ICON": "{ASSET_PATH}/281/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/281/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/281/icon.webp"
+    },
+    "price": 670
+  },
+  {
+    "id": "cloth:4860",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Mike Costume",
+    "description": "",
+    "meta": {
+      "clothId": 4860,
+      "ICON": "{ASSET_PATH}/4860/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/4860/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/4860/icon.webp"
+    },
+    "price": 1000
+  },
+  {
+    "id": "cloth:4280",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Pink Cosmic Dress",
+    "description": "",
+    "meta": {
+      "clothId": 4280,
+      "ICON": "{ASSET_PATH}/4280/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/4280/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/4280/icon.webp"
+    },
+    "price": 450
+  },
+  {
+    "id": "cloth:24230",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Master Pirate Outfit",
+    "description": "",
+    "meta": {
+      "clothId": 24230,
+      "ICON": "{ASSET_PATH}/24230/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/24230/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/24230/icon.webp"
+    },
+    "price": 999
+  },
+  {
+    "id": "cloth:4227",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Pirate Lass",
+    "description": "",
+    "meta": {
+      "clothId": 4227,
+      "ICON": "{ASSET_PATH}/4227/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/4227/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/4227/icon.webp"
+    },
+    "price": 452
+  },
+  {
+    "id": "cloth:24074",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Playful Hoodie",
+    "description": "",
+    "meta": {
+      "clothId": 24074,
+      "ICON": "{ASSET_PATH}/24074/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/24074/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/24074/icon.webp"
+    },
+    "price": 250
+  },
+  {
+    "id": "cloth:285",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Admiral Jacket",
+    "description": "",
+    "meta": {
+      "clothId": 285,
+      "ICON": "{ASSET_PATH}/285/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/285/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/285/icon.webp"
+    },
+    "price": 650
+  },
+  {
+    "id": "cloth:769",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "White Admiral Jacket",
+    "description": "",
+    "meta": {
+      "clothId": 769,
+      "ICON": "{ASSET_PATH}/769/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/769/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/769/icon.webp"
+    },
+    "price": 721
+  },
+  {
+    "id": "cloth:4200",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Admirals Coat",
+    "description": "",
+    "meta": {
+      "clothId": 4200,
+      "ICON": "{ASSET_PATH}/4200/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/4200/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/4200/icon.webp"
+    },
+    "price": 878
+  },
+  {
+    "id": "cloth:24257",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Pop Star Hoodie",
+    "description": "",
+    "meta": {
+      "clothId": 24257,
+      "ICON": "{ASSET_PATH}/24257/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/24257/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/24257/icon.webp"
+    },
+    "price": 650
+  },
+  {
+    "id": "cloth:24311",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Bing Bong Outfit",
+    "description": "",
+    "meta": {
+      "clothId": 24311,
+      "ICON": "{ASSET_PATH}/24311/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/24311/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/24311/icon.webp"
+    },
+    "price": 999
+  },
+  {
+    "id": "cloth:24096",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Star Out Costume",
+    "description": "",
+    "meta": {
+      "clothId": 24096,
+      "ICON": "{ASSET_PATH}/24096/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/24096/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/24096/icon.webp"
+    },
+    "price": 989
+  },
+  {
+    "id": "cloth:34174",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Olaf's CostumeR",
+    "description": "",
+    "meta": {
+      "clothId": 34174,
+      "ICON": "{ASSET_PATH}/34174/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/34174/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/34174/icon.webp"
+    },
+    "price": 999
+  },
+  {
+    "id": "cloth:284",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Elf Suit",
+    "description": "",
+    "meta": {
+      "clothId": 284,
+      "ICON": "{ASSET_PATH}/284/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/284/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/284/icon.webp"
+    },
+    "price": 616
+  },
+  {
+    "id": "cloth:24298",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Ancient Green Dragon",
+    "description": "",
+    "meta": {
+      "clothId": 24298,
+      "ICON": "{ASSET_PATH}/24298/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/24298/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/24298/icon.webp"
+    },
+    "price": 999
+  },
+  {
+    "id": "cloth:24259",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Dubstep DJ Outfit",
+    "description": "",
+    "meta": {
+      "clothId": 24259,
+      "ICON": "{ASSET_PATH}/24259/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/24259/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/24259/icon.webp"
+    },
+    "price": 899
+  },
+  {
+    "id": "cloth:24261",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Gold Puffle Costume",
+    "description": "",
+    "meta": {
+      "clothId": 24261,
+      "ICON": "{ASSET_PATH}/24261/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/24261/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/24261/icon.webp"
+    },
+    "price": 631
+  },
+  {
+    "id": "cloth:256",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Pinipon",
+    "description": "",
+    "meta": {
+      "clothId": 256,
+      "ICON": "{ASSET_PATH}/256/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/256/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/256/icon.webp"
+    },
+    "price": 150
+  },
+  {
+    "id": "cloth:307",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Messenger Bag",
+    "description": "cool",
+    "meta": {
+      "clothId": 307,
+      "ICON": "{ASSET_PATH}/307/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/307/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/307/icon.webp"
+    },
+    "price": 500
+  },
+  {
+    "id": "cloth:274",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "42's Mascot",
+    "description": "",
+    "meta": {
+      "clothId": 274,
+      "ICON": "{ASSET_PATH}/274/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/274/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/274/icon.webp"
+    },
+    "price": 420
+  },
+  {
+    "id": "cloth:4275",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Puffle Raincoat",
+    "description": "",
+    "meta": {
+      "clothId": 4275,
+      "ICON": "{ASSET_PATH}/4275/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/4275/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/4275/icon.webp"
+    },
+    "price": 676
+  },
+  {
+    "id": "cloth:4542",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Red Puffle Costume",
+    "description": "",
+    "meta": {
+      "clothId": 4542,
+      "ICON": "{ASSET_PATH}/4542/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/4542/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/4542/icon.webp"
+    },
+    "price": 605
+  },
+  {
+    "id": "cloth:4543",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Blue Puffle Costume",
+    "description": "",
+    "meta": {
+      "clothId": 4543,
+      "ICON": "{ASSET_PATH}/4543/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/4543/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/4543/icon.webp"
+    },
+    "price": 624
+  },
+  {
+    "id": "cloth:4544",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Pink Puffle Costume",
+    "description": "",
+    "meta": {
+      "clothId": 4544,
+      "ICON": "{ASSET_PATH}/4544/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/4544/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/4544/icon.webp"
+    },
+    "price": 650
+  },
+  {
+    "id": "cloth:4545",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Black Puffle Costume",
+    "description": "",
+    "meta": {
+      "clothId": 4545,
+      "ICON": "{ASSET_PATH}/4545/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/4545/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/4545/icon.webp"
+    },
+    "price": 764
+  },
+  {
+    "id": "cloth:4546",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Green Puffle Costume",
+    "description": "",
+    "meta": {
+      "clothId": 4546,
+      "ICON": "{ASSET_PATH}/4546/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/4546/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/4546/icon.webp"
+    },
+    "price": 650
+  },
+  {
+    "id": "cloth:4547",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Yellow Puffle Costume",
+    "description": "",
+    "meta": {
+      "clothId": 4547,
+      "ICON": "{ASSET_PATH}/4547/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/4547/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/4547/icon.webp"
+    },
+    "price": 422
+  },
+  {
+    "id": "cloth:4548",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Purple Puffle Costume",
+    "description": "",
+    "meta": {
+      "clothId": 4548,
+      "ICON": "{ASSET_PATH}/4548/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/4548/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/4548/icon.webp"
+    },
+    "price": 600
+  },
+  {
+    "id": "cloth:4549",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "White Puffle Costume",
+    "description": "",
+    "meta": {
+      "clothId": 4549,
+      "ICON": "{ASSET_PATH}/4549/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/4549/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/4549/icon.webp"
+    },
+    "price": 650
+  },
+  {
+    "id": "cloth:4550",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Orange Puffle Costume",
+    "description": "",
+    "meta": {
+      "clothId": 4550,
+      "ICON": "{ASSET_PATH}/4550/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/4550/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/4550/icon.webp"
+    },
+    "price": 650
+  },
+  {
+    "id": "cloth:4551",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Brown Puffle Costume",
+    "description": "",
+    "meta": {
+      "clothId": 4551,
+      "ICON": "{ASSET_PATH}/4551/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/4551/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/4551/icon.webp"
+    },
+    "price": 796
+  },
+  {
+    "id": "cloth:4810",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Rainbow Puffle Costume",
+    "description": "",
+    "meta": {
+      "clothId": 4810,
+      "ICON": "{ASSET_PATH}/4810/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/4810/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/4810/icon.webp"
+    },
+    "price": 999
+  },
+  {
+    "id": "cloth:4797",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Among the Stars Mint Dress",
+    "description": "",
+    "meta": {
+      "clothId": 4797,
+      "ICON": "{ASSET_PATH}/4797/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/4797/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/4797/icon.webp"
+    },
+    "price": 465
+  },
+  {
+    "id": "cloth:24312",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Rainbow Unicorn Outfit",
+    "description": "",
+    "meta": {
+      "clothId": 24312,
+      "ICON": "{ASSET_PATH}/24312/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/24312/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/24312/icon.webp"
+    },
+    "price": 754
+  },
+  {
+    "id": "cloth:4986",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Puffle Field Medic Outfit",
+    "description": "",
+    "meta": {
+      "clothId": 4986,
+      "ICON": "{ASSET_PATH}/4986/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/4986/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/4986/icon.webp"
+    },
+    "price": 721
+  },
+  {
+    "id": "cloth:4971",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Black Puffle Don't Care Tee",
+    "description": "",
+    "meta": {
+      "clothId": 4971,
+      "ICON": "{ASSET_PATH}/4971/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/4971/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/4971/icon.webp"
+    },
+    "price": 500
+  },
+  {
+    "id": "cloth:4964",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Puffle Pirate Dress",
+    "description": "",
+    "meta": {
+      "clothId": 4964,
+      "ICON": "{ASSET_PATH}/4964/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/4964/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/4964/icon.webp"
+    },
+    "price": 679
+  },
+  {
+    "id": "cloth:24039",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Puffle Wrangler Outfit",
+    "description": "",
+    "meta": {
+      "clothId": 24039,
+      "ICON": "{ASSET_PATH}/24039/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/24039/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/24039/icon.webp"
+    },
+    "price": 586
+  },
+  {
+    "id": "cloth:4056",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Rock Climber",
+    "description": "",
+    "meta": {
+      "clothId": 4056,
+      "ICON": "{ASSET_PATH}/4056/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/4056/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/4056/icon.webp"
+    },
+    "price": 300
+  },
+  {
+    "id": "cloth:4617",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Justice Suit",
+    "description": "",
+    "meta": {
+      "clothId": 4617,
+      "ICON": "{ASSET_PATH}/4617/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/4617/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/4617/icon.webp"
+    },
+    "price": 804
+  },
+  {
+    "id": "cloth:24011",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Yellow Penguin Stuffie",
+    "description": "",
+    "meta": {
+      "clothId": 24011,
+      "ICON": "{ASSET_PATH}/24011/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/24011/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/24011/icon.webp"
+    },
+    "price": 450
+  },
+  {
+    "id": "cloth:4126",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Santa Suit",
+    "description": "",
+    "meta": {
+      "clothId": 4126,
+      "ICON": "{ASSET_PATH}/4126/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/4126/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/4126/icon.webp"
+    },
+    "price": 819
+  },
+  {
+    "id": "cloth:4034",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Bro Ninja do David",
+    "description": "",
+    "meta": {
+      "clothId": 4034,
+      "ICON": "{ASSET_PATH}/4034/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/4034/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/4034/icon.webp"
+    },
+    "price": 808
+  },
+  {
+    "id": "cloth:4010",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Tweed Coat",
+    "description": "",
+    "meta": {
+      "clothId": 4010,
+      "ICON": "{ASSET_PATH}/4010/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/4010/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/4010/icon.webp"
+    },
+    "price": 137
+  },
+  {
+    "id": "cloth:244",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Ghost Costume",
+    "description": "",
+    "meta": {
+      "clothId": 244,
+      "ICON": "{ASSET_PATH}/244/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/244/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/244/icon.webp"
+    },
+    "price": 200
+  },
+  {
+    "id": "cloth:4877",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Daisy Daydream Outfit",
+    "description": "",
+    "meta": {
+      "clothId": 4877,
+      "ICON": "{ASSET_PATH}/4877/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/4877/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/4877/icon.webp"
+    },
+    "price": 100
+  },
+  {
+    "id": "cloth:4031",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Ninja Belt",
+    "description": "",
+    "meta": {
+      "clothId": 4031,
+      "ICON": "{ASSET_PATH}/4031/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/4031/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/4031/icon.webp"
+    },
+    "price": 450
+  },
+  {
+    "id": "cloth:4886",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "C-3PO Costume",
+    "description": "",
+    "meta": {
+      "clothId": 4886,
+      "ICON": "{ASSET_PATH}/4886/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/4886/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/4886/icon.webp"
+    },
+    "price": 999
+  },
+  {
+    "id": "cloth:4897",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Luke Skywalker Robes",
+    "description": "",
+    "meta": {
+      "clothId": 4897,
+      "ICON": "{ASSET_PATH}/4897/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/4897/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/4897/icon.webp"
+    },
+    "price": 525
+  },
+  {
+    "id": "cloth:3172",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Obi-Wan Cloak",
+    "description": "",
+    "meta": {
+      "clothId": 3172,
+      "ICON": "{ASSET_PATH}/3172/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/3172/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/3172/icon.webp"
+    },
+    "price": 396
+  },
+  {
+    "id": "cloth:4887",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Chewbacca Costume",
+    "description": "",
+    "meta": {
+      "clothId": 4887,
+      "ICON": "{ASSET_PATH}/4887/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/4887/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/4887/icon.webp"
+    },
+    "price": 999
+  },
+  {
+    "id": "cloth:4888",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Darth Vader Costume",
+    "description": "",
+    "meta": {
+      "clothId": 4888,
+      "ICON": "{ASSET_PATH}/4888/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/4888/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/4888/icon.webp"
+    },
+    "price": 365
+  },
+  {
+    "id": "cloth:24180",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Sven Costume",
+    "description": "",
+    "meta": {
+      "clothId": 24180,
+      "ICON": "{ASSET_PATH}/24180/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/24180/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/24180/icon.webp"
+    },
+    "price": 999
+  },
+  {
+    "id": "cloth:24189",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Kristoff's Sleigh",
+    "description": "",
+    "meta": {
+      "clothId": 24189,
+      "ICON": "{ASSET_PATH}/24189/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/24189/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/24189/icon.webp"
+    },
+    "price": 552
+  },
+  {
+    "id": "cloth:24149",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Shark Costume",
+    "description": "",
+    "meta": {
+      "clothId": 24149,
+      "ICON": "{ASSET_PATH}/24149/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/24149/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/24149/icon.webp"
+    },
+    "price": 991
+  },
+  {
+    "id": "cloth:24173",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Marshmallow Costume",
+    "description": "",
+    "meta": {
+      "clothId": 24173,
+      "ICON": "{ASSET_PATH}/24173/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/24173/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/24173/icon.webp"
+    },
+    "price": 754
+  },
+  {
+    "id": "cloth:24137",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Victory Splash Jug",
+    "description": "",
+    "meta": {
+      "clothId": 24137,
+      "ICON": "{ASSET_PATH}/24137/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/24137/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/24137/icon.webp"
+    },
+    "price": 360
+  },
+  {
+    "id": "cloth:3243",
+    "type": 0,
+    "flags": [],
+    "category": "clothing",
+    "subCategory": "body",
+    "label": "Classic Car",
+    "description": "",
+    "meta": {
+      "clothId": 3243,
+      "ICON": "{ASSET_PATH}/3243/icon.webp",
+      "PREVIEW_PAPER": "{ASSET_PATH}/3243/paper.webp"
+    },
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/3243/icon.webp"
+    },
+    "price": 471
+  }
 ]
