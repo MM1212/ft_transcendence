@@ -44,7 +44,6 @@ function CustomizationItems({
           }}
         >
           <CustomizationBox
-            label={item.name}
             selected={item.meta.clothId === selected}
             imageUrl={getClothIcon(item.meta.clothId)}
             flex={0.1}
