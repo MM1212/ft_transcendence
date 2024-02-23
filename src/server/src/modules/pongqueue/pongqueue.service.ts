@@ -76,7 +76,6 @@ export class PongQueueService {
         await this.lobbyService.leaveLobby(p.id, true);
         const user = await this.userService.get(p.id);
         if (!user) {
-          console.error('error');
           continue;
         }
         await this.lobbyService.joinLobby(
@@ -85,6 +84,12 @@ export class PongQueueService {
           receiver.authorization,
           receiver.nonce,
           true,
+        );
+        await this.lobbyService.updatePersonal(
+          p.id,
+          receiver.id,
+          p.paddle,
+          p.specialPower,
         );
       }
 

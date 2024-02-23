@@ -10,6 +10,7 @@ import { PongLobbyService } from '../ponglobby.service';
 import { ServerGame } from '@/modules/ponggame/pong';
 import NotificationsModel from '@typings/models/notifications';
 import UserProfileMessageInjector from '@/modules/users/user/ext/Notifications/MessageInjectors/UserProfile';
+import UsersModel from '@typings/models/users';
 
 /* ---- LOBBY PARTICIPANT ---- */
 
@@ -18,7 +19,8 @@ export class PongLobbyParticipant
 {
   public keys: PongModel.Models.IGamekeys | undefined;
   public paddle: string;
-  public specialPower: GroupEnumValues<PongModel.Models.LobbyParticipantSpecialPowerType> = PongModel.Models.LobbyParticipantSpecialPowerType.spark;
+  public specialPower: GroupEnumValues<PongModel.Models.LobbyParticipantSpecialPowerType> =
+    PongModel.Models.LobbyParticipantSpecialPowerType.spark;
   public status: GroupEnumValues<PongModel.Models.LobbyStatus> =
     PongModel.Models.LobbyStatus.Waiting;
   public role: GroupEnumValues<PongModel.Models.LobbyParticipantRole> =
@@ -195,12 +197,16 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
     );
   }
 
-  public async updatePersonal(userId: number, paddleSkin:string, specialPower:string): Promise<boolean>
-  {
+  public async updatePersonal(
+    userId: number,
+    paddleSkin: string,
+    specialPower: string,
+  ): Promise<boolean> {
     const player = this.getPlayerFromBoth(userId);
     if (!player) return false;
     player.paddle = paddleSkin;
-    player.specialPower = specialPower as GroupEnumValues<PongModel.Models.LobbyParticipantSpecialPowerType>;
+    player.specialPower =
+      specialPower as GroupEnumValues<PongModel.Models.LobbyParticipantSpecialPowerType>;
     return true;
   }
 
@@ -233,6 +239,15 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
       this.helpers.gameService,
     );
     this.gameUUId = game.UUID;
+
+    await Promise.all(
+      this.allPlayers.map(async (p) => {
+        const user = await this.helpers.usersService.get(p.id);
+        if (!user) return;
+        user.set('status', UsersModel.Models.Status.InGame);
+        user.propagate('status');
+      }),
+    );
     return true;
   }
 
@@ -251,7 +266,8 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
     else if (random === 1) paddle = PongModel.Models.Paddles.PaddleGengar;
     else if (random === 2) paddle = PongModel.Models.Paddles.PaddleSnake;
     else paddle = PongModel.Models.Paddles.PaddlePenguinBros;
-    const specialPower = PongModel.Models.LobbyParticipantSpecialPowerType.bubble;
+    const specialPower =
+      PongModel.Models.LobbyParticipantSpecialPowerType.bubble;
     const botPlayer = new PongLobbyParticipant(
       bot,
       this,
@@ -263,9 +279,9 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
       bot.avatar,
       this.id,
     );
-    this.removePlayerFromTeam(bot.id);
+    this.removePlayerFromTeam(bot.id, botPlayer.teamId as number);
     this.addToTeam(botPlayer, teamId, teamPosition);
-    console.log(`Lobby-${this.id}: ${bot.nickname} joined.`);
+    console.log(`Lobby-${this.id}: ${bot.nickname} joined in team ${botPlayer.teamId} at pos ${teamPosition}.`);
     console.log('nb players: ' + this.nPlayers);
     botPlayer.keys = undefined;
     botPlayer.status = PongModel.Models.LobbyStatus.Ready;
@@ -334,8 +350,10 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
     return player;
   }
 
-  public removePlayerFromTeam(userId: number): void {
-    const player = this.getPlayerFromTeam(userId);
+  public removePlayerFromTeam(userId: number, teamId?: number): void {
+    const player = teamId
+      ? this.teams[teamId].players.find((p) => p.id === userId)
+      : this.getPlayerFromTeam(userId);
     if (!player) return;
     const teamSide = player.teamId!;
     const team = this.teams[teamSide];
@@ -458,7 +476,11 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
     );
   }
 
-  public updateSettings(score: number, type: boolean, ballSkin: string): boolean {
+  public updateSettings(
+    score: number,
+    type: boolean,
+    ballSkin: string,
+  ): boolean {
     if (score < 1 || score > 100) return false;
     this.score = score;
     console.log('ballSkin: ' + ballSkin);

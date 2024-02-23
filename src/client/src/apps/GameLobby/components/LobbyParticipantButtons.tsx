@@ -79,8 +79,7 @@ export function AddBotButton({
         console.log('Added bot success');
         notifications.success('Bot added');
       } catch (err) {
-        notifications.error('Failed to add bot');
-        console.log(err);
+        notifications.error('Failed to add bot: ', (err as Error).message);
       }
     },
     [teamId, teamPosition]

@@ -24,6 +24,7 @@ namespace UsersModel {
     export enum Status {
       Offline = 'OFFLINE',
       Online = 'ONLINE',
+      InGame = 'INGAME',
       Busy = 'BUSY',
       Away = 'AWAY',
     }

@@ -74,7 +74,7 @@ export default function MatchHistoryScoreBoard(
   return (
     <>
       {match.teams.map((team, index) => (
-        <>
+        <React.Fragment key={index}>
           <Grid
             container
             sx={{
@@ -125,7 +125,7 @@ export default function MatchHistoryScoreBoard(
             ))}
           </Grid>
           {index === 0 && <Divider />}
-        </>
+        </React.Fragment>
       ))}
     </>
   );
