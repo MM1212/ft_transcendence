@@ -191,7 +191,7 @@ function AchievementUnlocked(
           >
             {levelToRender.description}
           </Typography>
-          {userAchievement && !completed &&(
+          {userAchievement && !completed && (
             <Typography level="title-xs" mt="auto" ml="auto">
               {unlocked ? 'Next Level' : 'Unlocks At'}:{' '}
               <Typography
@@ -234,6 +234,18 @@ export default function Achievements(user: UsersModel.Models.IUserInfo) {
       AchievementsModel.Endpoints.Targets.GetUserAchievements,
       { all: fetchAll, userId: user.id }
     );
+  const achievements = React.useMemo(() => {
+    if (!data) return [];
+    return [...data.achievements].sort((a, b) => {
+      if (!a.unlocked && !b.unlocked) {
+        if (a.userAchievement && !b.userAchievement) return -1;
+        if (!a.userAchievement && b.userAchievement) return 1;
+      }
+      if (a.unlocked && !b.unlocked) return -1;
+      if (!a.unlocked && b.unlocked) return 1;
+      return b.currentLevelIdx - a.currentLevelIdx;
+    });
+  }, [data]);
   const acquiredAchievementsLength = React.useMemo(
     () => (data ? data.achievements.filter((a) => a.unlocked) : []).length,
     [data]
@@ -253,7 +265,7 @@ export default function Achievements(user: UsersModel.Models.IUserInfo) {
         label="Please try again later."
       />
     );
-  const { achievements, total } = data;
+  const { total } = data;
   return (
     <>
       <AchievementHead

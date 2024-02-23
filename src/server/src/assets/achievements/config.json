@@ -348,12 +348,13 @@
     ]
   },
   {
-    "tag": "pong:match:50wins",
+    "tag": "pong:match:diff_opponents",
     "title": "Legendary Duelist",
     "icon": "win50.webp",
     "bannerColor": "neutral",
     "defaultMeta": {
-      "count": 0
+      "count": 0,
+      "opponents": []
     },
     "defaultDescription": "Win {{milestone.metaValue}} matches against different opponents",
     "defaultTrackMetaKey": "count",
