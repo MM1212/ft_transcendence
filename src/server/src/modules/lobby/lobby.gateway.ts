@@ -15,7 +15,6 @@ import LobbyModel from '@typings/models/lobby';
 import { UseFilters } from '@nestjs/common';
 import { GlobalFilter } from '@/filters/GlobalFilter';
 
-
 @UseFilters(GlobalFilter)
 @WebSocketGateway({
   namespace: 'api/lobby',
@@ -38,7 +37,12 @@ export class LobbyGateway
     await this.service.init(server);
   }
   async handleConnection(client: ClientSocket) {
-    if (!(await this.authGuard.canActivate(client))) {
+    try {
+      if (!(await this.authGuard.canActivate(client))) {
+        client.disconnect(true);
+        return;
+      }
+    } catch (e) {
       client.disconnect(true);
       return;
     }

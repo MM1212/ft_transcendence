@@ -9,6 +9,7 @@ import useNotificationsService from '@apps/Inbox/state/service';
 import { useShopService } from '@apps/Shop/hooks/service';
 import { useInventoryService } from '@apps/Inventory/hooks/service';
 import { useDevClothingListService } from '@views/ClothingItems';
+import { useSidebarService } from '@apps/Sidebar/hooks/service';
 
 const useAppService = () => {
   useLocationService();
@@ -23,6 +24,7 @@ const useAppService = () => {
   useShopService();
   useInventoryService();
   useDevClothingListService();
+  useSidebarService();
 };
 
 export default useAppService;

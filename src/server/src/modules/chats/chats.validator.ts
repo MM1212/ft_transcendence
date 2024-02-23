@@ -103,7 +103,7 @@ const chatValidator = new (class ChatControllerValidator {
       .object({
         password: z.string().max(50, {
           message: 'Chat password cannot be more than 50 characters',
-        }),
+        }).optional(),
       })
       .nullable()
       .optional(),
