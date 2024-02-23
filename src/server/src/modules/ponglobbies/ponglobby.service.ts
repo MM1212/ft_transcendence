@@ -121,6 +121,12 @@ export class PongLobbyService {
     if (!lobby) throw new Error('Could not find lobby');
     if (lobby.ownerId !== userId)
       throw new ForbiddenException('User is not the owner of the lobby');
+    const canCreateBot = lobby.allPlayers.map((p) => {
+      if (p.type === 'bot') return false;
+      return true;
+    });
+    if (canCreateBot.includes(false))
+      throw new ForbiddenException('One bot is already in the lobby');
     const bot =
       this.getBots()[Math.floor(Math.random() * this.getBots().length)];
     if (lobby.addBot(bot, teamId, teamPosition)) lobby.syncParticipants();
