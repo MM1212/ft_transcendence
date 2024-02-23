@@ -53,7 +53,7 @@ export class Player extends Bar {
     game: Game,
     public teamId: number,
     paddle: keyof typeof paddleConfig,
-    public readonly userId?: number
+    public readonly userId?: number,
   ) {
     super(x, y, tag, direction, game, paddle);
     this.specialPowerType = specialPower;

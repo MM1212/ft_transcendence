@@ -26,6 +26,7 @@ import { Bot } from '@shared/Pong/Paddles/Bot';
 import type { LeaderboardService } from '@/modules/leaderboard/leaderboard.service';
 import type { UsersService } from '@/modules/users/services/users.service';
 import User from '@/modules/users/user';
+import UsersModel from '@typings/models/users';
 
 type Room = BroadcastOperator<DefaultEventsMap, any>;
 
@@ -265,6 +266,7 @@ export class ServerGame extends Game {
     this.gameStats.startTimer();
     this.sendStartTime();
     this.gameStats.startNewRound();
+
     const tick = () => {
       const timestamp = performance.now();
       const deltaTime = timestamp - lastTimeStamp;
@@ -514,7 +516,16 @@ export class ServerGame extends Game {
 
       // execute all players stats game over
       this.calculatePlayerStats(mvpScores);
-
+      await Promise.all(
+        this.lobbyInterface.teams.map(async (t) => {
+          for await (const player of t.players) {
+            const user = await this.usersService.get(player.id);
+            if (!user || user.isBot) continue;
+            user.set('status', user.get('storedStatus'));
+            user.propagate('status');
+          }
+        }),
+      );
       // console.log('team0' , this.gameStats.teamStats.exportStats(0));
       // console.log('team1' , this.gameStats.teamStats.exportStats(1));
       // console.log('game' , this.gameStats.exportStats());
