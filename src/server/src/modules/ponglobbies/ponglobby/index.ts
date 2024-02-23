@@ -10,6 +10,7 @@ import { PongLobbyService } from '../ponglobby.service';
 import { ServerGame } from '@/modules/ponggame/pong';
 import NotificationsModel from '@typings/models/notifications';
 import UserProfileMessageInjector from '@/modules/users/user/ext/Notifications/MessageInjectors/UserProfile';
+import UsersModel from '@typings/models/users';
 
 /* ---- LOBBY PARTICIPANT ---- */
 
@@ -233,6 +234,13 @@ export class PongLobby implements Omit<PongModel.Models.ILobby, 'chatId'> {
       this.helpers.gameService,
     );
     this.gameUUId = game.UUID;
+
+    await Promise.all(this.allPlayers.map(async p => {
+      const user = await this.helpers.usersService.get(p.id);
+      if (!user) return;
+      user.set('status', UsersModel.Models.Status.InGame);
+      user.propagate('status');
+    }))
     return true;
   }
 
