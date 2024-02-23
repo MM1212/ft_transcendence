@@ -70,7 +70,7 @@ export default function MatchHistoryEntryHeader({
   targetId: number;
   size?: number;
 }) {
-  const [myTeam, , inTeam] = React.useMemo<
+  const [myTeam, otherTeam, inTeam] = React.useMemo<
     [PongHistoryModel.Models.Team, PongHistoryModel.Models.Team, boolean]
   >(() => {
     const myTeam = match.teams.find((team) =>
@@ -129,7 +129,7 @@ export default function MatchHistoryEntryHeader({
           transform: 'translateX(-50%)',
         }}
       >
-        <TeamRenderer side="left" {...match.teams[0]} size={size} />
+        <TeamRenderer side="left" {...myTeam} size={size} />
         <Sheet
           sx={{
             p: 1,
@@ -137,10 +137,10 @@ export default function MatchHistoryEntryHeader({
           }}
         >
           <Typography level="h3">
-            {match.teams[0].score} - {match.teams[1].score}
+            {myTeam.score} - {otherTeam.score}
           </Typography>
         </Sheet>
-        <TeamRenderer side="right" {...match.teams[1]} size={size} />
+        <TeamRenderer side="right" {...otherTeam} size={size} />
       </Stack>
       <Stack direction="column" spacing={0.2} alignItems="flex-end">
         <Typography level="body-xs">
