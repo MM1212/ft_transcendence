@@ -113,73 +113,76 @@ export function LobbySettings() {
         gap: 2,
       }}
     >
-      <LobbyPongButton
-        onClick={() => setOpen(true)}
-        startDecorator={<CogIcon />}
-        label="Edit Settings"
-        fullWidth
-        disableMargin
-      />
-      <Modal open={open} onClose={handleSubmitModalClose}>
-        <ModalDialog>
-          <DialogTitle>Settings</DialogTitle>
-          <Box display="flex" flexDirection="column" gap={1}>
-            <Stack direction="row" spacing={2} alignItems="center">
-              <LobbyGameTypography>Game Ball:</LobbyGameTypography>
-              <React.Suspense fallback={null}>
-                <ArrowSelector
-                  selectType="ball"
-                  onClick={setCurrBall}
-                  selected={currBall}
-                />
-              </React.Suspense>
-            </Stack>
-            <LobbyGameTypography
-              component="label"
-              endDecorator={
-                <Switch
-                  sx={{ ml: 1 }}
-                  color="warning"
-                  checked={powersSwitchValue}
-                  onChange={handleSwitchValue}
-                />
-              }
-            >
-              Powers Activated
-            </LobbyGameTypography>
-            <FormControl>
-              <FormLabel required>
-                <LobbyGameTypography>Score</LobbyGameTypography>
-              </FormLabel>
-              <Input
-                placeholder="Enter Score"
-                type="number"
-                slotProps={{
-                  input: {
-                    min: 1,
-                    max: 100,
-                  },
-                }}
-                sx={{ width: '50%' }}
-                startDecorator={<SoccerIcon />}
-                required
-                color={errors.score ? 'danger' : 'warning'}
-                value={score}
-                onChange={(e) => setScore(e.target.value)}
-              />
-              {errors.score && <FormHelperText>{errors.score}</FormHelperText>}{' '}
-            </FormControl>
-          </Box>
+      { self?.id === lobby.ownerId ? (
+        <>
           <LobbyPongButton
+            onClick={() => setOpen(true)}
+            startDecorator={<CogIcon />}
+            label="Edit Settings"
+            fullWidth
             disableMargin
-            label="Save"
-            startDecorator={<ContentSaveIcon />}
-            loading={loading}
-            onClick={handleSubmitModalClose}
           />
-        </ModalDialog>
-      </Modal>
-
+          <Modal open={open} onClose={handleSubmitModalClose}>
+            <ModalDialog>
+              <DialogTitle>Settings</DialogTitle>
+              <Box display="flex" flexDirection="column" gap={1}>
+                <Stack direction="row" spacing={2} alignItems="center">
+                  <LobbyGameTypography>Game Ball:</LobbyGameTypography>
+                  <React.Suspense fallback={null}>
+                    <ArrowSelector
+                      selectType="ball"
+                      onClick={setCurrBall}
+                      selected={currBall}
+                    />
+                  </React.Suspense>
+                </Stack>
+                <LobbyGameTypography
+                  component="label"
+                  endDecorator={
+                    <Switch
+                      sx={{ ml: 1 }}
+                      color="warning"
+                      checked={powersSwitchValue}
+                      onChange={handleSwitchValue}
+                    />
+                  }
+                >
+                  Powers Activated
+                </LobbyGameTypography>
+                <FormControl>
+                  <FormLabel required>
+                    <LobbyGameTypography>Score</LobbyGameTypography>
+                  </FormLabel>
+                  <Input
+                    placeholder="Enter Score"
+                    type="number"
+                    slotProps={{
+                      input: {
+                        min: 1,
+                        max: 100,
+                      },
+                    }}
+                    sx={{ width: '50%' }}
+                    startDecorator={<SoccerIcon />}
+                    required
+                    color={errors.score ? 'danger' : 'warning'}
+                    value={score}
+                    onChange={(e) => setScore(e.target.value)}
+                  />
+                  {errors.score && <FormHelperText>{errors.score}</FormHelperText>}{' '}
+                </FormControl>
+              </Box>
+              <LobbyPongButton
+                disableMargin
+                label="Save"
+                startDecorator={<ContentSaveIcon />}
+                loading={loading}
+                onClick={handleSubmitModalClose}
+              />
+            </ModalDialog>
+          </Modal>
+        </>
+      ) : null}
       <Sheet
         sx={{
           p: 2,
