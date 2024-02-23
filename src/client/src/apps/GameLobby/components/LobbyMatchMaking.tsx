@@ -33,6 +33,12 @@ export function LobbyMatchMaking() {
   const lobby = useRecoilValue(pongGamesState.gameLobby);
   const user = useCurrentUser();
 
+
+  const spectatorIds = React.useMemo(
+    () => lobby?.spectators.map((user) => user.id),
+    [lobby?.spectators]
+  );
+
   const [currentPower, setCurrentPower] = React.useState<string | null>();
   const [currentPaddle, setCurrentPaddle] = React.useState<string | null>();
   const [loading, setLoading] = React.useState(false);
@@ -129,7 +135,10 @@ export function LobbyMatchMaking() {
           />
         )}
       </Box>
-      <OpenGameModal isPlaying={isPlaying} />
+      <OpenGameModal
+        isPlaying={isPlaying}
+        isPlayer={!spectatorIds?.includes(user.id)}
+      />
     </div>
   );
 }
