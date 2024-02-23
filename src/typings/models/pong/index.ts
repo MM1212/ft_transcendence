@@ -303,6 +303,7 @@ namespace PongModel {
       FocusLoss = 'focus-loss',
       Countdown = 'countdown',
       ShooterTimeout = 'shooter-timeout',
+      SpectatorLeave = 'spectator-leave',
     }
 
     export namespace Data {
@@ -382,6 +383,11 @@ namespace PongModel {
 
       export interface TimeStart {
         time_start: number;
+      }
+
+      export interface SpectatorLeave {
+        lobbyId: number;
+        userId: number;
       }
     }
   }

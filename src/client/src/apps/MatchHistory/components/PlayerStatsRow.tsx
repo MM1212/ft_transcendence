@@ -7,6 +7,7 @@ import { Stack, Typography } from '@mui/joy';
 import PongHistoryModel from '@typings/models/pong/history';
 import { statsMapping } from '../constants';
 import { specialPConfig } from '@components/ArrowSelector/ItemConfigs';
+import PongModel from '@typings/models/pong';
 
 function AddStatsBoard({
   value,
@@ -33,6 +34,7 @@ function AddStatsBoard({
 export default function PlayerStatsRow(
   player: PongHistoryModel.Models.Player & {
     isSelf: boolean;
+    gameType: PongHistoryModel.Models.Match['gameType'];
   }
 ) {
   const user = useUser(player.userId);
@@ -42,21 +44,23 @@ export default function PlayerStatsRow(
     <Grid container xs={12}>
       <Grid container xs={4}>
         <Stack spacing={1} direction="row" alignItems="center">
-          <Avatar
-            variant="outlined"
-            sx={{ borderRadius: 'sm', p: 0.5 }}
-            size="sm"
-          >
-            <img
-              src={specialPConfig.get(player.gear.specialPower)}
-              alt={player.gear.specialPower}
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'scale-down',
-              }}
-            />{' '}
-          </Avatar>
+          {player.gameType !== PongModel.Models.LobbyGameType.Classic && (
+            <Avatar
+              variant="outlined"
+              sx={{ borderRadius: 'sm', p: 0.5 }}
+              size="sm"
+            >
+              <img
+                src={specialPConfig.get(player.gear.specialPower)}
+                alt={player.gear.specialPower}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'scale-down',
+                }}
+              />{' '}
+            </Avatar>
+          )}
           <ProfileTooltip user={user} placement="left-start">
             <UserAvatar src={user.avatar} size="md" />
           </ProfileTooltip>

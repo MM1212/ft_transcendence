@@ -242,6 +242,7 @@ model MatchHistory {
   winnerTeamId Int                  @map("winner_team_id")
   stats        Json                 @default("{}")
   createdAt    DateTime             @default(now()) @map("created_at")
+  gameType     String
 
   @@map("matches_history")
 }

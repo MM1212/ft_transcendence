@@ -9,7 +9,6 @@ import type { GroupEnumValues } from '@typings/utils';
 
 namespace PongHistoryModel {
   export namespace Models {
-
     export interface PlayerStats {
       goalsScored: number;
       shotsFired: number;
@@ -55,6 +54,7 @@ namespace PongHistoryModel {
     export interface Match {
       id: number;
       type: GroupEnumValues<PongModel.Models.LobbyType>;
+      gameType: GroupEnumValues<PongModel.Models.LobbyGameType>;
       teams: Team[];
       winnerTeamId: number;
       stats: Record<string, unknown>;
@@ -76,10 +76,11 @@ namespace PongHistoryModel {
         players: Player[];
       }
       export interface Match
-        extends Omit<Models.Match, 'createdAt' | 'stats' | 'teams'> {
+        extends Omit<Models.Match, 'createdAt' | 'stats' | 'teams' | 'gameType'> {
         createdAt: Date;
         stats: any;
         teams: Team[];
+        gameType: string;
       }
 
       export interface CreatePlayer
@@ -91,11 +92,12 @@ namespace PongHistoryModel {
       export interface CreateTeam
         extends Pick<Models.Team, 'won' | 'stats' | 'score'> {
         players: CreatePlayer[];
-        }
+      }
       export interface CreateMatch
         extends Pick<Models.Match, 'stats' | 'winnerTeamId' | 'type'> {
         teams: CreateTeam[];
-        }
+        gameType: GroupEnumValues<PongModel.Models.LobbyGameType>;
+      }
     }
 
     export interface GetByUserIdParams extends Record<string, unknown> {

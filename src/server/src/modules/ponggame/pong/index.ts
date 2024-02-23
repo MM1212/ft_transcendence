@@ -100,6 +100,12 @@ export class ServerGame extends Game {
     }
   }
 
+  public handleSpectatorLeave(client: ClientSocket, userId: number): void {
+    this.spectators.delete(userId);
+    client.leave(this.UUID);
+    console.log(`Spectator ${userId} left ${this.UUID}`);
+  }
+
   public handleKeys(clientId: number, key: string, state: boolean): void {
     const player = this.getPlayerInstanceById(clientId);
     if (player) {
@@ -360,23 +366,22 @@ export class ServerGame extends Game {
   private async getOtherTeamAverageElo(teamId: number): Promise<number> {
     const otherTeamId = teamId === 0 ? 1 : 0;
 
-    const otherTeam = this.config.teams[otherTeamId].players;
-
-    const user = await this.usersService.get(otherTeam[0]?.userId);
-    const user2 = await this.usersService.get(otherTeam[1]?.userId);
-    if (!user) return 0;
-    if (user2) return (user.elo.rating + user2.elo.rating) / 2;
-    else return user.elo.rating;
+    const elos: number[] = []
+    for (const player of this.config.teams[otherTeamId].players) {
+      const user = await this.usersService.get(player.userId);
+      if (user) elos.push(user.elo.rating);
+    }
+    return elos.reduce((a, b) => a + b, 0) / elos.length;
   }
 
   private async getMyTeamAverageElo(teamId: number): Promise<number> {
     const myTeam = this.config.teams[teamId].players;
-
-    const user = await this.usersService.get(myTeam[0]?.userId);
-    const user2 = await this.usersService.get(myTeam[1]?.userId);
-    if (!user) return 0;
-    if (user2) return (user.elo.rating + user2.elo.rating) / 2;
-    else return user.elo.rating;
+    const elos: number[] = []
+    for (const player of myTeam) {
+      const user = await this.usersService.get(player.userId);
+      if (user) elos.push(user.elo.rating);
+    }
+    return elos.reduce((a, b) => a + b, 0) / elos.length;
   }
 
   private didIWin(teamId: number): boolean {
@@ -584,6 +589,7 @@ export class ServerGame extends Game {
           },
         ),
         type: this.lobbyInterface.queueType,
+        gameType: this.lobbyInterface.gameType,
       };
 
       await Promise.all(
