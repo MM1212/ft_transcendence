@@ -17,7 +17,7 @@ export default function LeaderBoard() {
     >
       <Grid container spacing={2} direction="column" width="100%" height="100%">
         <Grid xs={12}>
-          <LobbyGameTypography level="body-lg">Leaderboard</LobbyGameTypography>
+          <LobbyGameTypography level="body-lg">Leaderboard | Solo Queue</LobbyGameTypography>
         </Grid>
         <Grid xs={12}>
           <Divider />

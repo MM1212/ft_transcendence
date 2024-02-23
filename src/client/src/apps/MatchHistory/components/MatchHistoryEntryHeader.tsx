@@ -2,14 +2,7 @@ import { UserAvatar } from '@components/AvatarWithStatus';
 import ProfileTooltip from '@components/ProfileTooltip';
 import CrownIcon from '@components/icons/CrownIcon';
 import { useUser } from '@hooks/user';
-import {
-  Stack,
-  Typography,
-  AvatarGroup,
-  Sheet,
-  Avatar,
-  Badge,
-} from '@mui/joy';
+import { Stack, Typography, AvatarGroup, Sheet, Avatar, Badge } from '@mui/joy';
 import PongHistoryModel from '@typings/models/pong/history';
 import moment from 'moment';
 import React from 'react';
@@ -77,7 +70,7 @@ export default function MatchHistoryEntryHeader({
   targetId: number;
   size?: number;
 }) {
-  const [myTeam, otherTeam, inTeam] = React.useMemo<
+  const [myTeam, , inTeam] = React.useMemo<
     [PongHistoryModel.Models.Team, PongHistoryModel.Models.Team, boolean]
   >(() => {
     const myTeam = match.teams.find((team) =>
@@ -87,11 +80,11 @@ export default function MatchHistoryEntryHeader({
       return [...match.teams, true] as [
         PongHistoryModel.Models.Team,
         PongHistoryModel.Models.Team,
-        boolean
+        boolean,
       ];
-    return [myTeam ?? match.teams[1], match.teams[0], false];
+    return [myTeam ?? match.teams[1], match.teams[0], !!myTeam];
   }, [match.teams, targetId]);
-  
+
   return (
     <Stack
       direction={'row'}
@@ -121,14 +114,9 @@ export default function MatchHistoryEntryHeader({
           </Typography>
         )
       ) : (
-        <Typography
-            level="h4"
-            textTransform="uppercase"
-            ml={0}
-            color="neutral"
-          >
-            Game #{match.id}
-          </Typography>
+        <Typography level="h4" textTransform="uppercase" ml={0} color="neutral">
+          Game #{match.id}
+        </Typography>
       )}
       <Stack
         direction="row"
@@ -141,7 +129,7 @@ export default function MatchHistoryEntryHeader({
           transform: 'translateX(-50%)',
         }}
       >
-        <TeamRenderer side="left" {...myTeam} size={size} />
+        <TeamRenderer side="left" {...match.teams[0]} size={size} />
         <Sheet
           sx={{
             p: 1,
@@ -149,10 +137,10 @@ export default function MatchHistoryEntryHeader({
           }}
         >
           <Typography level="h3">
-            {myTeam.score} - {otherTeam.score}
+            {match.teams[0].score} - {match.teams[1].score}
           </Typography>
         </Sheet>
-        <TeamRenderer side="right" {...otherTeam} size={size} />
+        <TeamRenderer side="right" {...match.teams[1]} size={size} />
       </Stack>
       <Stack direction="column" spacing={0.2} alignItems="flex-end">
         <Typography level="body-xs">
