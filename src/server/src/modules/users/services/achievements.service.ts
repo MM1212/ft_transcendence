@@ -22,6 +22,7 @@ export class UserAchievementsService {
           currentLevel: a.currentLevel,
           nextLevel: a.nextLevel,
           completed: a.completed,
+          currentLevelIdx: a.currentLevelIdx,
         } satisfies AchievementsModel.DTO.IMixedAchievement;
       })
       .filter(Boolean) as AchievementsModel.DTO.IMixedAchievement[];
@@ -34,6 +35,7 @@ export class UserAchievementsService {
         achievement: a,
         currentLevel: a.levels[0],
         completed: false,
+        currentLevelIdx: -1,
       }));
     userAchievements.push(...lockedAchievements);
     return userAchievements;

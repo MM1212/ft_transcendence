@@ -96,7 +96,7 @@ export class BarStatistics {
       spark_ScoredOpponentAffected: this.spark_ScoredOpponentAffected,
       ghost_ScoredOpponentInvisible: this.ghost_ScoredOpponentInvisible,
       winningGoal: this.winningGoal,
-      moneyEarned: this.moneyEarned,
+      moneyEarned: Math.max(0, this.moneyEarned),
       playerScore: this.playerScore,
       ballBounces: this.ballBounces,
       elo: 0

@@ -13,7 +13,6 @@ import ChatsInput from "./ChatsInput";
 import { usePublicChatsModalActions } from "../modals/PublicChatsModal/hooks/usePublicChatsModal";
 import ForumIcon from "@components/icons/ForumIcon";
 import GenericPlaceholder from "@components/GenericPlaceholder";
-import AccountGroupIcon from "@components/icons/AccountGroupIcon";
 
 function ChatEntries() {
   const chatIds = useRecoilValue(chatsState.filteredChatIds);
@@ -34,7 +33,7 @@ function ChatEntries() {
           }}
         >
           <GenericPlaceholder
-            title="No Messages"
+            title="No Conversations"
             icon={<ForumIcon fontSize="xl4" />}
             path=""
           />

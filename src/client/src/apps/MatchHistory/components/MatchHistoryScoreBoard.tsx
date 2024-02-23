@@ -120,6 +120,7 @@ export default function MatchHistoryScoreBoard(
                 key={i}
                 {...player}
                 isSelf={player.userId === session.id}
+                gameType={match.gameType}
               />
             ))}
           </Grid>

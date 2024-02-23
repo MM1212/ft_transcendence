@@ -28,10 +28,18 @@ export default function LobbyRoom() {
   const isPlaying = useRecoilValue(pongGamesState.isPlaying);
   const user = useCurrentUser();
   const { select: selectInvites } = useChatSelectModalActions();
-  const player = leftTeam.players
-    .concat(rightTeam.players)
-    .concat(lobby.spectators)
-    .find((player) => player.id === user?.id);
+  const player = React.useMemo(
+    () =>
+      leftTeam.players
+        .concat(rightTeam.players)
+        .concat(lobby.spectators)
+        .find((player) => player.id === user?.id),
+    [leftTeam.players, lobby.spectators, rightTeam.players, user?.id]
+  );
+  const spectatorIds = React.useMemo(
+    () => lobby.spectators.map((user) => user.id),
+    [lobby.spectators]
+  );
 
   const handleStartMatch = useRecoilCallback(() => async () => {
     try {
@@ -215,7 +223,10 @@ export default function LobbyRoom() {
           />
         </FindMatchWrapper>
       )}
-      <OpenGameModal isPlaying={isPlaying}></OpenGameModal>
+      <OpenGameModal
+        isPlaying={isPlaying}
+        isPlayer={!spectatorIds.includes(user.id)}
+      ></OpenGameModal>
     </Box>
   );
 }

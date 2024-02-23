@@ -37,6 +37,11 @@ export class ClientPlayer extends Player {
     this.updateContainer();
   }
 
+  public async updateName(newName: string): Promise<void> {
+    super.updateName(newName);
+    this.character.mountName();
+  }
+
   async destructor(): Promise<void> {
     await super.destructor();
     this.lobby.stage.removeChild(this.container);

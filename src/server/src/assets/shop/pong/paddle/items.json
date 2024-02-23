@@ -14,7 +14,7 @@
     "id": "PaddleBush",
     "label": "Greek Puke Paddle",
     "description": "The combination of having too much wine, philosophizing in a garden.",
-    "price": 420,
+    "price": 120,
     "meta": {},
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/PaddleBush.webp"
@@ -47,7 +47,7 @@
     "id": "PaddlePenguinBros",
     "label": "Bros Paddle",
     "description": "The penguin brothers are ready to play some pong with you.",
-    "price": 510,
+    "price": 200,
     "meta": {},
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/PaddlePenguinBros.webp"
@@ -58,7 +58,7 @@
     "id": "PaddleRainbow",
     "label": "Rainbow Paddle",
     "description": "With this paddle you can show your true colors.",
-    "price": 280,
+    "price": 169,
     "meta": {},
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/PaddleRainbow.webp"
@@ -69,7 +69,7 @@
     "id": "PaddleRonaldo",
     "label": "Ronaldo Paddle",
     "description": "If you can't play like him, at least you can play with him.",
-    "price": 777,
+    "price": 77,
     "meta": {},
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/PaddleRonaldo.webp"
@@ -80,7 +80,7 @@
     "id": "PaddleSnake",
     "label": "Snake Paddle",
     "description": "The snake is ready to strike its prey.",
-    "price": 242,
+    "price": 99,
     "meta": {},
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/PaddleSnake.webp"
@@ -91,7 +91,7 @@
     "id": "PaddleWaveColors",
     "label": "Colored Waves Paddle",
     "description": "Wave after wave, slowly drifting. The colors of the rainbow are slowly shifting.",
-    "price": 260,
+    "price": 45,
     "meta": {},
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/PaddleWaveColors.webp"

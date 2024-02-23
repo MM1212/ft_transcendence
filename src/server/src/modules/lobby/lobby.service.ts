@@ -5,6 +5,7 @@ import { ClientSocket } from '@typings/ws';
 import { vector2 } from '@typings/vector';
 import LobbyModel from '@typings/models/lobby';
 import { LobbyServices } from './src/Services';
+import type User from '../users/user';
 
 @Injectable()
 export class LobbyService {
@@ -42,6 +43,12 @@ export class LobbyService {
     clothes: Record<LobbyModel.Models.InventoryCategory, number>,
   ) {
     await this.instance.onNetPlayerClothes(client, client.data.user, clothes);
+  }
+
+  async onPlayerNameChange(
+    user: User
+  ) {
+    await this.instance.onPlayerNameChange(user);
   }
 
   onPlayerMove(client: ClientSocket, direction: vector2) {

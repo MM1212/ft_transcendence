@@ -1,5 +1,5 @@
 import { UserAvatar } from '@components/AvatarWithStatus';
-import { useUser } from '@hooks/user';
+import { useCurrentUser, useUser } from '@hooks/user';
 import { Badge, Box, Chip, Divider, IconButton, Tooltip } from '@mui/joy';
 import { Stack } from '@mui/joy';
 import PongModel from '@typings/models/pong';
@@ -106,6 +106,9 @@ export default function LobbyPlayerPlaceholder({
   player?: PongModel.Models.ILobbyParticipant;
 }) {
   const user = useUser(id!);
+
+  const currentUserId = useCurrentUser()?.id;
+
   const [openedModal, setOpenModal] = React.useState<boolean>(false);
   const lobbyOwner = useRecoilValue(pongGamesState.lobbyOwner);
 
@@ -287,7 +290,9 @@ export default function LobbyPlayerPlaceholder({
         <Box display="flex" alignItems="center" gap={1} ml="auto">
           {!id ? (
             <>
-              <AddBotButton teamId={teamId} teamPosition={teamPosition} />
+              {currentUserId === lobbyOwner && (
+                <AddBotButton teamId={teamId} teamPosition={teamPosition} />
+              )}
               <ChangeTeamButton teamId={teamId} teamPosition={teamPosition} />
             </>
           ) : (
