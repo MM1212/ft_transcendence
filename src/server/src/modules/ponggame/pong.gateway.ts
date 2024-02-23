@@ -50,6 +50,11 @@ export class PongGateway
     return this.service.getAllGames();
   }
 
+  @SubscribeMessage(PongModel.Socket.Events.SpectatorLeave)
+  async handleSpectatorLeave(client: Socket, data: { lobbyId: number, userId: number }): Promise<void> {
+    await this.service.handleSpectatorLeave(client, data);
+  }
+
   @SubscribeMessage(PongModel.Socket.Events.FocusLoss)
   handleFocusLoss(client: Socket, data: { roomId: string }): void {
     this.service.handleFocusLoss(client, data.roomId);
