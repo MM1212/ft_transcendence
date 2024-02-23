@@ -11,6 +11,8 @@ export const userStatusToString = (status: UsersModel.Models.Status | GroupEnumV
       return 'away';
     case UsersModel.Models.Status.Busy:
       return 'busy';
+    case UsersModel.Models.Status.InGame:
+      return 'in game';
     default:
       return 'unknown';
   }
@@ -24,6 +26,8 @@ export const userStatusToColor = (status: UsersModel.Models.Status | GroupEnumVa
       return 'palette-warning-400';
     case UsersModel.Models.Status.Busy:
       return 'palette-danger-400';
+    case UsersModel.Models.Status.InGame:
+      return 'palette-primary-400';
     default:
       return 'palette-neutral-400';
   }
