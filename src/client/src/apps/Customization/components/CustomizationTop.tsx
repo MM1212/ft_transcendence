@@ -78,7 +78,7 @@ function _CustomizationRender({
     onAppMount,
     React.useMemo(
       () => ({
-        backgroundColor: bgColor,
+        backgroundColor: '0xFF00BB',
       }),
       [bgColor]
     )
