@@ -76,6 +76,7 @@ namespace AchievementsModel {
       achievement: Models.IAchievement;
       previousLevel?: Models.IAchievementLevel;
       currentLevel: Models.IAchievementLevel;
+      currentLevelIdx: number;
       nextLevel?: Models.IAchievementLevel;
       completed: boolean;
     };

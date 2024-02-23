@@ -461,20 +461,20 @@ export class ServerGame extends Game {
       const achievement = await user.achievements.get<{
         count: number;
         opponents: number[];
-      }>('pong:match:50wins');
+      }>('pong:match:diff_opponents');
       const otherTeamPlayers =
         this.config.teams[player.teamId === 0 ? 1 : 0].players;
       /// TODO: includes crashes server if otherTeamPlayers[n].id
-      if (!achievement.meta.opponents?.includes(otherTeamPlayers[0]?.userId))
-        achievement.meta.opponents?.push(otherTeamPlayers[0].userId);
+      if (!achievement.meta.opponents.includes(otherTeamPlayers[0]?.userId))
+        achievement.meta.opponents.push(otherTeamPlayers[0].userId);
       if (
         otherTeamPlayers[1] &&
-        !achievement.meta.opponents?.includes(otherTeamPlayers[1]?.userId)
+        !achievement.meta.opponents.includes(otherTeamPlayers[1]?.userId)
       )
-        achievement.meta.opponents?.push(otherTeamPlayers[1].userId);
+        achievement.meta.opponents.push(otherTeamPlayers[1].userId);
       await achievement.update((p) => ({
         ...p,
-        count: p.opponents?.length,
+        count: p.opponents.length,
       }));
     }
 
