@@ -37,7 +37,7 @@ export class ServerPlayer extends Player {
   }
   private lastPositionSync: number = performance.now();
   async onUpdate(delta: number): Promise<boolean> {
-    if (!await super.onUpdate(delta)) {
+    if (!(await super.onUpdate(delta))) {
       return false;
     }
     if (performance.now() - this.lastPositionSync > 1000) {
@@ -89,5 +89,10 @@ export class ServerPlayer extends Player {
   public async removeConnection(sock: Socket): Promise<void> {
     const index = this.cons.indexOf(sock);
     if (index !== -1) this.cons.splice(index, 1);
+  }
+
+  public async updateName(newName: string): Promise<void> {
+    await super.updateName(newName);
+    await this.lobby.broadcast('player:name', { id: this.id, name: newName });
   }
 }

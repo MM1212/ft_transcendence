@@ -119,4 +119,13 @@ export class Network {
     if (player.isMain)
       this.lobby.events.emit('self:net:clothes:update', changed);
   }
+
+  public async netOnPlayerNameChange(
+    playerId: number,
+    name: string
+  ): Promise<void> {
+    const player = this.lobby.getPlayer(playerId) as ClientPlayer;
+    if (!player) return;
+    player.updateName(name);
+  }
 }
