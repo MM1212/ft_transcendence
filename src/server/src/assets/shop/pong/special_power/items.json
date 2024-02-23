@@ -11,13 +11,13 @@
     "flags": []
   },
   {
-    "id": "fireball",
+    "id": "fire",
     "label": "Fireball-Cannon",
     "description": "When the Fireball-Cannon hits the ball, it will pick it up and you'll be able to shoot it. It will go super fast!!!",
-    "price": 888,
+    "price": 666,
     "meta": {},
     "listingMeta": {
-      "previewUrl": "{ASSET_PATH}/Fire/Walk/FireballWalk0.webp"
+      "previewUrl": "{ASSET_PATH}/Fireball/Walk/FireballWalk0.webp"
     },
     "flags": []
   },
@@ -47,7 +47,7 @@
     "id": "ghost",
     "label": "Bro Casper",
     "description": "If you shoot Casper against anything he'll ghost it, like your last ex! (eue)",
-    "price": 499,
+    "price": 550,
     "meta": {},
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/Ghost/Walk/GhostWalk0.webp"
