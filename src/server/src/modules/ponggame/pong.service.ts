@@ -74,9 +74,21 @@ export class PongService {
     return lobby;
   }
 
+  public async handleSpectatorLeave(client: ClientSocket, data: {
+    lobbyId: number;
+    userId: number;
+  }): Promise<void> {
+    const game = this.getGameByPlayerId(data.userId);
+    if (!game) return;
+    game.handleSpectatorLeave(client, data.userId);
+    await this.lobbyService.leaveLobby(data.userId);
+    this.clientInGames.delete(data.userId);
+  }
+
   public getAllGames(): PongModel.Models.IGameInfoDisplay[] {
     return Array.from(this.games.values()).map((game) => game.gameInfo);
   }
+
 
   public getGame(uuid: string): ServerGame | undefined {
     return this.games.get(uuid);

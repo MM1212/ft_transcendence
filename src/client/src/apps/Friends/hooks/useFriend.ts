@@ -158,8 +158,8 @@ const useFriend = (friendId: number) => {
 
   const sendPongInvite = useRecoilCallback((ctx) => async () => {
     try {
-      const game = await ctx.snapshot.getPromise(pongGamesState.gameLobby);
-      await tunnel.post(PongModel.Endpoints.Targets.Invite, {
+      let game = await ctx.snapshot.getPromise(pongGamesState.gameLobby);
+      game = await tunnel.post(PongModel.Endpoints.Targets.Invite, {
         lobbyId: game?.id,
         data: [
           {
@@ -169,6 +169,7 @@ const useFriend = (friendId: number) => {
         ],
         source: PongModel.Models.InviteSource.Lobby,
       });
+      ctx.set(pongGamesState.gameLobby, game);
       notifications.success("Invite sent");
     } catch (e) {
       notifications.error("Failed to send invite");

@@ -151,7 +151,7 @@ export class LeaderboardService {
     const entries = playersPositions.entries();
     for await (const [userId, position] of entries) {
       const newPosition = this.getPositionForUser(userId);
-      if (newPosition === position || newPosition !== 0) {
+      if (newPosition === position || newPosition !== 1) {
         continue;
       }
       // give achievement
