@@ -13,7 +13,7 @@ export class Player
   public readonly transform: Transform;
   constructor(
     public readonly id: number,
-    public readonly name: string,
+    public name: string,
     character: LobbyModel.Models.ICharacter,
     transform: LobbyModel.Models.ITransform,
     protected readonly _lobby: Lobby,
@@ -64,6 +64,10 @@ export class Player
     );
   }
 
+  public async updateName(newName: string): Promise<void> {
+    this.name = newName;
+  }
+
   async destructor(): Promise<void> {
     await this.character.destructor();
     await this.transform.destructor();
@@ -94,19 +98,31 @@ export class Player
   handleMovement(key: string, pressed: boolean): boolean {
     switch (key) {
       case 'w': {
-        this.transform.direction = new Vector2D(this.transform.direction.x, pressed ? -1 : 0);
+        this.transform.direction = new Vector2D(
+          this.transform.direction.x,
+          pressed ? -1 : 0
+        );
         break;
       }
       case 's': {
-        this.transform.direction = new Vector2D(this.transform.direction.x, pressed ? 1 : 0);
+        this.transform.direction = new Vector2D(
+          this.transform.direction.x,
+          pressed ? 1 : 0
+        );
         break;
       }
       case 'a': {
-        this.transform.direction = new Vector2D(pressed ? -1 : 0, this.transform.direction.y);
+        this.transform.direction = new Vector2D(
+          pressed ? -1 : 0,
+          this.transform.direction.y
+        );
         break;
       }
       case 'd': {
-        this.transform.direction = new Vector2D(pressed ? 1 : 0, this.transform.direction.y);
+        this.transform.direction = new Vector2D(
+          pressed ? 1 : 0,
+          this.transform.direction.y
+        );
         break;
       }
       default:

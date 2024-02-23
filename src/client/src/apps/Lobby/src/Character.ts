@@ -35,7 +35,12 @@ export class ClientCharacter extends Character {
     return this.player.lobby.stage;
   }
 
-  private mountName(): void {
+  private pixiName: PIXI.Text | null = null;
+  public mountName(): void {
+    if (this.pixiName) {
+      this.pixiName.text = this.player.name;
+      return;
+    }
     const name = new PIXI.Text(this.player.name, {
       fontFamily: 'monospace',
       dropShadow: true,
@@ -49,10 +54,10 @@ export class ClientCharacter extends Character {
       align: 'center',
       fill: '#ffffff',
     });
-
     name.position.set(0, 10);
     name.anchor.set(0.5, -0.5);
     name.zIndex = 999;
+    this.pixiName = name;
     this.container.addChild(name);
   }
 
@@ -219,8 +224,10 @@ export class ClientCharacter extends Character {
         try {
           layer.textures = await this.getCurrentAnimSet(layer.name!);
         } catch (e) {
-           // @ts-expect-error impl
-          console.error(`Failed to load animation ${animation} for layer ${layer.__category} and id ${layer.name}`);
+          console.error(
+            // @ts-expect-error impl
+            `Failed to load animation ${animation} for layer ${layer.__category} and id ${layer.name}`
+          );
           console.error(e);
         }
       })
