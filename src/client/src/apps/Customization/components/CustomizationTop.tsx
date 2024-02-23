@@ -78,7 +78,7 @@ function _CustomizationRender({
     onAppMount,
     React.useMemo(
       () => ({
-        backgroundColor: '0xFF00BB',
+        backgroundColor: bgColor,
       }),
       [bgColor]
     )
@@ -146,6 +146,7 @@ export default function CustomizationTop({
               onClick={() => updateCloth(inventCat, -1)}
               loading={isLobbyLoading}
               disabled={clothes[inventCat] === -1}
+              
             >
               <TshirtVIcon />
             </CustomizationBox>
