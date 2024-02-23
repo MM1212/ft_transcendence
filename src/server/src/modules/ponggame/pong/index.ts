@@ -366,7 +366,7 @@ export class ServerGame extends Game {
   private async getOtherTeamAverageElo(teamId: number): Promise<number> {
     const otherTeamId = teamId === 0 ? 1 : 0;
 
-    const elos: number[] = []
+    const elos: number[] = [];
     for (const player of this.config.teams[otherTeamId].players) {
       const user = await this.usersService.get(player.userId);
       if (user) elos.push(user.elo.rating);
@@ -376,7 +376,7 @@ export class ServerGame extends Game {
 
   private async getMyTeamAverageElo(teamId: number): Promise<number> {
     const myTeam = this.config.teams[teamId].players;
-    const elos: number[] = []
+    const elos: number[] = [];
     for (const player of myTeam) {
       const user = await this.usersService.get(player.userId);
       if (user) elos.push(user.elo.rating);
@@ -384,89 +384,101 @@ export class ServerGame extends Game {
     return elos.reduce((a, b) => a + b, 0) / elos.length;
   }
 
-  private didIWin(teamId: number): boolean {
-    return (teamId === 0 && this.score[0] > this.score[1]) ||
-      (teamId === 1 && this.score[1] > this.score[0])
-      ? true
-      : false;
+  private didIWin(match: PongHistoryModel.Models.Match, teamId: number): boolean {
+    return match.winnerTeamId === teamId;
   }
 
   private async calculateQuests(
     user: User,
+    match: PongHistoryModel.Models.Match,
     player: PongHistoryModel.Models.Player,
   ): Promise<void> {
+
     if (
-      (this.didIWin(player.teamId) &&
+      (this.didIWin(match, player.teamId) &&
         player.teamId === 0 &&
         this.score[1] === 0) ||
       (player.teamId === 1 && this.score[0] === 0)
     ) {
+      console.log('ACHIEVEMENT: perfect match');
       const achievement = await user.achievements.get<{ count: number }>(
         'pong:match:perfect',
       );
+      console.log(achievement.public);
       await achievement.update((p) => ({ count: p.count + 1 }));
       if (
         this.config.teams[0].players.length === 2 &&
         this.config.teams[1].players.length === 2
       ) {
+        console.log('ACHIEVEMENT: perfect match doubles');
         const achievement = await user.achievements.get<{ count: number }>(
           'pong:doubles:perfect',
         );
+        console.log(achievement.public);
         await achievement.update((p) => ({ count: p.count + 1 }));
       }
     }
 
-    if (this.didIWin(player.teamId) && this.getElapsedTime() < 31) {
+    if (this.didIWin(match, player.teamId) && this.getElapsedTime() < 31) {
+      console.log('ACHIEVEMENT: fast match');
       const achievement = await user.achievements.get<{ count: number }>(
         'pong:match:fast',
       );
+      console.log(achievement.public);
       await achievement.update((p) => ({ count: p.count + 1 }));
     }
 
     if (
-      this.didIWin(player.teamId) &&
+      this.didIWin(match, player.teamId) &&
       (await this.getMyTeamAverageElo(player.teamId)) + 100 <
         (await this.getOtherTeamAverageElo(player.teamId))
     ) {
+      console.log('ACHIEVEMENT: underdog');
       const achievement = await user.achievements.get<{ count: number }>(
         'pong:match:underdog',
       );
+      console.log(achievement.public);
       await achievement.update((p) => ({ count: p.count + 1 }));
     }
 
     if (
       this.config.gametype === PongModel.Models.LobbyGameType.Powers &&
       player.stats.shotsFired === 0 &&
-      this.didIWin(player.teamId)
+      this.didIWin(match, player.teamId)
     ) {
+      console.log('ACHIEVEMENT: no powerups');
       const achievement = await user.achievements.get<{ count: number }>(
         'pong:match:nopowerups',
       );
+      console.log(achievement.public);
       await achievement.update((p) => ({ count: p.count + 1 }));
     }
 
     if (
-      this.didIWin(player.teamId) &&
+      this.didIWin(match, player.teamId) &&
       user.elo.isWinStreaking &&
       user.elo.streak >= 2
     ) {
+      console.log('ACHIEVEMENT: winstreak');
       const achievement = await user.achievements.get<{ count: number }>(
         'pong:match:winstreak',
       );
+      console.log(achievement.public);
       await achievement.update((p) => ({ count: p.count + 1 }));
     }
 
-    if (
-      this.didIWin(player.teamId)
-      // && colocar aqui chegou a diamond
-    ) {
-      const achievement = await user.achievements.get<{ count: number }>(
-        'pong:rank:highest',
-      );
-      await achievement.update((p) => ({ count: p.count + 1 }));
-    }
+    // if (
+    //   this.didIWin(match, player.teamId)
+    //   // && colocar aqui chegou a diamond
+    // ) {
+    //   const achievement = await user.achievements.get<{ count: number }>(
+    //     'pong:rank:highest',
+    //   );
+    //   await achievement.update((p) => ({ count: p.count + 1 }));
+    // }
 
-    if (this.didIWin(player.teamId)) {
+    if (this.didIWin(match, player.teamId)) {
+      console.log('ACHIEVEMENT: win');
       const achievement = await user.achievements.get<{
         count: number;
         opponents: number[];
@@ -480,6 +492,7 @@ export class ServerGame extends Game {
         !achievement.meta.opponents.includes(otherTeamPlayers[1].userId)
       )
         achievement.meta.opponents.push(otherTeamPlayers[1].userId);
+      console.log(achievement.public);
       await achievement.update((p) => ({
         ...p,
         count: p.opponents.length,
@@ -488,9 +501,11 @@ export class ServerGame extends Game {
 
     const playerBounces = player.stats.ballBounces;
     if (playerBounces > 0) {
+      console.log('ACHIEVEMENT: bounces');
       const achievement = await user.achievements.get<{ count: number }>(
         'pong:match:bounces',
       );
+      console.log(achievement.public);
       await achievement.update((p) => ({ count: p.count + playerBounces }));
     }
 
@@ -499,9 +514,11 @@ export class ServerGame extends Game {
       this.config.gametype === PongModel.Models.LobbyGameType.Powers &&
       playerShots > 0
     ) {
+      console.log('ACHIEVEMENT: shots');
       const achievement = await user.achievements.get<{ count: number }>(
         'pong:match:shoot_powers',
       );
+      console.log(achievement.public);
       await achievement.update((p) => ({ count: p.count + playerShots }));
     }
   }
@@ -629,7 +646,7 @@ export class ServerGame extends Game {
           for await (const player of team.players) {
             const user = await this.usersService.get(player.userId);
             if (!user || user.isBot) continue;
-            await this.calculateQuests(user, player);
+            await this.calculateQuests(user, matchHistory, player);
           }
         }
       });
