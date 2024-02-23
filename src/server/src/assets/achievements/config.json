@@ -214,22 +214,22 @@
       {
         "type": "silver",
         "titleMod": "Collector",
-        "milestone": 5
+        "milestone": 3
       },
       {
         "type": "gold",
         "titleMod": "Connoisseur",
-        "milestone": 10
+        "milestone": 5
       },
       {
         "type": "platinum",
         "titleMod": "Aficionado",
-        "milestone": 25
+        "milestone": 7
       },
       {
         "type": "diamond",
         "titleMod": "Golden",
-        "milestone": 50
+        "milestone": 9
       }
     ]
   },

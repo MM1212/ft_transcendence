@@ -19,6 +19,9 @@ import { ServerGame } from './pong';
 import User from '../users/user';
 import { GlobalFilter } from '@/filters/GlobalFilter';
 import { Logger, UseFilters } from '@nestjs/common';
+import { OnEvent } from '@nestjs/event-emitter';
+import ShopModel from '@typings/models/shop';
+import type InventoryModel from '@typings/models/users/inventory';
 
 @UseFilters(GlobalFilter)
 @WebSocketGateway({
@@ -51,8 +54,19 @@ export class PongGateway
   }
 
   @SubscribeMessage(PongModel.Socket.Events.SpectatorLeave)
-  async handleSpectatorLeave(client: Socket, data: { lobbyId: number, userId: number }): Promise<void> {
+  async handleSpectatorLeave(
+    client: Socket,
+    data: { lobbyId: number; userId: number },
+  ): Promise<void> {
     await this.service.handleSpectatorLeave(client, data);
+  }
+
+  @OnEvent(ShopModel.DTO.Events.OnItemBought)
+  async handleItemBought(
+    user: User,
+    item: InventoryModel.Models.IItem,
+  ) {
+    await this.service.handleItemBought(user, item);
   }
 
   @SubscribeMessage(PongModel.Socket.Events.FocusLoss)
