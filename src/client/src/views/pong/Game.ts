@@ -79,7 +79,11 @@ export class UIGame extends Game {
     public readonly nickname: string,
     private readonly userId: number
   ) {
-    super(WINDOWSIZE_X, WINDOWSIZE_Y, gameConfig.gametype as PongModel.Models.LobbyGameType);
+    super(
+      WINDOWSIZE_X,
+      WINDOWSIZE_Y,
+      gameConfig.gametype as PongModel.Models.LobbyGameType
+    );
     this.roomId = gameConfig.UUID;
 
     this.app = new PIXI.Application({
