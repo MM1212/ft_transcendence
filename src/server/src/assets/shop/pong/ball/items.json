@@ -14,7 +14,7 @@
     "id": "FootBallBall",
     "label": "FootBall Ball",
     "description": "It has been kicked by Ronaldo.",
-    "price": 300,
+    "price": 50,
     "meta": {},
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/FootBallBall/FootBallBall.webp"
@@ -24,7 +24,7 @@
     "id": "PoolBall",
     "label": "Pool Ball",
     "description": "Can you be the one who puts it last?",
-    "price": 888,
+    "price": 42,
     "meta": {},
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/PoolBall/PoolBall.webp"
@@ -34,7 +34,7 @@
     "id": "TennisBall",
     "label": "Tennis Ball",
     "description": "You have a paddle, it requires a racket. Are you good enough?",
-    "price": 250,
+    "price": 50,
     "meta": {},
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/TennisBall/TennisBall.webp"
