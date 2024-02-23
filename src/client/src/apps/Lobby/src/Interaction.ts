@@ -114,7 +114,7 @@ export class InteractionManager implements IClassLifeCycle {
     }
 
     if (anyChanged) {
-      this.__sync(showingInteractions);
+      this.__sync(showingInteractions.filter((v, idx) => showingInteractions.findIndex(_v => _v.id === v.id) === idx));
     }
   }
 
