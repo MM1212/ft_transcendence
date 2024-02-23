@@ -366,7 +366,7 @@ export class ServerGame extends Game {
   private async getOtherTeamAverageElo(teamId: number): Promise<number> {
     const otherTeamId = teamId === 0 ? 1 : 0;
 
-    const elos: number[] = []
+    const elos: number[] = [];
     for (const player of this.config.teams[otherTeamId].players) {
       const user = await this.usersService.get(player.userId);
       if (user) elos.push(user.elo.rating);
@@ -376,7 +376,7 @@ export class ServerGame extends Game {
 
   private async getMyTeamAverageElo(teamId: number): Promise<number> {
     const myTeam = this.config.teams[teamId].players;
-    const elos: number[] = []
+    const elos: number[] = [];
     for (const player of myTeam) {
       const user = await this.usersService.get(player.userId);
       if (user) elos.push(user.elo.rating);
@@ -384,19 +384,20 @@ export class ServerGame extends Game {
     return elos.reduce((a, b) => a + b, 0) / elos.length;
   }
 
-  private didIWin(teamId: number): boolean {
-    return (teamId === 0 && this.score[0] > this.score[1]) ||
-      (teamId === 1 && this.score[1] > this.score[0])
-      ? true
-      : false;
+  private didIWin(
+    match: PongHistoryModel.Models.Match,
+    teamId: number,
+  ): boolean {
+    return match.winnerTeamId === teamId;
   }
 
   private async calculateQuests(
     user: User,
+    match: PongHistoryModel.Models.Match,
     player: PongHistoryModel.Models.Player,
   ): Promise<void> {
     if (
-      (this.didIWin(player.teamId) &&
+      (this.didIWin(match, player.teamId) &&
         player.teamId === 0 &&
         this.score[1] === 0) ||
       (player.teamId === 1 && this.score[0] === 0)
@@ -416,7 +417,7 @@ export class ServerGame extends Game {
       }
     }
 
-    if (this.didIWin(player.teamId) && this.getElapsedTime() < 31) {
+    if (this.didIWin(match, player.teamId) && this.getElapsedTime() < 31) {
       const achievement = await user.achievements.get<{ count: number }>(
         'pong:match:fast',
       );
@@ -424,7 +425,7 @@ export class ServerGame extends Game {
     }
 
     if (
-      this.didIWin(player.teamId) &&
+      this.didIWin(match, player.teamId) &&
       (await this.getMyTeamAverageElo(player.teamId)) + 100 <
         (await this.getOtherTeamAverageElo(player.teamId))
     ) {
@@ -437,7 +438,7 @@ export class ServerGame extends Game {
     if (
       this.config.gametype === PongModel.Models.LobbyGameType.Powers &&
       player.stats.shotsFired === 0 &&
-      this.didIWin(player.teamId)
+      this.didIWin(match, player.teamId)
     ) {
       const achievement = await user.achievements.get<{ count: number }>(
         'pong:match:nopowerups',
@@ -446,7 +447,7 @@ export class ServerGame extends Game {
     }
 
     if (
-      this.didIWin(player.teamId) &&
+      this.didIWin(match, player.teamId) &&
       user.elo.isWinStreaking &&
       user.elo.streak >= 2
     ) {
@@ -456,17 +457,7 @@ export class ServerGame extends Game {
       await achievement.update((p) => ({ count: p.count + 1 }));
     }
 
-    if (
-      this.didIWin(player.teamId)
-      // && colocar aqui chegou a diamond
-    ) {
-      const achievement = await user.achievements.get<{ count: number }>(
-        'pong:rank:highest',
-      );
-      await achievement.update((p) => ({ count: p.count + 1 }));
-    }
-
-    if (this.didIWin(player.teamId)) {
+    if (this.didIWin(match, player.teamId)) {
       const achievement = await user.achievements.get<{
         count: number;
         opponents: number[];
@@ -629,7 +620,7 @@ export class ServerGame extends Game {
           for await (const player of team.players) {
             const user = await this.usersService.get(player.userId);
             if (!user || user.isBot) continue;
-            await this.calculateQuests(user, player);
+            await this.calculateQuests(user, matchHistory, player);
           }
         }
       });
