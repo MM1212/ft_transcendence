@@ -22,7 +22,7 @@ import ColorThief from 'colorthief';
 import { darken } from '@theme';
 import { selectorFamily, useRecoilValueLoadable } from 'recoil';
 import BotTag from './BotTag';
-import { useCurrentUser } from '@hooks/user';
+import { useCurrentUser, useUser } from '@hooks/user';
 
 export interface IProfileTooltipProps {
   user: UsersModel.Models.IUserInfo;
@@ -197,6 +197,14 @@ function ProfileTooltipContent({
       </Sheet>
     </Box>
   );
+}
+
+export function ProfileTooltipByUserId(
+  props: Omit<IProfileTooltipProps, 'user'> & { userId: number }
+): JSX.Element {
+  const user = useUser(props.userId);
+  if (!user) return <></>;
+  return <ProfileTooltip {...props} user={user} />;
 }
 
 export default function ProfileTooltip({
