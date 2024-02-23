@@ -15,7 +15,7 @@ export default function LobbyInteractionsPanel(): JSX.Element | null {
       right={0}
       m={1}
       display="flex"
-      flexDirection="column"
+      flexDirection="column-reverse"
       gap={1}
       p={1}
       minWidth="20dvh"
@@ -26,7 +26,7 @@ export default function LobbyInteractionsPanel(): JSX.Element | null {
           width="100%"
           display="flex"
           // flexDirection="row-reverse"
-          justifyContent="flex-end"
+          justifyContent="space-between"
           gap={2}
           alignItems="center"
         >
@@ -40,13 +40,9 @@ export default function LobbyInteractionsPanel(): JSX.Element | null {
             {interaction.label}
           </Typography>
           <Box
-            sx={{
-              aspectRatio: 1,
-              padding: 0,
-            }}
+            height="3.5dvh"
             minWidth="3.5dvh"
-            height="fit-content"
-            padding={1}
+            p={1}
             borderRadius="lg"
             bgcolor="common.white"
             display="flex"
@@ -58,6 +54,7 @@ export default function LobbyInteractionsPanel(): JSX.Element | null {
             <Typography
               level="title-lg"
               component="kbd"
+              fontWeight="bold"
               textTransform="uppercase"
               textColor="common.black"
             >
