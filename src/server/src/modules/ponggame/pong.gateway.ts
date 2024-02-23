@@ -64,8 +64,9 @@ export class PongGateway
   @OnEvent(ShopModel.DTO.Events.OnItemBought)
   async handleItemBought(
     user: User,
+    item: InventoryModel.Models.IItem,
   ) {
-    await this.service.handleItemBought(user);
+    await this.service.handleItemBought(user, item);
   }
 
   @SubscribeMessage(PongModel.Socket.Events.FocusLoss)

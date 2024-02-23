@@ -89,7 +89,7 @@ export class ShopService {
       false,
     );
     this.hasAllItems(user);
-    await this.events.emitAsync(ShopModel.DTO.Events.OnItemBought, user);
+    await this.events.emitAsync(ShopModel.DTO.Events.OnItemBought, user, item);
     return item;
   }
 

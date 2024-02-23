@@ -91,11 +91,13 @@ export class PongService {
 
   public async handleItemBought(
     user: User,
+    item: InventoryModel.Models.IItem,
   ): Promise<void> {
+    if (item.type !== 'pong-paddle') return;
     const achievement = await user.achievements.get<{ count: number }>(
       'unlock:skin:rare',
     );
-    await achievement.update({ count: 1 });
+    await achievement.update((p) => ({ count: p.count + 1 }));
   }
 
   public getAllGames(): PongModel.Models.IGameInfoDisplay[] {
