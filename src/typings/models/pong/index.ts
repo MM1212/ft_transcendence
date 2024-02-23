@@ -506,13 +506,13 @@ namespace PongModel {
       BubbleDiesJSON = '/assets/pong/Powers/Bubble/Dies/BubbleDies.json',
       BubbleWalkJSON = '/assets/pong/Powers/Bubble/Walk/BubbleWalk.json',
 
-      Shooter = '/assets/pong/Powers/Fire/Shooter',
-      ShooterJSON = '/assets/pong/Powers/Fire/Shooter/Shooter.json',
+      Shooter = '/assets/pong/Powers/Fireball/Shooter',
+      ShooterJSON = '/assets/pong/Powers/Fireball/Shooter/Shooter.json',
 
-      FireballWalk = '/assets/pong/Powers/Fire/Walk',
-      FireballWalkJSON = '/assets/pong/Powers/Fire/Walk/FireballWalk.json',
-      FireballDies = '/assets/pong/Powers/Fire/Dies',
-      FireballDiesJSON = '/assets/pong/Powers/Fire/Dies/FireballDies.json',
+      FireballWalk = '/assets/pong/Powers/Fireball/Walk',
+      FireballWalkJSON = '/assets/pong/Powers/Fireball/Walk/FireballWalk.json',
+      FireballDies = '/assets/pong/Powers/Fireball/Dies',
+      FireballDiesJSON = '/assets/pong/Powers/Fireball/Dies/FireballDies.json',
 
       IceWalk = '/assets/pong/Powers/Ice/Walk',
       IceWalkJSON = '/assets/pong/Powers/Ice/Walk/IceWalk.json',
@@ -528,7 +528,7 @@ namespace PongModel {
 
       // UI representation
       PowerWaterTexture = '/assets/pong/Powers/Bubble/Walk/BubbleWalk0.webp',
-      PowerFireTexture = '/assets/pong/Powers/Fire/Walk/FireballWalk0.webp',
+      PowerFireTexture = '/assets/pong/Powers/Fireball/Walk/FireballWalk0.webp',
       PowerIceTexture = '/assets/pong/Powers/Ice/Walk/IceWalk0.webp',
       PowerSparkTexture = '/assets/pong/Powers/Spark/Walk/SparkWalk0.webp',
       PowerGhostTexture = '/assets/pong/Powers/Ghost/Walk/GhostWalk0.webp',

@@ -17,7 +17,7 @@ export class Effect {
         "STOP": { duration: this.effectCur + 80, velocity: new Vector2D(0, 0) },
         "REVERSE": { duration: 200, velocity: new Vector2D(0, -1) },
         "CANNON": { duration: 150, velocity: new Vector2D(1, 1) },
-        "INVISIBLE": { duration: 50, velocity: new Vector2D(1, 1) },
+        "INVISIBLE": { duration: 25, velocity: new Vector2D(1, 1) },
         "default": { duration: 100, velocity: new Vector2D(1, 1) },
       };
     target.increaseHitAmount();
