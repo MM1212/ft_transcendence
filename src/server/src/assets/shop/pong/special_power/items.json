@@ -14,7 +14,7 @@
     "id": "fireball",
     "label": "Fireball-Cannon",
     "description": "When the Fireball-Cannon hits the ball, it will pick it up and you'll be able to shoot it. It will go super fast!!!",
-    "price": 2200,
+    "price": 888,
     "meta": {},
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/Fire/Walk/FireballWalk0.webp"
@@ -25,7 +25,7 @@
     "id": "ice",
     "label": "Artic Freeze",
     "description": "When you shoot this little bit of our home against the opponent, it will slow down his movement. If you hit him twice in a row, he will be frozen for a few seconds!",
-    "price": 700,
+    "price": 369,
     "meta": {},
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/Ice/Walk/IceWalk0.webp"
@@ -36,7 +36,7 @@
     "id": "bubble",
     "label": "Bubble Trouble",
     "description": "Shoot the bubble against the ball and make your opponent's life a trouble. It will also give a liiittle speed to the ball!",
-    "price": 1800,
+    "price": 420,
     "meta": {},
     "listingMeta": {
       "previewUrl": "{ASSET_PATH}/Bubble/Walk/BubbleWalk0.webp"
@@ -47,10 +47,10 @@
     "id": "ghost",
     "label": "Bro Casper",
     "description": "If you shoot Casper against anything he'll ghost it, like your last ex! (eue)",
-    "price": 900,
+    "price": 499,
     "meta": {},
     "listingMeta": {
-      "previewUrl": "{ASSET_PATH}/Ice/Walk/IceWalk0.webp"
+      "previewUrl": "{ASSET_PATH}/Ghost/Walk/GhostWalk0.webp"
     },
     "flags": []
   }
