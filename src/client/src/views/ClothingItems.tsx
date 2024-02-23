@@ -14,6 +14,7 @@ import FormatColorFillIcon from '@components/icons/FormatColorFillIcon';
 import ImageTextIcon from '@components/icons/ImageTextIcon';
 import LabelIcon from '@components/icons/LabelIcon';
 import MagnifyIcon from '@components/icons/MagnifyIcon';
+import NecklaceIcon from '@components/icons/NecklaceIcon';
 import SafetyGogglesIcon from '@components/icons/SafetyGogglesIcon';
 import ShapeIcon from '@components/icons/ShapeIcon';
 import ShoeSneakerIcon from '@components/icons/ShoeSneakerIcon';
@@ -93,9 +94,7 @@ interface Filter {
 }
 
 const getIconAssetPath = (id: number) =>
-  `${
-    import.meta.env.FRONTEND_PUBLIC_CDN_URL
-  }/client/dist/assets/media/clothing/icon/${id}.webp`;
+  `${import.meta.env.FRONTEND_PUBLIC_CDN_URL}/clothing/icon/120/${id}.png`;
 
 const priceTableCap: Record<
   LobbyModel.Models.InventoryCategory,
@@ -120,6 +119,7 @@ const categories: {
   { value: 'hand', label: 'Hand', icon: BoxingGloveIcon },
   { value: 'feet', label: 'Feet', icon: ShoeSneakerIcon },
   { value: 'face', label: 'Face', icon: SafetyGogglesIcon },
+  { value: 'neck', label: 'Neck', icon: NecklaceIcon },
   { value: 'color', label: 'Color', icon: FormatColorFillIcon },
 ];
 
@@ -171,7 +171,21 @@ function AddClothingToShopModalForm(): JSX.Element {
     isNaN(parseInt(itemPrice)) || parseInt(itemPrice) < 0 || !itemCategory;
   const [loading, setLoading] = React.useState(false);
   const submit = React.useCallback(async () => {
-    if (error || !itemCategory) return;
+    if (error || !itemCategory) {
+      notifications.error('Invalid form', 'Please fill in all fields');
+      return;
+    }
+    const price = parseInt(itemPrice);
+    if (
+      price < priceTableCap[itemCategory][0] ||
+      price > priceTableCap[itemCategory][1]
+    ) {
+      notifications.error(
+        'Invalid price',
+        `Price must be between ${priceTableCap[itemCategory][0]} and ${priceTableCap[itemCategory][1]}`
+      );
+      return;
+    }
     const item: ClothingItem = {
       id: data.item.id,
       in_shop: false,
@@ -322,27 +336,27 @@ function AddClothingToShopModalPreview(): JSX.Element {
   const { data } = useDevClothingListModal();
   const toRenderImgs = [
     [
-      `${
-        import.meta.env.FRONTEND_PUBLIC_CDN_URL
-      }/client/dist/assets/media/clothing/icon/${data.item.id}.webp`,
+      `${import.meta.env.FRONTEND_PUBLIC_CDN_URL}/clothing/icon/120/${
+        data.item.id
+      }.png`,
       'icon',
     ],
     [
-      `${
-        import.meta.env.FRONTEND_PUBLIC_CDN_URL
-      }/client/dist/assets/media/clothing/paper/${data.item.id}.webp`,
+      `${import.meta.env.FRONTEND_PUBLIC_CDN_URL}/clothing/paper/${
+        data.item.id
+      }.png`,
       'paper',
     ],
     [
-      `${
-        import.meta.env.FRONTEND_PUBLIC_CDN_URL
-      }/client/dist/assets/media/clothing/sprites/${data.item.id}-0.webp`,
+      `${import.meta.env.FRONTEND_PUBLIC_CDN_URL}/clothing/sprites/${
+        data.item.id
+      }-0.png`,
       'sprites',
     ],
     [
-      `${
-        import.meta.env.FRONTEND_PUBLIC_CDN_URL
-      }/client/dist/assets/media/clothing/paper/${data.item.id}_back.webp`,
+      `${import.meta.env.FRONTEND_PUBLIC_CDN_URL}/clothing/paper/${
+        data.item.id
+      }_back.png`,
       'paper back',
     ],
   ];

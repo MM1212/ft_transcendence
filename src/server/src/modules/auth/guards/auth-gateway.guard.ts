@@ -2,13 +2,16 @@ import {
   Injectable,
   UnauthorizedException,
   HttpException,
+  UseFilters,
 } from '@nestjs/common';
 import { UsersService } from '@/modules/users/services/users.service';
 import { AppService } from '@/app.service';
 import { FastifyInstance } from 'fastify';
 import { Socket } from 'socket.io';
 import User from '@/modules/users/user';
+import { GlobalFilter } from '@/filters/GlobalFilter';
 
+@UseFilters(GlobalFilter)
 @Injectable()
 export class AuthGatewayGuard {
   constructor(

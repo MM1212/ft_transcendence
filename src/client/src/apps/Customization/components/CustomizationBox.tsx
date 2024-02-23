@@ -1,4 +1,4 @@
-import { Sheet, CircularProgress } from '@mui/joy';
+import { Sheet, CircularProgress, Tooltip } from '@mui/joy';
 import { SxProps } from '@mui/joy/styles/types';
 import React from 'react';
 
@@ -11,6 +11,7 @@ export default function CustomizationBox({
   disabled = false,
   imgProps,
   loading = false,
+  label,
 }: {
   disabled?: boolean;
   imageUrl?: string;
@@ -20,47 +21,50 @@ export default function CustomizationBox({
   children?: React.ReactNode;
   imgProps?: SxProps;
   loading?: boolean;
+  label: string;
 }) {
   return (
-    <Sheet
-      variant="outlined"
-      sx={{
-        p: 1,
-        aspectRatio: '1/1',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        cursor: !disabled ? 'pointer' : undefined,
-        bgcolor:
-          selected && !disabled && !loading ? 'background.level2' : undefined,
-        borderRadius: (theme) => theme.radius.sm,
-        transition: (theme) => theme.transitions.create('background-color'),
-        '&:hover':
-          !disabled && !loading
-            ? {
-                bgcolor: 'background.level1',
-              }
-            : undefined,
-        flex,
-        overflow: 'hidden',
-        ...imgProps,
-      }}
-      onClick={!disabled && !loading ? onClick : undefined}
-    >
-      {loading ? (
-        <CircularProgress variant="plain" />
-      ) : imageUrl ? (
-        <img
-          src={imageUrl}
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'scale-down',
-          }}
-        />
-      ) : (
-        children
-      )}
-    </Sheet>
+    <Tooltip title={label} placement="top">
+      <Sheet
+        variant="outlined"
+        sx={{
+          p: 1,
+          aspectRatio: '1/1',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          cursor: !disabled ? 'pointer' : undefined,
+          bgcolor:
+            selected && !disabled && !loading ? 'background.level2' : undefined,
+          borderRadius: (theme) => theme.radius.sm,
+          transition: (theme) => theme.transitions.create('background-color'),
+          '&:hover':
+            !disabled && !loading
+              ? {
+                  bgcolor: 'background.level1',
+                }
+              : undefined,
+          flex,
+          overflow: 'hidden',
+          ...imgProps,
+        }}
+        onClick={!disabled && !loading ? onClick : undefined}
+      >
+        {loading ? (
+          <CircularProgress variant="plain" />
+        ) : imageUrl ? (
+          <img
+            src={imageUrl}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'scale-down',
+            }}
+          />
+        ) : (
+          children
+        )}
+      </Sheet>
+    </Tooltip>
   );
 }
