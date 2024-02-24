@@ -182,28 +182,36 @@ export class ClientPlayer extends Player {
 
   // Override movent keys
   public async getMoveUpKey() {
-    const keySettings = await this.lobby.snapshot!.getPromise<KeySettings>(
+    if (!this.lobby.snapshot)
+      return await super.getMoveUpKey();
+    const keySettings = await this.lobby.snapshot.getPromise<KeySettings>(
       settingsState.storage('keySettings') as RecoilValue<KeySettings>
     );
     return keySettings['Move Up']
   }
 
   public async getMoveDownKey() {
-    const keySettings = await this.lobby.snapshot!.getPromise<KeySettings>(
+    if (!this.lobby.snapshot)
+      return await super.getMoveDownKey();
+    const keySettings = await this.lobby.snapshot.getPromise<KeySettings>(
       settingsState.storage('keySettings') as RecoilValue<KeySettings>
     );
     return keySettings['Move Down'];
   }
 
   public async getMoveLeftKey() {
-    const keySettings = await this.lobby.snapshot!.getPromise<KeySettings>(
+    if (!this.lobby.snapshot)
+      return await super.getMoveLeftKey();
+    const keySettings = await this.lobby.snapshot.getPromise<KeySettings>(
       settingsState.storage('keySettings') as RecoilValue<KeySettings>
     );
     return keySettings['Move Left'];
   }
   
   public async getMoveRightKey() {
-    const keySettings = await this.lobby.snapshot!.getPromise<KeySettings>(
+    if (!this.lobby.snapshot)
+      return await super.getMoveRightKey();
+    const keySettings = await this.lobby.snapshot.getPromise<KeySettings>(
       settingsState.storage('keySettings') as RecoilValue<KeySettings>
     );
     return keySettings['Move Right'];
