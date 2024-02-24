@@ -26,7 +26,6 @@ import { Bot } from '@shared/Pong/Paddles/Bot';
 import type { LeaderboardService } from '@/modules/leaderboard/leaderboard.service';
 import type { UsersService } from '@/modules/users/services/users.service';
 import User from '@/modules/users/user';
-import UsersModel from '@typings/models/users';
 
 type Room = BroadcastOperator<DefaultEventsMap, any>;
 
