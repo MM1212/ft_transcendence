@@ -1,5 +1,4 @@
 import HumanGreetingProximityIcon from '@components/icons/HumanGreetingProximityIcon';
-import TableTennisIcon from '@components/icons/TableTennisIcon';
 import {
   Accordion,
   AccordionDetails,
@@ -72,7 +71,6 @@ function FormInput({
 }): JSX.Element {
   const [keySettings, setKeySettings] = useSetting<KeySettings>('keySettings');
   const usedKeys = new Set<string>(Object.values(keySettings));
-  console.log('usedKeys', usedKeys);
 
   return (
     <FormControl size={size}>
@@ -88,14 +86,12 @@ function FormInput({
             inputKey != keySettings[label as KeySettingsKey] &&
             usedKeys.has(inputKey)
           ) {
-            console.log(inputKey, ' is already being used');
             event.target.value = 'Key Already In Use'.toLowerCase();
             return;
           }
           usedKeys.delete(keySettings[label as KeySettingsKey]);
           const tmpKeySettings = { ...keySettings };
           tmpKeySettings[label as KeySettingsKey] = inputKey;
-          console.log(tmpKeySettings);
           setKeySettings(tmpKeySettings);
           usedKeys.add(inputKey);
         }}
@@ -140,7 +136,7 @@ export default function SettingsView(): JSX.Element {
             })}
           </Stack>
         </Tab>
-        <Tab title="Pong" icon={TableTennisIcon}>
+        {/* <Tab title="Pong" icon={TableTennisIcon}>
           <Stack direction="column" spacing={1} p={1}>
             <Typography level="body-sm" mb={1}>
               Keys
@@ -150,7 +146,7 @@ export default function SettingsView(): JSX.Element {
             <FormInput label="Boost" placeholder="A" size="sm" />
             <FormInput label="Special Power" placeholder="A" size="sm" />
           </Stack>
-        </Tab>
+        </Tab> */}
       </Stack>
     </Sheet>
   );
