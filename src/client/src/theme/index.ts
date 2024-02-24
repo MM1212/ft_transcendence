@@ -186,20 +186,16 @@ const theme = extendTheme({
     JoyModal: {
       styleOverrides: {
         backdrop: {
-          ...(import.meta.env.DEV && {
-            backdropFilter: 'none !important',
-            backgroundColor: alpha('#171A1C', 0.5),
-          }),
+          backdropFilter: 'none !important',
+          backgroundColor: alpha('#171A1C', 0.5),
         },
       },
     },
     JoyDrawer: {
       styleOverrides: {
         backdrop: {
-          ...(import.meta.env.DEV && {
-            backdropFilter: 'none !important',
-            backgroundColor: alpha('#171A1C', 0.5),
-          }),
+          backdropFilter: 'none !important',
+          backgroundColor: alpha('#171A1C', 0.5),
         },
       },
     },

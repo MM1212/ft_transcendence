@@ -55,7 +55,6 @@ export function OpenGameModal({
           layout="fullscreen"
           sx={{
             bgcolor: 'divider',
-            backdropFilter: 'blur(5px)',
           }}
         >
           {isPlayer === false && <ModalClose />}
