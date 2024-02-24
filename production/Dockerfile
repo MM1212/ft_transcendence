@@ -17,13 +17,15 @@ WORKDIR /app
 
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-  make git-lfs openssl
+  make openssl
 
 RUN make env mode=production
 RUN make client_gen_icon icon=--all
 
 FROM base AS prod-deps
 
+WORKDIR /app/src/shared
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile
 WORKDIR /app/src/server
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile
 RUN pnpx prisma generate
@@ -32,11 +34,10 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-l
 
 FROM base as build
 
-WORKDIR /app/src/server
-RUN ls
+WORKDIR /app/src/shared
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
-RUN cat package.json
-RUN pnpm ls
+WORKDIR /app/src/server
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 RUN pnpx prisma generate
 RUN pnpm build
 WORKDIR /app/src/client
