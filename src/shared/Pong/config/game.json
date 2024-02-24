@@ -10,6 +10,26 @@
       "diameter": 32,
       "vertices": 8,
       "folder": "RedBall"
+    },
+    "FootBallBall": {
+      "diameter": 32,
+      "vertices": 8,
+      "folder": "FootBallBall"
+    },
+    "TennisBall": {
+      "diameter": 32,
+      "vertices": 8,
+      "folder": "TennisBall"
+    },
+    "PoolBall": {
+      "diameter": 32,
+      "vertices": 8,
+      "folder": "PoolBall"
+    },
+    "VolleyBall": {
+      "diameter": 32,
+      "vertices": 8,
+      "folder": "VolleyBall"
     }
   },
   "paddles": {
@@ -18,6 +38,60 @@
       "height": 116,
       "image": "PaddleRed.webp",
       "folder": "PaddleRed"
+    },
+    "PaddleAcid": {
+      "width": 20,
+      "height": 100,
+      "image": "PaddleAcid.webp",
+      "folder": "PaddleAcid"
+    },
+    "PaddleBush": {
+      "width": 20,
+      "height": 100,
+      "image": "PaddleBush.webp",
+      "folder": "PaddleBush"
+    },
+    "PaddleGengar": {
+      "width": 30,
+      "height": 90,
+      "image": "PaddleGengar.webp",
+      "folder": "PaddleGengar"
+    },
+    "PaddleMinion": {
+      "width": 20,
+      "height": 100,
+      "image": "PaddleMinion.webp",
+      "folder": "PaddleMinion"
+    },
+    "PaddlePenguinBros": {
+      "width": 20,
+      "height": 100,
+      "image": "PaddleAcid.webp",
+      "folder": "PaddleAcid"
+    },
+    "PaddleRainbow": {
+      "width": 24,
+      "height": 96,
+      "image": "PaddleRainbow.webp",
+      "folder": "PaddleRainbow"
+    },
+    "PaddleRonaldo": {
+      "width": 30,
+      "height": 80,
+      "image": "PaddleRonaldo.webp",
+      "folder": "PaddleRonaldo"
+    },
+    "PaddleSnake": {
+      "width": 18,
+      "height": 130,
+      "image": "PaddleSnake.webp",
+      "folder": "PaddleSnake"
+    },
+    "PaddleWaveColors": {
+      "width": 20,
+      "height": 100,
+      "image": "PaddleWaveColors.webp",
+      "folder": "PaddleWaveColors"
     }
   },
   "powers": {

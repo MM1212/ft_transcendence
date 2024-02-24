@@ -114,8 +114,7 @@ export class InteractionManager implements IClassLifeCycle {
     }
 
     if (anyChanged) {
-      console.log('interactions changed', showingInteractions);
-      this.__sync(showingInteractions);
+      this.__sync(showingInteractions.filter((v, idx) => showingInteractions.findIndex(_v => _v.id === v.id) === idx));
     }
   }
 
@@ -125,12 +124,6 @@ export class InteractionManager implements IClassLifeCycle {
     ctx: CallbackInterface
   ) {
     for (const interaction of this.interactions) {
-      console.log(
-        interaction.id,
-        interaction.data.key,
-        key,
-        interaction.showing
-      );
       if (key === interaction.data.key && interaction.showing) {
         await Promise.resolve(interaction.onClick(pressed, ctx));
       }

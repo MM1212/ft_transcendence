@@ -24,6 +24,9 @@ const useLobbyService = () => {
           ownerId: data.ownerId,
           teams: data.teams,
           spectators: data.spectators,
+          ballTexture: data.ballTexture,
+          score: data.score,
+          gameType: data.gameType,
         });
 
         return {
@@ -31,33 +34,36 @@ const useLobbyService = () => {
           ownerId: data.ownerId,
           teams: data.teams,
           spectators: data.spectators,
+          ballTexture: data.ballTexture,
+          score: data.score,
+          gameType: data.gameType,
         };
       });
     },
     []
   );
 
-  const onUpdateSettingsEvent = useRecoilCallback(
-    (ctx) => async (ev: PongModel.Sse.UpdateLobbySettings) => {
-      const lobby = await ctx.snapshot.getPromise(pongGamesState.gameLobby);
-      if (!lobby) return;
-      if (lobby.id !== ev.data.lobbyId) return;
-      ctx.set(pongGamesState.gameLobby, (prev) => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          score: ev.data.score,
-          gameType:
-            ev.data.type === true
-              ? PongModel.Models.LobbyGameType.Powers
-              : PongModel.Models.LobbyGameType.Classic,
-          ballSkin: ev.data.ballSkin,
-        };
-      });
-    },
-    []
-  );
-
+  //const onUpdateSettingsEvent = useRecoilCallback(
+  //  (ctx) => async (ev: PongModel.Sse.UpdateLobbySettings) => {
+  //    const lobby = await ctx.snapshot.getPromise(pongGamesState.gameLobby);
+  //    if (!lobby) return;
+  //    if (lobby.id !== ev.data.lobbyId) return;
+  //    ctx.set(pongGamesState.gameLobby, (prev) => {
+  //      if (!prev) return prev;
+  //      return {
+  //        ...prev,
+  //        score: ev.data.score,
+  //        gameType:
+  //          ev.data.type === true
+  //            ? PongModel.Models.LobbyGameType.Powers
+  //            : PongModel.Models.LobbyGameType.Classic,
+  //        ballSkin: ev.data.ballSkin,
+  //      };
+  //    });
+  //  },
+  //  []
+  //);
+//
   const onKickEvent = useRecoilCallback(
     (ctx) => async () => {
       const lobby = await ctx.snapshot.getPromise(pongGamesState.gameLobby);
@@ -146,10 +152,10 @@ const useLobbyService = () => {
     PongModel.Sse.Events.UpdateLobbyParticipants,
     onUpdateLobbyEvent
   );
-  useSseEvent<PongModel.Sse.UpdateLobbySettings>(
-    PongModel.Sse.Events.UpdateLobbySettings,
-    onUpdateSettingsEvent
-  );
+  // useSseEvent<PongModel.Sse.UpdateLobbySettings>(
+  //   PongModel.Sse.Events.UpdateLobbySettings,
+  //   onUpdateSettingsEvent
+  // );
   useSseEvent<PongModel.Sse.UpdateLobbyInvited>(
     PongModel.Sse.Events.UpdateLobbyInvited,
     onInviteEvent

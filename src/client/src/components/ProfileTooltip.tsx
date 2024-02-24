@@ -21,6 +21,8 @@ import { computeUserAvatar } from '@utils/computeAvatar';
 import ColorThief from 'colorthief';
 import { darken } from '@theme';
 import { selectorFamily, useRecoilValueLoadable } from 'recoil';
+import BotTag from './BotTag';
+import { useCurrentUser, useUser } from '@hooks/user';
 
 export interface IProfileTooltipProps {
   user: UsersModel.Models.IUserInfo;
@@ -57,7 +59,15 @@ function ProfileTooltipContent({
   const { contents: averageAvatarColor, state } = useRecoilValueLoadable(
     cacheSelector(user.avatar)
   );
-  console.log(averageAvatarColor);
+  const isBot = user.type === UsersModel.Models.Types.Bot;
+  const self = useCurrentUser();
+  const renderBadges = React.useMemo(
+    () => [
+      isBot ? <BotTag key="bot" size="sm" variant="plain" icon /> : null,
+      ...(badges ?? []),
+    ],
+    [badges, isBot]
+  );
 
   return (
     <Box
@@ -114,7 +124,7 @@ function ProfileTooltipContent({
           }}
           background="level1"
         />
-        {badges?.length ? (
+        {renderBadges?.length ? (
           <Stack
             spacing={0.5}
             direction="row"
@@ -124,7 +134,7 @@ function ProfileTooltipContent({
             py={0.25}
             borderRadius="sm"
           >
-            {badges}
+            {renderBadges}
           </Stack>
         ) : null}
       </Box>
@@ -158,31 +168,43 @@ function ProfileTooltipContent({
             {moment(user.createdAt).format('MMM Do YYYY')}
           </Typography>
         </Stack>
-        <Box mt="auto" gap={1} display="flex" alignItems="center">
-          <Button
-            variant="outlined"
-            color="neutral"
-            startDecorator={<AccountIcon />}
-            size="sm"
-            onClick={goToProfile}
-            fullWidth
-          >
-            Profile
-          </Button>
-          <Button
-            variant="outlined"
-            color="neutral"
-            startDecorator={<MessageIcon size="sm" />}
-            size="sm"
-            onClick={goToMessages}
-            fullWidth
-          >
-            Message
-          </Button>
-        </Box>
+        {!isBot && (
+          <Box mt="auto" gap={1} display="flex" alignItems="center">
+            <Button
+              variant="outlined"
+              color="neutral"
+              startDecorator={<AccountIcon />}
+              size="sm"
+              onClick={goToProfile}
+              fullWidth
+            >
+              Profile
+            </Button>
+            {self && self.id !== user.id && (
+              <Button
+                variant="outlined"
+                color="neutral"
+                startDecorator={<MessageIcon size="sm" />}
+                size="sm"
+                onClick={goToMessages}
+                fullWidth
+              >
+                Message
+              </Button>
+            )}
+          </Box>
+        )}
       </Sheet>
     </Box>
   );
+}
+
+export function ProfileTooltipByUserId(
+  props: Omit<IProfileTooltipProps, 'user'> & { userId: number }
+): JSX.Element {
+  const user = useUser(props.userId);
+  if (!user) return <></>;
+  return <ProfileTooltip {...props} user={user} />;
 }
 
 export default function ProfileTooltip({

@@ -14,7 +14,9 @@ import { LobbyService } from './lobby.service';
 import LobbyModel from '@typings/models/lobby';
 import { UseFilters } from '@nestjs/common';
 import { GlobalFilter } from '@/filters/GlobalFilter';
-
+import { OnEvent } from '@nestjs/event-emitter';
+import UsersModel from '@typings/models/users';
+import type User from '../users/user';
 
 @UseFilters(GlobalFilter)
 @WebSocketGateway({
@@ -38,7 +40,12 @@ export class LobbyGateway
     await this.service.init(server);
   }
   async handleConnection(client: ClientSocket) {
-    if (!(await this.authGuard.canActivate(client))) {
+    try {
+      if (!(await this.authGuard.canActivate(client))) {
+        client.disconnect(true);
+        return;
+      }
+    } catch (e) {
       client.disconnect(true);
       return;
     }
@@ -75,5 +82,11 @@ export class LobbyGateway
   ) {
     // console.log('lobby:net:player:clothes', client.data.user.id, clothes);
     await this.service.onPlayerClothes(client, clothes);
+  }
+
+  @OnEvent('user:updated')
+  async onUserUpdated(user: User, data: Partial<UsersModel.Models.IUserInfo>) {
+    if (data.nickname === undefined) return;
+    await this.service.onPlayerNameChange(user);
   }
 }

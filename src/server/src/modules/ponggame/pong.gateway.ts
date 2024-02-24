@@ -18,7 +18,10 @@ import { AuthGatewayGuard } from '../auth/guards/auth-gateway.guard';
 import { ServerGame } from './pong';
 import User from '../users/user';
 import { GlobalFilter } from '@/filters/GlobalFilter';
-import { UseFilters } from '@nestjs/common';
+import { Logger, UseFilters } from '@nestjs/common';
+import { OnEvent } from '@nestjs/event-emitter';
+import ShopModel from '@typings/models/shop';
+import type InventoryModel from '@typings/models/users/inventory';
 
 @UseFilters(GlobalFilter)
 @WebSocketGateway({
@@ -36,6 +39,7 @@ export class PongGateway
 {
   @WebSocketServer()
   private readonly server: Server;
+  private readonly logger = new Logger(PongGateway.name);
 
   constructor(
     private usersService: UsersService,
@@ -49,9 +53,24 @@ export class PongGateway
     return this.service.getAllGames();
   }
 
+  @SubscribeMessage(PongModel.Socket.Events.SpectatorLeave)
+  async handleSpectatorLeave(
+    client: Socket,
+    data: { lobbyId: number; userId: number },
+  ): Promise<void> {
+    await this.service.handleSpectatorLeave(client, data);
+  }
+
+  @OnEvent(ShopModel.DTO.Events.OnItemBought)
+  async handleItemBought(
+    user: User,
+    item: InventoryModel.Models.IItem,
+  ) {
+    await this.service.handleItemBought(user, item);
+  }
+
   @SubscribeMessage(PongModel.Socket.Events.FocusLoss)
-  handleFocusLoss(client: Socket, data: {roomId: string}): void {
-    console.log('focus loss');
+  handleFocusLoss(client: Socket, data: { roomId: string }): void {
     this.service.handleFocusLoss(client, data.roomId);
   }
 
@@ -79,7 +98,7 @@ export class PongGateway
         if (!spectator) {
           game.joinSpectators(client);
           this.service.clientInGames.set(user.id, game.UUID);
-          console.log(`${client.data.user.nickname} connected`);
+          this.logger.verbose(`${client.data.user.nickname} connected!`);
           client.emit(PongModel.Socket.Events.SetUI, {
             state: true,
             config: game.config,
@@ -105,7 +124,7 @@ export class PongGateway
         // if spectator
         //game.joinSpectators(client);
         this.service.clientInGames.set(user.id, game.UUID);
-        console.log(`${client.data.user.nickname} connected`);
+        this.logger.verbose(`${client.data.user.nickname} connected!`);
         client.emit(PongModel.Socket.Events.SetUI, {
           state: true,
           config: game.config,
@@ -125,8 +144,7 @@ export class PongGateway
       if (!user || !game) return client.disconnect(true), void 0;
 
       const player = game.getPlayerByUserId(user.id);
-      if (player)
-      {
+      if (player) {
         if (game.userIdToSocketId.get(user.id) === client.id) {
           game.leavePlayer(client, player);
         } else {
@@ -137,7 +155,7 @@ export class PongGateway
         if (spectator) {
           game.leaveSpectators(client);
           this.service.clientInGames.delete(user.id);
-          console.log(`${client.data.user.nickname} disconnected`);
+          this.logger.verbose(`${client.data.user.nickname} disconnected!`);
           client.emit(PongModel.Socket.Events.SetUI, {
             state: false,
             config: null,
@@ -151,13 +169,13 @@ export class PongGateway
         });
       }
       this.service.clientInGames.delete(user.id);
-      console.log(`${client.data.user.nickname} disconnected`);
+      this.logger.verbose(`${client.data.user.nickname} disconnected!`);
       client.emit(PongModel.Socket.Events.SetUI, {
         state: false,
         config: null,
       });
-    } catch (error) {
-      console.log(error);
+    } catch {
+      /* empty */
     }
   }
 
@@ -179,7 +197,7 @@ export class PongGateway
   }
 
   afterInit() {
-    console.log('PongGateway initialized');
+    this.logger.log('Initialized!');
     // @ts-expect-error impl
     this.service.server = this.server;
   }

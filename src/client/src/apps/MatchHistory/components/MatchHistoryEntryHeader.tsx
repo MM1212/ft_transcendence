@@ -2,14 +2,7 @@ import { UserAvatar } from '@components/AvatarWithStatus';
 import ProfileTooltip from '@components/ProfileTooltip';
 import CrownIcon from '@components/icons/CrownIcon';
 import { useUser } from '@hooks/user';
-import {
-  Stack,
-  Typography,
-  AvatarGroup,
-  Sheet,
-  Avatar,
-  Badge,
-} from '@mui/joy';
+import { Stack, Typography, AvatarGroup, Sheet, Avatar, Badge } from '@mui/joy';
 import PongHistoryModel from '@typings/models/pong/history';
 import moment from 'moment';
 import React from 'react';
@@ -77,21 +70,21 @@ export default function MatchHistoryEntryHeader({
   targetId: number;
   size?: number;
 }) {
-  const [myTeam, otherTeam] = React.useMemo<
-    [PongHistoryModel.Models.Team, PongHistoryModel.Models.Team]
+  const [myTeam, otherTeam, inTeam] = React.useMemo<
+    [PongHistoryModel.Models.Team, PongHistoryModel.Models.Team, boolean]
   >(() => {
     const myTeam = match.teams.find((team) =>
       team.players.some((player) => player.userId === targetId)
-    )!;
+    );
     if (myTeam === match.teams[0])
-      return match.teams as [
+      return [...match.teams, true] as [
         PongHistoryModel.Models.Team,
         PongHistoryModel.Models.Team,
+        boolean,
       ];
-    return [myTeam, match.teams[0]];
+    return [myTeam ?? match.teams[1], match.teams[0], !!myTeam];
   }, [match.teams, targetId]);
-  console.log(match);
-  
+
   return (
     <Stack
       direction={'row'}
@@ -100,23 +93,29 @@ export default function MatchHistoryEntryHeader({
       alignItems={'center'}
       position="relative"
     >
-      {myTeam.won ? (
-        <Typography
-          level="h4"
-          textTransform="uppercase"
-          ml={0}
-          textColor={'primary.200'}
-        >
-          Victory
-        </Typography>
+      {inTeam ? (
+        myTeam.won ? (
+          <Typography
+            level="h4"
+            textTransform="uppercase"
+            ml={0}
+            textColor={'primary.200'}
+          >
+            Victory
+          </Typography>
+        ) : (
+          <Typography
+            level="h4"
+            textTransform="uppercase"
+            ml={0}
+            textColor={'danger.400'}
+          >
+            Defeat
+          </Typography>
+        )
       ) : (
-        <Typography
-          level="h4"
-          textTransform="uppercase"
-          ml={0}
-          textColor={'danger.400'}
-        >
-          Defeat
+        <Typography level="h4" textTransform="uppercase" ml={0} color="neutral">
+          Game #{match.id}
         </Typography>
       )}
       <Stack

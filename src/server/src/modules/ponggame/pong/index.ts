@@ -25,6 +25,8 @@ import { PongService } from '../pong.service';
 import { Bot } from '@shared/Pong/Paddles/Bot';
 import type { LeaderboardService } from '@/modules/leaderboard/leaderboard.service';
 import type { UsersService } from '@/modules/users/services/users.service';
+import User from '@/modules/users/user';
+import UsersModel from '@typings/models/users';
 
 type Room = BroadcastOperator<DefaultEventsMap, any>;
 
@@ -97,6 +99,12 @@ export class ServerGame extends Game {
       this.started = true;
       this.start();
     }
+  }
+
+  public handleSpectatorLeave(client: ClientSocket, userId: number): void {
+    this.spectators.delete(userId);
+    client.leave(this.UUID);
+    console.log(`Spectator ${userId} left ${this.UUID}`);
   }
 
   public handleKeys(clientId: number, key: string, state: boolean): void {
@@ -258,6 +266,7 @@ export class ServerGame extends Game {
     this.gameStats.startTimer();
     this.sendStartTime();
     this.gameStats.startNewRound();
+
     const tick = () => {
       const timestamp = performance.now();
       const deltaTime = timestamp - lastTimeStamp;
@@ -351,6 +360,146 @@ export class ServerGame extends Game {
     }
   }
 
+  // returns value in seconds
+  private getElapsedTime(): number {
+    return (Date.now() - this.gameStats.startTime) / 1000;
+  }
+
+  private async getOtherTeamAverageElo(teamId: number): Promise<number> {
+    const otherTeamId = teamId === 0 ? 1 : 0;
+
+    const elos: number[] = [];
+    for (const player of this.config.teams[otherTeamId].players) {
+      const user = await this.usersService.get(player.userId);
+      if (user) elos.push(user.elo.rating);
+    }
+    return elos.reduce((a, b) => a + b, 0) / elos.length;
+  }
+
+  private async getMyTeamAverageElo(teamId: number): Promise<number> {
+    const myTeam = this.config.teams[teamId].players;
+    const elos: number[] = [];
+    for (const player of myTeam) {
+      const user = await this.usersService.get(player.userId);
+      if (user) elos.push(user.elo.rating);
+    }
+    return elos.reduce((a, b) => a + b, 0) / elos.length;
+  }
+
+  private didIWin(
+    match: PongHistoryModel.Models.Match,
+    teamId: number,
+  ): boolean {
+    return match.winnerTeamId === teamId;
+  }
+
+  private async calculateQuests(
+    user: User,
+    match: PongHistoryModel.Models.Match,
+    player: PongHistoryModel.Models.Player,
+  ): Promise<void> {
+    if (
+      (this.didIWin(match, player.teamId) &&
+        player.teamId === 0 &&
+        this.score[1] === 0) ||
+      (player.teamId === 1 && this.score[0] === 0)
+    ) {
+      const achievement = await user.achievements.get<{ count: number }>(
+        'pong:match:perfect',
+      );
+      await achievement.update((p) => ({ count: p.count + 1 }));
+      if (
+        this.config.teams[0].players.length === 2 &&
+        this.config.teams[1].players.length === 2
+      ) {
+        const achievement = await user.achievements.get<{ count: number }>(
+          'pong:doubles:perfect',
+        );
+        await achievement.update((p) => ({ count: p.count + 1 }));
+      }
+    }
+
+    if (this.didIWin(match, player.teamId) && this.getElapsedTime() < 31) {
+      const achievement = await user.achievements.get<{ count: number }>(
+        'pong:match:fast',
+      );
+      await achievement.update((p) => ({ count: p.count + 1 }));
+    }
+
+    if (
+      this.didIWin(match, player.teamId) &&
+      (await this.getMyTeamAverageElo(player.teamId)) + 100 <
+        (await this.getOtherTeamAverageElo(player.teamId))
+    ) {
+      const achievement = await user.achievements.get<{ count: number }>(
+        'pong:match:underdog',
+      );
+      await achievement.update((p) => ({ count: p.count + 1 }));
+    }
+
+    if (
+      this.config.gametype === PongModel.Models.LobbyGameType.Powers &&
+      player.stats.shotsFired === 0 &&
+      this.didIWin(match, player.teamId)
+    ) {
+      const achievement = await user.achievements.get<{ count: number }>(
+        'pong:match:nopowerups',
+      );
+      await achievement.update((p) => ({ count: p.count + 1 }));
+    }
+
+    if (
+      this.didIWin(match, player.teamId) &&
+      user.elo.isWinStreaking &&
+      user.elo.streak >= 2
+    ) {
+      const achievement = await user.achievements.get<{ count: number }>(
+        'pong:match:winstreak',
+      );
+      await achievement.update((p) => ({ count: p.count + 1 }));
+    }
+
+    if (this.didIWin(match, player.teamId)) {
+      const achievement = await user.achievements.get<{
+        count: number;
+        opponents: number[];
+      }>('pong:match:diff_opponents');
+      const otherTeamPlayers =
+        this.config.teams[player.teamId === 0 ? 1 : 0].players;
+      /// TODO: includes crashes server if otherTeamPlayers[n].id
+      if (!achievement.meta.opponents.includes(otherTeamPlayers[0]?.userId))
+        achievement.meta.opponents.push(otherTeamPlayers[0].userId);
+      if (
+        otherTeamPlayers[1] &&
+        !achievement.meta.opponents.includes(otherTeamPlayers[1]?.userId)
+      )
+        achievement.meta.opponents.push(otherTeamPlayers[1].userId);
+      await achievement.update((p) => ({
+        ...p,
+        count: p.opponents.length,
+      }));
+    }
+
+    const playerBounces = player.stats.ballBounces;
+    if (playerBounces > 0) {
+      const achievement = await user.achievements.get<{ count: number }>(
+        'pong:match:bounces',
+      );
+      await achievement.update((p) => ({ count: p.count + playerBounces }));
+    }
+
+    const playerShots = player.stats.shotsFired;
+    if (
+      this.config.gametype === PongModel.Models.LobbyGameType.Powers &&
+      playerShots > 0
+    ) {
+      const achievement = await user.achievements.get<{ count: number }>(
+        'pong:match:shoot_powers',
+      );
+      await achievement.update((p) => ({ count: p.count + playerShots }));
+    }
+  }
+
   public async stop() {
     if (this.updateHandle) {
       clearInterval(this.updateHandle);
@@ -367,11 +516,22 @@ export class ServerGame extends Game {
 
       // execute all players stats game over
       this.calculatePlayerStats(mvpScores);
-
-      console.log('team0' + this.gameStats.teamStats.exportStats(0));
-      console.log('team1' + this.gameStats.teamStats.exportStats(1));
-      console.log('game' + this.gameStats.exportStats());
-
+      await Promise.all(
+        this.lobbyInterface.teams.map(async (t) => {
+          for await (const player of t.players) {
+            const user = await this.usersService.get(player.id);
+            if (!user || user.isBot) continue;
+            user.set('status', user.get('storedStatus'));
+            user.propagate('status');
+          }
+        }),
+      );
+      // console.log('team0' , this.gameStats.teamStats.exportStats(0));
+      // console.log('team1' , this.gameStats.teamStats.exportStats(1));
+      // console.log('game' , this.gameStats.exportStats());
+      this.lobbyInterface.teams.forEach((team) => {
+        team.score = this.score[team.id];
+      });
       const rewards = await this.leaderboardService.computeEndGameElo(
         this.config,
         this.lobbyInterface,
@@ -417,10 +577,7 @@ export class ServerGame extends Game {
           );
         return {
           players,
-          score: players.reduce(
-            (acc, player) => acc + player.stats.playerScore,
-            0,
-          ),
+          score: this.score[team.id],
           stats: this.gameStats.teamStats.exportStats(team.id),
           won: wonVal,
         };
@@ -434,20 +591,19 @@ export class ServerGame extends Game {
             return getTeamStats(team);
           },
         ),
+        type: this.lobbyInterface.queueType,
+        gameType: this.lobbyInterface.gameType,
       };
 
-      if (this.lobbyInterface.queueType !== PongModel.Models.LobbyType.Custom) {
-        await Promise.all(
-          creatorMatchHistory.teams[0].players
-            .concat(creatorMatchHistory.teams[1].players)
-            .map(async (player) => {
-              const user = await this.usersService.get(player.userId);
-              if (!user || user.isBot) return;
-              console.log(player);
-              await user.credits.add(player.stats.moneyEarned);
-            }),
-        );
-      }
+      await Promise.all(
+        creatorMatchHistory.teams[0].players
+          .concat(creatorMatchHistory.teams[1].players)
+          .map(async (player) => {
+            const user = await this.usersService.get(player.userId);
+            if (!user || user.isBot) return;
+            await user.credits.add(player.stats.moneyEarned);
+          }),
+      );
 
       const matchHistory =
         await this.historyService.saveGame(creatorMatchHistory);
@@ -472,6 +628,13 @@ export class ServerGame extends Game {
           }
         }
         this.pongService.games.delete(this.UUID);
+        for await (const team of matchHistory.teams) {
+          for await (const player of team.players) {
+            const user = await this.usersService.get(player.userId);
+            if (!user || user.isBot) continue;
+            await this.calculateQuests(user, matchHistory, player);
+          }
+        }
       });
     }
   }

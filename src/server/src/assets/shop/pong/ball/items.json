@@ -1,12 +1,53 @@
 [
   {
-  "id": "RedBall",
-  "label": "Red Ball",
-  "description": "A red ball. It's round and red. It's a ball.",
-  "price": 100,
-  "meta": {},
-  "listingMeta": {
-    "previewUrl": "{ASSET_PATH}/pong/Balls/RedBall/RedBall.webp"
+    "id": "RedBall",
+    "label": "Red Ball",
+    "description": "A red ball. It's round and red. It's a ball.",
+    "price": 0,
+    "meta": {},
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/RedBall/RedBall.webp"
+    },
+    "flags": []
   },
-  "flags": []
-}]
+  {
+    "id": "FootBallBall",
+    "label": "FootBall Ball",
+    "description": "It has been kicked by Ronaldo.",
+    "price": 50,
+    "meta": {},
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/FootBallBall/FootBallBall.webp"
+    }
+  },
+  {
+    "id": "PoolBall",
+    "label": "Pool Ball",
+    "description": "Can you be the one who puts it last?",
+    "price": 42,
+    "meta": {},
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/PoolBall/PoolBall.webp"
+    }
+  },
+  {
+    "id": "TennisBall",
+    "label": "Tennis Ball",
+    "description": "You have a paddle, it requires a racket. Are you good enough?",
+    "price": 50,
+    "meta": {},
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/TennisBall/TennisBall.webp"
+    }
+  },
+  {
+    "id": "VolleyBall",
+    "label": "Volley Ball",
+    "description": "It might not be sunny here in Dojo Pong Land, but you can move those sexy Penguin thighs playing with this!",
+    "price": 69,
+    "meta": {},
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/VolleyBall/VolleyBall.webp"
+    }
+  }
+]

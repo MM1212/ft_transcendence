@@ -24,6 +24,7 @@ namespace UsersModel {
     export enum Status {
       Offline = 'OFFLINE',
       Online = 'ONLINE',
+      InGame = 'INGAME',
       Busy = 'BUSY',
       Away = 'AWAY',
     }
@@ -33,7 +34,7 @@ namespace UsersModel {
     }
     export interface IUser {
       id: number;
-      studentId: number;
+      studentId?: number;
       nickname: string;
       type: GroupEnumValues<Types>;
       avatar: string;
@@ -57,6 +58,7 @@ namespace UsersModel {
       extends Omit<
         IUser,
         | 'friends'
+        | 'studentId'
         | 'blocked'
         | 'chats'
         | 'storedStatus'
@@ -74,7 +76,8 @@ namespace UsersModel {
   export namespace DTO {
     export namespace DB {
       export interface IUser
-        extends Omit<Models.IUserInfo, 'createdAt' | 'status'> {
+        extends Omit<Models.IUserInfo, 'createdAt' | 'status' | 'studentId'> {
+        studentId: number | null;
         createdAt: Date;
         friends: { id: number }[];
         friendOf: { id: number }[];
@@ -93,8 +96,9 @@ namespace UsersModel {
         createdAt: Date;
       }
       export interface IUserCreate
-        extends Pick<Models.IUserInfo, 'studentId' | 'nickname' | 'avatar'> {
+        extends Pick<Models.IUserInfo, 'nickname' | 'avatar'> {
         type?: Models.Types;
+        studentId?: number;
         credits?: number;
         inventory?: Omit<InventoryModel.DTO.DB.CreateItem, 'userId'>[];
       }

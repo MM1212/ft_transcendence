@@ -5,6 +5,7 @@ import { HttpError } from '@/helpers/decorators/httpError';
 import NotificationsModel from '@typings/models/notifications';
 import UserProfileMessageInjector from '../Notifications/MessageInjectors/UserProfile';
 import { Notification } from '../Notifications';
+import { ForbiddenException, NotFoundException } from '@nestjs/common';
 
 class UserExtFriends extends UserExtBase {
   constructor(user: User) {
@@ -70,15 +71,17 @@ class UserExtFriends extends UserExtBase {
   }
   async add(id: number): Promise<void> {
     const target = await this.helpers.usersService.get(id);
-    if (!target) throw new HttpError('User not found');
+    if (!target) throw new NotFoundException('User not found');
+    if (target.isBot)
+      throw new ForbiddenException('You cannot add a bot as a friend');
     if (this.user.id === target.id)
-      throw new HttpError('You cannot add yourself');
-    if (this.is(target.id)) throw new HttpError('User already added');
-    if (this.isBlocked(target.id)) throw new HttpError('User is blocked');
+      throw new ForbiddenException('You cannot add yourself');
+    if (this.is(target.id)) throw new ForbiddenException('User already added');
+    if (this.isBlocked(target.id)) throw new ForbiddenException('User is blocked');
     if (target.friends.isBlocked(this.user.id))
-      throw new HttpError('User has blocked you');
+      throw new ForbiddenException('User has blocked you');
     if (this.isPending(target.id))
-      throw new HttpError('Friend request already sent');
+      throw new ForbiddenException('Friend request already sent');
     try {
       await Promise.all(
         (await this.getPendingNotifications(target.id)).map((notif) =>

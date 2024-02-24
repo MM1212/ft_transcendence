@@ -10,7 +10,16 @@ const gameConfig: GameConfig = _gameConfig.game as GameConfig;
 export { gameConfig };
 
 type paddleObjectConfig = Record<
-  'PaddleRed',
+  | 'PaddleRed'
+  | 'PaddleAcid'
+  | 'PaddleBush'
+  | 'PaddleGengar'
+  | 'PaddleMinion'
+  | 'PaddlePenguinBros'
+  | 'PaddleRonaldo'
+  | 'PaddleRainbow'
+  | 'PaddleSnake'
+  | 'PaddleWaveColors',
   {
     width: number;
     height: number;
@@ -35,7 +44,7 @@ const specialpowerConfig: specialPowerObjectConfig =
 export { specialpowerConfig };
 
 type ballsObjectConfig = Record<
-  'RedBall',
+  'RedBall' | 'TennisBall' | 'FootBallBall' | 'VolleyBall' | 'PoolBall',
   {
     diameter: number;
     vertices: number;

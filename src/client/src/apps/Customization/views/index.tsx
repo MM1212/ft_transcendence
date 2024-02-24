@@ -2,10 +2,7 @@ import { Divider } from '@mui/joy';
 import { Sheet } from '@mui/joy';
 import CustomizationTop from '../components/CustomizationTop';
 import CustomizationBottom from '../components/CustomizationBottom';
-import {
-  InventoryCategory,
-  backClothingItemsAtom,
-} from '../state';
+import { InventoryCategory, backClothingItemsAtom } from '../state';
 import { useRecoilCallback, useRecoilValue } from 'recoil';
 import React from 'react';
 import { Pixi } from '@hooks/pixiRenderer';
@@ -15,6 +12,17 @@ import { INetPlayerClothesEvent } from '@apps/Lobby/src/Network';
 import LobbyModel from '@typings/models/lobby';
 import { useIsLobbyLoading } from '@apps/Lobby/hooks';
 import { ClientCharacter } from '@apps/Lobby/src/Character';
+
+const SCALING_BACK = 0.92;
+const SCALING_NORMAL: Record<LobbyModel.Models.InventoryCategory, number> = {
+  head: .96,
+  face: 0.91,
+  neck: 1,
+  body: 0.98,
+  hand: 1,
+  feet: 1,
+  color: -1,
+}
 
 export default function CustomizationPanel() {
   const [penguinBelly, setPenguinBelly] = React.useState<Pixi.Sprite | null>(
@@ -53,11 +61,13 @@ export default function CustomizationPanel() {
               ? Pixi.Texture.EMPTY
               : publicPath(`/penguin/clothing/${clothId}/paper.webp`)
           );
-          sprite.zIndex = backItem ? -1 : ClientCharacter.clothingPriority[clothPiece];
+          sprite.zIndex = backItem
+            ? -1
+            : ClientCharacter.clothingPriority[clothPiece];
           sprite.name = clothPiece;
           sprite.anchor.set(0.5);
           sprite.position.set(0, 0);
-          sprite.scale.set(backItem ? 0.92 : 0.73);
+          sprite.scale.set(backItem ? SCALING_BACK : SCALING_NORMAL[clothPiece]);
           return sprite;
         })
         .reduce(
@@ -76,8 +86,7 @@ export default function CustomizationPanel() {
       const lobby = await ctx.snapshot.getPromise(lobbyAtom);
       if (!lobby || !lobby.mainPlayer) return;
       await lobby.mainPlayer.character.dress('color', id);
-      penguinBelly.tint =
-      ClientCharacter.colorPalette[id.toString() as any];
+      penguinBelly.tint = ClientCharacter.colorPalette[id.toString() as any];
     },
     [penguinBelly]
   );
@@ -107,7 +116,7 @@ export default function CustomizationPanel() {
         ? -1
         : ClientCharacter.clothingPriority[piece];
       penguinClothes.current[piece].scale.set(
-        backItems.includes(id) ? 0.92 : 0.73
+        backItems.includes(id) ? SCALING_BACK : SCALING_NORMAL[piece]
       );
     },
     [penguinClothes, updatePenguinColor]
@@ -132,9 +141,7 @@ export default function CustomizationPanel() {
           if (piece === 'color') {
             if (!penguinBelly) continue;
             penguinBelly.tint =
-              ClientCharacter.colorPalette[
-                id.toString() as any
-              ];
+              ClientCharacter.colorPalette[id.toString() as any];
             continue;
           }
           const backItems = await ctx.snapshot.getPromise(
@@ -151,7 +158,7 @@ export default function CustomizationPanel() {
             ? -1
             : ClientCharacter.clothingPriority[piece];
           penguinClothes.current[piece].scale.set(
-            backItems.includes(id) ? 0.92 : 0.73
+            backItems.includes(id) ? SCALING_BACK : SCALING_NORMAL[piece]
           );
         }
       },
@@ -191,7 +198,10 @@ export default function CustomizationPanel() {
           isLobbyLoading={isLobbyLoading}
         />
         <Divider orientation="horizontal" />
-        <CustomizationBottom updateCloth={updateCloth} isLobbyLoading={isLobbyLoading} />
+        <CustomizationBottom
+          updateCloth={updateCloth}
+          isLobbyLoading={isLobbyLoading}
+        />
       </Sheet>
     ),
     [loadClothes, updateCloth, isLobbyLoading]

@@ -13,7 +13,7 @@ export class Player
   public readonly transform: Transform;
   constructor(
     public readonly id: number,
-    public readonly name: string,
+    public name: string,
     character: LobbyModel.Models.ICharacter,
     transform: LobbyModel.Models.ITransform,
     protected readonly _lobby: Lobby,
@@ -64,6 +64,10 @@ export class Player
     );
   }
 
+  public async updateName(newName: string): Promise<void> {
+    this.name = newName;
+  }
+
   async destructor(): Promise<void> {
     await this.character.destructor();
     await this.transform.destructor();
@@ -109,15 +113,12 @@ export class Player
     const keyMoveDown = await this.getMoveDownKey();
     const keyMoveLeft = await this.getMoveLeftKey();
     const keyMoveRight = await this.getMoveRightKey();
-    console.log(keyMoveUp, keyMoveDown, keyMoveLeft, keyMoveRight);
-    console.log('key', key);
     switch (key) {
       case keyMoveUp: {
         this.transform.direction = new Vector2D(
           this.transform.direction.x,
           pressed ? -1 : 0
         );
-        console.log('up');
         break;
       }
       case keyMoveDown: {
@@ -125,7 +126,6 @@ export class Player
           this.transform.direction.x,
           pressed ? 1 : 0
         );
-        console.log('down');
         break;
       }
       case keyMoveLeft: {
@@ -133,7 +133,6 @@ export class Player
           pressed ? -1 : 0,
           this.transform.direction.y
         );
-        console.log('left');
         break;
       }
       case keyMoveRight: {
@@ -141,11 +140,9 @@ export class Player
           pressed ? 1 : 0,
           this.transform.direction.y
         );
-        console.log('right');
         break;
       }
       default:
-        console.log('false');
         return false;
     }
     if (this.transform.direction.length() !== 0) this.transform.speed = 3.5;

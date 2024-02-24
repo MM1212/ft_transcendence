@@ -146,6 +146,7 @@ export default function CustomizationTop({
               onClick={() => updateCloth(inventCat, -1)}
               loading={isLobbyLoading}
               disabled={clothes[inventCat] === -1}
+              
             >
               <TshirtVIcon />
             </CustomizationBox>

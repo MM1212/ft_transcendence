@@ -1,1 +1,101 @@
-[]
+[
+  {
+    "id": "PaddleRed",
+    "label": "Red Paddle",
+    "description": "Our beloved first paddle. We couldn't get rid of this beauty.",
+    "price": 0,
+    "meta": {},
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/PaddleRed.webp"
+    },
+    "flags": []
+  },
+  {
+    "id": "PaddleBush",
+    "label": "Greek Puke Paddle",
+    "description": "The combination of having too much wine, philosophizing in a garden.",
+    "price": 120,
+    "meta": {},
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/PaddleBush.webp"
+    },
+    "flags": []
+  },
+  {
+    "id": "PaddleGengar",
+    "label": "Gengar Paddle",
+    "description": "He might look scary, but he's a real softy at heart.",
+    "price": 94,
+    "meta": {},
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/PaddleGengar.webp"
+    },
+    "flags": []
+  },
+  {
+    "id": "PaddleMinion",
+    "label": "Minion Paddle",
+    "description": "Banana!",
+    "price": 333,
+    "meta": {},
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/PaddleMinion.webp"
+    },
+    "flags": []
+  },
+  {
+    "id": "PaddlePenguinBros",
+    "label": "Bros Paddle",
+    "description": "The penguin brothers are ready to play some pong with you.",
+    "price": 200,
+    "meta": {},
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/PaddlePenguinBros.webp"
+    },
+    "flags": []
+  },
+  {
+    "id": "PaddleRainbow",
+    "label": "Rainbow Paddle",
+    "description": "With this paddle you can show your true colors.",
+    "price": 169,
+    "meta": {},
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/PaddleRainbow.webp"
+    },
+    "flags": []
+  },
+  {
+    "id": "PaddleRonaldo",
+    "label": "Ronaldo Paddle",
+    "description": "If you can't play like him, at least you can play with him.",
+    "price": 77,
+    "meta": {},
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/PaddleRonaldo.webp"
+    },
+    "flags": []
+  },
+  {
+    "id": "PaddleSnake",
+    "label": "Snake Paddle",
+    "description": "The snake is ready to strike its prey.",
+    "price": 99,
+    "meta": {},
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/PaddleSnake.webp"
+    },
+    "flags": []
+  },
+  {
+    "id": "PaddleWaveColors",
+    "label": "Colored Waves Paddle",
+    "description": "Wave after wave, slowly drifting. The colors of the rainbow are slowly shifting.",
+    "price": 45,
+    "meta": {},
+    "listingMeta": {
+      "previewUrl": "{ASSET_PATH}/PaddleWaveColors.webp"
+    },
+    "flags": []
+  }
+]

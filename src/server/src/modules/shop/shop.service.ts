@@ -7,10 +7,14 @@ import { ShopConfigParser } from './shop.parser';
 import ShopModel from '@typings/models/shop';
 import User from '../users/user';
 import InventoryModel from '@typings/models/users/inventory';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class ShopService {
-  constructor(public readonly parser: ShopConfigParser) {}
+  constructor(
+    public readonly parser: ShopConfigParser,
+    public readonly events: EventEmitter2,
+  ) {}
 
   public async getInitialData(): Promise<ShopModel.DTO.GetInitialData> {
     await this.parser.waitUntilLoaded();
@@ -84,6 +88,26 @@ export class ShopService {
       itemConfig.meta,
       false,
     );
+    this.hasAllItems(user);
+    await this.events.emitAsync(ShopModel.DTO.Events.OnItemBought, user, item);
     return item;
+  }
+
+  private async hasAllItems(user: User): Promise<boolean> {
+    const itemData = this.parser.config.items;
+    for (const item in itemData) {
+      if (!user.inventory.getByName(item)) {
+        return false;
+      }
+    }
+    const achievement = await user.achievements.get<{ count: number }>(
+      'store:buy:all',
+    );
+    if (achievement.completed) return false;
+    await achievement.update((previous) => ({
+      ...previous,
+      count: 1,
+    }));
+    return true;
   }
 }

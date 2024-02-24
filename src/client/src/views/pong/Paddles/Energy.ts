@@ -55,7 +55,6 @@ export class UIEnergy extends Energy {
     }
   }
 
-  // TODO change these values
   getEnergyBarPosition(positionN: number): Vector2D {
     const position: Vector2D = new Vector2D(0, 0);
     switch (positionN) {

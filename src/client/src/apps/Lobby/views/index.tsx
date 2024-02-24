@@ -68,6 +68,13 @@ export default function LobbyView(): JSX.Element {
     []
   );
 
+  useListener(
+    'player:name',
+    (data: { id: number; name: string }) =>
+      lobbyRef.current?.network.netOnPlayerNameChange(data.id, data.name),
+    []
+  );
+
   const isLobbyLoading = useIsLobbyLoading();
 
   const syncLobbyInteractions = useRecoilCallback(

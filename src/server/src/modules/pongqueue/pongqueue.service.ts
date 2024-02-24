@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PongLobby } from '../ponglobbies/ponglobby';
 import User from '../users/user';
 import PongModel from '@typings/models/pong';
@@ -6,24 +6,32 @@ import { PongLobbyService } from '../ponglobbies/ponglobby.service';
 import { UsersService } from '../users/services/users.service';
 
 interface IQueue<T> {
-  enqueue(item: T): void;
+  enqueue(item: T, priority: number): void;
   dequeue(): T | undefined;
   size(): number;
 }
 
-class Queue<T> implements IQueue<T> {
-  public storage: T[] = [];
+interface IQueueItem<T> {
+  item: T;
+  priority: number;
+}
+
+class PriorityQueue<T> implements IQueue<T> {
+  public storage: IQueueItem<T>[] = [];
 
   constructor(private capacity: number = Infinity) {}
 
-  enqueue(item: T): void {
+  enqueue(item: T, priority: number): void {
     if (this.size() === this.capacity) {
       throw Error('Queue has reached max capacity, you cannot add more items');
     }
-    this.storage.push(item);
+    this.storage.push({ item, priority });
+    this.storage.sort((a, b) => {
+      return a.priority - b.priority;
+    });
   }
   dequeue(): T | undefined {
-    return this.storage.shift();
+    return this.storage.shift()?.item;
   }
   size(): number {
     return this.storage.length;
@@ -32,8 +40,8 @@ class Queue<T> implements IQueue<T> {
 
 @Injectable()
 export class PongQueueService {
-  private queue1x1 = new Queue<PongLobby>();
-  private queue2x2 = new Queue<PongLobby>();
+  private queue1x1 = new PriorityQueue<PongLobby>();
+  private queue2x2 = new PriorityQueue<PongLobby>();
 
   constructor(
     private lobbyService: PongLobbyService,
@@ -48,17 +56,17 @@ export class PongQueueService {
   public async leaveQueue(lobby: PongLobby, userId: number): Promise<void> {
     if (lobby.queueType === PongModel.Models.LobbyType.Single) {
       this.queue1x1.storage = this.queue1x1.storage.filter(
-        (l) => l.id !== lobby.id,
+        (l) => l.item.id !== lobby.id,
       );
     } else if (lobby.queueType === PongModel.Models.LobbyType.Double) {
       this.queue2x2.storage = this.queue2x2.storage.filter(
-        (l) => l.id !== lobby.id,
+        (l) => l.item.id !== lobby.id,
       );
     }
     await this.lobbyService.leaveLobby(userId, true);
   }
 
-  private async joinWaitingUsers(waintingQ: Queue<PongLobby>) {
+  private async joinWaitingUsers(waintingQ: PriorityQueue<PongLobby>) {
     while (waintingQ.size() > 1) {
       const receiver = waintingQ.dequeue();
       const provider = waintingQ.dequeue();
@@ -68,7 +76,6 @@ export class PongQueueService {
         await this.lobbyService.leaveLobby(p.id, true);
         const user = await this.userService.get(p.id);
         if (!user) {
-          console.error('error');
           continue;
         }
         await this.lobbyService.joinLobby(
@@ -78,11 +85,17 @@ export class PongQueueService {
           receiver.nonce,
           true,
         );
+        await this.lobbyService.updatePersonal(
+          p.id,
+          receiver.id,
+          p.paddle,
+          p.specialPower,
+        );
       }
 
       receiver.allPlayers.forEach((p) => {
         p.status = PongModel.Models.LobbyStatus.Ready;
-      })
+      });
 
       this.lobbyService.startGame(receiver.teams[0].players[0].id, receiver.id);
     }
@@ -90,9 +103,9 @@ export class PongQueueService {
 
   public addToQueue(pongLobby: PongLobby, user: User) {
     if (pongLobby.queueType === PongModel.Models.LobbyType.Single)
-      this.queue1x1.enqueue(pongLobby);
+      this.queue1x1.enqueue(pongLobby, user.elo.rating);
     else if (pongLobby.queueType === PongModel.Models.LobbyType.Double)
-      this.queue2x2.enqueue(pongLobby);
+      this.queue2x2.enqueue(pongLobby, user.elo.rating);
     else console.error("Custom lobby shouldn't be queued");
   }
 }

@@ -8,12 +8,12 @@ import TableTennisIcon from '@components/icons/TableTennisIcon';
 import React from 'react';
 
 export default function LeaderboardEntries(): JSX.Element {
-  const { data, isLoading, error, isValidating } =
+  const { data, isLoading, error } =
     useTunnelEndpoint<LeaderboardModel.Endpoints.GetLeaderboard>(
       LeaderboardModel.Endpoints.Targets.GetLeaderboard
     );
 
-  if (isLoading || isValidating) return <CircularProgress variant="plain" />;
+  if (isLoading) return <CircularProgress variant="plain" />;
   if (error || !data)
     return (
       <GenericPlaceholder
@@ -24,22 +24,13 @@ export default function LeaderboardEntries(): JSX.Element {
     );
   if (data.length === 0)
     return (
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100%',
-          width: '100%',
-        }}
-      >
-        <GenericPlaceholder
-          title="No rankings available yet"
-          icon={<TableTennisIcon fontSize="xl4" />}
-          label="Play a Match"
-          path="/pong/play/queue"
-        />
-      </div>
+      <GenericPlaceholder
+        title="No rankings available yet"
+        icon={<TableTennisIcon fontSize="xl4" />}
+        label="Play a Match"
+        path="/pong/play/queue"
+        centerVertical
+      />
     );
   return (
     <Grid
@@ -51,7 +42,7 @@ export default function LeaderboardEntries(): JSX.Element {
       flexGrow={1}
       overflow="hidden auto"
     >
-      {data?.map((entry, idx) => (
+      {data.map((entry, idx) => (
         <React.Suspense key={entry.id}>
           <LeaderBoardUser {...entry} position={entry.position ?? idx + 1} />
         </React.Suspense>

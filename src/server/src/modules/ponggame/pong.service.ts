@@ -15,6 +15,7 @@ import { PongLobbyService } from '../ponglobbies/ponglobby.service';
 import User from '../users/user';
 import { LeaderboardService } from '../leaderboard/leaderboard.service';
 import { UsersService } from '../users/services/users.service';
+import type InventoryModel from '@typings/models/users/inventory';
 
 @Injectable()
 export class PongService {
@@ -72,6 +73,31 @@ export class PongService {
     );
     await this.lobbyService.joinSpectators(user, lobby.id);
     return lobby;
+  }
+
+  public async handleSpectatorLeave(
+    client: ClientSocket,
+    data: {
+      lobbyId: number;
+      userId: number;
+    },
+  ): Promise<void> {
+    const game = this.getGameByPlayerId(data.userId);
+    if (!game) return;
+    game.handleSpectatorLeave(client, data.userId);
+    await this.lobbyService.leaveLobby(data.userId);
+    this.clientInGames.delete(data.userId);
+  }
+
+  public async handleItemBought(
+    user: User,
+    item: InventoryModel.Models.IItem,
+  ): Promise<void> {
+    if (item.type !== 'pong-paddle') return;
+    const achievement = await user.achievements.get<{ count: number }>(
+      'unlock:skin:rare',
+    );
+    await achievement.update((p) => ({ count: p.count + 1 }));
   }
 
   public getAllGames(): PongModel.Models.IGameInfoDisplay[] {

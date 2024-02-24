@@ -21,7 +21,9 @@ class User extends CacheObserver<UsersModel.Models.IUser> {
   public readonly friends: UserExtFriends = new UserExtFriends(this);
   public readonly alerts: UserExtAlerts = new UserExtAlerts(this);
   public readonly character: UserExtCharacter = new UserExtCharacter(this);
-  public readonly achievements: UserExtAchievements = new UserExtAchievements(this);
+  public readonly achievements: UserExtAchievements = new UserExtAchievements(
+    this,
+  );
   public readonly inventory: UserExtInventory = new UserExtInventory(this);
   public readonly notifications: UserExtNotifications =
     new UserExtNotifications(this);
@@ -38,6 +40,7 @@ class User extends CacheObserver<UsersModel.Models.IUser> {
   /* eslint-disable @typescript-eslint/no-unused-vars */
   public get public(): UsersModel.Models.IUserInfo {
     const {
+      studentId,
       friends,
       blocked,
       chats,
@@ -70,7 +73,7 @@ class User extends CacheObserver<UsersModel.Models.IUser> {
     return this.type === UsersModel.Models.Types.Bot;
   }
 
-  public get studentId(): number {
+  public get studentId(): number | undefined {
     return this.get('studentId');
   }
 
@@ -139,6 +142,7 @@ class User extends CacheObserver<UsersModel.Models.IUser> {
       (acc, key) => ({ ...acc, [key]: this.get(key) }),
       {} as Partial<UsersModel.Models.IUserInfo>,
     );
+    this.helpers.events.emit('user:updated', this, data);
 
     if (targets.length === 0) {
       this.helpers.sseService.emitToAll<UsersModel.Sse.UserUpdatedEvent>(

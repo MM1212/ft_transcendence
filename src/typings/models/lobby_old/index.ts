@@ -1,5 +1,5 @@
 import { EndpointRegistry, GroupEndpointTargets } from '@typings/api';
-import { IUser } from '@typings/user';
+import UsersModel from '@typings/models/users';
 import { vector2 } from '@typings/vector';
 
 namespace DEPRECATED_LobbyModel {
@@ -12,7 +12,7 @@ namespace DEPRECATED_LobbyModel {
       velocity: vector2;
     }
     export interface IPlayer {
-      user: IUser;
+      user: UsersModel.Models.IUserInfo;
       transform: IPlayerTransform;
       connections: unknown[];
     }

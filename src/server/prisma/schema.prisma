@@ -22,11 +22,12 @@ enum UserStatus {
   ONLINE
   BUSY
   AWAY
+  INGAME
 }
 
 model User {
   id            Int               @id @default(autoincrement())
-  studentId     Int               @unique @map("student_id")
+  studentId     Int?              @unique @map("student_id")
   nickname      String            @unique
   type          UserType          @default(USER)
   avatar        String
@@ -51,7 +52,7 @@ model User {
 
   gamesPlayed MatchHistoryPlayer[]
 
-  @@index([studentId, nickname])
+  @@index([type, nickname])
   @@map("users")
 }
 
@@ -242,6 +243,7 @@ model MatchHistory {
   winnerTeamId Int                  @map("winner_team_id")
   stats        Json                 @default("{}")
   createdAt    DateTime             @default(now()) @map("created_at")
+  gameType     String
 
   @@map("matches_history")
 }

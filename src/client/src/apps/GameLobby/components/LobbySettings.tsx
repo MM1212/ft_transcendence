@@ -1,31 +1,33 @@
-import { useRecoilCallback, useRecoilValue } from "recoil";
-import pongGamesState from "../state";
+import { useRecoilCallback, useRecoilValue } from 'recoil';
+import pongGamesState from '../state';
 import {
   Avatar,
-  Button,
   DialogTitle,
   FormControl,
   FormLabel,
-  IconButton,
   Input,
   Modal,
   ModalDialog,
+  Sheet,
+  Stack,
   Switch,
-  Tooltip,
   Typography,
-} from "@mui/joy";
-import React from "react";
-import { Box } from "@mui/joy";
-import { useCurrentUser } from "@hooks/user";
-import LobbyGameTypography from "./LobbyGameTypography";
-import SoccerIcon from "@components/icons/SoccerIcon";
-import { FormHelperText } from "@mui/joy";
-import PongModel from "@typings/models/pong";
-import MenuLeftOutlineIcon from "@components/icons/MenuLeftOutlineIcon";
-import MenuRightOutlineIcon from "@components/icons/MenuRightOutlineIcon";
-import inventoryState from "@apps/Inventory/state";
-import tunnel from "@lib/tunnel";
-import notifications from "@lib/notifications/hooks";
+} from '@mui/joy';
+import React from 'react';
+import { Box } from '@mui/joy';
+import { useCurrentUser } from '@hooks/user';
+import LobbyGameTypography from './LobbyGameTypography';
+import SoccerIcon from '@components/icons/SoccerIcon';
+import { FormHelperText } from '@mui/joy';
+import PongModel from '@typings/models/pong';
+import tunnel from '@lib/tunnel';
+import notifications from '@lib/notifications/hooks';
+import { ArrowSelector } from '@components/ArrowSelector/ArrowSelector';
+import { ballsConfig } from '@components/ArrowSelector/ItemConfigs';
+import CogIcon from '@components/icons/CogIcon';
+import LobbyPongButton from './LobbyPongBottom';
+import ContentSaveIcon from '@components/icons/ContentSaveIcon';
+import { alpha } from '@theme';
 
 export function LobbySettings() {
   const lobby = useRecoilValue(pongGamesState.gameLobby)!;
@@ -36,61 +38,55 @@ export function LobbySettings() {
   const [powersSwitchValue, setPowersSwitchValue] = React.useState<boolean>(
     lobby.gameType === PongModel.Models.LobbyGameType.Powers ? true : false
   );
-  const [keys] = React.useState<string[]>(() => [...ballsConfig.keys()]);
-  const [currentIndex, setCurrentIndex] = React.useState<number>(0);
   const [errors, setErrors] = React.useState({
-    name: "",
-    score: "",
+    name: '',
+    score: '',
   });
-
+  const [currBall, setCurrBall] = React.useState<string>(lobby.ballTexture);
+  const [loading, setLoading] = React.useState(false);
   const handleSubmitModalClose = useRecoilCallback(
     (ctx) => async (): Promise<void> => {
       try {
-        console.log("submit");
-
-        if (score === "") {
-          setErrors((prev) => ({ ...prev, score: "Score is required" }));
+        if (score === '') {
+          setErrors((prev) => ({ ...prev, score: 'Score is required' }));
           return;
         }
         if (parseInt(score) < 1) {
-          setErrors((prev) => ({ ...prev, score: "Score must be at least 1" }));
+          setErrors((prev) => ({ ...prev, score: 'Score must be at least 1' }));
           return;
         }
         if (parseInt(score) > 100) {
           setErrors((prev) => ({
             ...prev,
-            score: "Score must be at most 100",
+            score: 'Score must be at most 100',
           }));
           return;
         }
-        await tunnel.post(PongModel.Endpoints.Targets.UpdateLobbySettings, {
-          lobbyId: lobby.id,
-          score: parseInt(score),
-          type: powersSwitchValue,
-          ballSkin: ballsConfig.get(keys[currentIndex])!,
-        });
-        setOpen(false);
-        ctx.set(pongGamesState.gameLobby, (prev) => {
-          if (!prev) return prev;
-          return {
-            ...prev,
+        setLoading(true);
+        const updatedLobby = await tunnel.post(
+          PongModel.Endpoints.Targets.UpdateLobbySettings,
+          {
+            lobbyId: lobby.id,
             score: parseInt(score),
-            gameType: powersSwitchValue
-              ? PongModel.Models.LobbyGameType.Powers
-              : PongModel.Models.LobbyGameType.Classic,
-            ballSkin: ballsConfig.get(keys[currentIndex])!,
-          };
-        });
-        notifications.success("Lobby settings updated");
+            type: powersSwitchValue,
+            ballSkin: currBall,
+          }
+        );
+        ctx.set(pongGamesState.gameLobby, updatedLobby);
+        setOpen(false);
+
+        notifications.success('Lobby settings updated');
       } catch (error) {
-        console.error("Failed to submit lobby settings", error);
-        notifications.error("Failed to submit lobby settings");
+        notifications.error(
+          'Failed to submit lobby settings',
+          (error as Error).message
+        );
+      } finally {
+        setLoading(false);
       }
     },
-    [lobby.id, score, powersSwitchValue, currentIndex, keys]
+    [lobby.id, score, powersSwitchValue, currBall]
   );
-
-  const items = useRecoilValue(inventoryState.inventoryByType("pong-ball"));
 
   const handleSwitchValue = (event: React.ChangeEvent<HTMLInputElement>) => {
     setPowersSwitchValue(event.target.checked);
@@ -105,150 +101,142 @@ export function LobbySettings() {
     [lobby, self?.id]
   );
 
-  const onNext = React.useCallback(() => {
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % keys.length);
-  }, [keys]);
-
-  const onPrev = React.useCallback(() => {
-    setCurrentIndex((prevIndex) => (prevIndex - 1 + keys.length) % keys.length);
-  }, [keys]);
-
-  if (!ballsConfig.has(keys[currentIndex])) return <></>;
-  const currentPowerPath = ballsConfig.get(keys[currentIndex])!;
-
   if (player === undefined) return null;
   if (lobby === null) return null;
   return (
     <Box
       flex={1}
       sx={{
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        gap: 2,
       }}
     >
-      <Button onClick={() => setOpen(true)} />
-      <Modal open={open} onClose={handleSubmitModalClose}>
-        <ModalDialog>
-          <DialogTitle>Settings</DialogTitle>
-          <Box>
-            <LobbyGameTypography>Game Mode:</LobbyGameTypography>
-            <Box>
-              <IconButton onClick={onPrev}>
-                <MenuLeftOutlineIcon />
-              </IconButton>
-              <Tooltip title={keys[currentIndex]} placement="top">
-                <img src={currentPowerPath ?? undefined} />
-              </Tooltip>
-              <IconButton onClick={onNext}>
-                <MenuRightOutlineIcon />
-              </IconButton>
-            </Box>
-            <Typography
-              component="label"
-              endDecorator={
-                <Switch
-                  sx={{ ml: 1 }}
-                  checked={powersSwitchValue}
-                  onChange={handleSwitchValue}
-                />
-              }
-            >
-              Powers Activated
-            </Typography>
-            <FormControl
-              sx={{
-                display: "flex",
-                flexDirection: "row",
-              }}
-            >
-              <FormLabel required>
-                <LobbyGameTypography>Score</LobbyGameTypography>
-              </FormLabel>
-              <Input
-                placeholder="Enter Score"
-                type="number"
-                slotProps={{
-                  input: {
-                    min: 1,
-                    max: 100,
-                  },
-                }}
-                startDecorator={<SoccerIcon />}
-                required
-                color={errors.score ? "danger" : "warning"}
-                value={score}
-                onChange={(e) => setScore(e.target.value)}
-              />
-              {errors.score && <FormHelperText>{errors.score}</FormHelperText>}{" "}
-            </FormControl>
-          </Box>
-        </ModalDialog>
-      </Modal>
-
-      <LobbyGameTypography>
-        Game Mode: {`${lobby.gameType}`}
-      </LobbyGameTypography>
-      <LobbyGameTypography>
-        Ball:{" "}
-        {
-          <Avatar
-            size="sm"
-            src={lobby.ballTexture}
-            sx={{
-              display: "inline-block",
-            }}
+      { self?.id === lobby.ownerId ? (
+        <>
+          <LobbyPongButton
+            onClick={() => setOpen(true)}
+            startDecorator={<CogIcon />}
+            label="Edit Settings"
+            fullWidth
+            disableMargin
           />
-        }
-      </LobbyGameTypography>
-      <LobbyGameTypography>
-        Score to win: {`${lobby.score}`}
-      </LobbyGameTypography>
-      <Box display="flex" gap={3} justifyContent="space-evenly">
-        {Object.keys(player.keys!).map((key, i) => (
-          <LobbyGameTypography textTransform="capitalize" key={i}>
-            {key}:{" "}
-            <KeyDisplayer
-              keycode={player.keys![key as keyof typeof player.keys]}
-            />
-          </LobbyGameTypography>
-        ))}
-      </Box>
+          <Modal open={open} onClose={handleSubmitModalClose}>
+            <ModalDialog>
+              <DialogTitle>Settings</DialogTitle>
+              <Box display="flex" flexDirection="column" gap={1}>
+                <Stack direction="row" spacing={2} alignItems="center">
+                  <LobbyGameTypography>Game Ball:</LobbyGameTypography>
+                  <React.Suspense fallback={null}>
+                    <ArrowSelector
+                      selectType="ball"
+                      onClick={setCurrBall}
+                      selected={currBall}
+                    />
+                  </React.Suspense>
+                </Stack>
+                <LobbyGameTypography
+                  component="label"
+                  endDecorator={
+                    <Switch
+                      sx={{ ml: 1 }}
+                      color="warning"
+                      checked={powersSwitchValue}
+                      onChange={handleSwitchValue}
+                    />
+                  }
+                >
+                  Powers Activated
+                </LobbyGameTypography>
+                <FormControl>
+                  <FormLabel required>
+                    <LobbyGameTypography>Score</LobbyGameTypography>
+                  </FormLabel>
+                  <Input
+                    placeholder="Enter Score"
+                    type="number"
+                    slotProps={{
+                      input: {
+                        min: 1,
+                        max: 100,
+                      },
+                    }}
+                    sx={{ width: '50%' }}
+                    startDecorator={<SoccerIcon />}
+                    required
+                    color={errors.score ? 'danger' : 'warning'}
+                    value={score}
+                    onChange={(e) => setScore(e.target.value)}
+                  />
+                  {errors.score && <FormHelperText>{errors.score}</FormHelperText>}{' '}
+                </FormControl>
+              </Box>
+              <LobbyPongButton
+                disableMargin
+                label="Save"
+                startDecorator={<ContentSaveIcon />}
+                loading={loading}
+                onClick={handleSubmitModalClose}
+              />
+            </ModalDialog>
+          </Modal>
+        </>
+      ) : null}
+      <Sheet
+        sx={{
+          p: 2,
+          flexGrow: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-around',
+          borderRadius: 'sm',
+          bgcolor: (theme) =>
+            alpha(theme.resolveVar('palette-background-surface'), 0.75),
+        }}
+        variant="outlined"
+      >
+        <LobbyGameTypography>
+          Game Mode: <Typography color="neutral">{lobby.gameType}</Typography>
+        </LobbyGameTypography>
+        <Stack direction="row" spacing={1} alignItems="center">
+          <LobbyGameTypography>Ball:</LobbyGameTypography>
+          <Avatar size="sm" src={ballsConfig.get(lobby.ballTexture)} />
+        </Stack>
+        <LobbyGameTypography>
+          Score to win: <Typography color="neutral">{lobby.score}</Typography>
+        </LobbyGameTypography>
+        <Box display="flex" gap={3} justifyContent="space-evenly">
+          {Object.keys(player.keys!).map((key, i) => (
+            <LobbyGameTypography textTransform="capitalize" key={i}>
+              {key}:{' '}
+              <KeyDisplayer
+                keycode={player.keys![key as keyof typeof player.keys]}
+              />
+            </LobbyGameTypography>
+          ))}
+        </Box>
+      </Sheet>
     </Box>
   );
 }
-
-const ballsConfig = new Map<string, string>([
-  [PongModel.Models.Balls.Red, PongModel.Endpoints.Targets.RedBallTexture],
-  [
-    PongModel.Models.Balls.Coffee,
-    PongModel.Endpoints.Targets.CoffeeBallTexture,
-  ],
-  [PongModel.Models.Balls.Earth, PongModel.Endpoints.Targets.EarthBallTexture],
-  [PongModel.Models.Balls.Fire, PongModel.Endpoints.Targets.FireBallTexture],
-  [PongModel.Models.Balls.Fog, PongModel.Endpoints.Targets.FogBallTexture],
-  [PongModel.Models.Balls.Ice, PongModel.Endpoints.Targets.IceBallTexture],
-  [PongModel.Models.Balls.Light, PongModel.Endpoints.Targets.LightBallTexture],
-  [PongModel.Models.Balls.Void, PongModel.Endpoints.Targets.VoidBallTexture],
-  [PongModel.Models.Balls.Wind, PongModel.Endpoints.Targets.WindBallTexture],
-]);
 
 export function KeyDisplayer({ keycode }: { keycode: string }) {
   return (
     <kbd
       style={{
-        backgroundColor: "#eee",
-        borderRadius: "3px",
-        border: "1px solid #b4b4b4",
+        backgroundColor: '#eee',
+        borderRadius: '3px',
+        border: '1px solid #b4b4b4',
         boxShadow:
-          "0 1px 1px rgba(0, 0, 0, 0.2),\n      0 2px 0 0 rgba(255, 255, 255, 0.7) inset",
-        color: "#333",
-        display: "inline-block",
-        fontWeight: "700",
-        fontSize: "0.85em",
-        padding: "2px 4px",
-        lineHeight: "1",
-        whiteSpace: "nowrap",
+          '0 1px 1px rgba(0, 0, 0, 0.2),\n      0 2px 0 0 rgba(255, 255, 255, 0.7) inset',
+        color: '#333',
+        display: 'inline-block',
+        fontWeight: '700',
+        fontSize: '0.85em',
+        padding: '2px 4px',
+        lineHeight: '1',
+        whiteSpace: 'nowrap',
       }}
     >
       {keycode}

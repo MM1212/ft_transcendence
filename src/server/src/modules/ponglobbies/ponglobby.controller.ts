@@ -33,6 +33,24 @@ export class PongLobbyController {
     private readonly ponggameService: PongService,
   ) {}
 
+  @Post(Targets.UpdatePersonal)
+  async updatePersonal(
+    @HttpCtx() ctx: HTTPContext<true>,
+    @Body(new ObjectValidationPipe(ponglobbyValidator.updatePersonalSchema))
+    body: EndpointData<PongModel.Endpoints.UpdatePersonal>,
+  ): Promise<InternalEndpointResponse<PongModel.Endpoints.UpdatePersonal>> {
+    console.log('BOAS');
+    
+    const lobby = await this.service.updatePersonal(
+      ctx.user.id,
+      body.lobbyId,
+      body.paddleSkin,
+      body.specialPower,
+    );
+    console.log(lobby);
+    return lobby;
+  }
+
   @Put(Targets.LeaveQueue)
   async leaveQueue(
     @HttpCtx() ctx: HTTPContext<true>,
@@ -42,7 +60,7 @@ export class PongLobbyController {
     const lobby = this.service.getLobbyByUser(ctx.user);
     if (lobby.id !== body.lobbyId)
       throw new BadRequestException('Lobby ID does not match');
-    this.queueService.leaveQueue(lobby, ctx.user.id);
+    await this.queueService.leaveQueue(lobby, ctx.user.id);
   }
 
   @Put(Targets.AddToQueue)
@@ -80,9 +98,13 @@ export class PongLobbyController {
   @Post(Targets.UpdateLobbySettings)
   async updateLobbySettings(
     @HttpCtx() ctx: HTTPContext<true>,
-    @Body(new ObjectValidationPipe(ponglobbyValidator.updateLobbySettingsSchema))
+    @Body(
+      new ObjectValidationPipe(ponglobbyValidator.updateLobbySettingsSchema),
+    )
     body: EndpointData<PongModel.Endpoints.UpdateLobbySettings>,
-  ): Promise<InternalEndpointResponse<PongModel.Endpoints.UpdateLobbySettings>> {
+  ): Promise<
+    InternalEndpointResponse<PongModel.Endpoints.UpdateLobbySettings>
+  > {
     await this.service.updateLobbySettings(
       ctx.user.id,
       body.lobbyId,
@@ -90,6 +112,7 @@ export class PongLobbyController {
       body.type,
       body.ballSkin,
     );
+    return (await this.service.getLobby(body.lobbyId)).interface;
   }
 
   @Post(Targets.StartGame)
@@ -107,7 +130,12 @@ export class PongLobbyController {
     @Body(new ObjectValidationPipe(ponglobbyValidator.addBotSchema))
     body: EndpointData<PongModel.Endpoints.AddBot>,
   ): Promise<InternalEndpointResponse<PongModel.Endpoints.AddBot>> {
-    await this.service.addBot(ctx.user.id, body.lobbyId, body.teamId, body.teamPosition);
+    await this.service.addBot(
+      ctx.user.id,
+      body.lobbyId,
+      body.teamId,
+      body.teamPosition,
+    );
   }
 
   @Post(Targets.JoinLobby)
@@ -233,8 +261,7 @@ export class PongLobbyController {
   }
 
   @Get(Targets.GetAllGames)
-  async getAllGames(
-  ): Promise<
+  async getAllGames(): Promise<
     InternalEndpointResponse<PongModel.Endpoints.GetAllGames>
   > {
     return this.ponggameService.getAllGames();

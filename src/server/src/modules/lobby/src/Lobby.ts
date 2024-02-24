@@ -42,16 +42,20 @@ export class ServerLobby extends Lobby {
   async onMount(): Promise<void> {
     await super.onMount();
     // @ts-expect-error impl
-    this.chat = await this.services.chats.createTemporary({
-      name: 'PongLobbyChat',
-      type: ChatsModel.Models.ChatType.Temp,
-      id: 'lobby-chat',
-      authorization: ChatsModel.Models.ChatAccess.Public,
-      authorizationData: {},
-      participants: [],
-      photo: '',
-      topic: 'Lobby chat',
-    }, undefined, false);
+    this.chat = await this.services.chats.createTemporary(
+      {
+        name: 'PongLobbyChat',
+        type: ChatsModel.Models.ChatType.Temp,
+        id: 'lobby-chat',
+        authorization: ChatsModel.Models.ChatAccess.Public,
+        authorizationData: {},
+        participants: [],
+        photo: '',
+        topic: 'Lobby chat',
+      },
+      undefined,
+      false,
+    );
     this.logger.verbose(`Lobby chat created with id: ${this.chat.id}!`);
     this.chatId = this.chat.id;
   }
@@ -166,7 +170,6 @@ export class ServerLobby extends Lobby {
       this.cons.add(sock);
       this.logger.verbose('Player already exists in lobby, added connection!');
     } else {
-      // TODO: fetch char data from db
       const CHARACTER_DATA: LobbyModel.Models.ICharacter = {
         clothes: user.character.clothes,
         animation: 'idle/down',
@@ -239,5 +242,11 @@ export class ServerLobby extends Lobby {
       id: player.id,
       changed,
     });
+  }
+
+  public async onPlayerNameChange(user: User): Promise<void> {
+    const player = this.getPlayer(user);
+    if (!player) return;
+    await player.updateName(user.nickname);
   }
 }
