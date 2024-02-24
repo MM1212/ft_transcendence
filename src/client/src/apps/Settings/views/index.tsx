@@ -1,4 +1,4 @@
-import TableTennisIcon from '@components/icons/TableTennisIcon';
+import HumanGreetingProximityIcon from '@components/icons/HumanGreetingProximityIcon';
 import {
   Accordion,
   AccordionDetails,
@@ -14,6 +14,12 @@ import {
   accordionDetailsClasses,
   accordionSummaryClasses,
 } from '@mui/joy';
+import { useSetting, useSettingValue } from '../hooks';
+import {
+  keySettingsDefault,
+  type KeySettings,
+  type KeySettingsKey,
+} from '../state';
 
 function Tab({
   title,
@@ -63,15 +69,43 @@ function FormInput({
   placeholder: string;
   size: InputProps['size'];
 }): JSX.Element {
+  const [keySettings, setKeySettings] = useSetting<KeySettings>('keySettings');
+  const usedKeys = new Set<string>(Object.values(keySettings));
+
   return (
     <FormControl size={size}>
       <FormLabel>{label}</FormLabel>
-      <Input placeholder={placeholder} />
+      <Input
+        defaultValue={placeholder.toUpperCase()}
+        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+          if (event.target.value === '') return;
+          const inputKey =
+            event.target.value[event.target.value.length - 1].toLowerCase();
+          event.target.value = inputKey.toUpperCase();
+          if (
+            inputKey != keySettings[label as KeySettingsKey] &&
+            usedKeys.has(inputKey)
+          ) {
+            event.target.value = 'Key Already In Use'.toLowerCase();
+            return;
+          }
+          usedKeys.delete(keySettings[label as KeySettingsKey]);
+          const tmpKeySettings = { ...keySettings };
+          tmpKeySettings[label as KeySettingsKey] = inputKey;
+          setKeySettings(tmpKeySettings);
+          usedKeys.add(inputKey);
+        }}
+      />
     </FormControl>
   );
 }
 
 export default function SettingsView(): JSX.Element {
+  // const [keySettings, setKeySettings] = useSetting<KeySettings>('keySettings');
+  // if (!keySettings) setKeySettings(keySettingsDefault);
+  let keySettings = useSettingValue<KeySettings>('keySettings');
+  if (!keySettings) keySettings = keySettingsDefault;
+
   return (
     <Sheet
       sx={{
@@ -85,7 +119,24 @@ export default function SettingsView(): JSX.Element {
         <Typography level="h3" alignSelf="flex-start">
           Settings
         </Typography>
-        <Tab title="Pong" icon={TableTennisIcon}>
+        <Tab title="Lobby" icon={HumanGreetingProximityIcon}>
+          <Stack direction="column" spacing={1} p={1}>
+            <Typography level="body-sm" mb={1}>
+              Keys
+            </Typography>
+            {Object.keys(keySettings).map((key) => {
+              return (
+                <FormInput
+                  key={key}
+                  label={key}
+                  placeholder={keySettings[key as KeySettingsKey].toUpperCase()}
+                  size="sm"
+                />
+              );
+            })}
+          </Stack>
+        </Tab>
+        {/* <Tab title="Pong" icon={TableTennisIcon}>
           <Stack direction="column" spacing={1} p={1}>
             <Typography level="body-sm" mb={1}>
               Keys
@@ -95,7 +146,7 @@ export default function SettingsView(): JSX.Element {
             <FormInput label="Boost" placeholder="A" size="sm" />
             <FormInput label="Special Power" placeholder="A" size="sm" />
           </Stack>
-        </Tab>
+        </Tab> */}
       </Stack>
     </Sheet>
   );
