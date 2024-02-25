@@ -44,6 +44,9 @@ export class AuthService {
       this.config.get('BACKEND_USER_USE_DEFAULT_INTRA_CREDITS')!,
     ).valueOf();
   }
+  private get defaultCredits(): number {
+    return parseInt(this.config.get('BACKEND_USER_DEFAULT_CREDITS')!, 10);
+  }
 
   private genNonce(): string {
     return crypto.randomBytes(16).toString('hex');
@@ -141,7 +144,7 @@ export class AuthService {
           studentId: id,
           avatar: UsersModel.Models.DEFAULT_AVATAR,
           nickname: login,
-          credits: this.useIntraCredits ? apiData.wallet : 0,
+          credits: Math.max(this.useIntraCredits ? apiData.wallet : 0, this.defaultCredits),
           inventory: await Promise.all(
             defaultItems.map((item) => this.shopService.createItem(item)),
           ),
@@ -169,13 +172,13 @@ export class AuthService {
     ctx: HTTPContext,
     dummyId: number,
   ): Promise<Partial<HttpRedirectResponse>> {
-    let dummyUser = await this.usersService.getByStudentId(dummyId);
-    console.log(dummyId, dummyUser);
+    let dummyUser = await this.usersService.getByNickname(`Dummy${dummyId}`);
 
     if (!dummyUser) {
       dummyUser = await this.usersService.create({
         avatar: UsersModel.Models.DEFAULT_AVATAR,
         nickname: `Dummy${dummyId}`,
+        credits: this.defaultCredits,
       });
     }
     const uSession = dummyUser.withSession(ctx.session);

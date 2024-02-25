@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Controller,
   DefaultValuePipe,
   Get,
@@ -51,7 +50,6 @@ export class AuthController {
     @HttpCtx() ctx: HTTPContext,
     @Param('dummyId', new DefaultValuePipe(-1), ParseIntPipe) dummyId: number,
   ) {
-    if (dummyId >= 0) throw new BadRequestException();
     return await this.service.dummy(ctx, dummyId);
   }
 }
