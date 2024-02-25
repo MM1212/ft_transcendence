@@ -113,8 +113,6 @@ export class Player
     const keyMoveDown = await this.getMoveDownKey();
     const keyMoveLeft = await this.getMoveLeftKey();
     const keyMoveRight = await this.getMoveRightKey();
-    console.log(keyMoveUp, keyMoveDown, keyMoveLeft, keyMoveRight);
-    console.log('key', key);
     switch (key) {
       case keyMoveUp: {
         this.transform.direction = new Vector2D(
