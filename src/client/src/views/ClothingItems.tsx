@@ -302,14 +302,14 @@ function AddClothingToShopModalForm(): JSX.Element {
             ))}
           </Select>
         </FormControl>
-        <FormControl sx={{ width: '50%' }}>
+        {/* <FormControl sx={{ width: '50%' }}>
           <FormLabel>Back Item Sprite</FormLabel>
           <Checkbox
             checked={data.backItem}
             onChange={() => setData({ ...data, backItem: !data.backItem })}
             label="Is back item?"
           />
-        </FormControl>
+        </FormControl> */}
       </Stack>
       <FormControl
         required

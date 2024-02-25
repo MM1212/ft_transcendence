@@ -25,7 +25,7 @@ export const keySettingsDefault : KeySettings = {
   Sit: 'j',
 };
 
-export const localStorageEffect =
+const localStorageEffect =
   (key: string): AtomEffect<unknown> =>
   ({ setSelf, onSet }) => {
     const savedValue = localStorage.getItem(key);
