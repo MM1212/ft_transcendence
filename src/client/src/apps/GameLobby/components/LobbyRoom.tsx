@@ -128,6 +128,7 @@ export default function LobbyRoom() {
 
   if (user === null) return null;
   if (player === undefined) return null;
+  const isPlayer = !spectatorIds.includes(user.id);
   return (
     <Box
       display="flex"
@@ -207,26 +208,25 @@ export default function LobbyRoom() {
           <LobbyPongButton label="Start Match" />
         </FindMatchWrapper>
       ) : (
-        <FindMatchWrapper
-          sx={{
-            position: 'relative',
-            m: 'auto!important',
-          }}
-          onClick={handleReady}
-        >
-          <LobbyPongButton
-            label={
-              player.status === PongModel.Models.LobbyStatus.Ready
-                ? 'Not Ready'
-                : 'Ready'
-            }
-          />
-        </FindMatchWrapper>
+        isPlayer && (
+          <FindMatchWrapper
+            sx={{
+              position: 'relative',
+              m: 'auto!important',
+            }}
+            onClick={handleReady}
+          >
+            <LobbyPongButton
+              label={
+                player.status === PongModel.Models.LobbyStatus.Ready
+                  ? 'Not Ready'
+                  : 'Ready'
+              }
+            />
+          </FindMatchWrapper>
+        )
       )}
-      <OpenGameModal
-        isPlaying={isPlaying}
-        isPlayer={!spectatorIds.includes(user.id)}
-      ></OpenGameModal>
+      <OpenGameModal isPlaying={isPlaying} isPlayer={isPlayer}></OpenGameModal>
     </Box>
   );
 }

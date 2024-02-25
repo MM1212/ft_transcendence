@@ -119,6 +119,7 @@ export class Player
           this.transform.direction.x,
           pressed ? -1 : 0
         );
+        console.log('up');
         break;
       }
       case keyMoveDown: {
@@ -126,6 +127,7 @@ export class Player
           this.transform.direction.x,
           pressed ? 1 : 0
         );
+        console.log('down');
         break;
       }
       case keyMoveLeft: {
@@ -133,6 +135,7 @@ export class Player
           pressed ? -1 : 0,
           this.transform.direction.y
         );
+        console.log('left');
         break;
       }
       case keyMoveRight: {
@@ -140,9 +143,11 @@ export class Player
           pressed ? 1 : 0,
           this.transform.direction.y
         );
+        console.log('right');
         break;
       }
       default:
+        console.log('false');
         return false;
     }
     if (this.transform.direction.length() !== 0) this.transform.speed = 3.5;
