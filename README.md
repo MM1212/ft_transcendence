@@ -120,8 +120,8 @@ All of these can be accquired in the shop. There you can also find some paddle s
 
 ### Done By
 
-- António: @Grubben
-- David: @dadoming
-- Henrique: @HTOMAS-D
-- Mário: @MGranatels
-- Martim: @MM1212
+- [António](https://github.com/Grubben)
+- [David](https://github.com/dadoming)
+- [Henrique](https://github.com/htomas-d)
+- [Mário](https://github.com/Mgranatels)
+- [Martim](https://github.com/MM1212)
