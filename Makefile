@@ -1,6 +1,6 @@
 
 ifndef mode
-	mode = production
+	mode = development
 endif
 MODE = $(mode)
 
@@ -104,8 +104,11 @@ client_gen_clothing:
 ifndef id
 	$(error id is not set, use `make client_gen_clothing id=<id>`)
 else
-	@cd $(CLIENT_DIR) && node scripts/generate-clothing-item.js $(id) $(BACK_PAPER_FLAG)
+	@cd $(CLIENT_DIR) && node scripts/generate-clothing-item-cli.js $(id) $(BACK_PAPER_FLAG)
 endif
+
+client_download_assets:
+	node $(CLIENT_DIR)/scripts/download-assets.js
 
 db_start_dev:
 ifneq ($(IS_LINUX), 1)

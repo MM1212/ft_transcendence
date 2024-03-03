@@ -160,9 +160,10 @@ export class Player
       dir: LobbyModel.Models.TPenguinAnimationDirection = 'down';
     if (this.transform.direction.length() === 0) {
       type = 'idle';
-      dir = this.character.animation.split(
-        '/'
-      )[1] as LobbyModel.Models.TPenguinAnimationDirection;
+      dir =
+        (this.character.animation.split('/')[1] as
+          | LobbyModel.Models.TPenguinAnimationDirection
+          | undefined) ?? 'down';
     } else if (
       this.transform.direction.x !== 0 &&
       this.transform.direction.y !== 0
@@ -193,6 +194,6 @@ export class Player
     this.transform.direction = Vector2D.Zero;
     this.transform.speed = 0;
     if (IS_CLIENT && this.isMain) this.lobby.events.emit('self:movement', this);
-    await this.handleNewAnimation();
+    if (this.isMoving) await this.handleNewAnimation();
   }
 }
