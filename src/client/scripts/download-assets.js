@@ -162,7 +162,6 @@ async function downloadShopAssets() {
       paper: item.subCategory === 'color',
       asset: item.subCategory === 'color',
     });
-    await delay(500);
   }
 }
 await downloadBaseAssets();

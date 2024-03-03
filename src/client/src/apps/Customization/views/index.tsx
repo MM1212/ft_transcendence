@@ -15,12 +15,18 @@ import { ClientCharacter } from '@apps/Lobby/src/Character';
 
 const SCALING_BACK = 0.92;
 const SCALING_NORMAL: Record<LobbyModel.Models.InventoryCategory, number> = {
-  head: .96,
-  face: 0.91,
-  neck: 1,
-  body: 0.98,
-  hand: 1,
-  feet: 1,
+  // head: .96,
+  // face: 0.91,
+  // neck: 1,
+  // body: 0.98,
+  // hand: 1,
+  // feet: 1,
+  head: 0.73,
+  face: 0.73,
+  neck: 0.73,
+  body: 0.73,
+  hand: 0.73,
+  feet: 0.73,
   color: -1,
 }
 
