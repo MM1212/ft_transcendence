@@ -7,7 +7,7 @@ import random
 
 TARGET_ROOT = "https://cparchives.miraheze.org"
 TARGET_URL = "https://cparchives.miraheze.org/wiki/Clothing"
-CDN_ROOT = "https://media.cplegacy.com/client/dist/assets/media/clothing"
+CDN_ROOT = "https://media.cplegacy.com/assets/media/clothing"
 
 def get_categories_links():
   print(f"Getting categories from {TARGET_URL}...")

@@ -4,6 +4,8 @@
     "label": "Dark Blue",
     "description": "Dark Blue Skin Color",
     "price": 50,
+    "category": "clothing",
+    "subCategory": "color",
     "meta": {
       "clothId": 1,
       "ICON": "{ASSET_PATH}/1/icon.webp"

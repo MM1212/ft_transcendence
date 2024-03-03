@@ -76,8 +76,7 @@ async function run(command: string) {
 
 const CONFIG_FILE_PATH = path.resolve(
   process.cwd(),
-  '..',
-  'client/public/assets/penguin/dev/clothing-items.json',
+  'src/assets/dev/shop/clothing-items.json',
 );
 
 const SHOP_FILE_PATH = path.resolve(
