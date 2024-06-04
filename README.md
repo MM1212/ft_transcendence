@@ -89,6 +89,7 @@ Check it out and have fun!
 ## Features
 
 The project's content revolves around the Sidebar, where you can navigate through the different tabs of the application. You can open it by pressing <kbd>ESC</kbd>
+
 <img src="docs/readme/sidebar.jpg" alt="Sidebar" height="400"/>
 
 ### Lobby
