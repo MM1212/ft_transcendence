@@ -134,7 +134,7 @@ How do you start the game? Well, there are a lot of ways!
 In the chat, you can talk to EVERYONE. Chat with who you like. Block who you don't. Send images and gifs. Send invites for Pong. Change some memes with your good friends. Create a group for you and your friends to arrange some pong matches. The chat is yours to use!
 
 ![Chat](docs/readme/messages.jpg)
-![Create-Group](docs/readme/messages-create-group.jpg)
+<img src="docs/readme/messages-create-group.jpg" alt="Create Group" height="400"/>
 
 If you are a chat administrator, there's some tools for you to use! You can ban, kick, mute, promote, demote and much more!
 ![Admin](docs/readme/messages-manage-members.jpg)
