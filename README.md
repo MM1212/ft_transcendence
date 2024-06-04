@@ -173,12 +173,15 @@ All of these can be accquired in the shop. There you can also find some paddle s
 ### Settings
 
 You can update your profile information, add 2FA, change theme, etc..!
+
 ![Settings](docs/readme/edit-profile.jpg)
 
 If you're lost on the lobby keybinds or they conflict with something, you can easly change them in the settings tab!
+
 ![Keybinds](docs/readme/settings.jpg)
 
 ### Inbox
 
 "Wow, that's a lot of information! How do I keep up with all of this?" Well, you can check your inbox! There you can see all the notifications you have, like friend requests, match invites, etc..!
+
 ![Inbox](docs/readme/inbox.jpg)
