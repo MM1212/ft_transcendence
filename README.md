@@ -1,10 +1,11 @@
 # FT_TRANSCENDENCE - DOJO PONG
 
-Inserir aqui uma imagem
+![banner](docs/readme/banner.jpg)
 
 ## Table of Contents
 
 - [Description](#description)
+- [Contributors](#contributors)
 - [Technologies Used](#technologies-used)
 - [To Run](#to-run)
   - [Prerequisites](#prerequisites)
@@ -25,7 +26,16 @@ Inserir aqui uma imagem
 Welcome to the repository of our last 42 common core project!
 The aim of this project was to create a social network to be used by 42 students. We wanted to give it a little twist and make it fun for everyone to interact with each other, so we decided to give birth to our lovely, Dojo Pong!
 In Dojo Pong, the students of 42 can join a lobby in penguin form and be there with their friends! They can buy items, play pong, talk to each other on the chat, create chat groups, have a ranking for some competitiveness and much more!
+
 Check it out and have fun!
+
+## Contributors
+
+- [António](https://github.com/Grubben)
+- [David](https://github.com/dadoming)
+- [Henrique](https://github.com/htomas-d)
+- [Mário](https://github.com/Mgranatels)
+- [Martim](https://github.com/MM1212)
 
 ## Technologies Used
 
@@ -78,9 +88,14 @@ Check it out and have fun!
 
 ## Features
 
+The project's content revolves around the Sidebar, where you can navigate through the different tabs of the application. You can open it by pressing <kbd>ESC</kbd>
+<img src="docs/readme/sidebar.jpg" alt="Sidebar" height="400"/>
+
 ### Lobby
 
 In the lobby you can show off your style! Put on your best outfit and make everyone jealous with your swag.
+
+![Lobby](docs/readme/lobby.jpg)
 
 ### Pong
 
@@ -94,34 +109,75 @@ The special powers are:
 - Ghost -> which shoots a cute ghost, that when it hits any object on the field, it will make it disappear for a short amount of time.
 You also have mana and energy that regenerates over time! Use it wisely!
 
+![Game](docs/readme/pong-game.jpg)
+
+How do you start the game? Well, there are a lot of ways!
+
+- Queue for a random game, which will try to match with someone with a similar ELO to yours. Queue matches are always 1v1, your rank will be affected by the result and you recieve credits for playing.
+
+![Queue](docs/readme/pong-lobby-queue.jpg)
+
+- Create a custom match, where you can invite a friend, allow spectators, choose game mode, ball texture and much more! Custom matches can be 1v1, 1v2, and so on. You can also add a bot to help you out! The rank will not be affected by the result and you recieve a small amount of credits for playing.
+
+![Create-Custom](docs/readme/pong-lobby-create-custom.jpg)
+![Lobby](docs/readme/pong-lobby.jpg)
+
+
+- Don't have anyone to play? No worries! You can join public custom lobbies or spectate active games!
+
+![Public-Custom](docs/readme/pong-lobby-join-custom.jpg)
+![Spectate](docs/readme/pong-lobby-active-games.jpg)
+
 ### Chat
 
 In the chat, you can talk to EVERYONE. Chat with who you like. Block who you don't. Send images and gifs. Send invites for Pong. Change some memes with your good friends. Create a group for you and your friends to arrange some pong matches. The chat is yours to use!
+
+![Chat](docs/readme/messages.jpg)
+![Create-Group](docs/readme/messages-create-group.jpg)
+
+If you are a chat administrator, there's some tools for you to use! You can ban, kick, mute, promote, demote and much more!
+![Admin](docs/readme/messages-manage-members.jpg)
+![Mute](docs/readme/messages-mute-member.jpg)
 
 ### Profile
 
 In the profile you can find all the user's information. You can text them, see their stats, their ranking and the match history.
 
+![Profile](docs/readme/profile.jpg)
+
 ### Ranking System
 
 The ranking every player starts with is 1000. Every loss and win will take or give points to the player. The amount of points will be based on the difference of points between the players.
+
+![Ranking](docs/readme/leaderboard.jpg)
 
 ### Match History
 
 In the match history you can see all the matches you played. You can see the date, the opponent, the result and the points you won or lost.
 It also have some stats to see your performance.
 
+![Match-History](docs/readme/match-history.jpg)
+
 ### Customization and Shop
 
 The customization tab is where you get to dress your little penguin. Change his/her color, put on some clothes individually or just put on a full outfit.
 Show your personality and style through your penguin's smile!
 
+![Customization](docs/readme/customization.jpg)
+
 All of these can be accquired in the shop. There you can also find some paddle skins, special powers and ball skins! Don't forget to get your unique icon!
 
-### Done By
+![Shop](docs/readme/shop.jpg)
 
-- [António](https://github.com/Grubben)
-- [David](https://github.com/dadoming)
-- [Henrique](https://github.com/htomas-d)
-- [Mário](https://github.com/Mgranatels)
-- [Martim](https://github.com/MM1212)
+### Settings
+
+You can update your profile information, add 2FA, change theme, etc..!
+![Settings](docs/readme/edit-profile.jpg)
+
+If you're lost on the lobby keybinds or they conflict with something, you can easly change them in the settings tab!
+![Keybinds](docs/readme/settings.jpg)
+
+### Inbox
+
+"Wow, that's a lot of information! How do I keep up with all of this?" Well, you can check your inbox! There you can see all the notifications you have, like friend requests, match invites, etc..!
+![Inbox](docs/readme/inbox.jpg)
